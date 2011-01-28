@@ -1,0 +1,1214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="de">
+<head>
+<meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
+<meta name="author" content="Claudius Jähn" />
+<title>EScript 0.5 - Überblick</title>
+<style type="text/css">
+pre {  margin:0.3cm; padding:0.3cm;  }
+pre.code {border: 1px dashed gray; background-color:#FFFFCC;}
+pre.output {border: 1px dashed gray; background-color:#FFFFEE; font-style: italic;}
+pre.grammar {background-color:#EEEEEE; font-variant:small-caps;}
+.att {border-left:4px solid red;border-right:4px solid red;margin-left:1cm; margin-right:1cm;padding:0.3cm; }
+li.att {margin-left:0cm;  }
+.ext {border-left:4px solid gray;border-right:4px solid gray;margin-left:1cm; margin-right:1cm;padding:0.3cm; font-size:small; }
+h2 { border-top: 1px solid black; padding-top:1cm; margin-top:2cm; }
+h3 {  margin-top:1cm; }
+</style>
+
+</head>
+<body>
+<!-- ______________________________________________________________________________ -->
+<h1>EScript 0.5.1 (Stöpselhase)</h1>
+<p>
+EScript ist eine interpretierte, objektorientierte, C-Syntax-ähnliche Skriptsprache, die mit dem
+Fokus entwickelt wurde C++-Programme (relativ) einfach durch Skripting steuern und erweitern zu können.
+Dabei sollen insbesondere Objekte der Programmlogik direkt durch EScript Objekte dargestellt werden. 
+Dafür ist das Klassen- und Objekt System von EScript deutlicher ausgeprägt als z.B. von LUA.
+</p>
+<h3>Hallo Welt-Beispiel</h3>
+<pre class="code">out("Hallo Welt!\n");</pre>
+<pre class="output">Hallo Welt!</pre>
+
+<h2>Inhaltsverzeichnis</h2>
+<ul>
+<li><a href="#about">Über dieses Dokument</a></li>
+<li><a href="#datatypes">Datentypen</a></li>
+<li><a href="#languageconstructs">Sprachkonstrukte</a></li>
+<li><a href="#extobjects">Erweiterbare Objekte: Z. B. <code>ExtObjects</code></a></li>
+<li><a href="#functionattributes">Funktionsattribute (Memberfunktionen)</a></li>
+<li><a href="#typesinheritance">Typen und Vererbung</a></li>
+<li><a href="#delegates">Delegates</a></li>
+<li><a href="#globalvariables">Globale Variablen</a></li>
+<li><a href="#specialconstants">Spezielle Konstanten</a></li>
+<li><a href="#shortreference">Kurzreferenz</a> (noch nicht fertig)</li>
+<li><a href="#extendingescript">EScript in C++ erweitern</a> (muss noch...)</li>
+</ul>
+<!-- ______________________________________________________________________________ -->
+<h2 id="about">Über dieses Dokument</h2>
+<p>
+Dieses Dokument soll einen kurzen Überblick über die Sprache EScript liefern.
+Es kann dabei leider keinen Anspruch auf Vollständigkeit erheben.
+Bei Fragen oder Anregungen meldet euch bei mir. <br/>
+Claudius
+</p>
+<pre class="code">
+ // Codebeispiel
+</pre>
+<pre class="output">
+ Ausgabe von Codebeispielen
+</pre>
+<pre class="grammar">
+ Syntax Grammatik
+</pre>
+<div class="att">
+ Wichtiger Hinweis oder beliebte Fehlerquelle.
+</div>
+<p class="ext">
+  Interessant zu wissen; das braucht man aber vermutlich normalerweise nicht.
+</p>
+
+<!-- ______________________________________________________________________________ -->
+
+<h2 id="datatypes">Datentypen</h2>
+<h3>Einfache Typen (call by value)</h3>
+<ul>
+<li><b>Number</b> Entspricht intern einem  <code>double</code>. Bsp. <code>1</code>, <code>27.4</code>, <code>0x1a</code></li>
+<li><b>String</b> Bsp. <code>"s"</code>, <code>'s'</code></li>
+<li><b>Bool</b> <code>true</code> oder <code>false</code></li>
+<li><b>Void</b> Leerer Wert. <code>void</code></li>
+</ul>
+<h4 id="typeconversion">Hinweis zur impliziten Typumwandlung:</h4>
+<ul>
+<li><b>Number &rarr; String</b> Zahl in Dezimalschreibweise.</li>
+<li><b>Number &rarr; Bool</b> Immer <code>true</code>. <b>ACHTUNG!</b> Der Wert <code>0</code> ist auch <code>true</code>! </li>
+<li><b>String &rarr; Number</b> Es wird versucht, eine Zahl am Anfang des Strings zu parsen, <code>0</code> sonst.</li>
+<li><b>String &rarr; Bool</b> Immer <code>true</code>. </li>
+<li><b>Bool &rarr; String</b> <code>true</code>&rarr;<code>"true"</code> oder <code>false</code>&rarr;<code>"false"</code>. </li>
+<li><b>Bool &rarr; Number</b> <code>true</code>&rarr;<code>1</code> oder <code>false</code>&rarr;<code>0</code>. </li>
+<li><b>Void &rarr; Number</b> Immer <code>0</code>. </li>
+<li><b>Void &rarr; Bool</b> Immer <code>false</code>. </li>
+<li><b>Void &rarr; String</b> "#Void" </li>
+</ul>
+<h3>Weitere häufig anzutreffende eingebaute Typen (call by reference)</h3>
+<!-- Replace by dl. -->
+<ul>
+<li><b>Object</b> Alles ist ein <code>Object</code> (auch die primitiven Typen).</li>
+<li><b>ExtObject</b> (=ExtendableObject) Ein Objekt, das zur Laufzeit mit zusätzlichen Attributen versehen werden kann
+	(dazu später mehr).</li>
+<li><b>Type</b> Entspricht ungefähr einer Klasse. Jedes Object hat eine Referenz auf ein Type-Objekt, das die
+Eigenschaften des Objects beeinflusst (dazu später mehr).</li>
+<li><b>Array (&rArr; Collection)</b> Dynamisches Array (intern ein C++ STL vector).</li>
+<li><b>Map (&rArr; Collection)</b> Dynamische Map (intern eine C++ STL map).</li>
+<li><b>Delegate</b> Kombination aus Objekt und Funktion (Pointer of Memberfunktion).</li>
+</ul>
+<h3>Einige der vielen vermutlich nur indirekt verwendeten Typen (call by reference)</h3>
+<!-- Replace by dl. -->
+<ul>
+<li><b>Function</b> Funktion (oder Memberfunktion).</li>
+<li><b>Collection</b> Sammlung von Objecten.</li>
+<li><b>Iterator</b> Iterator für <code>Collection</code>.</li>
+<li><b>NumberRef</b> Direkte Verknüpfung zu einer Variable in C++ (<b>Sparsam verwenden!</b>)</li>
+<li><b>ReferenceObject</b> Basisklasse für die einfache Verknüpfung eigener C++-Objekte an EScript Objects.</li>
+<li><b>Exception</b> Ausnahme.</li>
+</ul>
+
+<!-- ______________________________________________________________________________ -->
+<h2 id="languageconstructs">Sprachkonstrukte</h2>
+
+<!-- ______________________________________________________________________________ -->
+
+<h3>Kommentare</h3>
+<p>
+Wie in C.
+</p>
+<pre class="code">
+// Kommentar bis zum Ende der Zeile
+/* Ein Blockkommentar */
+</pre>
+
+<!-- ______________________________________________________________________________ -->
+
+<h3>Anweisungsblock <code>{...}</code></h3>
+<pre class="grammar">
+Grammatik:
+Block ::= '{' Statement* '}'
+Statement ::= Block
+</pre>
+<p>
+Wie in den meisten C-Syntax-ähnlichen Sprachen. Zwischen <code>{</code> und <code>}</code> können
+Anweisungen stehen. Diese werden durch <code>;</code> getrennt.
+</p>
+<!-- ______________________________________________________________________________ -->
+<h3>Lokale Variblendeklaration: <code>var</code></h3>
+<pre class="grammar">
+Grammatik:
+VarDecl ::= 'var' Identifier [...]
+</pre>
+<p>
+<code>var</code> deklariert eine lokale Variable im umschließenden Block ( <code>{...}</code> ).
+Die Ausnahme dieser Regel ist die Deklaration von Variablen innerhalb von Schleifenbedingungen (seit Version 0.5.1).
+Dann gilt die Variable nicht im direkt umschließenden Block, sondern innerhalb der Schleife (also in etwa so wie in C).
+</p>
+<pre class="code">
+// var-Beispiel
+{              // in diesem Block sind a und b deklariert
+    var a;     // führt zur deklaration von a im umschließenden Block
+	a=1;       // einen Wert zu a zuweisen
+	var b=1;   // b deklarieren und einen Wert zuweisen
+	{             // in diesem Block ist ein eigenes a deklariert
+		a=2;      // dem im umschließenden Block definierten a eine 2 zuweisen
+		b=2;
+		var a;    // führt zur deklaration von a im umschließenden Block
+	}             // am Ende des Blocks verschwindet das hier deklarierte a wieder
+	
+	for(var a=0;a<5;++a) // das in der Schleife deklarierte a gilt nur in der Schleife
+		out(a," ");
+	
+	out("\n a:",a," b:",b,"\n"); // a und b des äußeren Blocks ausgeben
+}
+</pre>
+<pre class="output">
+0 1 2 3 4
+a:1 b:2
+</pre>
+<p>
+Einige Dinge zur Beachtung:
+</p>
+<ul>
+<li>Eine Variable kann Werte beliebigen Typs annehmen.</li>
+<li>
+<code>var</code> gilt immer nur für den <em>einen</em> Identifier, der direkt dahinter steht.
+Wenn man mehrere Variablen deklarieren möchte, braucht jede ihr eigenes <code>var</code>.
+</li>
+</ul>
+
+
+<!-- ______________________________________________________________________________ -->
+<h3>Bedingte Anweisung: <code>if-else</code></h3>
+<p>
+Nichts besonderes.
+Wenn die Anweisung in den Klammern des <code>if</code> auf <code>true</code> ausgewertet wird, wird der Block ausgeführt.
+Sonst wird danach oder bei einem eventuell existierenden <code>else</code> weitergemacht.
+</p>
+<pre class="grammar">
+Grammatik:
+If-Statement ::= 'if' '(' Expression ')' Statement ['else' Statement]
+Statement ::= If-Statement
+</pre>
+<pre class="code">
+// if-Beispiel
+if( true ){
+	out("a");
+	if( 1-1 == 0)
+		out("b");
+	else if (2-2 == 0)
+		out("c");
+}else out("d");
+</pre>
+<pre class="output">
+ab
+</pre>
+<div class="att"><em>Achtung!</em> Anders als in C, wird auch die Zahl 0 als <code>true</code> interpretiert.
+Nur <code>false</code> und <code>void</code> werden als <code>false</code> interpretiert.
+Um z. B. ein Bit einer Zahl zu prüfen, braucht man daher so etwas: <code> if( (zahl &amp; 0x10)>0 ) ... </code>.
+</div>
+<!-- ______________________________________________________________________________ -->
+<h3>Bedingte Anweisung: <code> ? :</code></h3>
+<p>Wie in C...</p>
+<pre class="grammar">
+Grammatik:
+ShortIf-Expression ::= Expression '?' Expression ':' Expression
+Expression ::= ShortIf-Expression
+</pre>
+<pre class="code">
+// short-if-Beispiel
+out( 5&lt;0 ? "klein\n" : "gross\n" );
+out( true ? ( "a" + ((1-1==0) ? "b" : ((2-2==0) ? "c" : "")  )) : "d" );
+</pre>
+<pre class="output">
+gross
+ab
+</pre>
+<!-- ______________________________________________________________________________ -->
+<h3>Logische Operatoren: <code>||, &amp;&amp;, !</code></h3>
+<p>Wie in C...</p>
+
+<!-- ______________________________________________________________________________ -->
+<h3>Funktionsaufruf</h3>
+<p>Wenig besonderes...<br/>
+Ein Funktionsaufruf wird durch eine (möglicherweise leere) Parameterliste nach einem Ausdruck, der die Funktion zurück gibt, beschrieben. 
+Die Parameter werden durch Kommata getrennt. Funktionen können einen Wert zurückgeben.</p>
+<pre class="code">
+// Funktionsaufruf-Beispiele:
+out("foo"); // gib "foo" aus
+var time=clock();
+</pre>
+<!-- ______________________________________________________________________________ -->
+<h3>Funktionsdefinition: <code>fn</code></h3>
+<p>Funktionen sind in EScript ebenfalls Objekte.
+Sie haben von sich aus keinen Namen, sondern man muss sie Variablen zuweisen, um ihnen einen Namen zu geben.
+Daher sieht eine typische Funktionsdeklaration, die ein Funktionsobjekt an eine lokale Variable zuweist, so aus:</p>
+<pre class="code">
+var myNewFunction=fn(x){      // Funktion mit einem Parameter
+	return x*x;
+};
+out( myNewFunction ,"\n");    // gib den Wert der Variable myNewFunction aus (und einen Zeilenumbruch).
+out( myNewFunction(7) ,"\n"); // gib den Rückgabewert des Aufrufs der Funktion myNewFunction aus.
+</pre>
+<pre class="output">
+#Function
+49
+</pre>
+<p class="att"><em>ACHTUNG!</em> Beliebter Fehler: Da es sich bei den meisten Funktionsdeklarationen eigentlich um Wertzuweisungen handelt, muss diese dann auch durch ein Semikolon <code>;</code> abgeschlossen werden!</p>
+<p class="att"><em>ACHTUNG!</em> Da Funktionen eigentlich gar keinen Namen haben, können sie auch nicht (wie z. B. in C++) durch eine andere Funktion gleichen Namens aber anderer Parameterliste überladen werden.</p>
+<p>
+Wie in anderen Sprachen auch kann über das <code>return</code>-Statement ein Wert zurückgegeben werden.
+Der Typ des zurückgegebenen Wertes kann beliebig sein (sollte aber durch den Funktionsnamen oder den Kommentar klar werden!).
+Wird kein <code>return</code> verwendet, oder ein <code>return</code> ohne Parameter, dann wird <code>void</code> zurückgegeben.
+</p>
+<h4>Standardparameter</h4>
+<p>
+Ähnlich wie in C++ können Standardwerte für Parameter angegeben werden.
+Werden dann beim Funktionsaufruf weniger Werte angegeben, als die Funktion akzeptiert, werden die fehlenden durch die Standardwerte belegt.
+</p>
+<pre class="code">
+var f = fn( a, b=1, c=2 ){ // Parameter b und c müssen nicht angegeben werden
+	return a+b+c;
+};
+out( f(3,4) );             // Parameter c wird weggelassen und mit dem Standardwert 2 gefüllt. (3+4+2=9)
+</pre>
+<pre class="output">
+9
+</pre>
+
+<h4>Variable Parameteranzahl</h4>
+<p>
+Um eine Funktion mit einer variablen Parameterliste zu definieren, muss der letzte Parameter mit einem <code>*</code> versehen werden.
+Dann werden alle Werte, die nicht den normalen Parametern zugewiesen werden, in ein <code>Array</code> gespeichert und dieses <code>Array</code> dann dem letzten (Multi-)Parameter zugewiesen.
+Werden keine Parameter angegeben, ist dieses Array leer.
+</p>
+<pre class="code">
+var f = fn( x, summands* ){ // in summands wird ein Array mit allen restlichen Parameterwerten geschrieben
+	var sum=0;
+	foreach(summands as var v)
+		sum += v;
+	return x * sum;
+};
+out( f(2,1,2,3) ); // 2 * (1+2+3) = 12
+</pre>
+<pre class="output">
+12
+</pre>
+
+<h4>Wertebereiche für Parameter</h4>
+<p>
+Bei einem Funktionsaufruf kann zur Laufzeit der Typ der übergebenen Werte überprüft werden.
+Im einfachen Fall wird das entsprechende gewünschte Typobjekt vor den Parameternamen geschrieben.
+Wird die Funktion mit einem Wert anderen Typs aufgerufen, wird ein Laufzeitfehler ausgelöst.
+</p>
+<pre class="code">
+var f = fn(Number x){ // x muss vom Typ Number sein.
+	return x*2;
+};
+out( f(4) ); // Dies ist in Ordnung.
+out( f("blabla") ); // Die Übergabe eines String wird einen Fehler hervorrufen!
+</pre>
+<p>
+Man kann aber auch komplexere Wertebereiche angeben.
+Dazu wird in Arrayschreibweise eine Liste möglicher Typen und möglicher Werte vor den Parameter geschrieben.
+Beispielsweise akzeptiert die Funktion <code> fn( [String,3,void] x){} </code> für den Parameter <code>x</code> entweder einen beliebigen String, den Wert <code>3</code> oder den Wert <code>void</code>.
+</p>
+
+<h4>Rekursive Funktionen</h4>
+<p>Um eine Funktion rekursiv auzurufen kann man innerhalb des Funktionsrumpfs über die implizit deklarierte lokale Variable <code>thisFn</code> auf das Funktionsobjekt selber zugreifen.</p>
+<pre class="code">
+var fak = fn(Number x){
+	if(x>1)
+		return x*thisFn(x-1);
+	else
+		return x;
+};
+out( fak(4) );    // (4*(3*(2*(1))))=24
+</pre>
+<pre class="output">
+24
+</pre>
+<p class="ext">Um eine Memberfunktion rekursiv aufzurufen, verwendet man am besten ein entsprechendes Delegate: <code>(this->thisFn)(...)</code></p>
+<!-- ______________________________________________________________________________ -->
+
+<h3>Ausnahmebehandlung <code>try{ ... }catch(e){...}</code></h3>
+<p>
+Die meisten Ausnahmen (inklusive einiger C++ Ausnahmen) können über <code>try{ ... }catch(e){...}</code> abgefangen werden (ungefähr so wie in C++).
+Dabei wird das Ausnahmeobjekt bei Auslösung an die Variable des <code>catch</code>-Blocks zugewiesen.
+Anders als in C++ gibt es aber immer nur genau einen  <code>catch</code> Block der alle Ausnahmen (unabhängig deren Typs) entgegen nimmt.
+Möchte man nur bestimmte Typen von Ausnahmen fangen; muss man manuell eine Typprüfung im  <code>catch</code>-Block vornehmen und alle anderen Ausnahmen neu durch  <code>throw</code> auslösen.
+</p>
+<pre class="code">
+try{
+	1/0;
+}catch(e){
+	out("Caught: ",e);
+}
+</pre>
+<pre class="output">
+Caught: [#EXCEPTION "Division by zero ...
+</pre>
+
+<!-- ______________________________________________________________________________ -->
+<h3>Ausnahmeauslösung <code>throw(...)</code></h3>
+<p>
+Mit  <code>throw</code> wird eine Ausnahme ausgelöst.
+Der übergebene Parameter kann von einem beliebigen Typ sein und wird dann ggf. an den <code>catch</code>-Block übergeben.
+</p>
+<pre class="code">
+try{
+	throw( "Mein Fehler!");
+}catch(e){
+	out("Caught: ",e);
+}
+</pre>
+<pre class="output">
+Caught: Mein Fehler!
+</pre>
+
+<!-- ______________________________________________________________________________ -->
+<h3>Array-Erzeugung: <code>[...]</code></h3>
+<p>
+Arrays lassen sich direkt durch eine Komma-getrennte Aneinanderreihung von Werten innerhalb eckiger Klammern <code>[ ]</code> erzeugen.
+Werden keine Werte angegeben, wird ein leeres Array erzeugt.
+(Mehr zu Operationen auf Arrays im Referenzkapitel zu Collections und Arrays.)
+</p>
+<pre class="code">
+print_r( [1,2,"foo"] ); // formatierte Augsgabe eines Arrays.
+</pre>
+<pre class="output">
+[
+	1,
+	2,
+	"foo"
+]
+</pre>
+<!-- ______________________________________________________________________________ -->
+<h3>Map-Erzeugung: <code>{ ... : ... }</code></h3>
+<p>
+Maps lassen sich direkt durch eine Komma-getrennte Aneinanderreihung von Schlüssel-Wert-Paaren innerhalb geschwungener Klammern <code>{ }</code> erzeugen.
+Schlüssel werden von den Werten durch einen Doppelpunkt <code>:</code> getrennt.
+(Mehr zu Operationen auf Maps im Referenzkapitel zu Collections und Maps.)
+</p>
+<p class="att">Werden keine Werte angegeben, wird ein leerer Anweisungsblock und keine leere Map erzeugt.
+Um eine leere Map zu erzeugen, sollte <code>new Map()</code> verwendet werden.</p>
+<pre class="code">
+print_r( {1:"foo",2:"bar","blub":3} ); // Formatierte Ausgabe einer Map.
+</pre>
+<pre class="output">
+{
+	1:"foo",
+	2:"bar",
+	"blub":3
+}
+</pre>
+
+<!-- ______________________________________________________________________________ -->
+<h3>Element-Zugriff: <code>Collection[key]</code></h3>
+<p>
+Um auf ein Element einer Map oder eines Arrays lesend oder schreibend zuzugreifen, wird der entsprechende Schlüssel  in eckigen Klammern <code>[ key ]</code> angegeben.
+</p>
+<ul>
+<li>Bei Arrays ist der Schlüssel der Index (beginnend bei 0).</li>
+<li>Wird lesend auf einen nicht existierenden Schlüssel zugegriffen, wird <code>void</code> zurückgegeben.</li>
+<li>Wird schreibend auf einen existierenden Schlüssel zugegriffen, wird der alte Wert überschrieben.</li>
+<li>Wird bei Arrays schreibend auf einen nicht existierenden Index zugegriffen, wird das Array bis dahin vergrößert und mit <code>void</code> Einträgen gefüllt.</li>
+</ul>
+<pre class="code">
+var a=["a","b","c"]; // Array anlegen
+var m={"foo":"bar" , 2:"blub" }; // Map anlegen
+m["hubhub"]=5; // in der Map einen Wert ablegen
+out( a[1]," ",m["hubhub"]," ",m["dibbel"] ); // einige Werte ausgeben
+</pre>
+<pre class="output">
+b 5 #void
+</pre>
+
+<!-- ______________________________________________________________________________ -->
+<h3>Schleifen</h3>
+<p>
+In EScript gibt es <code>for</code>, <code>while</code>, <code>do...while</code> und <code>foreach</code> Schleifen.
+Zunächst einige allgemeine Punkte zu Schleifen:
+</p>
+<ul>
+<li>Ein Schleifenrumpf kann entweder aus einem einzelnen Ausdruck oder einem Block von Ausdrücken bestehen (wie in C).</li>
+
+<li>Mittels <code>continue</code> innerhalb eines Schleifenrumpfs wird bis zum Ende des Schleifenrumpfs gesprungen (wie in C).</li>
+<li>Mittels <code>break</code> innerhalb eines Schleifenrumpfs lässt sich die weitere Bearbeitung der Schleife abbrechen und es wird nach dem Schleifenrumpf fortgeführt (wie in C).</li>
+</ul>
+
+<h4>Schleife: <code>for( init ; condition ; stepExpression) ...</code></h4>
+<p>
+Es gibt einen initialen Ausdruck, der einmalig ausgeführt wird, eine Bedingung, deren boolescher Wert über die weitere Ausführung der Schleife entscheidet und einen Ausdruck, der nach jedem Schleifendurchlauf ausgeführt wird.
+</p>
+<pre class="code">
+for(var i=0;i&lt;3;++i)
+	out("bla");
+</pre>
+<pre class="output">
+blablabla
+</pre>
+
+<!-- ______________________________________________________________________________ -->
+<h4>Schleife: <code>while( condition ) ...</code></h4>
+<p>
+Solange wie die Bedingung gilt, wird der Schleifenrumpf ausgeführt.
+</p>
+<pre class="code">
+var i=0;
+while(i&lt;3){
+	out("bla");
+	++i;
+}
+</pre>
+<pre class="output">
+blablabla
+</pre>
+
+<!-- ______________________________________________________________________________ -->
+<h4>Schleife: <code>do ... while(condition);</code></h4>
+<p>
+Es wird der Schleifenrumpf ausgeführt, dann die Bedingung geprüft, die entscheidet, ob der Schleifenrumpf erneut ausgeführt wird.
+</p>
+<pre class="code">
+var i=0;
+do{
+	out("bla");
+	++i;
+}while(i&lt;3);
+</pre>
+<pre class="output">
+blablabla
+</pre>
+
+<!-- ______________________________________________________________________________ -->
+<h4>Schleife: <code>foreach(.. as ..)</code></h4>
+<p>
+Foreach-Schleifen führen den Schleifenrumpf für alle Elemente einer <code>Collection</code> (<code>Array</code> oder <code>Map</code>) aus.
+Steht hinter dem <code>as</code> nur ein Identifier (ggf. mit einem <code>var</code>) wird in diese Variable der aktuelle Wert des Eintrags gespeichert.
+</p>
+<pre class="code">
+var a=["a","b","c"];
+foreach(a as var value)
+	out(value);
+</pre>
+<pre class="output">
+abc
+</pre>
+<p>
+Werden zwei durch Komma getrennte Identifier angegeben, wird an den ersten der aktuelle Schlüssel (bei Arrays ist das der Index) zugewiesen und an den zweiten der Wert.
+</p>
+<pre class="code">
+var a=["a","b","c"];
+foreach(a as var key, var value)
+	out(key,":",value," ");
+</pre>
+<pre class="output">
+0:a 1:b 2:c
+</pre>
+
+<!-- ______________________________________________________________________________ -->
+<h3>Attribute <code>object.identifier</code></h3>
+<p>
+Objekte in EScript können Attribute haben.
+Dies sind Variablen, die zu dem Objekt gehören und auf die über eine Namenskonstante (Identifier) zugegriffen werden kann.
+Neben Attributen, die direkt in dem Objekt gespeichert sind, haben Objekte auch noch Referenzen auf Typobjekte, deren Attribute allen Instanzen des Typs zur Verfügung stehen.
+So hat jedes Zahlobjekt beispielsweise eine Typreferenz auf <code>Number</code> und hat daher Zugriff auf alle Attribute von <code>Number</code>.
+Der normale Zugriff auf Attribute erfolgt durch den Punkt-Operator (<code>.</code>).
+Links steht das Objekt und rechts der Name des gewünschten Attributs.
+</p>
+<pre class="code">
+out( "foo".length,"\n); // Zugriff auf das Attribut "length" vom String "foo".
+                        // Dies ist nicht direkt im String gespeichert, sondern
+                        // im Typobjekt "String". Das Ergebnis ist eine Funktion.
+out( "foo".length(),"\n" );  // Ausführung dieser Funktion
+</pre>
+<pre class="output">
+#Function
+3
+</pre>
+<p class="ext">
+Man kann auch über eine Stringkonstante auf ein Attribut zugreifen (z. B. <code> obj."attrName"</code> entspricht <code>obj.attrName</code>).
+Dies ist insbesondere praktisch, wenn man auf Attribute zugreifen will, deren Name sich nicht als Identifier schreiben lässt (z. B. <code>obj."+"</code> ).
+</p>
+<p class="ext">
+Die meisten Operatoren werden intern auf den Zugriff auf Attribute realisiert.
+So ist <code> 1+2</code> äquivalent zu <code>1."+"(2)</code>.
+Oder auch: <code>a[1] = "foo"</code> entspricht <code>a._set(1,"foo")</code>.
+</p>
+
+<h2 id="extobjects">Erweiterbare Objekte: z. B. <code>ExtObjects</code></h2>
+<p>
+Verschiedene Objekte (insbesondere vom Typ <code>ExtObject</code> oder auch vom Typ <code>Type</code>, aber dazu später mehr...) können zur Laufzeit mit weiteren Attributen erweitert werden.
+Dazu wird über den <code>:=</code>-Operator ein neues Attribut definiert, welches dann direkt im Objekt gespeichert wird.
+Der Aufruf erfolgt immer in Kombination mit dem Punkt-Operator: <code>objekt.nameDesNeuenAttributs := initialerWert</code>.
+<br/>
+Danach können der Wert des Attributs normal gelesen und ihm mit dem normalen Zuweisungsoperator <code>=</code> neue Werte zugewiesen werden.
+</p>
+<pre class="code">
+var e=new ExtObject();  // erzeuge eine neue Instanz von ExtObject
+e.newAttr:="foo";       // neues Objektattribut anlegen
+out(e.newAttr);         // lesend auf Objektattribut zugreifen
+e.newAttr="bar";        // schreibend auf Objektattribut zugreifen
+out(e.newAttr);         // lesend auf Objektattribut zugreifen
+e.anotherAttr=5;        // Fehler: Es wird versucht, auf "anotherAttr" zuzugreifen, obwohl es nie angelegt wurde!
+</pre>
+<pre class="output">
+foobar
+</pre>
+
+<h2 id="functionattributes">Funktionsattribute (Memberfunktionen)</h2>
+<p> Auch Funktionen können als Attribute einem Objekt zugewiesen werden.
+Wenn so eine Funktion dann ausgeführt wird, kann über <code>this</code> auf das jeweilige Objekt zugegriffen werden.
+Des Weiteren sind alle Objektattribute (und die Typattribute, dazu später mehr) direkt zugreifbar.
+</p>
+<pre class="code">
+var e=new ExtObject();   // erzeuge eine neue Instanz von ExtObject
+e.number:=1;             // Objektattribut hinzufügen
+e.doSomething:=fn(){        // eine Funktion als Attribut hinzufügen
+    this.foo := "bar";      // ein neues Objektattribut hinzufügen
+    number++;               // direkter Zugriff auf ein Objektattribut (äquivalent zu this.number++)
+    out( foo," ",number );  // Ausgabe
+};
+e.doSomething();
+</pre>
+<pre class="output">
+bar 2
+</pre>
+
+<!-- ______________________________________________________________________________ -->
+
+<h2 id="typesinheritance">Typen und Vererbung</h2>
+<p>
+Typobjekte bestimmen zum einen die Eigenschaften eines jeden Objekts (z. B. welche Attribute es initial hat) und welches C++-Objekt intern verwendet wird.
+Wenn man ein neues <code>Type</code>-Objekt erzeugt, sollte man sich zunächst überlegen, von welchem Basistyp man erben möchte (man muss von irgendetwas erben!).
+Meistens ist <code>ExtObject</code> die richtige Wahl, da dann alle Instanzen auch Attribute aufnehmen können.
+</p>
+<p>
+Ein neuer Typ wird mit <code>new Type( Basistyp )</code> erzeugt.
+Wenn kein Basistyp (von dem der neue Typ erbt) angegeben wird, wird <code>ExtObject</code> angenommen.
+</p>
+
+<pre class="code">
+var Animal=new Type();       // erzeuge einen neuen Typ (erbt von ExtObject)
+var Rabbit=new Type(Animal); // erzeuge einen neuen Typ (erbt von Animal)
+
+var myRabbit=new Rabbit();   // erzeuge eine Instanz von Rabbit
+</pre>
+
+<h3>Objektattribute von Typen</h3>
+<p>
+<code>Type</code>-Objekte lassen sich wie <code>ExtObject</code>-Objekte mit <code>:=</code> um Objektattribute erweitern.
+Sobald eine Instanz eines Typs mit <code>new</code> erzeugt wird, wird für jedes Objektattribut des Typs ein entsprechendes Attribut im neuen Objekt zugewiesen.
+</p>
+<pre class="code">
+var Animal=new Type();         // erzeuge einen neuen Typ (erbt von ExtObject)
+Animal.name:="genericAnimal";  // Objektattribut "name" als String zu Animal hinzufügen
+
+var a=new Animal(); // erzeuge eine Instanz von Animal
+out(a.name);        // Objektattribut "name" von a ausgeben
+</pre>
+<pre class="output">
+genericAnimal
+</pre>
+
+<p class="att">Bei der Zuweisung der Werte an die Instanz werden nur die Werte simpler Typen (Zahl,Bool,String) kopiert, wie bei einer normalen Zuweisung zu einer Variablen.
+Ist der Wert des Attributs beispielsweise ein Array, referenziert das Attribut der Instanz das gleiche Array (wie bei einer normalen Zuweisung zu einer Variablen)!</p>
+<p>Leitet man von einen Typ ab (und erstellt damit einen neuen), werden zu dem Zeitpunkt auch alle Objektattribute des abgeleiteten Typs an den neuen weitergegeben.</p>
+<p class="att">
+Wird zu einem Typ ein neues Objektattribut hinzugefügt (oder geändert), nachdem dieser als Basistyp für einen neuen Typ eingesetzt wurde, wird diese Änderung nicht an den neuen, abgeleiteten Typ weitergegeben.
+</p>
+<p class="att">
+Erzeugt man einen Typ, der von einem Objekt erbt, das keine Objektattribute aufnehmen kann (z. B. man erbt direkt von <code>Object</code>), dann darf der Typ keine Objektattribute enthalten.
+Andernfalls wird bei der Instanziierung versucht, dem Objekt die Attribute zuzuweisen, was in diesem Fall nicht möglich ist!
+</p>
+
+<pre class="code">
+var Animal=new Type();  // erzeuge einen neuen Typ (erbt von ExtObject)
+Animal.canFly:=false; 	// Objektattribut "canFly" als Bool hinzufügen
+Animal.friends:=[]; 	// Objektattribut "friends" als Array hinzufügen (vermutlich eine dumme Idee)
+
+var Rabbit=new Type(Animal); // erzeuge einen neuen Typ (erbt von Animal)
+Rabbit.name:=void;           // leeres Objektattribut "name" hinzufügen
+
+Animal.weight:=0;  // Objektattribut "weight" hinzufügen
+                   // Achtung: Der Typ Rabbit ist aber schon angelegt, bekommt davon also nichts mit!
+
+var hubert=new Rabbit();   // erzeuge eine Instanz von Rabbit
+var emma=new Rabbit();     // erzeuge eine Instanz von Rabbit
+
+hubert.name = "Hubert"; // weise dem Objektattribut "name" von hubert einen Wert zu
+emma.name = "Emma";     // weise dem Objektattribut "name" von emma einen Wert zu
+emma.canFly = true;     // Emma kann fliegen!
+
+hubert.friends += "HubDiWub"; // Füge einen Eintrag in das Array "friends" hinzu.
+                              // Achtung: Da "friends aber vom Typ Array ist und Arrays call-by-reference übergeben werden,
+                              // teilt sich hubert das "friends"-Array mit Animal, Rabbit und auch emma!
+
+// hubert.weight = 10;  // Fehler: "weight" ist kein Objektattribut von hubert!
+
+out( hubert.name, " ", hubert.canFly, " friends:",hubert.friends.implode(",") ,"\n" ); // Ausgabe
+out( emma.name, " ", emma.canFly, " friends:",emma.friends.implode(",") ,"\n" );       // Ausgabe
+</pre>
+<pre class="output">
+Hubert false friends: HubDiWub
+Emma true friends: HubDiWub
+</pre>
+
+<h3>Typattribute</h3>
+<p>
+Neben den Objektattributen können Typen auch Typattribute enthalten.
+Diese Attribute sind von jeder Instanz zugreifbar, sie werden jedoch nicht als Attribut in jeder Instanz angelegt sondern verbleiben im Typ-Objekt.
+Man kann sie sich daher in etwa wie Klassenvariablen (Schlüsselwort <code>static</code>) in C++ vorstellen.
+Neben dem Einsatz für typenübergreifende (statische) Variablen, lassen sie sich vor allem zum Speichern von Funktionen verwenden.
+Meistens braucht man nicht für jede Instanz eines Typs ein eigenes Objektattribut für jede Funktion, sondern es reicht aus, wenn die Funktion über den jeweiligen Typ zugreifbar ist.
+So wird z. B. nicht für jeden einzelnen String bei seiner Erzeugung ein Attribut für die <code>length</code>-Funktion angelegt, sondern diese ist nur einmal im <code>String</code>-Typobjekt als Typattribut gespeichert.
+Da jeder String auf den Typ <code>String</code> verweist, ist der Zugriff dennoch möglich: <code>"foo".length()</code>.
+Ein Typattribut ist auch von allen abgeleiteten Typen zugreifbar.
+Fügt man beispielsweise ein Typattribut zum Typobjekt <code>Object</code> hinzu, ist dieses beispielsweise von jedem <code>Number</code>-Objekt aus zugreifbar.
+</p>
+<p>
+Um ein Typattribut zu einem Typobjekt hinzuzufügen, wird der <code>::=</code>-Operator verwendet: <code>typeObj.typeAttr::=initialValue;</code>.
+</p>
+
+<pre class="code">
+var Animal=new Type();         // erzeuge einen neuen Typ (erbt von ExtObject)
+Animal.name:="genericAnimal";  // Objektattribut hinzufügen
+Animal.printCounter::=0;       // Typattribut hinzufügen (von allen Instanzen zugreifbar)
+
+Animal.print::=fn(){           // Funktion als Typattribut hinzufügen
+	printCounter++;            // Zugriff auf Typattribut
+	out(printCounter,".) My name is ",name,"\n"); // Zugriff auf Typattribut "printCounter" und Objektattribut "name"
+};
+
+var a=new Animal(); // erzeuge eine Instanz von Animal
+a.name="Pubert";
+var b=new Animal(); // erzeuge eine Instanz von Animal
+b.name="Moehk";
+a.print();
+b.print();
+</pre>
+<pre class="output">
+1.) My name is Pubert
+2.) My name is Moehk
+</pre>
+
+<h3>Konstruktoren</h3>
+<p>
+Bei der Instanziierung eines Typs wird über den <code>new</code>-Operator der Konstruktor aufgerufen.
+Um einen eigenen Konstruktor zu definieren, kann das <code>_constructor</code>-Attribut des Typobjekts definiert werden.
+(Sinnvollerweise als Typattribut und nicht als Objektattribut; eine eigene Referenz auf den Konstruktor in jeder Instanz macht in den meisten Fällen keinen Sinn.)
+</p>
+<pre class="code">
+var Animal=new Type();         // erzeuge einen neuen Typ (erbt von ExtObject)
+Animal.name:=void;             // Leeres Objektattribut hinzufügen
+
+Animal._constructor::=fn(n){   // Konstruktor als Typattribut hinzufügen
+	name=n;
+};
+
+Animal.print::=fn(){           // Funktion als Typattribut hinzufügen
+	out("My name is ",name,"\n");
+};
+var a=new Animal("Pubert");    // erzeuge eine Instanz von Animal
+a.print();
+</pre>
+<pre class="output">
+My name is Pubert
+</pre>
+
+<h3>Superkonstruktoren</h3>
+<p>
+Bevor der Rumpf eines Konstruktors aufgerufen wird, wird immer jeweils der Konstruktor der Basisklasse (=Superkonstruktor) rekursiv aufgerufen.
+Um an den jeweiligen Superkonstruktor Parameter übergeben zu können, können entsprechende Ausdrücke bei der Definition der Konstruktorfunktion nach den Parametern hinter einem Punktoperator angegeben werden.<br/>
+<code> fn( konstruktorParameter ).( superkonstruktorParameter ) { ... } </code>
+</p>
+
+<pre class="code">
+var Animal=new Type();         // erzeuge einen neuen Typ (erbt von ExtObject)
+Animal.name:=void;             // Leeres Objektattribut hinzufügen
+Animal.canFly:=void;           // Leeres Objektattribut hinzufügen
+Animal._constructor::=fn(n,f){ // Konstruktor als Typattribut hinzufügen
+	name=n;
+	canFly=f;
+	out("Animal created\n");
+};
+Animal.print::=fn(){           // Funktion als Typattribut hinzufügen
+	out("My name is ",name,"and I can ", (canFly?"fly":"not fly") ,".\n");
+};
+
+var Dragon=new Type(Animal);   // Dragon erbt von Animal
+Dragon._constructor::=fn(n).(n+" the Great",true){ // Konstruktor ruft Superkonstruktor mit zwei Parametern auf
+	out("Dragon created\n");
+};
+
+var a=new Dragon("Pubert");    // erzeuge eine Instanz von Dragon
+a.print();
+</pre>
+<pre class="output">
+Animal created
+Dragon created
+My name is Pubert the Great and I can fly.
+</pre>
+<p class="ext">
+Es wird als erstes der Konstruktor desjenigen Basistyps aufgerufen, dessen Konstruktor ein C++-Funktionsobjekt vom Typ <code>Function</code> und nicht mehr vom Typ <code>UserFunction</code> ist.
+Dieser muss dann das eigentliche C++-(EScript)-Objekt zurück liefern.
+</p>
+
+
+<!-- ______________________________________________________________________________ -->
+<h2 id="delegates">Delegates</h2>
+<p>Ein Delegate ist die Kombination aus einem Objekt und einer Funktion, welches so wie eine Funktion verwendet werden kann.
+Die Funktion des Delegates wird wie eine Attributsfunktion (oder auch Memberfunktion) des Objekts ausgeführt; d. h. innerhalb der Funktion kann man z. B. mit <code>this</code> auf das Objekt des Delegates zugreifen.
+Erzeugt werden Delegates durch den <code>-&gt;</code>-Operator: <code> object -&gt; function</code>.
+Einsetzen lassen sich Delegates beispielsweise bei der Implementierung von Listenern:
+</p>
+
+<pre class="code">
+var a=new ExtObject();        // ExtObject erzeugen
+a.name:="foo";                // Objektattribut hinzufügen
+a.wakeUp:=fn(){               // Funktion hinzufügen
+	out(name," wakes up");
+};
+
+// Einfaches Beispiel
+var delegate= a -> fn(){      // ein Delegate erzeugen
+	out(name,"\n");
+};
+delegate();                   // Delegate ausführen
+
+// Listener Beispiel
+var listener=[];              // Array anlegen
+listener+= a -> a.wakeUp;     // Delegate erzeugen und zu Listener-Array hinzufügen
+// ...
+
+foreach(listener as var l)    // jeden Listener ausführen
+    l();                      // Hier brauchen wir den Attributnamen der aufgerufenen Funktion (wenn sie denn einen hat)
+                              // nicht zu kennen. Sowohl Objekt als auch Funktion sind ja im Delegate gespeichert.
+</pre>
+<pre class="output">
+foo
+foo wakes up
+</pre>
+
+<p class="att">Wenn man ein Delegate direkt ausführen möchte, sollte man den Ausdruck in Klammer schreiben. Z. B. <code>(this->fn(a){...})(123);</code>.</p>
+
+<!-- ______________________________________________________________________________ -->
+<h2 id="globalvariables">Globale Variablen</h2>
+<p>Alle globalen Variablen werden durch Attribute eines speziellen <code>GLOBALS</code>-Objekts abgebildet.
+Globale Variablen sind von überall direkt zugreifbar, wie z. B. die Funktion <code>out</code>.
+Um neue globale Variablen zu deklarieren, können sie als Objektattribute zu <code>GLOBALS</code> hinzugefügt werden.
+<code>GLOBALS</code> selbst ist eine globale Variable und kann so von überall erreicht werden
+</p>
+
+<pre class="code">
+GLOBALS.doSomething:=fn(){   // neue globale Funktion deklarieren
+	out("Dumdidum...\n");
+};
+var f=fn(){
+    doSomething();           // doSomething ist global, daher auch in allen Funktionen aufrufbar.
+};
+f();
+</pre>
+<pre class="output">
+Dumdidum...
+</pre>
+
+<!-- ______________________________________________________________________________ -->
+
+<h2 id="specialconstants">Spezielle Konstanten</h2>
+<p>Während des Parsens von Skriptdateien werden vom Tokenizer einige Ausdrücke durch andere Werte ersetzt (wie beim C-Präprozessor):</p>
+<dl>
+<dt>__FILE__ durch den Dateinamen des aktuellen Skripts als String,</dt>
+<dd></dd>
+<dt>__DIR__ durch das Verzeichnis des aktuellen Skripts als String,</dt>
+<dd></dd>
+<dt>__LINE__ durch die aktuelle Zeilennummer als Zahl.</dt>
+<dd></dd>
+</dl>
+<p>
+Das ist vor allem praktisch fürs Debugging und um Skriptdateien aus dem gleichen Verzeichnis zu laden.
+</p>
+<!-- ______________________________________________________________________________ -->
+
+<h2 id="shortreference">Kurzreferenz</h2>
+<!-- ______________________________________________________________________________ -->
+<h3>StdLib</h3>
+<p>In der StdLib sind einige Funktionen im globalen Namensraum definiert. Im Folgenden eine kurze Übersicht über die wichtigsten.</p>
+
+<h3><code>Statement parse(String expression)</code></h3>
+<p>
+Mit <code>parse</code> wird EScript-Code analysiert und die entsprechende Programmanweisung zurückgegeben.
+Diese lässt sich dann mit der Objektfunktion <code>execute</code> ausführen.
+Fehler, die beim Parsen auftreten können (z. B. Syntaxfehler), lösen eine Ausnahme aus.
+</p>
+<pre class="code">
+var s="1+2;";
+try{
+   var statement = parse(s);    // String parsen
+   out( statement.execute() );  // Anweisung ausführen und Ergebnis ausgeben
+}catch(e){                      // mögliche Fehler abfangen
+   out(e);
+}
+</pre>
+<pre class="output">
+3
+</pre>
+
+<h3><code>Object load(String filename)</code> / <code>Object loadOnce(String filename)</code></h3>
+<p><code>load</code> und <code>loadOnce</code> laden eine EScript-Datei und führen sie aus.
+<code>loadOnce</code> tut dies jedoch nur einmal für jede Datei und gibt bei wiederholtem Aufruf lediglich <code>void</code> zurück.
+Wird die geladene Datei mit einem <code>return</code>-Statement beendet, liefern die Funktionen den entsprechenden Rückgabewert zurück.
+Kann die Datei nicht geladen werden oder werden Fehler entdeckt, wird eine Ausnahme ausgelöst.
+</p>
+
+<h3><code>void out(...)</code> / <code>void print_r(...)</code></h3>
+<p><code>out</code> gibt alle übergebenen Parameter als <code>String</code> aus.
+<code>print_r</code> gibt ebenfalls alle Parameter als <code>String</code> aus, jedoch werden <code>Array</code>- und <code>Map</code>-Objekte formatiert ausgegeben.
+</p>
+
+<h3><code>Number clock()</code> </h3>
+<p><code>clock</code> gibt die Anzahl der Sekunden seit Programmstart zurück.</p>
+
+<h3><code>Number time()</code> / <code>Map getDate( [Number time] )</code></h3>
+<p><code>time</code> gibt die aktuelle Zeit als fortlaufende Zahl zurück.
+<code>getDate</code> wandelt diese Zahl in eine Map mit entsprechenden Angaben um.
+</p>
+<pre class="code">
+print_r( getDate() );
+</pre>
+<pre class="output">
+{
+        [hours] : 19,
+        [isdst] : 1,
+        [mday] : 19,
+        [minutes] : 56,
+        [mon] : 7,
+        [seconds] : 32,
+        [wday] : 1,
+        [yday] : 199,
+        [year] : 2010
+}
+</pre>
+
+<h3><code>String chr(Number ascii)</code> </h3>
+<p>Gibt einen String mit einem Zeichen entsprechend des übergebenen ASCII-Codes zurück.</p>
+<pre class="code">
+for(var i=65;i&lt;=90;++i)
+    out(chr(i));
+</pre>
+<pre class="output">
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+</pre>
+
+<h3><code>String getOS()</code> </h3>
+<p>Gibt einen String entsprechend des verwendeten Betriebssystems zurück.
+Mögliche Werte sind "WINDOWS", "MAC OS", "LINUX", "UNIX" oder "UNKNOWN".
+</p>
+
+<h3><code>String toJSON( String|Number|Bool|Array|Map|Void value[, Bool formatted=true] )</code> </h3>
+<p><code>toJSON</code> wandelt Standardtypen (<code>String</code>, <code>Number</code>, <code>Bool</code>, <code>Array</code>, <code>Map</code> und <code>Void</code>) in eine <a href="http://json.org">JSON</a>-formatierte Zeichenkette um.
+<code>void</code> wird dabei zu <code>null</code>.
+Wenn der Parameter <code>formatted</code> auf <code>true</code> gesetzt ist, wird die Zeichenkette formatiert (ggf. mehrzeilig mit Einrückung).
+</p>
+
+<h3><code>Object parseJSON(String)</code></h3>
+<p><code>toJSON</code> wandelt eine JSON-formatierte Zeichenkette wieder in Standardobjekte um.</p>
+
+<h2>IO.getFileContent ... </h2>
+<p> TODO... </p>
+
+
+<!-- ______________________________________________________________________________ -->
+<h2><code>Object</code></h2>
+<p>Wie bereits erwähnt, erben alle Objekte aus denen man in EScript zugriff hat von der Klasse <code>Object</code>.
+Die Memberfunktionen dieser Klasse sind daher auch von jedem Objekt aufrufbar.</p>
+
+<h3>Konstruktor: <code>new Object()</code></h3>
+<p>Erzeugt ein neue Instanz von <code>Object</code>. </p>
+<div class="att">Ein <em>einfaches</em> Objekt benötigt man nur in seltenen Fällen.
+Meistens möchte man ein Objekt, dass man dynamisch um Attribute erweitern kann.
+Dafür sollte man ein <code>ExtObject</code> verwenden.</div>
+
+<h3> Explizite Typumwandlung (<code>toBool()</code>, <code>toNumber()</code>, <code>toString()</code>) </h3>
+<p>Jedes Objekt unterstützt die explizite Typumwandlung in die Standardtypen <code>Bool</code>,<code>Number</code> und <code>String</code> über die Funktionen <code>toBool()</code>, <code>toNumber()</code> und <code>toString()</code>.
+Die Konvertierung verläuft nach den oben genannten <a href="#typeconversion">Regeln</a>. </p>
+<div class="att">An dieser Stelle nocheinmal der Hinweis auf einen beliebten Fehler:
+Die einzigen Objekte, die bei <code>toBool()</code> den Wert <code>false</code> zurückliefern sind der Wert <code>false</code> und <code>void</code>.
+Auch die Zahl <code>0</code> liefert <code>true</code>!</div>
+
+<h3>Vergleichsoperationen ( <code>==</code>, <code>!=</code>, <code>===</code>, <code>!==</code>) </h3>
+<p>Die Vergleichsoperator <code>==</code> überprüft zwei Werte auf Gleichheit und gibt das Ergebnis als <code>Bool</code> zurück.
+Ist die linke Seite des Vergleichs ein Objekt eines einfachen (call by reference) Typs wird bei der rechte Wert mit impliziter Typumwandlung in den Wert des linken umgewandelt.
+Dadurch liefert z.B. <code>17 == "17"</code> und <code>true == 0</code> den Wert <code>true</code>.<br/>
+Andere Objekte können den Operator anders implementieren.
+Arrays überprüfen bespielsweise ob das andere Objekt auch ein Array mit den gleichen (im Sinne von "==") Objekten ist.<br/>
+Der Operator <code>!=</code> liefert standardmäßig den negierten Wert des <code>==</code>-Operators zurück.
+</p>
+<p>Der Operator <code>===</code> überprüft ob die beiden Objekte identisch sind.
+Bei einfachen (call by reference) Typen (<code>toBool()</code>, <code>toNumber()</code>, <code>toString()</code>) bedeutet dies, dass sowohl der Wert als auch der Typ übereinstimmen muss.
+Dadurch liefert z.B. <code>17 === "17"</code> und <code>true === 0</code> hier den Wert <code>false</code>.<br/>
+Bei anderen Typen (z.B. <code>Array</code>, <code>ExtObject</code> ...) wird überprüft ob es sich tatsächlich um die selben Objekte handelt.
+Der Operator <code>!==</code> liefert den negierten Wert des <code>===</code>-Operators zurück. </p>
+
+<div class="att">Um zu überprüfen, ob ein Wert <code>void</code> ist, sollte grundsätzlich der <code>===</code>-Operator genutzt werden.
+Z.B.:<code>if( myVar === void) doSomething(); </code></div>
+
+<div class="ext">Um aus C++ zwei Objekte zu vergleichen sollte immer <code>EScript::isEqual(runtime,leftObject,rightObject)</code> (oder das entsprechende <code>isIdentical(...)</code>) verwendet werden.
+Um aus C++ für einen eigenen Typ eine eigene Vergleichsoperation zu definieren, sollte die Memberfunktion <code>rt_equals( other )</code> überschrieben werden.
+In EScript kann ein eigener Vergleichsoperation durch überschreiben des <code>"=="</code>-Attributs erreicht werden.
+Das <code>"!="</code>-Attribut muss nicht zusätzlich implementiert werden.
+</div>
+
+<div class="att"> TODO! </div>
+<pre>
+EScript::isEqual(rt,left,right) -> left.'=='
+ '=='   -> rt_equals( other )
+ '!=' -> ! EScript::isEqual(rt,caller,right)
+
+EScript::isIdentical(rt,left,right) -> left.'==='
+ '===' -> rt_identical( other )
+ '!==' -> ! EScript::isIdentical(rt,caller,right)
+</pre>
+
+<h3>Operator <code>Object ---|&gt; Type</code></h3>
+<p>Der <code>---|&gt;</code>-Operator (isA-Operator) liefert <code>true</code> wenn der Wert links vom rechts angegeben Typ ist.
+Die Vererbung der Typen wird dabei beachtet, d.h. auch wenn der Typ des Objekts vom angegebenen Typ erbt, liefert der Operator <code>true</code>.
+</p>
+
+<div class="att">Um zu überprüfen, ob ein Wert von einem bestimmten Typ ist (ohne Einbeziehung der Vererbung) kann man über die <code>getType()</code> Funktion den Typ abfragen und dann mit dem gewünschten Typ vergleichen.</div>
+
+<pre class="code">
+out( <em>3 ---&gt; Number</em> ); // 3 is of Type Number or inherits from Number ... <em>true</em>
+out( <em>3.getType() == Number</em>  ); // check if the type of 3 is Number (and not inherited from Number) ... <em>true</em>
+
+var a=new Array();
+out( <em>a ---&gt; Collection</em> ); // a is of Type Array, Array inherits from Collection ... <em>true</em>
+
+out( <em>"foo" ---|&gt; String </em> ); // The type of "foo" is String ... <em>true</em>
+out( <em>"foo".getType() ---|&gt; String</em>  ); // The type of "foo" is String, String is of type Type (and not String) ... <em> false</em>
+out( <em>"foo".getType() ---|&gt; Type</em>  ); // The type of "foo" is String, String is of type Type ... <em>true</em>
+
+out( <em>3 ---|> "foo"</em>  ); // "foo" is no Type ... <em>ERROR</em>
+</pre>
+
+<h3><code>Object.clone()</code> </h3>
+<p>Alle in EScript integrierten Typen unterstützen die <code>clone()</code>-Funktio, die eine  Kopie des Objektes zurück gibt.</p>
+<p class="att">
+Wird eine <code>Collection</code> (also ein <code>Array</code> oder eine <code>Map</code>) mittels <code>clone</code> kopiert, wird nur eine <em>flache</em> Kopie angelegt.
+D.h. enthält die <code>Collection</code> auch Werte mit nicht simple Typen (wie z.B. weitere <code>Collection</code>s) werden diese nur referenziert und nicht rekursiv kopiert.
+</p>
+<pre class="code">
+// create a map with a simple value and a non simple value
+var m={ "simple" : "foo",
+		"complex" : [ 1,2,3 ] };
+
+var m2=m.clone(); // m2 is a flat copy of m1
+
+m2["simple"] = "bar";
+m2["complex"] += 4; // this does also modify m1, as "complex" references
+                    // the same Array
+
+out("m1:");
+print_r(m1);
+out("m2:");
+print_r(m2);
+</pre>
+<pre class="output">
+m1:
+{ "simple : "foo" , [ 1,2,3,4] }
+m2:
+{ "simple : "bar" , [ 1,2,3,4] }
+</pre>
+
+<!-- ______________________________________________________________________________ -->
+<h3><code>Bool</code></h3>
+<h4>Object-Member</h4>
+<pre>
+    classObject->setAttribute("+",new Function(*esmf_plus));
+    classObject->setAttribute("-",new Function(*esmf_minus));
+    classObject->setAttribute("&amp;",new Function(*esmf_and));
+    classObject->setAttribute("|",new Function(*esmf_or));
+    classObject->setAttribute("^",new Function(*esmf_not));
+    classObject->setAttribute("!_pre",new Function(*esmf_neg));
+
+    classObject->setAttribute("&gt;",new Function(*esmf_greater));
+    classObject->setAttribute("&lt;",new Function(*esmf_less));
+    classObject->setAttribute("===",new Function(*esmf_identical));
+    classObject->setAttribute("!==",new Function(*esmf_notIdentical));
+</pre>
+<!-- ______________________________________________________________________________ -->
+<h3><code>Number</code></h3>
+<h4>Object-Member</h4>
+<pre>
+    classObject->setAttribute("_constructor",new Function(*esmf_constructor));
+    classObject->setAttribute("+",new Function(*esmf_plus));
+    classObject->setAttribute("_-_pre",new Function(*esmf_neg));
+    classObject->setAttribute("-",new Function(*esmf_minus));
+    classObject->setAttribute("*",new Function(*esmf_mul));
+    classObject->setAttribute("/",new Function(*esmf_div));
+    classObject->setAttribute("&amp;",new Function(*esmf_and));
+    classObject->setAttribute("|",new Function(*esmf_or));
+    classObject->setAttribute("^",new Function(*esmf_not));
+    classObject->setAttribute("%",new Function(*esmf_mod));
+
+    classObject->setAttribute("++_post",new Function(*esmf_inc));
+    classObject->setAttribute("++_pre",new Function(*esmf_incPre));
+    classObject->setAttribute("--_post",new Function(*esmf_dec));
+    classObject->setAttribute("--_pre",new Function(*esmf_decPre));
+    classObject->setAttribute("+=",new Function(*esmf_plusAssign));
+    classObject->setAttribute("-=",new Function(*esmf_minusAssign));
+    classObject->setAttribute("*=",new Function(*esmf_mulAssign));
+    classObject->setAttribute("/=",new Function(*esmf_divAssign));
+    classObject->setAttribute("%=",new Function(*esmf_modAssign));
+    classObject->setAttribute("|=",new Function(*esmf_orAssign));
+    classObject->setAttribute("&amp;=",new Function(*esmf_andAssign));
+    classObject->setAttribute("^=",new Function(*esmf_notAssign));
+
+    classObject->setAttribute("&gt;",new Function(*esmf_greater));
+    classObject->setAttribute("&gt;=",new Function(*esmf_greaterEqual));
+    classObject->setAttribute("&lt;",new Function(*esmf_less));
+    classObject->setAttribute("&lt;=",new Function(*esmf_lessEqual));
+//    classObject->setAttribute("==",new Function(*esmf_equal));
+//    classObject->setAttribute("!=",new Function(*esmf_notEqual));
+    classObject->setAttribute("===",new Function(*esmf_identical));
+    classObject->setAttribute("!==",new Function(*esmf_notIdentical));
+    classObject->setAttribute("abs",new Function(*esmf_abs));
+    classObject->setAttribute("round",new Function(*esmf_round));
+    classObject->setAttribute("floor",new Function(*esmf_floor));
+    classObject->setAttribute("ceil",new Function(*esmf_ceil));
+    classObject->setAttribute("pow",new Function(*esmf_pow));
+    classObject->setAttribute("sqrt",new Function(*esmf_sqrt));
+    classObject->setAttribute("sin",new Function(*esmf_sin));
+    classObject->setAttribute("cos",new Function(*esmf_cos));
+    classObject->setAttribute("tan",new Function(*esmf_tan));
+
+    classObject->setAttribute("degToRad",new Function(*esmf_degToRad));
+    classObject->setAttribute("radToDeg",new Function(*esmf_radToDeg));
+    //TODO: sin,cos,tan,sqrt,exp,log,...
+
+    classObject->setAttribute("toHex",new Function(*esmf_toHex));
+    classObject->setAttribute("toIntStr",new Function(*esmf_toIntStr));
+</pre>
+<!-- ______________________________________________________________________________ -->
+<h3><code>String</code></h3>
+<h4>Object-Member</h4>
+<pre>
+    classObject->setAttribute("_constructor",new Function(*esmf_String_constructor));
+    classObject->setAttribute("+",new Function(*esmf_String_plus));
+    classObject->setAttribute("*",new Function(*esmf_String_mul));
+    classObject->setAttribute("+=",new Function(*esmf_String_plusAssign));
+    classObject->setAttribute("*=",new Function(*esmf_String_mulAssign));
+//
+    classObject->setAttribute("&gt;",new Function(*esmf_String_greater));
+    classObject->setAttribute("&gt;=",new Function(*esmf_String_greaterEqual));
+    classObject->setAttribute("&lt;",new Function(*esmf_String_less));
+    classObject->setAttribute("&lt;=",new Function(*esmf_String_lessEqual));
+    classObject->setAttribute("===",new Function(*esmf_String_identical));
+    classObject->setAttribute("!==",new Function(*esmf_String_notIdentical));
+
+    classObject->setAttribute("length",new Function(*esmf_String_length));
+    classObject->setAttribute("trim",new Function(*esmf_String_trim));
+    classObject->setAttribute("substr",new Function(*esmf_String_substr));
+    classObject->setAttribute("_get",new Function(*esmf_String_get));
+    classObject->setAttribute("find",new Function(*esmf_String_find));
+    classObject->setAttribute("contains",new Function(*esmf_String_contains));
+    classObject->setAttribute("rfind",new Function(*esmf_String_rfind));
+    classObject->setAttribute("replace",new Function(*esmf_String_replace));
+    classObject->setAttribute("replaceAll",new Function(*esmf_String_replaceAll));
+    classObject->setAttribute("split",new Function(*esmf_String_split));
+
+    classObject->setAttribute("beginsWith",new Function(*esmf_String_beginsWith));
+    classObject->setAttribute("endsWith",new Function(*esmf_String_endsWith));
+</pre>
+<!-- ______________________________________________________________________________ -->
+<h3><code>Collection</code></h3>
+<h4>Object-Member</h4>
+<pre>
+    classObject->setAttribute("size",new Function(*esmf_Collection_count));
+
+    classObject->setAttribute("count",new Function(*esmf_Collection_count));
+    classObject->setAttribute("get",new Function(*esmf_Collection_get));
+    classObject->setAttribute("set",new Function(*esmf_Collection_set));
+    classObject->setAttribute("_get",new Function(*esmf_Collection_get)); // @depreceated ??
+    classObject->setAttribute("_set",new Function(*esmf_Collection_set));// @depreceated ??
+    classObject->setAttribute("getIterator",new Function(*esmf_Collection_getIterator));
+    classObject->setAttribute("map",new Function(*esmf_Collection_map));
+    classObject->setAttribute("==",new Function(*esmf_Collection_equal));
+    classObject->setAttribute("empty",new Function(*esmf_Collection_empty));
+    classObject->setAttribute("max",new Function(*esmf_Collection_max));
+    classObject->setAttribute("min",new Function(*esmf_Collection_min));
+    classObject->setAttribute("contains",new Function(*esmf_Collection_contains));
+</pre>
+
+<!-- ______________________________________________________________________________ -->
+<h3><code>ExtObject</code></h3>
+<h4><code>ExtObject.clone()</code></h4>
+<p class="att">Das Zuweisen der Attribute an das neue Objekt geschieht entsprechend der Call-By-Value oder Call-By-Reference Eigenschaft des entsprechenden Wertes.
+Ist ein Attribut beispielsweise ein Array, so wird nachher vom Klon auf das gleiche Element referenziert.
+Da dies nicht immer erwünscht ist, empfiehlt sich hier das Überschreiben der <code>code</code>-methode:
+</p>
+<pre class="code">
+\\ TODO Beispiel erstmal nur aus Testcase übernommen; muss noch überarbeitet werden!
+var A=new Type(ExtObject);   // A erbt von ExtObject
+A.m1:=1;                     // m1 enthält einen call-by-value Wert, kann also so initialisiert werden
+A.m2:=void;                  // m2 soll einen call-by-reference Wert enthalten, wird also zunächst leer initialisiert...
+A._constructor ::=fn(){
+	m2=[];                   // ... und dann im Konstruktor zugewiesen
+};
+
+// ---|> ExtObject
+A.clone ::=fn(){
+	var n=(this -&gt; (ExtObject.clone))();  // zunächst die clone-Methode von ExtObject auf dem aktuellen Objekt aufrufen
+	n.m2=m2.clone();                      // und von hand den call-by-reference Wert clonen.
+	return n;
+};
+var a=new A();
+var b=a.clone();
+
+a.m1++;
+a.m2+="x";
+
+print_r(a._getAttributes());
+print_r(b._getAttributes());
+</pre>
+
+<!-- ______________________________________________________________________________ -->
+<h3><code>Array</code></h3>
+<h4>Object-Member</h4>
+<h4><code>self Array.sort( [comparatorFunction] )</code></h4>
+<p>
+Man kann <code>Array.sort</code> eine Funktion mit 2 Parametern geben, die für jeden Vergleich aufgerufen wird.
+</p>
+<pre class="code">
+// Einfaches Beispiel: (normales Sortieren)
+
+var array=[3,23,7,3,100,1,35];
+array.sort( fn(a,b) { return a&lt;b; } );
+
+// == [1,3,3,7,23,35,100]
+
+// Komplexeres Beispiel: (Nach Abstand zum Wert 59 sortieren.)
+
+var s=new ExtObject();
+s.base := 59;
+array.sort( s-&gt;fn(a,b) {return (a-base).abs()&lt;(b-base).abs(); } );
+
+// == [35,23,100,7,3,3,1]
+</pre>
+<p class="ext">Intern ist hier ein QuickSort-Algorithmus implementiert.</p>
+
+<!-- ______________________________________________________________________________ -->
+<h3><code>Map</code></h3>
+<h4>Object-Member</h4>
+<!-- ______________________________________________________________________________ -->
+<h2 id="extendingescript">EScript in C++ erweitern</h2>
+</body>
+</html>

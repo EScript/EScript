@@ -1,0 +1,248 @@
+\documentclass[paper=A4,paper=landscape,pagesize,9pt,DIV=30]{scrartcl}
+\usepackage[utf8x]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{tgcursor}
+\usepackage[english]{babel}
+\usepackage{microtype}
+\usepackage{multicol}
+\usepackage{listings}
+\usepackage{color}
+\usepackage{booktabs}
+
+\def\doctitle{EScript Quick Reference}
+\def\docauthor{Benjamin Eikel}
+
+\usepackage{float}
+\usepackage[unicode]{hyperref}
+\hypersetup{
+	pdftitle={\doctitle},
+	pdfauthor={\docauthor},
+	pdflang=en
+}
+
+\title{\doctitle}
+\author{\docauthor}
+\date{\today}
+
+\pagestyle{empty}
+
+\lstdefinelanguage{EScript}{
+	keywords=[1]{as,break,catch,continue,do,else,exit,for,foreach,function,global,if,namespace,return,throw,try,var,while}, % Consts.cpp
+	keywordstyle=[1]{\color[gray]{0.1}\bfseries},
+	keywords=[2]{getIterator,this,thisFn,_constructor,_get,_set,__DIR__,__FILE__,__LINE__}, % Consts.cpp
+	keywordstyle=[2]{\color[gray]{0.1}\bfseries},
+	keywords=[3]{fn,lambda,new}, % Operators.cpp
+	keywordstyle=[3]{\color[gray]{0.1}\bfseries},
+	keywords=[4]{true,false,null,void}, % Consts.cpp
+	keywordstyle=[4]{\color[gray]{0.1}},
+	keywords=[5]{GLOBALS,Array,ArrayIterator,Bool,Collection,Delegate,Exception,ExtObject,Function,Iterator,Map,MapIterator,Number,NumberRef,Object,Parser,Pointer,ReferenceObject,Runtime,Script,String,Type,Void,IO,Math,Rand},
+	keywordstyle=[5]{\color[gray]{0.1}},
+	keywords=[6]{assert,chr,clock,getDate,getOS,getRuntime,load,loadOnce,out,parse,parseJSON,print_r,system,time,toJSON,_callFunction,_parseJSON,_toJSON}, % StdLib.cpp
+	keywordstyle=[6]{\color{black}\bfseries}, % special highlight for standard library functions 
+	identifierstyle=\color{black},
+	sensitive=true,
+	comment=[l]{//},
+	morecomment=[s]{/*}{*/},
+	commentstyle=\color[gray]{0.5}\ttfamily,
+	stringstyle=\color[gray]{0.3}\ttfamily,
+	morestring=[b]',
+	morestring=[b]"
+}
+
+\lstset{
+	language=EScript,
+	extendedchars=false,
+	mathescape=true,
+	basicstyle=\ttfamily,
+	showstringspaces=false,
+	showspaces=false,
+	numbers=none,
+	tabsize=4,
+	breaklines=true,
+	showtabs=false
+}
+
+\renewcommand{\columnseprule}{.5pt}
+
+\begin{document}
+\begin{multicols}{3}
+\section*{\doctitle}
+\subsection*{Types}
+\begin{tabular}{ll}
+\toprule
+Type		& Literals \\
+\midrule
+Void		& \lstinline!void!, \lstinline!null! \\
+Bool		& \lstinline!true!, \lstinline!false! \\
+Number		& \lstinline!1!, \lstinline!1.0!, \lstinline!0xFF!, \lstinline!-1e-6!, $\ldots$ \\
+String		& \lstinline!"$\ldots$"!, \lstinline!'$\ldots$'! \\
+\bottomrule
+\end{tabular}
+\begin{description}
+	\item[Widespread] Object, ExtObject, Type, Array, Map, Delegate
+	\item[Rare] Function, Collection, Iterator, NumberRef, ReferenceObject, Exception
+\end{description}
+\subsection*{Language Constructs}
+\subsubsection*{Basics}
+\begin{tabbing}
+\hspace{1.75cm}\=\kill
+Comment:		\>\lstinline!// line comment! \lstinline!/* block comment */! \\
+Block:			\>\lstinline!{ statement; statement; }! \\
+Variable:		\>\lstinline!var fb = 17;!
+\end{tabbing}
+\subsubsection*{Conditional structures}
+\begin{tabbing}
+\hspace{1.75cm}\=\kill
+if-else:		\>\lstinline!if(condition) $\ldots$ else $\ldots$! \\
+Operator ?: 	\>\lstinline!condition ? $\ldots$ : $\ldots$;!
+\end{tabbing}
+\subsubsection*{Iteration structures}
+\begin{tabbing}
+\hspace{0.25cm}\=\hspace{1.5cm}\= \kill
+while:			\>\>\lstinline!while(condition) {$\ldots$}! \\
+do-while:		\>\>\lstinline!do {$\ldots$} while(condition);! \\
+for: \\
+\>\lstinline!for(initialization; condition; increase) {$\ldots$}! \\
+foreach: \\
+\>\lstinline!foreach(collection as var value) {$\ldots$}! \\
+\>\lstinline!foreach(collection as var key, var value) {$\ldots$}!
+\end{tabbing}
+\subsubsection*{Exceptions}
+\begin{tabbing}
+\hspace{1.75cm}\=\kill
+Trigger: 		\>\lstinline!throw("error");! \\
+Handler: 		\>\lstinline!try {$\ldots$} catch(exception) {$\ldots$}!
+\end{tabbing}
+\subsubsection*{Functions}
+\begin{tabbing}
+\hspace{0.25cm}\=\hspace{1.5cm}\= \kill
+Call: 			\>\>\lstinline!myFun();! \\
+Definition:		\>\>\lstinline!var id = fn(param) { return param; };! \\
+Default parameter values: \\
+\>\begin{lstlisting}
+var sum = fn(a = 0, b = 0, c = 0)
+  { return a + b + c; };
+out(sum(1, 2));
+\end{lstlisting} \\
+Parameter types: \\
+\>\begin{lstlisting}
+var mult = fn(Number a, [1, 2, 3] b)
+  { return a * b; };
+\end{lstlisting} \\
+Variadic function: \\
+\>\begin{lstlisting}
+var sum = fn(summands*) {
+	var value = 0;
+	foreach(summands as var s)
+		value += s;
+	return value;
+};
+\end{lstlisting} \\
+Recursive function: \\
+\>\begin{lstlisting}
+var factorial = fn(n) {
+	if(n < 2)
+		return 1;
+	else
+		return n * thisFn(n - 1);
+};
+\end{lstlisting}
+\end{tabbing}
+\subsubsection*{Inheritance}
+\begin{tabbing}
+\hspace{0.25cm}\=\hspace{1.5cm}\= \kill
+Create type extending ExtObject:	\\\>\lstinline!var Shape = new Type();! \\
+Create type extending Shape: 		\\\>\lstinline!var Square = new Type(Shape);! \\
+Instantiation:						\\\>\lstinline!var s1 = new Square();! \\
+Object attributes (unique for every instance): \\
+\>\begin{lstlisting}
+Shape.sideLength := 0.0;
+\end{lstlisting} \\
+Type attributes (unique for the type): \\
+\>\begin{lstlisting}
+Square.area ::= fn()
+  { return sideLength * sideLength; };
+\end{lstlisting} \\
+Constructor: \\
+\>\begin{lstlisting}
+Shape._constructor ::= 
+  fn(Number side)
+	{ sideLength = side; };
+var s2 = new Square(2.0);
+\end{lstlisting} \\
+Superclass constructor: \\
+\>\begin{lstlisting}
+Square.roundCorners := false;
+Square._constructor ::= 
+  fn(Number side, Bool round).(side)
+  	{ roundCorners = round; };
+var s3 = new Square(4.0, true);
+\end{lstlisting} \\
+\end{tabbing}
+\subsection*{Objects}
+\subsubsection*{Collection}
+\begin{tabbing}
+\hspace{1.75cm}\=\kill
+Array: 		\>\lstinline!var a = [true, 2, "text"];! \\
+Map: 		\>\lstinline!var m = {"key1":1, "k2":"two", 50:3};! \\
+Access:
+\>\begin{lstlisting}
+out(a[0], " ", a[2], "\n");
+m["k2"] = 2;
+out(m["k2"], " ", m[50], "\n");
+\end{lstlisting}
+\end{tabbing}
+\subsubsection*{ExtObjects}
+\begin{tabbing}
+\hspace{1.75cm}\=\kill
+Definition: \>\lstinline!var e = new ExtObject();! \\
+Creation:	\>\lstinline!e.attr := "attribute";! \\
+Read:		\>\lstinline!var f = e.attr;! \\
+Write:		\>\lstinline!e.attr = "new value";!
+\end{tabbing}
+\subsubsection*{Delegate}
+Functors that store an object reference and a function.
+\begin{tabbing}
+\hspace{1.75cm}\=\kill
+\>\begin{lstlisting}
+var s4 = new Square(5.0, false);
+var shrink = s4 -> fn() {
+	sideLength /= 2;
+};
+shrink();
+\end{lstlisting}
+\end{tabbing}
+\subsubsection*{StdLib}
+\lstinline!Void assert(expression[, text])! \\
+\hspace*{2mm}Generate error [stating text] if expression evaluates to false. \\
+\lstinline!String chr(Number number)! \\
+\hspace*{2mm}Interpret the given number as character. \\
+\lstinline!Number clock()! \\
+\hspace*{2mm}Return the run time of the program in seconds. \\
+\lstinline!Map getDate([seconds])! \\
+\hspace*{2mm}Return map containing information about the time [seconds]. \\
+\lstinline!String getOS()! \\
+\hspace*{2mm}Return the operating system on which the interpreter runs. \\
+\lstinline!Runtime getRuntime()! \\
+\hspace*{2mm}Return the current runtime object of the interpreter. \\
+\lstinline!Object load(String file)! \\
+\hspace*{2mm}Load and execute file. Return object from execution or void. \\
+\lstinline!Object loadOnce(String file)! \\
+\hspace*{2mm}Same as load, but do not execute if already executed before. \\
+\lstinline!Void out($\ldots$)! \\
+\hspace*{2mm}Output parameters converted to String to standard output. \\
+\lstinline!Block parse(String code)! \\
+\hspace*{2mm}Parse the code. \\
+\lstinline!Object parseJSON(text)! \\
+\hspace*{2mm}Convert JSON to an EScript object. \\
+\lstinline!Void print_r($\ldots$)! \\
+\hspace*{2mm}Formatted output of the parameters to standard output. \\
+\lstinline!Number system(command)! \\
+\hspace*{2mm}Run the command line program and return its return value. \\
+\lstinline!Number time()! \\
+\hspace*{2mm}Return the time as the number of seconds since the Epoch. \\
+\lstinline!String toJSON(object[, formatted = true])! \\
+\hspace*{2mm}Convert the EScript object to [formatted] JSON.
+\end{multicols}
+\end{document}
