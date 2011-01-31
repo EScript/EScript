@@ -94,7 +94,7 @@ void Object::init(EScript::Namespace & globals) {
 
 	typedef std::map<identifierId,Object *> attrMap_t; // has to be defined here, due to compiler (gcc) bug.
 	//! Map Object._getAttributes()
-	ES_FUNCTION_DECLARE(typeObject,"getAttributes",0,0,{
+	ES_FUNCTION_DECLARE(typeObject,"_getAttributes",0,0,{
 		attrMap_t attrs;
 		caller->getAttributes(attrs);
 		return Map::create(attrs);
