@@ -3,7 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "UserFunction.h"
-#include "../Statements/Block.h"
+#include "../Expressions/Block.h"
 #include <sstream>
 
 using namespace EScript;
