@@ -1,5 +1,4 @@
 // Testcases for HasEScript Scripting-Language 0.5
-
 out ("Testcases for ",VERSION,"\n","-"*70,"\n");
 
 //----
