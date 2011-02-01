@@ -52,7 +52,7 @@ set(ESCRIPT_SOURCES
 if(WIN32)
 	list(APPEND ESCRIPT_SOURCES E_Libs/Win32Lib.cpp)
 endif()
-add_library(EScript SHARED ${ESCRIPT_SOURCES})
+add_library(EScript ${ESCRIPT_SOURCES})
 
 install(TARGETS EScript
 	RUNTIME DESTINATION bin
