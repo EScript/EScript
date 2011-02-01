@@ -5,13 +5,13 @@
 #ifndef ES_CONSTS_H_INCLUDED
 #define ES_CONSTS_H_INCLUDED
 
-#include "Object.h"
+#include "Objects/Object.h"
 
 namespace EScript{
 
 /*! Common identifiers */
 //	@{
-struct Consts:public Object{
+struct Consts{
 	static const identifierId IDENTIFIER_this;
 	static const identifierId IDENTIFIER_thisFn;
 	static const identifierId IDENTIFIER_fn_constructor;

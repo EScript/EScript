@@ -42,8 +42,8 @@ class Block : public Object {
 
 		/// ---|> [Object]
 		virtual std::string toString()const ;
-		virtual Object * execute(Runtime & rt);
-
+//		virtual Object * execute(Runtime & rt);
+		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_BLOCK; }
 	private:
 		identifierId filenameId; // for debugging
 		declaredVariableMap_t * vars;

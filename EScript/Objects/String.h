@@ -5,7 +5,7 @@
 #ifndef STRING_H
 #define STRING_H
 
-#include "../Object.h"
+#include "Object.h"
 #include <stack>
 #include <string>
 
@@ -41,6 +41,7 @@ class String : public Object {
 		virtual bool toBool()const;
 		virtual bool rt_isEqual(Runtime &rt,const ObjPtr o);
 		virtual std::string toDbgString()const;
+		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_STRING;	}
 
 	private:
 		std::string s;

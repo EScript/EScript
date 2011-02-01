@@ -5,7 +5,7 @@
 #ifndef UTILS_DEBUG_H
 #define UTILS_DEBUG_H
 
-#include "../Object.h"
+#include "../Objects/Object.h"
 
 namespace EScript {
 /**

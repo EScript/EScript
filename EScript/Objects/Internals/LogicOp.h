@@ -20,13 +20,14 @@ class LogicOp : public Object {
 		LogicOp(Object * left,Object * right,opType_T op);
 		virtual ~LogicOp();
 
-		inline Object * getLeft()const  {   return leftRef.get();   }
-		inline Object * getRight()const {   return rightRef.get();  }
-		inline int getOperator()const   {   return op;  }
+		Object * getLeft()const  		{   return leftRef.get();   }
+		Object * getRight()const 		{   return rightRef.get();  }
+		opType_T getOperator()const   	{   return op;  }
 
 		/// ---|> [Object]
 		virtual std::string toString()const;
-		Object * execute(Runtime & rt);
+//		Object * execute(Runtime & rt);
+		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_LOGIC_OP; }
 
 	private:
 		ObjRef leftRef;

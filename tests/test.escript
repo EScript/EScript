@@ -93,5 +93,9 @@ Some benchmark results:
  Rev 691 2010-07-23 1000x 4.59 -> 4.75 (new testcase for sorting added)
  Rev 747 2011-01-23 1000x 4.9
  Rev 755 2011-01-25 1000x 5.17
-  5.89 after foreach redesign... 4.234 (new gcc)
+  5.89 after foreach redesign... 4.234 (new gcc 4.4)
+Rev 5 2011-02-01 1000x 4.2
+object.execute removed: 5.25 dynamic_cast at every rt.executeObj
+typeIds added: 4.25
+typeIds used to replace some additional dynamic_casts ->4.0s
 */

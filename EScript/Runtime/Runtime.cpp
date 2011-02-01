@@ -4,10 +4,14 @@
 // ------------------------------------------------------
 #include "Runtime.h"
 #include "../EScript.h"
-#include "../Expressions/Block.h"
-#include "../Expressions/IfControl.h"
-#include "../Expressions/FunctionCall.h"
-#include "../Expressions/Statement.h"
+#include "../Objects/Internals/ConditionalExpr.h"
+#include "../Objects/Internals/GetAttribute.h"
+#include "../Objects/Internals/SetAttribute.h"
+#include "../Objects/Internals/Block.h"
+#include "../Objects/Internals/IfControl.h"
+#include "../Objects/Internals/FunctionCall.h"
+#include "../Objects/Internals/LogicOp.h"
+#include "../Objects/Internals/Statement.h"
 #include "RuntimeBlock.h"
 #include "../Objects/Void.h"
 #include "../Objects/Exception.h"
@@ -131,7 +135,145 @@ void Runtime::assignToVariable(const identifierId id,Object * value) {
 
 
 Object * Runtime::executeObj(Object * obj){
-	return obj->execute(*this);
+	int type=obj->_getInternalTypeId();
+	if(type<0x020 || type>0x2f){
+		return obj->getRefOrCopy();
+	}
+	Object * exp=obj;
+
+	switch(type){
+	case _TypeIds::TYPE_GET_ATTRIBUTE:{
+		GetAttribute * ga=static_cast<GetAttribute *>(exp);
+		ObjRef resultRef;
+		// _.ident
+		if (ga->getObjectExpression()==NULL) {
+			setCallingObject(NULL);
+			resultRef = getVariable(ga->getAttrId());
+			if (resultRef.isNull())
+				warn("Unknown Variable:"+toString());
+
+		}// obj.ident
+		else {
+			ObjRef obj2Ref=executeObj(ga->getObjectExpression());
+			if(!assertNormalState(ga))
+				return NULL;
+
+			if(obj2Ref.isNull())
+				obj2Ref = Void::get();
+
+			setCallingObject(obj2Ref.get());
+			resultRef = obj2Ref->getAttribute(ga->getAttrId());
+			if (resultRef.isNull()) {
+				warn("Member not set:"+toString());
+			}
+		}
+		return resultRef.detachAndDecrease();
+	}
+	case _TypeIds::TYPE_FUNCTION_CALL:{
+		return executeFunctionCall(static_cast<FunctionCall*>(exp));
+	}
+
+	case _TypeIds::TYPE_SET_ATTRIBUTE:{
+		SetAttribute * sa=static_cast<SetAttribute *>(exp);
+		if(sa->line>0)
+			setCurrentLine(sa->line);
+		ObjRef value;
+		if (!sa->valueExpr.isNull()) {
+			value=executeObj(sa->valueExpr.get());
+			if(!assertNormalState(sa))
+				return NULL;
+
+			/// Bug[20070703] fixed:
+			value = value.isNull() ? Void::get() : value->getRefOrCopy();
+		}
+		/// Local variable
+		if (sa->objExpr.isNull()) {
+			assignToVariable(sa->attrId,value.get());
+			return value.detachAndDecrease();
+		}
+		/// obj.ident
+
+		ObjRef obj2=executeObj(sa->objExpr.get());
+		if(!assertNormalState(sa))
+			return NULL;
+
+		if(obj2.isNull())
+			obj2=Void::get();
+		if(sa->assignType == SetAttribute::ASSIGN){
+			if(!obj2->assignAttribute(sa->attrId,value.get())){
+				warn(std::string("Unkown attribute \"")+sa->getAttrName()+"\" ("+
+						(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+"."+sa->getAttrName()+"="+(value.isNull()?"":value->toDbgString())+")");
+				if(!obj2->setObjAttribute(sa->attrId,value.get())){
+					warn(std::string("Can't set object attribute \"")+sa->getAttrName()+"\" ("+
+							(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+"."+sa->getAttrName()+"="+(value.isNull()?"":value->toDbgString())+")");
+				}
+			}
+		}else if(sa->assignType == SetAttribute::SET_OBJ_ATTRIBUTE){
+			if(!obj2->setObjAttribute(sa->attrId,value.get()))
+				warn(std::string("Can't set object attribute \"")+sa->getAttrName()+"\" ("+
+						(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+"."+sa->getAttrName()+"="+(value.isNull()?"":value->toDbgString())+")");
+		}else if(sa->assignType == SetAttribute::SET_TYPE_ATTRIBUTE){
+			Type * t=obj2.toType<Type>();
+			if(t){
+				t->setTypeAttribute(sa->attrId,value.get());
+			}else{
+				warn(std::string("Can not set typeAttr to non-Type-Object: \"")+sa->getAttrName()+"\" ("+
+						(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+"."+sa->getAttrName()+"="+(value.isNull()?"":value->toDbgString())+")"
+						+"Setting objAttr instead.");
+				if(!obj2->setObjAttribute(sa->attrId,value.get())){
+					warn(std::string("Can't set object attribute \"")+sa->getAttrName()+"\" ("+
+							(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+"."+sa->getAttrName()+"="+(value.isNull()?"":value->toDbgString())+")");
+				}
+			}
+		}
+		return value.detachAndDecrease();
+	}
+	case _TypeIds::TYPE_LOGIC_OP:{
+		LogicOp * lop=static_cast<LogicOp *>(exp);
+		ObjRef resultRef( executeObj(lop->getLeft()) );
+		if(!assertNormalState(lop))
+			return NULL;
+
+		bool b=resultRef.toBool();
+
+		if (lop->getOperator() == LogicOp::NOT) {
+			resultRef = Bool::create(!b);
+			return resultRef.detachAndDecrease();
+		} else if (b && lop->getOperator()==LogicOp::OR) {
+			resultRef = Bool::create(true);
+			return resultRef.detachAndDecrease();
+		} else if (!b && lop->getOperator()==LogicOp::AND) {
+			resultRef = Bool::create(false);
+			return resultRef.detachAndDecrease();
+		}
+		resultRef = executeObj(lop->getRight());
+		if(!assertNormalState(lop))
+			return NULL;
+
+		resultRef=Bool::create( resultRef.toBool() );
+		return resultRef.detachAndDecrease();
+	}
+	case _TypeIds::TYPE_CONDITIONAL:{
+		ConditionalExpr * cond=static_cast<ConditionalExpr *>(exp);
+		if (cond->getCondition()!=NULL) {
+			ObjRef conResult = executeObj(cond->getCondition());
+			if(! assertNormalState(cond))
+				return NULL;
+
+			else if (conResult.toBool())
+				return cond->getAction()==NULL ? NULL : executeObj(cond->getAction());
+		}
+		return cond->getElseAction()==NULL ? NULL : executeObj(cond->getElseAction());
+	}
+	case _TypeIds::TYPE_BLOCK:{
+		return executeBlock(static_cast<Block*>(exp));
+	}
+	default:{
+		break;
+	}
+	}
+//	return obj->execute(*this);
+	return NULL;
 }
 
 Object * Runtime::executeBlock(Block * block) {
@@ -163,6 +305,8 @@ Object * Runtime::executeCurrentContext(bool markEntry) {
 			stmt = rtb->nextStatement();
 			continue;
 		}
+//		if(stmt->getLine()>0)
+//			setCurrentLine(stmt->getLine());
 		resultRef = NULL;
 		try {
 			switch( stmt->getType()){
@@ -408,8 +552,14 @@ Object * Runtime::executeFunctionCall(FunctionCall * fCall){
 */
 Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObject,const ParameterValues & params,bool isConstructorCall/*=false*/){
 	// is  C++ function ?
-	Function * libfun=fun.toType<Function>();
-	if (libfun && libfun->getFnPtr()) {
+
+	int type=fun->_getInternalTypeId();
+//	Function * libfun=fun.toType<Function>();
+//	if (libfun && libfun->getFnPtr()) {
+	if (type==_TypeIds::TYPE_FUNCTION) {
+		Function * libfun=static_cast<Function*>(fun.get());
+//		if( libfun->getFnPtr()==NULL)
+
 		if(isConstructorCall && _callingObject.toType<Type>()==NULL){
 			setExceptionState(new Exception("Can not instantiate non-Type-Object. Hint: Try to check the type you use with 'new'."+getStackInfo(),getCurrentLine()));
 			return NULL;
@@ -439,10 +589,12 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 			return NULL;
 		}
 	} // is UserFunction?
-	else if (UserFunction * ufun=fun.toType<UserFunction>()) {
+	else if (type==_TypeIds::TYPE_USER_FUNCTION){
+//			UserFunction * ufun=fun.toType<UserFunction>()) {
 		if (isConstructorCall) {
 			return executeUserConstructor(_callingObject,params); // this ufun is not used, as it's origin is not known
 		} else { /// !isConstructorCall
+			UserFunction * ufun=static_cast<UserFunction*>(fun.get());
 			RuntimeContext * fctxt=createFunctionCallContext(_callingObject,ufun,params);
 			if(fctxt==NULL) {// error occured
 				setExceptionState(new Exception("Could not call function. "+getStackInfo()));
@@ -471,7 +623,9 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 			return result.detachAndDecrease();
 		}
 	} // is Delegate?
-	else if(Delegate * d=fun.toType<Delegate>()){
+	else if(type==_TypeIds::TYPE_DELEGATE){
+		Delegate * d=static_cast<Delegate*>(fun.get());
+		//fun.toType<Delegate>())
 		return executeFunction(d->getFunction(),d->getObject(),params,isConstructorCall);
 	} else {
 		warn("No function to call.");
@@ -485,7 +639,7 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 RuntimeContext * Runtime::createFunctionCallContext(const ObjPtr & _callingObject,UserFunction * ufun,const ParameterValues & paramValues){
 
 	RuntimeContext::RTBRef ctxt = RuntimeContext::create();
-	RuntimeBlock * rtb=ctxt->createAndPushRTB(dynamic_cast<Block *>(ufun->getBlock()));// this is later popped implicitly when the context is executed.
+	RuntimeBlock * rtb=ctxt->createAndPushRTB(ufun->getBlock());// this is later popped implicitly when the context is executed.
 //	ctxt->pushRTB(rtb);
 	ctxt->initCaller(_callingObject);
 
@@ -599,17 +753,21 @@ Object * Runtime::executeUserConstructor(const ObjPtr & _callingObject,const Par
 		if(!currentCons)
 			continue;
 
+		internalTypeId_t funType = currentCons->_getInternalTypeId();
+
 		// c++ function found -> stop here
-		if(	Function * baseCons=dynamic_cast<Function*>(currentCons)){
+		if(	funType==_TypeIds::TYPE_FUNCTION ){
+			Function * baseCons=static_cast<Function*>(currentCons);
 			// create real object with baseCons( currentPrams)
 			baseObj = executeFunction(baseCons,type,currentParams,true);
 			break;
-		}
-		UserFunction * uCons = dynamic_cast<UserFunction*>(currentCons);
-		if(uCons==NULL){
+		}else if(funType!=_TypeIds::TYPE_USER_FUNCTION ){
 			error("Constructor needs to be a function");
 			return NULL;
 		}
+
+		UserFunction * uCons = static_cast<UserFunction*>(currentCons);
+
 		/// \note the created RTB must not have a parent:
 		RuntimeContext::RTBRef funCtxt=createFunctionCallContext(NULL,uCons,currentParams); // we don't know the baseObj yet.
 		consCallStack.push(funCtxt);

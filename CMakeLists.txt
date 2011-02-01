@@ -3,17 +3,6 @@ project(EScript CXX)
 set(ESCRIPT_SOURCES
 	EScript/Consts.cpp
 	EScript/EScript.cpp
-	EScript/Expressions/Block.cpp
-	EScript/Expressions/ConditionalExpr.cpp
-	EScript/Expressions/FunctionCall.cpp
-	EScript/Expressions/GetAttribute.cpp
-	EScript/Expressions/Identifier.cpp
-	EScript/Expressions/IfControl.cpp
-	EScript/Expressions/LogicOp.cpp
-	EScript/Expressions/SetAttribute.cpp
-	EScript/Expressions/Statement.cpp
-	EScript/Expressions/TryCatchControl.cpp
-	EScript/Object.cpp
 	EScript/Objects/Array.cpp
 	EScript/Objects/Bool.cpp
 	EScript/Objects/Collection.cpp
@@ -22,10 +11,21 @@ set(ESCRIPT_SOURCES
 	EScript/Objects/ExtObject.cpp
 	EScript/Objects/Function.cpp
 	EScript/Objects/Iterator.cpp
+	EScript/Objects/Identifier.cpp
+	EScript/Objects/Internals/Block.cpp
+	EScript/Objects/Internals/ConditionalExpr.cpp
+	EScript/Objects/Internals/FunctionCall.cpp
+	EScript/Objects/Internals/GetAttribute.cpp
+	EScript/Objects/Internals/IfControl.cpp
+	EScript/Objects/Internals/LogicOp.cpp
+	EScript/Objects/Internals/SetAttribute.cpp
+	EScript/Objects/Internals/Statement.cpp
+	EScript/Objects/Internals/TryCatchControl.cpp
 	EScript/Objects/Map.cpp
 	EScript/Objects/Namespace.cpp
 	EScript/Objects/Number.cpp
 	EScript/Objects/NumberRef.cpp
+	EScript/Objects/Object.cpp
 	EScript/Objects/String.cpp
 	EScript/Objects/Type.cpp
 	EScript/Objects/UserFunction.cpp

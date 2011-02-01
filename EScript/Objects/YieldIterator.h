@@ -5,7 +5,7 @@
 #ifndef ES_YIELD_ITERATOR_H
 #define ES_YIELD_ITERATOR_H
 
-#include "../Object.h"
+#include "Object.h"
 #include "../Runtime/RuntimeContext.h"
 #include <stack>
 

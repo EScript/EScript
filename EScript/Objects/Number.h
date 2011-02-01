@@ -5,7 +5,7 @@
 #ifndef NUMBER_H
 #define NUMBER_H
 
-#include "../Object.h"
+#include "Object.h"
 #include <stack>
 #include <string>
 
@@ -49,6 +49,7 @@ class Number : public Object {
 		virtual double toDouble()const;
 		virtual bool toBool()const;
 		virtual bool rt_isEqual(Runtime & rt,const ObjPtr o);
+		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_NUMBER;	}
 
 	protected:
 		union{

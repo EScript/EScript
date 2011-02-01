@@ -5,7 +5,7 @@
 #ifndef BOOL_H
 #define BOOL_H
 
-#include "../Object.h"
+#include "Object.h"
 #include <string>
 
 namespace EScript {
@@ -33,6 +33,7 @@ class Bool : public Object {
 		virtual bool toBool()const;
 		virtual double toDouble()const;
 		virtual bool rt_isEqual(Runtime & rt,const ObjPtr o);
+		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_BOOL;	}
 
 	protected:
 		bool value;

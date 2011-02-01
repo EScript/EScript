@@ -23,7 +23,7 @@
 
 #define ES_VERSION "EScript 0.5.3 Stoepselhase - exp (http://fetter-hase.de)"
 
-#include "Object.h"
+#include "Objects/Object.h"
 #include "Objects/Type.h"
 #include "Objects/ExtObject.h"
 #include "Objects/Delegate.h"

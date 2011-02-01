@@ -20,17 +20,23 @@ class SetAttribute : public Object {
 		SetAttribute(Object * obj,identifierId attrId,Object * valueExp,assignType_t _assignType,int _line=-1);
 		virtual ~SetAttribute();
 
-		identifierId getId()const   {   return attrId;  }
+		identifierId getAttrId()const   {   return attrId;  }
+		Object * getObjectExpression()  {   return objExpr.get();    }
+		assignType_t getAssignType()  	{   return assignType;    }
+		Object * getValueExpression()  	{   return valueExpr.get();    }
+		std::string getAttrName()const	{   return identifierIdToString(attrId);    }
 
-		int getLine()const			{	return line;	}
+		int getLine()const				{	return line;	}
 
 		/// ---|> [Object]
 		virtual std::string toString()const;
-		virtual Object * execute(Runtime & rt);
+//		virtual Object * execute(Runtime & rt);
+		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_SET_ATTRIBUTE; }
 
 	private:
-		ObjRef objRef;
-		ObjRef valueExpRef;
+		friend class Runtime;
+		ObjRef objExpr;
+		ObjRef valueExpr;
 		identifierId attrId;
 		assignType_t assignType;
 		int line;

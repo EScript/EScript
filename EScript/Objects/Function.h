@@ -18,11 +18,11 @@ class Function : public ExtObject {
 		// ---
 		Function(functionPtr fnptr);
 		virtual ~Function();
-		functionPtr getFnPtr()const			{	return fnptr;	}
+		functionPtr getFnPtr()const							{	return fnptr;	}
 
 		/// ---|> [Object]
-		virtual Object * clone()const 		{	return new Function(fnptr);	}
-
+		virtual Object * clone()const 						{	return new Function(fnptr);	}
+		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_FUNCTION;	}
 	private:
 		functionPtr fnptr;
 };

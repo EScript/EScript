@@ -5,7 +5,7 @@
 #ifndef ES_ExtObject_H
 #define ES_ExtObject_H
 
-#include "../Object.h"
+#include "Object.h"
 
 namespace EScript {
 

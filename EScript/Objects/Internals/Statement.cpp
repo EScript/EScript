@@ -3,7 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Statement.h"
-#include "../Runtime/Runtime.h"
+#include "../../Runtime/Runtime.h"
 using namespace EScript;
 
 //! (ctor)
@@ -14,13 +14,13 @@ Statement::Statement( const Statement & other):
 
 //! (ctor)
 Statement::Statement(type_t _type, ObjPtr _expression):
-		type(_type),expression(_expression) {
+		type(_type),expression(_expression),line(-1) {
 	//ctor
 }
 
 //! (ctor)
 Statement::Statement(type_t _type):
-		type(_type) {
+		type(_type),line(-1) {
 	//ctor
 }
 

@@ -6,7 +6,7 @@
 #include "Operators.h"
 #include "../Utils/StringUtils.h"
 #include "../Consts.h"
-#include "../Expressions/Identifier.h"
+#include "../Objects/Identifier.h"
 #include <sstream>
 
 namespace EScript {

@@ -5,7 +5,7 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "../Expressions/Block.h"
+#include "../Objects/Internals/Block.h"
 #include "Token.h"
 #include "Tokenizer.h"
 

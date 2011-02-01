@@ -32,7 +32,8 @@ class FunctionCall : public Object {
 		/// ---|> [Object]
 		virtual std::string toString()const;
 		virtual std::string toDbgString()const;
-		virtual Object * execute(Runtime & rt);
+//		virtual Object * execute(Runtime & rt);
+		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_FUNCTION_CALL; }
 
 	protected:
 		ObjRef expRef;

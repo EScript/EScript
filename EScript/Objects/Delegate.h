@@ -5,7 +5,7 @@
 #ifndef ES_DELEGATE_H
 #define ES_DELEGATE_H
 
-#include "../Object.h"
+#include "Object.h"
 #include <vector>
 
 namespace EScript {
@@ -29,7 +29,7 @@ class Delegate : public Object {
 		/// ---|> [Object]
 		virtual Delegate * clone() const;
 		virtual bool rt_isEqual(Runtime &rt, const ObjPtr o);
-
+		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_DELEGATE;	}
 	private:
 		ObjRef myObjectRef;
 		ObjRef functionRef;

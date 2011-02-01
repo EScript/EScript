@@ -3,7 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Block.h"
-#include "../Runtime/Runtime.h"
+#include "../../Runtime/Runtime.h"
 
 #include <iostream>
 #include <sstream>
@@ -53,7 +53,7 @@ void Block::addStatement(const Statement & s) {
 		statements.push_back(s);
 }
 
-//! ---|> [Object]
-Object * Block::execute(Runtime & rt) {
-	return rt.executeBlock(this);
-}
+////! ---|> [Object]
+//Object * Block::execute(Runtime & rt) {
+//	return rt.executeBlock(this);
+//}

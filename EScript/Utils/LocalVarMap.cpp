@@ -3,7 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "LocalVarMap.h"
-#include "../Object.h"
+#include "../Objects/Object.h"
 
 #include <iostream>
 

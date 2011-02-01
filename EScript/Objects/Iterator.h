@@ -4,7 +4,7 @@
 // ------------------------------------------------------
 #ifndef E_ITERATOR_H
 #define E_ITERATOR_H
-#include "../Object.h"
+#include "Object.h"
 
 namespace EScript {
 

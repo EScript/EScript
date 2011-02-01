@@ -37,6 +37,9 @@ class Statement {
 		type_t getType()const			{	return type;	}
 		Object* getExpression()const	{	return expression.get();	}
 
+		int getLine()const				{	return line;	}
+		void setLine(int newLine)		{	line=newLine;	}
+
 		bool isValid()const				{	return type!=TYPE_UNDEFINED;	}
 		bool operator==(const Statement & other){
 			return type==other.type && expression==other.expression && line==other.line;
@@ -53,7 +56,7 @@ class Statement {
 	private:
 		type_t type;
 		ObjRef expression;
-		int line; // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		int line;
 };
 }
 

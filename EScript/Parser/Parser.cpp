@@ -9,20 +9,20 @@
 #include "Tokenizer.h"
 #include "Operators.h"
 #include "../EScript.h"
-#include "../Expressions/FunctionCall.h"
-#include "../Expressions/GetAttribute.h"
-#include "../Expressions/SetAttribute.h"
-#include "../Expressions/IfControl.h"
-#include "../Expressions/ConditionalExpr.h"
-#include "../Expressions/LogicOp.h"
-#include "../Expressions/Identifier.h"
-#include "../Expressions/Statement.h"
+#include "../Objects/Internals/FunctionCall.h"
+#include "../Objects/Internals/GetAttribute.h"
+#include "../Objects/Internals/SetAttribute.h"
+#include "../Objects/Internals/IfControl.h"
+#include "../Objects/Internals/ConditionalExpr.h"
+#include "../Objects/Internals/LogicOp.h"
+#include "../Objects/Internals/Statement.h"
 
 #include "../Objects/Number.h"
 #include "../Objects/Bool.h"
 #include "../Objects/String.h"
 #include "../Objects/UserFunction.h"
 #include "../Objects/YieldIterator.h"
+#include "../Objects/Identifier.h"
 
 #include "../Utils/FileUtils.h"
 
@@ -663,10 +663,13 @@ Object * Parser::getBlock(ParsingContext & ctxt,int & cursor)const throw (Except
 		if (Token::isA<TEndScript>(tokens.at(cursor)))
 			throw(new Error("Unclosed Block {...",tsb));
 
+		int line=tokens.at(cursor)->getLine();
 		Statement stmt=getStatement(ctxt,cursor);
 
-		if(stmt.isValid())
+		if(stmt.isValid()){
+			stmt.setLine(line);
 			b->addStatement(stmt);
+		}
 
 		/// Commands have to end on ";" or "}".
 		if (!(Token::isA<TEndCommand>(tokens.at(cursor)) || Token::isA<TEndBlock>(tokens.at(cursor)))) {

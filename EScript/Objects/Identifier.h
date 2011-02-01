@@ -5,7 +5,7 @@
 #ifndef ES_IDENTIFIER_H_INCLUDED
 #define ES_IDENTIFIER_H_INCLUDED
 
-#include "../Object.h"
+#include "Object.h"
 
 namespace EScript{
 

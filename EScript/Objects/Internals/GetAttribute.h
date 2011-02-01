@@ -17,13 +17,14 @@ class GetAttribute : public Object {
 		GetAttribute(Object * obj,const std::string & attrName);
 		virtual ~GetAttribute();
 
-		identifierId getId()const       {   return attrId;  }
+		identifierId getAttrId()const   {   return attrId;  }
 		std::string getAttrName()const  {   return identifierIdToString(attrId);    }
-		Object * getObject()            {   return objRef.get();    }
+		Object * getObjectExpression()  {   return objRef.get();    }
 
 		/// ---|> [Object]
 		virtual std::string toString()const;
-		virtual Object * execute(Runtime & rt);
+//		virtual Object * execute(Runtime & rt);
+		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_GET_ATTRIBUTE; }
 
 	private:
 		ObjRef objRef;

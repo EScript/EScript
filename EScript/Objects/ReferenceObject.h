@@ -5,7 +5,7 @@
 #ifndef REFERENCE_OBJECT_H
 #define REFERENCE_OBJECT_H
 
-#include "../Object.h"
+#include "Object.h"
 
 namespace EScript {
 

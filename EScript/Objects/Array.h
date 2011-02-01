@@ -67,6 +67,7 @@ class Array : public Collection {
 
 		/// ---|> [Object]
 		virtual Object * clone()const;
+		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_ARRAY;	}
 
 		/**
 		 * [ArrayIterator] ---|> [Iterator] ---|> [Object]

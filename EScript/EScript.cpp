@@ -3,8 +3,8 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "EScript.h"
-#include "Expressions/Block.h"
-#include "Expressions/Identifier.h"
+#include "Objects/Internals/Block.h"
+#include "Objects/Identifier.h"
 #include "Objects/YieldIterator.h"
 #include "Parser/Parser.h"
 

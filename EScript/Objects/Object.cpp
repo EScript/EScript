@@ -3,11 +3,11 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Object.h"
-#include "EScript.h"
+#include "../EScript.h"
 #include <sstream>
 
 #ifdef ES_DEBUG_MEMORY
-#include "Utils/Debug.h"
+#include "../Utils/Debug.h"
 #endif
 
 namespace EScript{
@@ -118,29 +118,44 @@ void ObjectReleaseHandler::release(Object * o) {
 		return;
 	}
 	if (o->getType()==Number::typeObject) {
-		Number * n=dynamic_cast<Number *>(o);
-		if(n!=NULL){ // n can be null if o is a Type that inherits from Number but is not a Type
+		// the real c++ type can be somthing else than Number, but the typeId does not lie.
+		if(o->_getInternalTypeId() == _TypeIds::TYPE_NUMBER){
+			Number * n=static_cast<Number *>(o);
+//			if(n!=NULL){ // n can be null if o is a Type that inherits from Number but is not a Type
 			Number::release(n);
 			return;
+//			}
+
 		}
 	}else if (o->getType()==Bool::typeObject) {
-		Bool * b=dynamic_cast<Bool *>(o);
-		if(b!=NULL){
-			Bool::release(b);
+		if(o->_getInternalTypeId() == _TypeIds::TYPE_BOOL){
+//		Bool * b=dynamic_cast<Bool *>(o);
+//		if(b!=NULL){
+//			Bool::release(b);
+			Bool::release(static_cast<Bool*>(o));
 			return;
 		}
+//		}
 	}else if (o->getType()==String::typeObject) {
-		String * s=dynamic_cast<String *>(o);
-		if(s!=NULL){
-			String::release(s);
+		if(o->_getInternalTypeId() == _TypeIds::TYPE_STRING){
+			String::release(static_cast<String*>(o));
 			return;
 		}
+//		String * s=dynamic_cast<String *>(o);
+//		if(s!=NULL){
+//			String::release(s);
+//			return;
+//		}
 	}else if (o->getType()==Array::typeObject) {
-		Array * a=dynamic_cast<Array *>(o);
-		if(a!=NULL){
-			Array::release(a);
+		if(o->_getInternalTypeId() == _TypeIds::TYPE_ARRAY){
+			Array::release(static_cast<Array*>(o));
 			return;
 		}
+//		Array * a=dynamic_cast<Array *>(o);
+//		if(a!=NULL){
+//			Array::release(a);
+//			return;
+//		}
 	}
 	delete o;
 }
@@ -222,10 +237,10 @@ identifierId Object::hash()const {
 	return EScript::stringToIdentifierId(this->toString());
 }
 
-//! ---o
-Object * Object::execute(Runtime & /*rt*/) {
-	return getRefOrCopy();
-}
+////! ---o
+//Object * Object::execute(Runtime & /*rt*/) {
+//	return getRefOrCopy();
+//}
 
 //! ---o
 bool Object::rt_isEqual(Runtime &,const ObjPtr other){
@@ -273,7 +288,7 @@ bool Object::assignAttribute(const identifierId id,ObjPtr val){
 // -----------------------------------------------------------------------------------------------
 
 
-void Object::tmp_toByteCode(ostream &s){
-	s<<"\"Obj:"<<toString()<<"\"";
-}
+//void Object::tmp_toByteCode(ostream &s){
+//	s<<"\"Obj:"<<toString()<<"\"";
+//}
 }

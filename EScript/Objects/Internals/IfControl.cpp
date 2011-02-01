@@ -4,7 +4,7 @@
 // ------------------------------------------------------
 #include "IfControl.h"
 #include <iostream>
-#include "../Runtime/Runtime.h"
+#include "../../Runtime/Runtime.h"
 
 using namespace EScript;
 

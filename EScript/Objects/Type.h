@@ -5,7 +5,7 @@
 #ifndef ES_Type_H
 #define ES_Type_H
 
-#include "../Object.h"
+#include "Object.h"
 #include "Function.h"
 #include <stdint.h>
 

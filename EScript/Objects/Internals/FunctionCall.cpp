@@ -3,8 +3,8 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "FunctionCall.h"
-#include "../EScript.h"
-#include "../Runtime/Runtime.h"
+#include "../../EScript.h"
+#include "../../Runtime/Runtime.h"
 
 #include <iostream>
 #include <sstream>
@@ -40,7 +40,7 @@ std::string FunctionCall::toDbgString() const {
 	return sprinter.str();
 }
 
-//! ---|> [Object]
-Object * FunctionCall::execute(Runtime & rt) {
-	return rt.executeFunctionCall(this);
-}
+////! ---|> [Object]
+//Object * FunctionCall::execute(Runtime & rt) {
+//	return rt.executeFunctionCall(this);
+//}

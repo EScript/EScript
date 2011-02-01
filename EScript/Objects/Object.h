@@ -4,10 +4,11 @@
 // ------------------------------------------------------
 #ifndef OBJECT_H
 #define OBJECT_H
-#include "Utils/TypeNameMacro.h"
-#include "Utils/ObjRef.h"
-#include "Utils/Hashing.h"
-#include "Utils/EReferenceCounter.h"
+#include "../Utils/TypeNameMacro.h"
+#include "../Utils/ObjRef.h"
+#include "../Utils/Hashing.h"
+#include "../Utils/EReferenceCounter.h"
+#include "typeIds.h"
 
 #include <iostream>
 #include <map>
@@ -57,8 +58,8 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 		virtual Object * clone()const;
 		//! ---o
 		virtual identifierId hash()const;
-		//! ---o
-		virtual Object * execute(Runtime & rt);
+//		//! ---o
+//		virtual Object * execute(Runtime & rt);
 
 		/*! ---o
 			\note For camparing objects, never use this function directly but use isEqual(...) instead.
@@ -74,8 +75,10 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 			 - 	call-by-reference, this function returns true if the given object and this are the same Object. */
 		bool isIdentical(Runtime & rt,const ObjPtr other);
 
+
 		//! ---o
-		virtual void tmp_toByteCode(ostream &s);
+		//! For internal use only.
+		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_UNKNOWN; }
 	//	@}
 
 	// -------------------------
