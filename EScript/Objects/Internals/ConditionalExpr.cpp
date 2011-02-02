@@ -29,19 +29,4 @@ std::string ConditionalExpr::toString()const {
 	sprinter << " ";
 	return sprinter.str();
 }
-//
-////! ---|> [Object]
-//Object * ConditionalExpr::execute(Runtime & rt) {
-//	if (!condition.isNull()) {
-//		ObjRef conResult=rt.executeObj(condition.get());
-//		if(!rt.assertNormalState(this)) return NULL;
-//
-//		if (conResult.toBool()) {
-//			return action.isNull()?NULL:rt.executeObj(action.get());
-//		}
-//	}
-//	if (!elseAction.isNull()) {
-//		return rt.executeObj(elseAction.get());
-//	}
-//	return NULL;
-//}
+

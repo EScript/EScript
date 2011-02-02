@@ -103,12 +103,6 @@ void Object::init(EScript::Namespace & globals) {
 	//! Delegate Object -> function
 	ESF_DECLARE(typeObject,"->",1,1,new Delegate(caller,parameter[0]))
 
-	////! string Object.tmp_toByteCode()
-	//ES_FUNCTION_DECLARE(typeObject,"tmp_toByteCode",0,0,{
-	//	std::ostringstream s;
-	//	caller->tmp_toByteCode(s);
-	//	return String::create(s.str());
-	//})
 }
 
 //! (static)
@@ -121,41 +115,24 @@ void ObjectReleaseHandler::release(Object * o) {
 		// the real c++ type can be somthing else than Number, but the typeId does not lie.
 		if(o->_getInternalTypeId() == _TypeIds::TYPE_NUMBER){
 			Number * n=static_cast<Number *>(o);
-//			if(n!=NULL){ // n can be null if o is a Type that inherits from Number but is not a Type
 			Number::release(n);
 			return;
-//			}
-
 		}
 	}else if (o->getType()==Bool::typeObject) {
 		if(o->_getInternalTypeId() == _TypeIds::TYPE_BOOL){
-//		Bool * b=dynamic_cast<Bool *>(o);
-//		if(b!=NULL){
-//			Bool::release(b);
 			Bool::release(static_cast<Bool*>(o));
 			return;
 		}
-//		}
 	}else if (o->getType()==String::typeObject) {
 		if(o->_getInternalTypeId() == _TypeIds::TYPE_STRING){
 			String::release(static_cast<String*>(o));
 			return;
 		}
-//		String * s=dynamic_cast<String *>(o);
-//		if(s!=NULL){
-//			String::release(s);
-//			return;
-//		}
 	}else if (o->getType()==Array::typeObject) {
 		if(o->_getInternalTypeId() == _TypeIds::TYPE_ARRAY){
 			Array::release(static_cast<Array*>(o));
 			return;
 		}
-//		Array * a=dynamic_cast<Array *>(o);
-//		if(a!=NULL){
-//			Array::release(a);
-//			return;
-//		}
 	}
 	delete o;
 }

@@ -150,7 +150,7 @@ Object * Runtime::executeObj(Object * obj){
 			setCallingObject(NULL);
 			resultRef = getVariable(ga->getAttrId());
 			if (resultRef.isNull())
-				warn("Unknown Variable:"+toString());
+				warn("Unknown Variable:"+ga->toString());
 
 		}// obj.ident
 		else {
@@ -164,7 +164,7 @@ Object * Runtime::executeObj(Object * obj){
 			setCallingObject(obj2Ref.get());
 			resultRef = obj2Ref->getAttribute(ga->getAttrId());
 			if (resultRef.isNull()) {
-				warn("Member not set:"+toString());
+				warn("Member not set:"+ga->toString());
 			}
 		}
 		return resultRef.detachAndDecrease();
@@ -551,8 +551,9 @@ Object * Runtime::executeFunctionCall(FunctionCall * fCall){
 	- Delegate: return executeFunction(...) for contained function.
 */
 Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObject,const ParameterValues & params,bool isConstructorCall/*=false*/){
+	if(fun.isNull())
+		return NULL;
 	// is  C++ function ?
-
 	int type=fun->_getInternalTypeId();
 //	Function * libfun=fun.toType<Function>();
 //	if (libfun && libfun->getFnPtr()) {

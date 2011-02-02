@@ -39,8 +39,3 @@ std::string FunctionCall::toDbgString() const {
 	sprinter << ") [" << getFilename() << ":" << getLine() << "]";
 	return sprinter.str();
 }
-
-////! ---|> [Object]
-//Object * FunctionCall::execute(Runtime & rt) {
-//	return rt.executeFunctionCall(this);
-//}

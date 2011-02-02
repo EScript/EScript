@@ -58,8 +58,6 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 		virtual Object * clone()const;
 		//! ---o
 		virtual identifierId hash()const;
-//		//! ---o
-//		virtual Object * execute(Runtime & rt);
 
 		/*! ---o
 			\note For camparing objects, never use this function directly but use isEqual(...) instead.

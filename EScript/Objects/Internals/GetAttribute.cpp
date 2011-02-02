@@ -36,35 +36,3 @@ std::string GetAttribute::toString()const {
 	s+=identifierIdToString(attrId);
 	return s;
 }
-//
-////! ---|> [Object]
-//Object * GetAttribute::execute(Runtime & rt) {
-//	ObjRef resultRef=NULL;
-//	//std::cout << " <get:"<<this->toString()<<":"<<attrId<<"> ";
-//	/// Local variable
-//	if (objRef.isNull()) {
-//		rt.setCallingObject(NULL);
-////        if (global)
-////            resultRef=rt.getGlobalVariable(attrId);
-////        else
-//		resultRef=rt.getVariable(attrId);
-//		if (resultRef.isNull())
-//			rt.warn("Unknown Variable:"+toString());
-//
-//		// obj.ident
-//	} else {
-//		ObjRef obj2Ref=rt.executeObj(objRef.get());
-//		if(!rt.assertNormalState(this))
-//			return NULL;
-//
-//		if(obj2Ref.isNull())
-//			obj2Ref=Void::get();
-//
-//		rt.setCallingObject(obj2Ref.get());
-//		resultRef=obj2Ref->getAttribute(attrId);
-//		if (resultRef.isNull()) {
-//			rt.warn("Member not set:"+toString());
-//		}
-//	}
-//	return resultRef.detachAndDecrease();
-//}

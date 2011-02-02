@@ -52,8 +52,3 @@ void Block::addStatement(const Statement & s) {
 	if(s.isValid())
 		statements.push_back(s);
 }
-
-////! ---|> [Object]
-//Object * Block::execute(Runtime & rt) {
-//	return rt.executeBlock(this);
-//}

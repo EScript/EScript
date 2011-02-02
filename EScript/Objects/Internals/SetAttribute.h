@@ -30,7 +30,6 @@ class SetAttribute : public Object {
 
 		/// ---|> [Object]
 		virtual std::string toString()const;
-//		virtual Object * execute(Runtime & rt);
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_SET_ATTRIBUTE; }
 
 	private:

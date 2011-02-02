@@ -23,7 +23,6 @@ class ConditionalExpr : public Object {
 
 		/// ---|> [Object]
 		virtual std::string toString()const ;
-//		Object * execute(Runtime & rt);
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_CONDITIONAL; }
 
 	private:
