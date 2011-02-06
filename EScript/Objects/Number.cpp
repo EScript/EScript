@@ -159,6 +159,16 @@ void Number::init(EScript::Namespace & globals) {
 	//! [ESMF] Number Number.cos
 	ESF_DECLARE(typeObject,"cos",0,0,Number::create(cos(caller->toDouble())))
 
+	/*!	[ESMF] Number Number.clamp(min,max)	*/
+	ES_FUNCTION_DECLARE(typeObject,"clamp",2,2, {
+		double d=caller->toDouble();
+		double min=parameter[0]->toDouble();
+		if(d<=min)
+			return Number::create(min);
+		double max=parameter[1]->toDouble();
+		return Number::create(d<=max ? d : max );
+	})
+
 	//! [ESMF] String Number.degToRad()
 	ESF_DECLARE(typeObject,"degToRad",0,0,Number::create(caller->toFloat()*M_PI/180.0))
 

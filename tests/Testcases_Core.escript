@@ -40,6 +40,7 @@ var FAILED="\t failed\n";
 			&& (180).degToRad()== Math.PI && (Math.PI.radToDeg()-180).abs() < 0.001
 			&& 100.log()==2 && (128).log(2)==7 && 1.sign()==1 && -2.3.sign()==-1
 			&& Math.PI.format(4,false,10,"-")=="----3.1416" && Math.PI.format(5,true).beginsWith("3.14159e+00" )
+			&& 1.clamp(2,3)==2 && 17.clamp(-2,20)==17 && 9.clamp(1,1.6)==1.6
 		)
         {out(OK);}else{ errors+=1; out(FAILED); }
 }
