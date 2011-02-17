@@ -143,8 +143,8 @@ bool Type::assignAttribute(const identifierId id,ObjPtr val){
 	if(assignToInheritedAttribute(id,val))
 		return true;
 
-	// try to assign the attribute to this type's type.
-	return getType()!=NULL ? getType()->assignAttribute(id,val) : false;
+	// try to assign the attribute to this type's type (if this is not the type of itself)
+	return (getType()!=NULL  && getType()!=this) ? getType()->assignAttribute(id,val) : false;
 }
 
 void Type::setTypeAttribute(const identifierId id,ObjPtr val){
