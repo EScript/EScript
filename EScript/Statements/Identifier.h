@@ -12,7 +12,10 @@ namespace EScript{
 /*! Wrapper object for an identifierId
 	[Identifier]  ---|> [Object]  */
 class Identifier:public Object{
+		ES_PROVIDES_TYPE_NAME(Identifier)
 	public:
+		static Type * getTypeObject();
+
 		/*! (static) Factory */
 		static Identifier * create( identifierId id);
 

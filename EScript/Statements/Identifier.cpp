@@ -3,8 +3,15 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Identifier.h"
+#include "../Objects/Type.h"
 
 namespace EScript{
+
+//! (static)
+Type * Identifier::getTypeObject()	{
+	static Type * typeObject=new Type();
+	return typeObject;
+}
 
 //! (static)
 Identifier * Identifier::create( identifierId id){
@@ -18,7 +25,7 @@ Identifier * Identifier::create( const std::string & s){
 
 //! (ctor)
 Identifier::Identifier(const identifierId &_id):
-		Object(),id(_id) {
+		Object(getTypeObject()),id(_id) {
 	//ctor
 }
 
