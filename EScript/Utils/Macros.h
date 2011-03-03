@@ -75,8 +75,8 @@
 /*! Macro for defining and declaring an EScript function.
 	\example
 		// Within the Collection::init(...) function:
-		ESF_DECLARE(typeObj, "==", 1, 1, {
-				return Bool::create(assertType<Collection>(runtime,caller)->rt_isEqual(runtime, parameter[0]));
+		ES_FUNCTION_DECLARE(typeObj, "==", 1, 1, {
+				return Bool::create(assertType<Collection>(runtime, caller)->rt_isEqual(runtime, parameter[0]));
 		})
 */
 #define ES_FUNCTION_DECLARE(_obj, _fnNameStr, _min, _max, _block) \
@@ -94,8 +94,8 @@
 /*! Macro for defining and declaring an EScript member function.
 	\example
 		// Within the Collection::init(...) function:
-		ESF_DECLARE(typeObj, "==", 1, 1, {
-				return Bool::create( self->rt_isEqual(runtime, parameter[0]) );
+		ES_MFUNCTION_DECLARE(typeObj, Collection, "==", 1, 1, {
+				return Bool::create(self->rt_isEqual(runtime, parameter[0]));
 		})
 */
 #define ES_MFUNCTION_DECLARE(_obj, _objType, _fnNameStr, _min, _max, _block) \
