@@ -16,6 +16,7 @@ Type* Bool::typeObject=NULL;
 
 //! initMembers
 void Bool::init(EScript::Namespace & globals) {
+
 	// Bool ---|> [Object]
 	typeObject=new Type(Object::getTypeObject());
 	typeObject->setFlag(Type::FLAG_CALL_BY_VALUE,true);
