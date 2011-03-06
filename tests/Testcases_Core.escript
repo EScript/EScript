@@ -453,8 +453,8 @@ if(!benchmark)
 	out("load:\t\t");
 	GLOBALS.loadTestVar:=0;
 	var r=load(__DIR__+"/loadme.escript");
-	var r2=loadOnce(__DIR__+"/loadme.escript");
-	var r3=loadOnce(__DIR__+"/loadme.escript");
+	var r2=loadOnce("loadme.escript");
+	var r3=loadOnce(__DIR__+"/loadme.escript"); // should be the same file as in the previous line as __DIR__ is in the searchPath
 
 //    out(__FILE__,"\t",__DIR__);
 	if( __FILE__==__DIR__+"/Testcases_Core.escript"&&  testFunction(3)==9 && r==5 && r2==5 && r3===void && loadTestVar==2)

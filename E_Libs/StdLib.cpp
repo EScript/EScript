@@ -73,11 +73,32 @@ void StdLib::print_r(Object * o,int maxLevel,int level) {
 	}
 }
 
+/*! Tries to locate the given __filename__ with the current searchPath set in the runtime.
+	@return the path to the file or the original __filename__ if the file could not be found.	*/
+static std::string findFile(Runtime & runtime, const std::string & filename){
+	static const identifierId seachPathsId=stringToIdentifierId("__searchPaths");
+
+	std::string file(FileUtils::condensePath(filename));
+	if( FileUtils::isFile(file)!=1 ){
+		if(Array * searchPaths = dynamic_cast<Array*>(runtime.getAttribute(seachPathsId))){
+			for(ERef<Iterator> itRef=searchPaths->getIterator();!itRef->end();itRef->next()){
+				ObjRef valueRef = itRef->value();
+				std::string s(FileUtils::condensePath(valueRef.toString()+"/"+filename));
+				if( FileUtils::isFile(s)==1 ){
+					file = s;
+					break;
+				}
+			}
+		}
+	}
+	return file;
+}
+
 //! (static)
 Object * StdLib::load(Runtime & runtime,const std::string & filename){
 	ERef<Block> bRef(new Block());
 	try {
-		bRef=EScript::loadScriptFile(filename,bRef.get());
+		bRef=EScript::loadScriptFile(findFile(runtime,filename),bRef.get());
 	} catch (Exception * e) {
 		runtime.setExceptionState(e);
 	}
@@ -97,7 +118,7 @@ Object * StdLib::load(Runtime & runtime,const std::string & filename){
 Object * StdLib::loadOnce(Runtime & runtime,const std::string & filename){
 	static const identifierId mapId=stringToIdentifierId("__loadOnce_loadedFiles");
 
-	std::string condensedFilename( FileUtils::condensePath(filename) );
+	std::string condensedFilename( FileUtils::condensePath(findFile(runtime,filename)) );
 	Map * m=dynamic_cast<Map*>(runtime.getAttribute(mapId));
 	if(m==NULL){
 		m=Map::create();
@@ -115,6 +136,19 @@ Object * StdLib::loadOnce(Runtime & runtime,const std::string & filename){
 
 //! init  (globals)
 void StdLib::init(EScript::Namespace * globals) {
+
+	/*!	[ESF] void addSearchPath(path)
+		Adds a search path which is used for load(...) and loadOnce(...)	*/
+	ES_FUNCTION_DECLARE(globals,"addSearchPath",1,1,{
+		static const identifierId seachPathsId=stringToIdentifierId("__searchPaths");
+		Array * searchPaths = dynamic_cast<Array*>(runtime.getAttribute(seachPathsId));
+		if(searchPaths == NULL){
+			searchPaths = Array::create();
+			runtime.setObjAttribute(seachPathsId,searchPaths);
+		}
+		searchPaths->pushBack(String::create(parameter[0].toString()));
+		return Void::get();
+	})
 
 	//! [ESF] void assert( expression[,text])
 	ES_FUNCTION_DECLARE(globals,"assert",1,2, {

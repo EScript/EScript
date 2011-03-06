@@ -16,10 +16,9 @@ GLOBALS.test := fn(description,result){
 
 var start=clock();
 var outBackup=out;
+addSearchPath(__DIR__);
 
 //----
-
-
 var t=(new Parser()).parseFile(__DIR__+"/Testcases_Core.escript");
 
 if(benchmark){
@@ -32,10 +31,10 @@ if(benchmark){
     t.execute();
 }
 
-load(__DIR__+"/Testcases_IOLib.escript");
+load("Testcases_IOLib.escript");
 //if(getOS()=="WINDOWS")
 //	load(__DIR__+"/Testcases_Win32Lib.escript");
-load(__DIR__+"/Bugs.escript");
+load("Bugs.escript");
 
 GLOBALS.out=outBackup;
 
