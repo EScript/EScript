@@ -318,6 +318,18 @@ var FAILED="\t failed\n";
     }
 	test( "BUG[20100717]", ok );
 }
+{	// assigning to an undefined member of a Type-Object results in a crash.
+    Runtime._setErrorConfig(Runtime.TREAT_WARNINGS_AS_ERRORS);
+	var ok=true;
+    try{
+        var a=new Type();
+        a.foo = 5;
+		FOO.bla = 5;
+    }catch(e){
+    }
+    Runtime._setErrorConfig(0);
+	test( "BUG[20110217]", ok );
+}
 { 	// undeclared member attribute not detected
 
 	var errorFound=false;
