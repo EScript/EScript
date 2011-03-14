@@ -133,25 +133,30 @@ class Runtime : public ExtObject  {
 			returnRef=value;
 			state=STATE_EXITING;
 		}
-		void setExceptionState(const ObjRef & exception) {
-			returnRef=exception;
+		void setExceptionState(const ObjRef & exceptionObj) {
+			returnRef=exceptionObj;
 			state=STATE_EXCEPTION;
 		}
 		Object * getResult()const 						{	return returnRef.get();	}
 		bool assertNormalState(Object * obj=NULL) 		{	return state==STATE_NORMAL ? true : stateError(obj);	}
-		bool stateError(Object * obj);
 
 		void info(const std::string & s);
 		void warn(const std::string & s);
+
+		/*! Creates an exception object including current stack info and
+			sets the state to exception STATE_EXCEPTION. Does NOT throw a C++ exception. */
+		void exception(const std::string & s);
+
 		/**
 		 * Throws a runtime exception (a C++ Exception, not an internal one!).
 		 * Should only be used inside of library-functions
 		 * (otherwise, they are not handled and the program is likely to crash).
-		 * In all other situations try to use setExceptionState(...)
+		 * In all other situations try to use setExceptionState(...) or exception(...)
 		 */
 		void error(const std::string & s,Object * obj=NULL);
 
 	private:
+		bool stateError(Object * obj);
 		state_t state;
 		ObjRef returnRef;
 	// 	@}

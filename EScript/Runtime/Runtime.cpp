@@ -58,8 +58,14 @@ void Runtime::init(EScript::Namespace & globals) {
 	ESF_DECLARE(typeObject,"_setStackSizeLimit",1,1,
 				(runtime.setStackSizeLimit(static_cast<size_t>(parameter[0].toInt())),Void::get()) )
 
+	//!	[ESMF] void Runtime.exception(message);
+	ESF_DECLARE(typeObject,"exception",1,1, (runtime.exception(parameter[0].toString()),Void::get()))
+
 	//!	[ESMF] String Runtime.getStackInfo();
 	ESF_DECLARE(typeObject,"getStackInfo",0,0, String::create(runtime.getStackInfo()))
+
+	//!	[ESMF] void Runtime.warn(message);
+	ESF_DECLARE(typeObject,"warn",1,1, (runtime.warn(parameter[0].toString()),Void::get()))
 
 }
 
@@ -399,8 +405,8 @@ Object * Runtime::executeCurrentContext(bool markEntry) {
 				break;
 			}
 			}
-		}catch(Object * exception){
-			setExceptionState(exception);
+		}catch(Object * exceptionObj){
+			setExceptionState(exceptionObj);
 			resultRef=NULL;
 		}
 		if(!checkNormalState()){
@@ -567,7 +573,7 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 
 	// possibly endless recursion?
 	if(getStackSize() >= getStackSizeLimit()){
-		setExceptionState(new Exception("Stack size limit reached."+getStackInfo()));
+		exception("Stack size limit reached.");
 		return NULL;
 	}
 
@@ -580,7 +586,7 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 //		if( libfun->getFnPtr()==NULL)
 
 		if(isConstructorCall && _callingObject.toType<Type>()==NULL){
-			setExceptionState(new Exception("Can not instantiate non-Type-Object. Hint: Try to check the type you use with 'new'."+getStackInfo(),getCurrentLine()));
+			exception("Can not instantiate non-Type-Object. Hint: Try to check the type you use with 'new'.");
 			return NULL;
 		}
 		try {
@@ -589,9 +595,7 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 			setExceptionState(e);
 			return NULL;
 		} catch(const char * message) {
-			std::string exceptionMessage("C++ exception: ");
-			exceptionMessage += message;
-			setExceptionState(new Exception(exceptionMessage));
+			exception(std::string("C++ exception: ")+message);
 			return NULL;
 		} catch (Object * obj) {
 			// workaround: this should be covered by catching the Exception* directly, but that doesn't always seem to work!?!
@@ -600,11 +604,11 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 				setExceptionState(e);
 				return NULL;
 			}
-			std::string message=(obj?obj->toString():"NULL")+getStackInfo();
-			setExceptionState(new Exception(message));
+			std::string message=(obj?obj->toString():"NULL");
+			exception(message);
 			return NULL;
 		}  catch (...){
-			setExceptionState(new Exception("C++ exception"+getStackInfo()));
+			exception("C++ exception");
 			return NULL;
 		}
 	} // is UserFunction?
@@ -616,7 +620,7 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 			UserFunction * ufun=static_cast<UserFunction*>(fun.get());
 			RuntimeContext * fctxt=createFunctionCallContext(_callingObject,ufun,params);
 			if(fctxt==NULL) {// error occured
-				setExceptionState(new Exception("Could not call function. "+getStackInfo()));
+				exception("Could not call function. ");
 				return NULL;
 			}
 			pushContext(fctxt);
@@ -742,8 +746,8 @@ bool Runtime::checkType(const identifierId & name, Object * obj,Object *typeExpr
 	}else if(obj->isA(typeObj.toType<Type>()) ||  obj->isIdentical(*this,typeObj)){
 		return true;
 	}
-	setExceptionState(new Exception("Wrong parameter type for parameter " + EScript::identifierIdToString(name)+"\n"+
-		"Expected: "+typeExpression->toString()+"\tRecieved: "+obj->getTypeName()+" \t"+getStackInfo()));
+	exception("Wrong parameter type for parameter " + EScript::identifierIdToString(name)+"\n"+
+		"Expected: "+typeExpression->toString()+"\tRecieved: "+obj->getTypeName()+" \t");
 	return false;
 }
 
@@ -758,7 +762,7 @@ bool Runtime::checkType(const identifierId & name, Object * obj,Object *typeExpr
 Object * Runtime::executeUserConstructor(const ObjPtr & _callingObject,const ParameterValues & params){
 	Type * type=_callingObject.toType<Type>();
 	if(type==NULL){
-		setExceptionState(new Exception("Can not instantiate non-Type-Object. Hint: Try to check the type you use with 'new'."+getStackInfo(),getCurrentLine()));
+		exception("Can not instantiate non-Type-Object. Hint: Try to check the type you use with 'new'.");
 		return NULL;
 	}
 
@@ -858,26 +862,26 @@ Object * Runtime::executeUserConstructor(const ObjPtr & _callingObject,const Par
 // ----------------------------------------------------------------------
 // ---- States
 
-
+//! (internal)
 bool Runtime::stateError(Object * obj){
 	switch(getState()){
 		case STATE_NORMAL:{
 			return true;
 		}
 		case STATE_RETURNING:{
-			setExceptionState(new Exception("No return here!"+(obj?" ["+obj->toString()+"]":"")+getStackInfo(),getCurrentLine()));
+			exception("No return here!"+(obj?" ["+obj->toString()+"]":""));
 			break;
 		}
 		case STATE_BREAKING:{
-			setExceptionState(new Exception("No break here!"+(obj?" ["+obj->toString()+"]":"")+getStackInfo(),getCurrentLine()));
+			exception("No break here!"+(obj?" ["+obj->toString()+"]":""));
 			break;
 		}
 		case STATE_CONTINUING:{
-			setExceptionState(new Exception("No continue here!"+(obj?" ["+obj->toString()+"]":"")+getStackInfo(),getCurrentLine()));
+			exception("No continue here!"+(obj?" ["+obj->toString()+"]":""));
 			break;
 		}
 		case STATE_YIELDING:{
-			setExceptionState(new Exception("No yield here!"+(obj?" ["+obj->toString()+"]":"")+getStackInfo(),getCurrentLine()));
+			exception("No yield here!"+(obj?" ["+obj->toString()+"]":""));
 			break;
 		}
 		case STATE_EXITING:{
@@ -899,8 +903,8 @@ void Runtime::info(const std::string & s) {
 
 void Runtime::warn(const std::string & s) {
 	if(getErrorConfig()&ES_IGNORE_WARNINGS) return;
-	if(getErrorConfig()&ES_TREAT_WARNINGS_AS_ERRORS) {
-		setExceptionState(new Exception(s));
+	else if(getErrorConfig()&ES_TREAT_WARNINGS_AS_ERRORS) {
+		exception(s);
 		return;
 	}
 	std::cout << "\n WARNING: "<< s << std::endl;
@@ -912,6 +916,11 @@ void Runtime::warn(const std::string & s) {
 	}
 }
 
+void Runtime::exception(const std::string & s) {
+	Exception * e = new Exception(s,getCurrentLine());
+	e->setStackInfo(getStackInfo());
+	setExceptionState(e);
+}
 
 void Runtime::error(const std::string & s,Object * obj) {
 	std::ostringstream os;

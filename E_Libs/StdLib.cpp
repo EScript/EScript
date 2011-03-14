@@ -154,7 +154,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	ES_FUNCTION_DECLARE(globals,"assert",1,2, {
 		assertParamCount(runtime,parameter.count(),1,2);
 		if(!parameter[0]->toBool()){
-			runtime.error(parameter.count()>1?parameter[1]->toString():"Assert failed.");
+			runtime.exception(parameter.count()>1?parameter[1]->toString():"Assert failed.");
 		}
 		return NULL;
 	})

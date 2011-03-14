@@ -22,10 +22,12 @@ class Exception : public ExtObject {
 
 		void setMessage(const std::string & newMessage)		{	msg=newMessage;	}
 		const std::string & getMessage()const				{	return msg;	}
-		void setFilename(const std::string & newFilename)	{	filename=newFilename;	}
-		const std::string & getFilename()const				{	return filename;	}
+
 		int getLine()const									{	return line;	}
 		void setLine(int newLine)							{	line=newLine;	}
+
+		const std::string & getStackInfo()const				{	return stackInfo;	}
+		void setStackInfo(const std::string & s)			{	stackInfo=s;	}
 
 		/// ---|> [Object]
 		virtual Object * clone()const;
@@ -33,7 +35,7 @@ class Exception : public ExtObject {
 
 	protected:
 		std::string msg;
-		std::string filename;
+		std::string stackInfo;
 		int line;
 };
 

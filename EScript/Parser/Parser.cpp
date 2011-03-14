@@ -133,7 +133,7 @@ Object *  Parser::parseFile(Block * rootBlock,const std::string & filename)throw
 	try {
 		s= parse(rootBlock,buffer);
 	} catch (Exception * e) {
-		e->setFilename(filename);
+		e->setMessage(e->getMessage()+" in file \'"+filename+"\'");
 		delete [] buffer;
 		throw(e);
 	} catch (...) {
