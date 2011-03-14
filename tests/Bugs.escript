@@ -318,18 +318,6 @@ var FAILED="\t failed\n";
     }
 	test( "BUG[20100717]", ok );
 }
-{	// assigning to an undefined member of a Type-Object results in a crash.
-    Runtime._setErrorConfig(Runtime.TREAT_WARNINGS_AS_ERRORS);
-	var ok=true;
-    try{
-        var a=new Type();
-        a.foo = 5;
-		FOO.bla = 5;
-    }catch(e){
-    }
-    Runtime._setErrorConfig(0);
-	test( "BUG[20110217]", ok );
-}
 { 	// undeclared member attribute not detected
 
 	var errorFound=false;
@@ -345,4 +333,37 @@ var FAILED="\t failed\n";
     }
     Runtime._setErrorConfig(0);
 	test( "BUG[20100815]", errorFound );
+}
+{	// assigning to an undefined member of a Type-Object results in a crash.
+    Runtime._setErrorConfig(Runtime.TREAT_WARNINGS_AS_ERRORS);
+	var ok=true;
+    try{
+        var a=new Type();
+        a.foo = 5;
+		FOO.bla = 5;
+    }catch(e){
+    }
+    Runtime._setErrorConfig(0);
+	test( "BUG[20110217]", ok );
+}
+
+{ 	// endless recursion does not throw an exception but results in a crash
+
+	var errorFound=false;
+	var oldLimit = Runtime._getStackSizeLimit();
+	Runtime._setStackSizeLimit(Runtime._getStackSize()+20);
+    var i=0;
+    try{
+		var f=i->fn(){
+//			out(Runtime._getStackSize()," ");
+			++this;
+			(this->thisFn)();
+		};
+		f();
+    }catch(e){
+        errorFound=true;
+    }
+//    out("\n",i,"\n");
+    Runtime._setStackSizeLimit(oldLimit);
+	test( "BUG[20110314]", errorFound && i>17 && i<22);
 }

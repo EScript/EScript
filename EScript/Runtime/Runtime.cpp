@@ -40,25 +40,36 @@ void Runtime::init(EScript::Namespace & globals) {
 	typeObject->setTypeAttribute("IGNORE_WARNINGS",Number::create(Runtime::ES_IGNORE_WARNINGS));
 	typeObject->setTypeAttribute("TREAT_WARNINGS_AS_ERRORS",Number::create(Runtime::ES_TREAT_WARNINGS_AS_ERRORS));
 
-	//!	[ESMF] void Runtime.esf_Runtime_setErrorConfig(number);
+
+	//!	[ESMF] Number Runtime._getErrorConfig();
+	ESF_DECLARE(typeObject,"_getErrorConfig",0,0, Number::create(runtime.getErrorConfig()))
+
+	//!	[ESMF] Number Runtime._getStackSize();
+	ESF_DECLARE(typeObject,"_getStackSize",0,0, Number::create(runtime.getStackSize()))
+
+	//!	[ESMF] Number Runtime._getStackSizeLimit();
+	ESF_DECLARE(typeObject,"_getStackSizeLimit",0,0, Number::create(runtime.getStackSizeLimit()))
+
+	//!	[ESMF] void Runtime._setErrorConfig(number);
 	ESF_DECLARE(typeObject,"_setErrorConfig",1,1,
 				(runtime.setErrorConfig(static_cast<unsigned int>(parameter[0].toInt())),Void::get()) )
 
-	//!	[ESMF] number Runtime.esf_Runtime_getErrorConfig();
-	ESF_DECLARE(typeObject,"_getErrorConfig",0,0,
-				Number::create(runtime.getErrorConfig()))
+	//!	[ESMF] void Runtime._setStackSizeLimit(number);
+	ESF_DECLARE(typeObject,"_setStackSizeLimit",1,1,
+				(runtime.setStackSizeLimit(static_cast<size_t>(parameter[0].toInt())),Void::get()) )
 
 	//!	[ESMF] String Runtime.getStackInfo();
-	ESF_DECLARE(typeObject,"getStackInfo",0,0,
-				String::create(runtime.getStackInfo()))
+	ESF_DECLARE(typeObject,"getStackInfo",0,0, String::create(runtime.getStackInfo()))
+
 }
 
 // ----------------------------------------------------------------------
 // ---- Main
 
 //! (ctor)
-Runtime::Runtime():ExtObject(Runtime::typeObject), state(STATE_NORMAL),errorConfig(0),currentLine(0) {
-//	runtimeBlockStack.push(0);
+Runtime::Runtime() :
+		ExtObject(Runtime::typeObject), stackSizeLimit(512),
+		state(STATE_NORMAL),errorConfig(0),currentLine(0) {
 
 	globals=EScript::getSGlobals()->clone();
 	globals->setObjAttribute(stringToIdentifierId( "GLOBALS"),globals.get());
@@ -133,7 +144,9 @@ void Runtime::assignToVariable(const identifierId id,Object * value) {
 // ----------------------------------------------------------------------
 // ---- General execution
 
-
+/*! - identify object by internalTypeId (as defined in typeIds.h)
+	- dispatch if object is an expression ( 0x20 >= id <0x30 )
+	- return ref or copy otherwise. */
 Object * Runtime::executeObj(Object * obj){
 	int type=obj->_getInternalTypeId();
 	if(type<0x020 || type>0x2f){
@@ -192,7 +205,6 @@ Object * Runtime::executeObj(Object * obj){
 			return value.detachAndDecrease();
 		}
 		/// obj.ident
-
 		ObjRef obj2=executeObj(sa->objExpr.get());
 		if(!assertNormalState(sa))
 			return NULL;
@@ -272,7 +284,6 @@ Object * Runtime::executeObj(Object * obj){
 		break;
 	}
 	}
-//	return obj->execute(*this);
 	return NULL;
 }
 
@@ -553,6 +564,13 @@ Object * Runtime::executeFunctionCall(FunctionCall * fCall){
 Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObject,const ParameterValues & params,bool isConstructorCall/*=false*/){
 	if(fun.isNull())
 		return NULL;
+
+	// possibly endless recursion?
+	if(getStackSize() >= getStackSizeLimit()){
+		setExceptionState(new Exception("Stack size limit reached."+getStackInfo()));
+		return NULL;
+	}
+
 	// is  C++ function ?
 	int type=fun->_getInternalTypeId();
 //	Function * libfun=fun.toType<Function>();

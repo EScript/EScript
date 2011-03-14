@@ -70,11 +70,14 @@ class Runtime : public ExtObject  {
 		void popContext()								{	contextStack.pop();		}
 		Object * executeCurrentContext(bool markEntry=false);
 
+		size_t getStackSize()const						{	return contextStack.size();	}
+		size_t getStackSizeLimit()const					{	return stackSizeLimit;	}
+		void setStackSizeLimit(size_t s)				{	stackSizeLimit = s;	}
+
 	private:
-
-
 		ObjRef callingObject;
 		std::stack<RuntimeContext::RTBRef> contextStack;
+		size_t stackSizeLimit;
 	//	@}
 
 	// ------------------------------------------------
@@ -100,7 +103,6 @@ class Runtime : public ExtObject  {
 				funCall(_funCall),callingObject(_callingObject),function(_function),parameterValues(_pValues) { }
 		};
 		std::vector<FunctionCallInfo> functionCallStack;
-
 	//	@}
 
 	// ------------------------------------------------
