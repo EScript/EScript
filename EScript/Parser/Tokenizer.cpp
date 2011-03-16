@@ -78,8 +78,7 @@ void Tokenizer::getTokens( const char * prog,tokenList & tokens)  throw (Excepti
 	do {
 		obj=readNextToken(prog,cursor,line,tokens);
 		if (obj!=NULL) {
-			Token * t=dynamic_cast<Token*>(obj);
-			if (t) t->setLine(line);
+			obj->setLine(line);
 
 			tokens.push_back(obj);
 			Token::addReference(obj);
