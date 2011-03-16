@@ -33,7 +33,6 @@ class LocalVarMap {
 		inline LocalVarMap * getParent()const 		{	return parent;	}
 
 		void reset();
-//        void clearValues();
 
 		inline Object * find(const identifierId id)const{
 			objMap_t::const_iterator i=getValues()->find(id);
@@ -43,7 +42,7 @@ class LocalVarMap {
 
 		bool findAndUpdate(const identifierId id,Object * val);
 		inline void declare(const identifierId varId,Object * val){
-		objStack_t & s=(*getValues())[varId];
+			objStack_t & s=(*getValues())[varId];
 			s.push(val);
 			localVars.push(&s);
 		}

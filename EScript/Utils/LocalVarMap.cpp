@@ -36,6 +36,11 @@ void  LocalVarMap::reset(){
 	}
 	parent=NULL;
 	values=&m;
+	#ifdef ES_DEBUG_MEMORY
+	// this clears the slots for unused variables, whichs makes dection of memory leaks easier,
+	// but it introduces a huge performance penalty.
+	m.clear();
+	#endif
 }
 
 //! findAndUpdate
