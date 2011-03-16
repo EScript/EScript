@@ -4,6 +4,7 @@
 // ------------------------------------------------------
 #include "Parser.h"
 #include <iostream>
+#include <memory>
 #include <stdio.h>
 #include <stack>
 #include "Tokenizer.h"
@@ -151,7 +152,7 @@ Object *  Parser::parseFile(Block * rootBlock,const std::string & filename)throw
  */
 Object *  Parser::parse(Block * rootBlock,const char * c)throw(Exception *) {
 
-	Tokenizer::tokenList * tokens=new Tokenizer::tokenList();
+	std::auto_ptr<Tokenizer::tokenList> tokens(new Tokenizer::tokenList());
 	ParsingContext ctxt(*tokens);
 	ctxt.rootBlock=rootBlock;
 
@@ -180,7 +181,6 @@ Object *  Parser::parse(Block * rootBlock,const char * c)throw(Exception *) {
 	for (Tokenizer::tokenList::iterator it=tokens->begin();it!=tokens->end();++it) {
 		Token::removeReference(*it);
 	}
-	delete tokens;
 
 	return statement;
 }
