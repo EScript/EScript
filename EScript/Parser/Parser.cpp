@@ -180,6 +180,7 @@ Object *  Parser::parse(Block * rootBlock,const char * c)throw(Exception *) {
 	for (Tokenizer::tokenList::iterator it=tokens->begin();it!=tokens->end();++it) {
 		Token::removeReference(*it);
 	}
+	delete tokens;
 
 	return statement;
 }
