@@ -6,6 +6,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <stack>
+#include <memory>
 #include "Tokenizer.h"
 #include "Operators.h"
 #include "../EScript.h"
@@ -149,7 +150,7 @@ Object *  Parser::parseFile(Block * rootBlock,const std::string & filename)throw
  */
 Object *  Parser::parse(Block * rootBlock,const char * c)throw(Exception *) {
 
-	Tokenizer::tokenList * tokens=new Tokenizer::tokenList();
+	std::auto_ptr<Tokenizer::tokenList> tokens(new Tokenizer::tokenList());
 	ParsingContext ctxt(*tokens);
 	ctxt.rootBlock=rootBlock;
 

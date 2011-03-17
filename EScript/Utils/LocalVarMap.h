@@ -43,7 +43,7 @@ class LocalVarMap {
 
 		bool findAndUpdate(const identifierId id,Object * val);
 		inline void declare(const identifierId varId,Object * val){
-		objStack_t & s=(*getValues())[varId];
+			objStack_t & s=(*getValues())[varId];
 			s.push(val);
 			localVars.push(&s);
 		}

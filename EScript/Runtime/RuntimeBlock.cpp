@@ -15,6 +15,9 @@ std::stack<RuntimeBlock *> RuntimeBlock::pool;
 //! (static) Factory
 RuntimeBlock * RuntimeBlock::create(RuntimeContext * _ctxt,const Block * staticBlock,RuntimeBlock * _parentRTB){
 	RuntimeBlock * rtb=NULL;
+#ifdef ES_DEBUG_MEMORY
+	rtb = new RuntimeBlock();
+#else
 	if(pool.empty()){
 		rtb=new RuntimeBlock();
 	}else{
@@ -22,11 +25,16 @@ RuntimeBlock * RuntimeBlock::create(RuntimeContext * _ctxt,const Block * staticB
 		pool.pop();
 	}
 	rtb->init(_ctxt,staticBlock,_parentRTB);
+#endif
 	return rtb;
 }
 //! static
 void RuntimeBlock::release(RuntimeBlock *rtb){
+#ifdef ES_DEBUG_MEMORY
+	delete rtb;
+#else
 	pool.push(rtb);
+#endif
 	rtb->localVariables.reset();
 	rtb->ctxt=NULL;
 

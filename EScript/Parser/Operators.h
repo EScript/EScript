@@ -26,7 +26,7 @@ class Operator {
 		associativity_t getAssociativity()const	{	return associativity;	}
 
 	private:
-		typedef std::map<identifierId,Operator*> operatorMap_t;
+		typedef std::map<identifierId,Operator> operatorMap_t;
 		static operatorMap_t ops;
 		static void declareOperator(int precedence,const std::string & op,associativity_t associativity=L);
 

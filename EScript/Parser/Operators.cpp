@@ -70,7 +70,7 @@ const Operator * Operator::getOperator(identifierId id) {
 		declareOperator(++p ,",");
 	}
 	operatorMap_t::const_iterator it=ops.find(id);
-	return  it==ops.end() ? NULL : it->second;
+	return  it==ops.end() ? NULL : &it->second;
 }
 
 //! (static)
@@ -80,8 +80,8 @@ const Operator * Operator::getOperator(const std::string & op) {
 
 //! (static)
 void Operator::declareOperator(int precedence,const std::string & op,associativity_t associativity){
-	identifierId id=stringToIdentifierId(op);
-	ops[id]=new Operator(id,precedence,op,associativity);
+	const identifierId id(stringToIdentifierId(op));
+	ops.insert(std::make_pair(id, Operator(id,precedence,op,associativity)));
 }
 
 //! (ctor)
