@@ -24,20 +24,19 @@ RuntimeBlock * RuntimeBlock::create(RuntimeContext * _ctxt,const Block * staticB
 		rtb=pool.top();
 		pool.pop();
 	}
-	rtb->init(_ctxt,staticBlock,_parentRTB);
 #endif
+	rtb->init(_ctxt,staticBlock,_parentRTB);
 	return rtb;
 }
 //! static
 void RuntimeBlock::release(RuntimeBlock *rtb){
+	rtb->localVariables.reset();
+	rtb->ctxt=NULL;
 #ifdef ES_DEBUG_MEMORY
 	delete rtb;
 #else
 	pool.push(rtb);
 #endif
-	rtb->localVariables.reset();
-	rtb->ctxt=NULL;
-
 }
 
 // -------------------------------------------------------------------------

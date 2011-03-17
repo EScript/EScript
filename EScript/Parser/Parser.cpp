@@ -165,10 +165,9 @@ Object *  Parser::parse(Block * rootBlock,const char * c)throw(Exception *) {
 
 	/// 2. Parse definitions
 	{
-		Tokenizer::tokenList * enrichedTokens=new Tokenizer::tokenList();
+		std::auto_ptr<Tokenizer::tokenList>  enrichedTokens(new Tokenizer::tokenList());
 		pass_2(ctxt,*enrichedTokens);
 		tokens->swap(*enrichedTokens);
-		delete enrichedTokens;
 	}
 
 	/// 3. Parse expressions and finally add them up the script.
