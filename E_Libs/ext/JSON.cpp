@@ -101,11 +101,10 @@ void JSON::toJSON(std::ostringstream & out,Object * obj,bool formatted/*=true*/,
 Object * _parseJSON(Tokenizer::tokenList::iterator & cursor,const Tokenizer::tokenList::iterator end){
 	if(cursor==end)
 		return NULL;
-	Token * token=(*cursor);
+	Token * token=(*cursor).get();
 	if(dynamic_cast<TOperator*>(token)&& token->toString()=="_-"){ /// unary minus
 		++cursor;
-		token=(*cursor);
-		TObject * tObj=dynamic_cast<TObject *>(token);
+		TObject * tObj = Token::cast<TObject>(*cursor);
 		if(tObj==NULL || !dynamic_cast<Number*>(tObj->obj.get())){
 			std::cout << "Number expected! \n";
 			return NULL;
@@ -130,22 +129,21 @@ Object * _parseJSON(Tokenizer::tokenList::iterator & cursor,const Tokenizer::tok
 			if(cursor==end){
 				std::cout << "M1 \n";
 				break;
-			}else  if(dynamic_cast<TEndBlock*>(*cursor)){
+			}else  if( Token::isA<TEndBlock>(*cursor)){
 				cursor++;
 				break;
 			}
-			token=(*cursor);
-			TObject * tObj2=dynamic_cast<TObject *>(token);
+			TObject * tObj2=Token::cast<TObject>(*cursor);
 			String * key= (tObj2==NULL ? NULL : dynamic_cast<String*>(tObj2->obj.get()));
 			if(!key){
-				std::cout << token->toString()<<"M2! \n";
+				std::cout << tObj2->toString()<<"M2! \n";
 				break;
 			}
 			++cursor;
 			if(cursor==end){
 				std::cout << "M3! \n";
 				break;
-			}else if(!dynamic_cast<TColon*>(*cursor)){
+			}else if(!Token::isA<TColon>(*cursor)){
 				std::cout << "M3 : expected! \n";
 				break;
 			}
@@ -165,10 +163,10 @@ Object * _parseJSON(Tokenizer::tokenList::iterator & cursor,const Tokenizer::tok
 			if(cursor==end){
 				std::cout << "M6! \n";
 				break;
-			}else  if(dynamic_cast<TEndBlock*>(*cursor)){
+			}else  if(Token::isA<TEndBlock>(*cursor)){
 				cursor++;
 				break;
-			}else if(dynamic_cast<TDelimiter*>(*cursor)){
+			}else if(Token::isA<TDelimiter>(*cursor)){
 				cursor++;
 				continue;
 			}
@@ -177,14 +175,14 @@ Object * _parseJSON(Tokenizer::tokenList::iterator & cursor,const Tokenizer::tok
 			break;
 		}
 		return m;
-	}else if (dynamic_cast<TStartIndex *>(token)){
+	}else if (Token::isA<TStartIndex>(token)){
 		Array *a=Array::create();
 		++cursor;
 		while( true){
 			if(cursor==end){
 				std::cout << "A1! \n";
 				break;
-			}else if(dynamic_cast<TEndIndex*>(*cursor)){
+			}else if(Token::isA<TEndIndex>(*cursor)){
 				cursor++;
 				break;
 			}
@@ -198,10 +196,10 @@ Object * _parseJSON(Tokenizer::tokenList::iterator & cursor,const Tokenizer::tok
 			if(cursor==end){
 				std::cout << "A3! \n";
 				break;
-			}else  if(dynamic_cast<TEndIndex*>(*cursor)){
+			}else  if(Token::isA<TEndIndex>(*cursor)){
 				cursor++;
 				break;
-			}else if(dynamic_cast<TDelimiter*>(*cursor)){
+			}else if(Token::isA<TDelimiter>(*cursor)){
 				cursor++;
 				continue;
 			}
@@ -211,7 +209,7 @@ Object * _parseJSON(Tokenizer::tokenList::iterator & cursor,const Tokenizer::tok
 		}
 		return a;
 	}
-	else if(TIdentifier* ti=dynamic_cast<TIdentifier*>(token)){
+	else if(TIdentifier* ti=Token::cast<TIdentifier>(token)){
 		std::cout << "Unknown Identifier: "<<ti->toString()<<"\n";
 		return NULL;
 
@@ -227,14 +225,14 @@ Object* JSON::parseJSON(const std::string &s){
 	t.getTokens(s.c_str(),tokens);
 	Tokenizer::tokenList::iterator it=tokens.begin();
 	Object * result= _parseJSON(it,tokens.end());
-	if(it!=tokens.end() && !dynamic_cast<TEndScript*>(*it)){
+	if(it!=tokens.end() && !Token::isA<TEndScript>(*it)){
 		std::cout << "JSON Syntax Error\n";
 	}
 	if(result==NULL){
 		result=String::create(s);
 	}
-	for(it=tokens.begin();it!=tokens.end();++it){
-		Token::removeReference(*it);
-	}
+//	for(it=tokens.begin();it!=tokens.end();++it){
+//		Token::removeReference(*it);
+//	}
 	return result;
 }

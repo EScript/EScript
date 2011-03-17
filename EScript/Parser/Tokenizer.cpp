@@ -82,9 +82,9 @@ void Tokenizer::getTokens( const char * prog,tokenList & tokens)  throw (Excepti
 			obj->setLine(line);
 
 			tokens.push_back(obj);
-			Token::addReference(obj);
+//			Token::addReference(obj);
 		}
-	} while (!dynamic_cast<TEndScript *>(obj));
+	} while (! Token::isA<TEndScript>(obj) );
 
 }
 
@@ -234,7 +234,7 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,token
 		}
 		// test for unary minus
 		if (op->getString()=="-") {
-			Token * last=tokens.size()>0?tokens[tokens.size()-1]:NULL; // Bugfix[BUG:20090107]
+			Token * last=tokens.size()>0?tokens.at(tokens.size()-1).get():NULL; // Bugfix[BUG:20090107]
 			if ( last==NULL ||
 					(!(dynamic_cast<TEndBracket *>(last) || dynamic_cast<TEndIndex *>(last)||
 					   dynamic_cast<TIdentifier *>(last) || dynamic_cast<TObject *>(last)))){

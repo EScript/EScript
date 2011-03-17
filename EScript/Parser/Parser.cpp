@@ -150,34 +150,28 @@ Object *  Parser::parseFile(Block * rootBlock,const std::string & filename)throw
  */
 Object *  Parser::parse(Block * rootBlock,const char * c)throw(Exception *) {
 
-	std::auto_ptr<Tokenizer::tokenList> tokens(new Tokenizer::tokenList());
-	ParsingContext ctxt(*tokens);
+	Tokenizer::tokenList tokens;
+	ParsingContext ctxt(tokens);
 	ctxt.rootBlock=rootBlock;
 
 	/// 1. Tokenize
 	try {
-		tokenizer.getTokens(c,*tokens);
+		tokenizer.getTokens(c,tokens);
 		pass_1(ctxt);
 	} catch (Exception * e) {
 		//std::cerr << e->toString() << std::endl;
 		throw e;
 	}
-
 	/// 2. Parse definitions
 	{
-		std::auto_ptr<Tokenizer::tokenList>  enrichedTokens(new Tokenizer::tokenList());
-		pass_2(ctxt,*enrichedTokens);
-		tokens->swap(*enrichedTokens);
+		Tokenizer::tokenList  enrichedTokens;
+		pass_2(ctxt,enrichedTokens);
+		tokens.swap(enrichedTokens);
 	}
 
 	/// 3. Parse expressions and finally add them up the script.
 	int cursor=0;
 	Statement statement=getStatement(ctxt,cursor);
-
-	/// 4. Delete the Tokens
-	for (Tokenizer::tokenList::iterator it=tokens->begin();it!=tokens->end();++it) {
-		Token::removeReference(*it);
-	}
 
 	return statement.getExpression();
 }
@@ -220,7 +214,7 @@ void Parser::pass_1(ParsingContext & ctxt)throw(Exception *) {
 	bInfStack.push(_BlockInfo());
 
 	for(size_t cursor=0;cursor<tokens.size();++cursor) {
-		Token * token=tokens.at(cursor);
+		Token * token=tokens.at(cursor).get();
 		/// currentBlockInfo
 		_BlockInfo & cbi=bInfStack.top();
 
@@ -254,20 +248,20 @@ void Parser::pass_1(ParsingContext & ctxt)throw(Exception *) {
 					unsigned int startIndex=cbi.index;
 
 					Token * t=new TStartMap();
-					if(dynamic_cast<Token*>(tokens.at(startIndex))!=NULL)
-						t->setLine(dynamic_cast<Token*>(tokens.at(startIndex))->getLine());
-					Token::removeReference(tokens.at(startIndex));
+					if( !tokens.at(startIndex).isNull() )
+						t->setLine((tokens.at(startIndex))->getLine());
+//					Token::removeReference(tokens.at(startIndex));
 
 					tokens[startIndex]=t;
-					Token::addReference(t);
+//					Token::addReference(t);
 
 					t=new TEndMap();
-					if(dynamic_cast<Token*>(tokens.at(cursor))!=NULL)
-						t->setLine(dynamic_cast<Token*>(tokens.at(cursor))->getLine());
-					Token::removeReference(tokens.at(cursor));
+					if( !tokens.at(cursor).isNull() )
+						t->setLine((tokens.at(cursor))->getLine());
+//					Token::removeReference(tokens.at(cursor));
 
 					tokens[cursor]=t;
-					Token::addReference(t);
+//					Token::addReference(t);
 				}
 				bInfStack.pop();
 				continue;
@@ -287,12 +281,12 @@ void Parser::pass_1(ParsingContext & ctxt)throw(Exception *) {
 					cbi.containsColon=true;
 					Token * t=new TMapDelimiter();
 
-					if(dynamic_cast<Token*>(tokens.at(cursor))!=NULL)
-						t->setLine(dynamic_cast<Token*>(tokens.at(cursor))->getLine());
-					Token::removeReference(tokens.at(cursor));
+					if((tokens.at(cursor))!=NULL)
+						t->setLine((tokens.at(cursor).get())->getLine());
+//					Token::removeReference(tokens.at(cursor));
 
 					tokens[cursor]=t;
-					Token::addReference(t);
+//					Token::addReference(t);
 					continue;
 				}
 			} else if (Token::isA<TEndCommand>(token)) {
@@ -340,18 +334,18 @@ void Parser::pass_2(ParsingContext & ctxt,
 	enrichedTokens.reserve(ctxt.tokens.size());
 
 	TStartBlock * tsb=new TStartBlock(ctxt.rootBlock);
-	Token::addReference(tsb);
+//	Token::addReference(tsb);
 	enrichedTokens.push_back(tsb);
 
 	for (size_t cursor=0;cursor<ctxt.tokens.size();++cursor) {
-		Token * token=ctxt.tokens.at(cursor);
+		Token * token=ctxt.tokens.at(cursor).get();
 
 		/// for(...) ---> for{...}
 		if(!loopConditionEndingBrackets.empty() && token == loopConditionEndingBrackets.top()){
 			loopConditionEndingBrackets.pop();
 			Token * t=new TEndBlock();
 			t->setLine(token->getLine());
-			Token::addReference(t);
+//			Token::addReference(t);
 			token=t;
 		}
 
@@ -359,13 +353,13 @@ void Parser::pass_2(ParsingContext & ctxt,
 		switch(token->getType()){
 			case TControl::TYPE_ID:{
 				/// Variable Declaration
-				TControl * tc=dynamic_cast<TControl *>(token);
+				TControl * tc=Token::cast<TControl>(token);
 				if (tc->getId()==Consts::IDENTIFIER_var) {
-					if (TIdentifier * ti=(dynamic_cast<TIdentifier *>(ctxt.tokens.at(cursor+1)))) {
+					if (TIdentifier * ti=Token::cast<TIdentifier>(ctxt.tokens.at(cursor+1))) {
 						if(!blockStack.top()->declareVar(ti->getId())){
 							std::cout << "\n Warning: Duplicate local variable '"<<ti->toString()<<"' ("<<getCurrentFilename()<<":"<<ti->getLine()<<")\n";
 						}
-						Token::removeReference(token);
+//						Token::removeReference(token);
 						continue;
 					} else
 						throw new Error("var expects Identifier.",tc);
@@ -377,7 +371,7 @@ void Parser::pass_2(ParsingContext & ctxt,
 					int endPos = findCorrespondingBracket<TStartBracket,TEndBracket>(ctxt,cursor+1);
 					if(endPos<0)
 						throw new Error("Error in loop condition",tc);
-					loopConditionEndingBrackets.push(ctxt.tokens.at(endPos));
+					loopConditionEndingBrackets.push(ctxt.tokens.at(endPos).get());
 
 					enrichedTokens.push_back(token);
 					++cursor;
@@ -387,7 +381,7 @@ void Parser::pass_2(ParsingContext & ctxt,
 
 					TStartBlock * sb=new TStartBlock(loopConditionBlock);
 					sb->setLine(token->getLine());
-					Token::addReference(sb);
+//					Token::addReference(sb);
 					enrichedTokens.push_back(sb);
 
 					// count open bracket.
@@ -401,7 +395,7 @@ void Parser::pass_2(ParsingContext & ctxt,
 			}
 			/// Open new Block
 			case TStartBlock::TYPE_ID:{
-				TStartBlock * sb=dynamic_cast<TStartBlock *>(token);
+				TStartBlock * sb=Token::cast<TStartBlock>(token);
 				Block * currentBlock=new Block(sb->getLine());//currentBlock);
 
 				/// debugging informations:
@@ -430,9 +424,9 @@ void Parser::pass_2(ParsingContext & ctxt,
 					if(functionBracketDepth.top()==0){
 						functionBracketDepth.pop();
 						Token * t=new TEndBracket();
-						t->setLine(dynamic_cast<Token *>(token)->getLine());
+						t->setLine(token->getLine());
 
-						Token::addReference(t);
+//						Token::addReference(t);
 						enrichedTokens.push_back(t);
 
 						// add shortcut to the closing bracket
@@ -447,7 +441,7 @@ void Parser::pass_2(ParsingContext & ctxt,
 				enrichedTokens.push_back(token);
 				if(!functionBracketDepth.empty())
 					++functionBracketDepth.top();
-				currentBracket.push(dynamic_cast<TStartBracket*>(token));
+				currentBracket.push(Token::cast<TStartBracket>(token));
 				continue;
 			}
 			/// )
@@ -470,9 +464,9 @@ void Parser::pass_2(ParsingContext & ctxt,
 				if( token->toString() == "fn"  ) {//|| token->toString() == "lambda") {
 					functionBracketDepth.push(0);
 					TStartBracket * t=new TStartBracket();
-					t->setLine(dynamic_cast<TOperator *>(token)->getLine());
+					t->setLine(token->getLine());
 					currentBracket.push(t);
-					Token::addReference(t);
+//					Token::addReference(t);
 					enrichedTokens.push_back(t);
 				}
 				continue;
@@ -484,8 +478,8 @@ void Parser::pass_2(ParsingContext & ctxt,
 					throw new Error("Unclosed {");
 
 				Token * t=new TEndBlock();
-				t->setLine(dynamic_cast<Token *>(token)->getLine());
-				Token::addReference(t);
+				t->setLine(token->getLine());
+//				Token::addReference(t);
 				enrichedTokens.push_back(t);
 				enrichedTokens.push_back(token);
 				return;
@@ -534,18 +528,18 @@ Object * Parser::getExpression(ParsingContext & ctxt,int & cursor,int to)const t
 	///  Single Element
 	/// -------------------
 	else if (to==cursor) {
-		Token *t =tokens.at(cursor);
+		Token *t =tokens.at(cursor).get();
 
 		/// Empty Command
 		if (Token::isA<TEndCommand>(t)) {
 			return NULL;
-		}else if(TObject * tObj=dynamic_cast<TObject *>(t)){
+		}else if(TObject * tObj=Token::cast<TObject>(t)){
 //        	std::cout << "found obj: "<<tObj->obj.get()->toString()<<"\n";
 			return tObj->obj.get();
 		}
 		///  Identifier
 		/// "a" => "_.get('a')"
-		else if (TIdentifier * ident=dynamic_cast<TIdentifier *>(t)) {
+		else if (TIdentifier * ident=Token::cast<TIdentifier>(t)) {
 		// is local variable?
 			for(int i=ctxt.blocks.size()-1;i>=0;--i){
 				Block * b=ctxt.blocks.at(i);
@@ -559,7 +553,7 @@ Object * Parser::getExpression(ParsingContext & ctxt,int & cursor,int to)const t
 			return new GetAttribute(NULL,ident->getId());  // ID
 		}
 		std::cout << t->getLine()<<"\n";
-		throw(new Error("Unknown (or unimplemented) Token",t));
+		throw new Error("Unknown (or unimplemented) Token",t);
 	}
 
 	///  Command ends with ;
@@ -608,7 +602,7 @@ Object * Parser::getExpression(ParsingContext & ctxt,int & cursor,int to)const t
 			std::cout << tokens.at(cursor)->toString();
 			// TODO:LINE!!!
 		}
-		throw(new Error("Syntax error",tokens.at(cursor)));
+		throw new Error("Syntax error",tokens.at(cursor).get());
 	}
 }
 
@@ -646,9 +640,9 @@ Statement Parser::getStatement(ParsingContext & ctxt,int & cursor,int to)const t
  * Get block of statements
  * {out("foo");exit;}
  */
-Object * Parser::getBlock(ParsingContext & ctxt,int & cursor)const throw (Exception *) {
+Block * Parser::getBlock(ParsingContext & ctxt,int & cursor)const throw (Exception *) {
 	const Tokenizer::tokenList & tokens = ctxt.tokens;
-	TStartBlock * tsb=dynamic_cast<TStartBlock *>(tokens.at(cursor));
+	TStartBlock * tsb=Token::cast<TStartBlock>(tokens.at(cursor));
 	Block * b=tsb?reinterpret_cast<Block *>(tsb->getBlock()):NULL;
 	if (b==NULL)
 		throw new Error("No Block!",tokens.at(cursor));
@@ -661,7 +655,7 @@ Object * Parser::getBlock(ParsingContext & ctxt,int & cursor)const throw (Except
 	/// Read commands.
 	while (!Token::isA<TEndBlock>(tokens.at(cursor))) {
 		if (Token::isA<TEndScript>(tokens.at(cursor)))
-			throw(new Error("Unclosed Block {...",tsb));
+			throw new Error("Unclosed Block {...",tsb);
 
 		int line=tokens.at(cursor)->getLine();
 		Statement stmt=getStatement(ctxt,cursor);
@@ -691,7 +685,7 @@ Object * Parser::getMap(ParsingContext & ctxt,int & cursor)const throw(Exception
 	// for debugging
 	int currentLine=-1;
 	{
-		Token * t=dynamic_cast<Token *>(tokens.at(cursor));
+		Token * t=tokens.at(cursor).get();
 		if (t)
 			currentLine=t->getLine();
 	}
@@ -753,13 +747,7 @@ Object * Parser::getMap(ParsingContext & ctxt,int & cursor)const throw(Exception
 /*!	Binary expression	*/
 Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)const throw(Exception *) {
 	const Tokenizer::tokenList & tokens = ctxt.tokens;
-	int currentLine=-1;
-	{
-		Token * t=dynamic_cast<Token *>(tokens.at(cursor));
-		if (t)
-			currentLine=t->getLine();
-//        std::cout << currentLine <<" ";
-	}
+	int currentLine = tokens.at(cursor).isNull() ? -1 : tokens.at(cursor)->getLine();
 
 	int opPosition=-1; /// Position of operator with lowest precedence
 	int opPrecedence=-1; /// Highest precedence
@@ -769,9 +757,9 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 
 	int level=0; /// BracketLevel ( ) [] {}
 	for (int i=cursor;i<=to;++i) {
-		Token * t=tokens[i];
+		Token * t=tokens.at(i).get();
 		if (level==0) {
-			TOperator * top=dynamic_cast<TOperator *>(t);
+			TOperator * top=Token::cast<TOperator>(t);
 			if (top &&
 					(top->getAssociativity()==Operator::L?
 					 top->getPrecedence() >= opPrecedence :
@@ -794,7 +782,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 				   ||Token::isA<TEndMap>(t)) {
 			level--;
 			if (level<0) {
-				throw(new Error("Error in binary expression",t));
+				throw new Error("Error in binary expression",t);
 			}
 			continue;
 
@@ -829,7 +817,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 			return new FunctionCall(new GetAttribute(obj,Consts::IDENTIFIER_fn_set),paramExp,false,currentFilename,currentLine);
 		} else {
 			std::cout << "\n Error = "<<cursor<<" - "<<to<<" :" << lValueType;
-			throw(new Error("Syntax error before '=' ",tokens[opPosition]));
+			throw new Error("Syntax error before '=' ",tokens[opPosition]);
 		}
 	} else if (op->getString()==":=") {
 		identifierId memberIdentifier;
@@ -858,7 +846,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 //        }
 		else {
 			std::cout << "\n Error = "<<cursor<<" - "<<to<<" :" << lValueType;
-			throw(new Error("Syntax error before ':=' ",tokens[opPosition]));
+			throw new Error("Syntax error before ':=' ",tokens[opPosition]);
 		}
 	} else if (op->getString()=="::=") {
 		identifierId memberIdentifier;
@@ -875,7 +863,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 		}
 		else {
 			std::cout << "\n Error = "<<cursor<<" - "<<to<<" :" << lValueType;
-			throw(new Error("Syntax error before '::=' ",tokens[opPosition]));
+			throw new Error("Syntax error before '::=' ",tokens[opPosition]);
 		}
 	}
 
@@ -886,20 +874,20 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 	if (op->getString()==".") {
 		if (rightExprFrom>to) {
 			std::cout << "\n Error .1 "<<cursor<<" - "<<to<<" :";
-			throw(new Error("Syntax error after '.'",tokens[opPosition]));
+			throw new Error("Syntax error after '.'",tokens[opPosition]);
 		}
 		cursor=to;
 
 		/// "a.b"
 		if (Token::isA<TIdentifier>(tokens[rightExprFrom])){
-			return new GetAttribute(leftExpression,dynamic_cast<TIdentifier *>(tokens[rightExprFrom])->getId());
+			return new GetAttribute(leftExpression,Token::cast<TIdentifier>(tokens[rightExprFrom])->getId());
 		}
 		/// "a.+"
 		else if (Token::isA<TOperator>(tokens[rightExprFrom])) {
-			return new GetAttribute(leftExpression,dynamic_cast<TOperator *>(tokens[rightExprFrom])->toString());
+			return new GetAttribute(leftExpression,Token::cast<TOperator>(tokens[rightExprFrom])->toString());
 		}
 		else if(Token::isA<TObject>(tokens[rightExprFrom])){
-			Object * obj=dynamic_cast<TObject*>(tokens[rightExprFrom])->obj.get();
+			Object * obj=Token::cast<TObject>(tokens[rightExprFrom])->obj.get();
 			/// "a.'+'"
 			if (String * s=dynamic_cast<String *>(obj)) {
 				return new GetAttribute(leftExpression,s->toString());
@@ -909,7 +897,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 			}
 		}
 		std::cout << "\n Error .2 "<<cursor<<" - "<<to<<" :";
-		throw(new Error("Syntax error after '.'",tokens[opPosition]));
+		throw new Error("Syntax error after '.'",tokens[opPosition]);
 	}
 	///  Function Call
 	/// "a(b)"  "a(1,2,3)"
@@ -1002,11 +990,11 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 	}
 	/// Function "fn(a,b){return a+b;}"
 	else if (op->getString()=="fn" ){//|| op->getString()=="lambda") {
-		Object * result=getFunctionDeclaration(ctxt,cursor);
+		ObjRef result=getFunctionDeclaration(ctxt,cursor);
 		if (cursor!=to)    {
-			throw(new Error("[fn] Syntax error.",tokens.at(cursor)));
+			throw new Error("[fn] Syntax error.",tokens.at(cursor));
 		}
-		return result;
+		return result.detachAndDecrease();
 	}
 
 	Object * rightExpression=getExpression(ctxt,rightExprFrom,to);
@@ -1089,7 +1077,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 Object * Parser::getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const throw (Exception *){
 //	bool lambda=false;
 	const Tokenizer::tokenList & tokens = ctxt.tokens;
-	Token * t=tokens.at(cursor);
+	Token * t=tokens.at(cursor).get();
 
 //	if(t->toString()=="lambda"){
 //		lambda=true;
@@ -1103,7 +1091,7 @@ Object * Parser::getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const
 	++cursor;
 
 	UserFunction::parameterList_t * params=getFunctionParameters(ctxt,cursor);
-	TOperator * superOp=dynamic_cast<TOperator*>(tokens.at(cursor));
+	TOperator * superOp=Token::cast<TOperator>(tokens.at(cursor));
 
 	/// fn(a).(a+1,2){}
 	std::vector<ObjRef> superConCallExpressions;
@@ -1140,7 +1128,7 @@ Object * Parser::getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const
  */
 Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const throw(Exception *) {
 	const Tokenizer::tokenList & tokens = ctxt.tokens;
-	TControl * tc=dynamic_cast<TControl *>(tokens.at(cursor));
+	TControl * tc=Token::cast<TControl>(tokens.at(cursor));
 	if (!tc) return Statement(Statement::TYPE_UNDEFINED);
 	++cursor;
 
@@ -1148,17 +1136,17 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const throw(Exce
 	/// if-Control
 	if(cId==Consts::IDENTIFIER_if){
 		if (!Token::isA<TStartBracket>(tokens.at(cursor)))
-			throw(new Error("[if] expects (",tokens.at(cursor)));
+			throw new Error("[if] expects (",tokens.at(cursor));
 		++cursor;
 		Object * condition=getExpression(ctxt,cursor);
 		++cursor;
 		if (!Token::isA<TEndBracket>(tokens.at(cursor))) {
-			throw(new Error("[if] expects (...)",tokens.at(cursor)));
+			throw new Error("[if] expects (...)",tokens.at(cursor));
 		}
 		++cursor;
 		Statement action=getStatement(ctxt,cursor);
 		Statement elseAction;
-		if ((tc=dynamic_cast<TControl *>(tokens[cursor+1]))) {
+		if ((tc=Token::cast<TControl>(tokens.at(cursor+1)))) {
 			if (tc->getId()==Consts::IDENTIFIER_else) {
 				++cursor;
 				++cursor;
@@ -1187,20 +1175,20 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const throw(Exce
 	*/
 	else if(cId==Consts::IDENTIFIER_for) {
 		if (!Token::isA<TStartBlock>(tokens.at(cursor))) // for{...;...;...}
-			throw(new Error("[for] expects (",tokens.at(cursor)));
+			throw new Error("[for] expects (",tokens.at(cursor));
 		// this block stores the running variables, defined in the loop condition
-		Block * loopWrappingBlock = static_cast<TStartBlock*>(tokens.at(cursor))->getBlock();
+		Block * loopWrappingBlock = Token::cast<TStartBlock>(tokens.at(cursor))->getBlock();
 		++cursor;
 		Statement initExp=createStatement(getExpression(ctxt,cursor));
 		if (!Token::isA<TEndCommand>(tokens.at(cursor))) {
 			std::cout << tokens.at(cursor)->toString();
 //			out(tokens.at(cursor));
-			throw(new Error("[for] expects ;",tokens.at(cursor)));
+			throw new Error("[for] expects ;",tokens.at(cursor));
 		}
 		++cursor;
 		Object * condition=getExpression(ctxt,cursor);
 		if (!Token::isA<TEndCommand>(tokens.at(cursor))) {
-			throw(new Error("[for] expects ;",tokens.at(cursor)));
+			throw new Error("[for] expects ;",tokens.at(cursor));
 		}
 		++cursor;
 		Statement incr=createStatement(getExpression(ctxt,cursor));
@@ -1246,7 +1234,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const throw(Exce
 		if (!Token::isA<TStartBlock>(tokens.at(cursor))) // while{...}
 			throw new Error("[while] expects (",tokens.at(cursor));
 		// this block stores the running variables, defined in the loop condition
-		Block * loopWrappingBlock = static_cast<TStartBlock*>(tokens.at(cursor))->getBlock();
+		Block * loopWrappingBlock = Token::cast<TStartBlock>(tokens.at(cursor))->getBlock();
 		++cursor;
 		Object * condition=getExpression(ctxt,cursor);
 		++cursor;
@@ -1279,14 +1267,14 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const throw(Exce
 	else if(cId==Consts::IDENTIFIER_do) {
 		Statement action=getStatement(ctxt,cursor);
 		++cursor;
-		tc=dynamic_cast<TControl *>(tokens.at(cursor));
+		tc=Token::cast<TControl>(tokens.at(cursor));
 		if (!tc || tc->getId()!=Consts::IDENTIFIER_while)
 			throw new Error("[do-while] expects while",tokens.at(cursor));
 		++cursor;
 		if (!Token::isA<TStartBlock>(tokens.at(cursor))) // do{} while{...};
 			throw new Error("[do-while] expects (",tokens.at(cursor));
 		// this block stores the running variables, defined in the loop condition
-		Block * loopWrappingBlock = static_cast<TStartBlock*>(tokens.at(cursor))->getBlock();
+		Block * loopWrappingBlock = Token::cast<TStartBlock>(tokens.at(cursor))->getBlock();
 		++cursor;
 		Object * condition=getExpression(ctxt,cursor);
 		++cursor;
@@ -1329,25 +1317,25 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const throw(Exce
 		if (!Token::isA<TStartBlock>(tokens.at(cursor)))  // foreach{...as...}
 			throw new Error("[foreach] expects (",tokens.at(cursor));
 		// this block stores the running variables, defined in the loop condition
-		Block * loopWrappingBlock = static_cast<TStartBlock*>(tokens.at(cursor))->getBlock();
+		Block * loopWrappingBlock = Token::cast<TStartBlock>(tokens.at(cursor))->getBlock();
 		++cursor;
 		Object * arrayExpression=getExpression(ctxt,cursor);
 		++cursor;
-		tc=dynamic_cast<TControl *>(tokens.at(cursor));
+		tc=Token::cast<TControl>(tokens.at(cursor));
 		if (!tc || tc->getId()!=Consts::IDENTIFIER_as)
 			throw new Error("[foreach] expects as",tokens.at(cursor));
 		++cursor;
 
 		TIdentifier * valueIdent=NULL;
 		TIdentifier * keyIdent=NULL;
-		if (!(valueIdent=dynamic_cast<TIdentifier *>(tokens.at(cursor))))
+		if (!(valueIdent=Token::cast<TIdentifier>(tokens.at(cursor))))
 			throw new Error("[foreach] expects Identifier-1",tokens.at(cursor));
 		++cursor;
 
 		if (Token::isA<TDelimiter>(tokens.at(cursor))) {
 			++cursor;
 			keyIdent=valueIdent;
-			if (!(valueIdent=dynamic_cast<TIdentifier *>(tokens.at(cursor))))
+			if (!(valueIdent=Token::cast<TIdentifier>(tokens.at(cursor))))
 				throw new Error("[foreach] expects Identifier-2",tokens.at(cursor));
 			++cursor;
 		}
@@ -1463,18 +1451,18 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const throw(Exce
 	else if(cId==Consts::IDENTIFIER_try) {
 		Object * tryBlock=getExpression(ctxt,cursor); // TODO should be a block
 		++cursor;
-		tc=dynamic_cast<TControl *>(tokens.at(cursor));
+		tc=Token::cast<TControl>(tokens.at(cursor));
 		if (!tc || tc->getId()!=Consts::IDENTIFIER_catch)
-			throw(new Error("[try-catch] expects catch",tokens.at(cursor)));
+			throw new Error("[try-catch] expects catch",tokens.at(cursor));
 		++cursor;
 		if (!Token::isA<TStartBracket>(tokens.at(cursor)))
-			throw(new Error("[try-catch] expects (",tokens.at(cursor)));
+			throw new Error("[try-catch] expects (",tokens.at(cursor));
 		++cursor;
 		TIdentifier * tIdent=NULL;
 
 		identifierId varName=0;
 		bool hasVarName=false;
-		if ((tIdent=dynamic_cast<TIdentifier*>(tokens.at(cursor)))) {
+		if ((tIdent=Token::cast<TIdentifier>(tokens.at(cursor)))) {
 			++cursor;
 			varName=tIdent->getId();
 			hasVarName=true;
@@ -1485,7 +1473,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const throw(Exce
 		}
 		++cursor;
 
-		TStartBlock * tStartCatchBlock = dynamic_cast<TStartBlock *>(tokens.at(cursor));
+		TStartBlock * tStartCatchBlock = Token::cast<TStartBlock>(tokens.at(cursor));
 		if(tStartCatchBlock==NULL){
 			throw new Error("[catch] expects Block {...}",tokens.at(cursor));
 		}
@@ -1559,7 +1547,7 @@ Parser::lValue_t Parser::getLValue(ParsingContext & ctxt,int from,int to,Object 
 	/// Single Element: "a"
 	if (to==from) {
 		if (Token::isA<TIdentifier>(tokens[from])) {
-			identifier=dynamic_cast<TIdentifier *>(tokens[from])->getId();
+			identifier=Token::cast<TIdentifier>(tokens.at(from))->getId();
 			obj=NULL;
 			return LVALUE_MEMBER;
 //        }else if (Identifier * i=dynamic_cast<Identifier *>(tokens[from])) { // $a
@@ -1567,24 +1555,24 @@ Parser::lValue_t Parser::getLValue(ParsingContext & ctxt,int from,int to,Object 
 //            obj=NULL;
 //            return LVALUE_MEMBER;
 		} else {
-			throw(new Error("LValue Error 1",tokens[from]));
+			throw new Error("LValue Error 1",tokens[from]);
 		}
 	}
 	/// ".a"
 	/// "a.b.c"
 	if (Token::isA<TIdentifier>(tokens[to]) && Token::isA<TOperator>(tokens[to-1]) ) {
-		if ( dynamic_cast<TOperator *>(tokens[to-1])->getOperator()->getString()==".") {
+		if ( Token::cast<TOperator>(tokens.at(to-1))->getOperator()->getString()==".") {
 			obj=getExpression(ctxt,from,to-2);
-			identifier=dynamic_cast<TIdentifier *>(tokens[to])->getId();
+			identifier=Token::cast<TIdentifier>(tokens[to])->getId();
 			return LVALUE_MEMBER;
 		}
 	}
 // !!!!!!!!!!!!!!!!!!!!!!!!!! \todo ..............................
-	if(TObject * tObj=dynamic_cast<TObject*>(tokens[to])){
+	if(TObject * tObj=Token::cast<TObject>(tokens[to])){
 		/// ".'a'"
 		/// "a.b.'c'"
 		if (String * s=dynamic_cast<String *>(tObj->obj.get())) {
-			TOperator * top=dynamic_cast<TOperator *>(tokens[to-1]);
+			TOperator * top=Token::cast<TOperator>(tokens[to-1]);
 
 			if (top && top->getOperator()->getString()==".") {
 				obj=getExpression(ctxt,from,to-2);
@@ -1595,7 +1583,7 @@ Parser::lValue_t Parser::getLValue(ParsingContext & ctxt,int from,int to,Object 
 		/// ".$a"
 		/// "a.b.$c"
 		if (Identifier * i=dynamic_cast<Identifier *>(tObj->obj.get())) {
-			TOperator * top=dynamic_cast<TOperator *>(tokens[to-1]);
+			TOperator * top=Token::cast<TOperator>(tokens[to-1]);
 
 			if (top && top->getOperator()->getString()==".") {
 				obj=getExpression(ctxt,from,to-2);
@@ -1639,11 +1627,11 @@ int Parser::findExpression(ParsingContext & ctxt,int cursor)const {
 	Token * t=NULL;
 	while (true) {
 		to++;
-		t=tokens[to];
+		t=tokens.at(to).get();
 
 		switch(t->getType()){
 			case TStartBracket::TYPE_ID:{
-				TStartBracket * sb=dynamic_cast<TStartBracket*>(t);
+				TStartBracket * sb=Token::cast<TStartBracket>(t);
 				if(sb->endBracketIndex>1){
 					to=sb->endBracketIndex;
 				}else {
@@ -1686,7 +1674,7 @@ int Parser::findExpression(ParsingContext & ctxt,int cursor)const {
 			continue;
 		switch(t->getType()){
 			case TControl::TYPE_ID: {
-				if (dynamic_cast<TControl *>(t)->getId()==Consts::IDENTIFIER_as) {
+				if (Token::cast<TControl>(t)->getId()==Consts::IDENTIFIER_as) {
 					to--;
 					return to;
 				}
@@ -1747,18 +1735,18 @@ UserFunction::parameterList_t * Parser::getFunctionParameters(ParsingContext & c
 		Object * defaultExpression=NULL;
 		bool multiParam=false;
 		while(true){
-			Token * t=tokens[c];
+			Token * t=tokens.at(c).get();
 			if(Token::isA<TIdentifier>(t)) {
 				// this may not be the final identifier...
-				name=dynamic_cast<TIdentifier*>(t)->getId();
+				name=Token::cast<TIdentifier>(t)->getId();
 				idPos=c;
 
-				Token * tNext=tokens[c+1];
+				Token * tNext=tokens.at(c+1).get();
 				// '*'?
 				if(  Token::isA<TOperator>(tNext) && tNext->toString()=="*" ){
 					multiParam=true;
 					++c;
-					tNext=tokens[c+1];
+					tNext=tokens.at(c+1).get();
 				}else{
 					multiParam=false;
 				}
@@ -1828,7 +1816,7 @@ UserFunction::parameterList_t * Parser::getFunctionParameters(ParsingContext & c
 */
 void Parser::getExpressionsInBrackets(ParsingContext & ctxt,int & cursor,std::vector<ObjRef> & expressions)const throw (Exception *){
 	const Tokenizer::tokenList & tokens = ctxt.tokens;
-	Token * t=tokens.at(cursor);
+	Token * t=tokens.at(cursor).get();
 	if(t->toString()!="(") {
 		std::cout << " #"<<t->toString();
 		throw new Error("Expression list error.",t);

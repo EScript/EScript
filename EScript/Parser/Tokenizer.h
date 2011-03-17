@@ -22,7 +22,7 @@ namespace EScript {
 class Tokenizer {
 	public:
 	typedef std::map<identifierId, _CountedRef<Token> > tokenMap_t;
-		typedef std::vector<Token *> tokenList;
+		typedef std::vector<_CountedRef<Token> > tokenList;
 		static Token * identifyStaticToken(identifierId id);
 
 		Tokenizer();

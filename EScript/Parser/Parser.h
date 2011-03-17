@@ -31,9 +31,13 @@ class Parser : public Object {
 		/*! [Parser::Error] ---|> [Exception] ---|> [Object]    */
 		class Error:public Exception {
 			public:
-				Error(string s,Token * token=NULL):
+				Error(const std::string  & _msg,Token * token=NULL):
 					Exception(
-						string("[Parser]")+s,  (token==NULL? -1 : token->getLine())) {
+						std::string("[Parser]")+_msg,  (token==NULL? -1 : token->getLine())) {
+				}
+				Error(const std::string  & _msg,const _CountedRef<Token> & token):
+					Exception(
+						std::string("[Parser]")+_msg,  (token.isNull() ? -1 : token->getLine())) {
 				}
 		};
 		//-----------
@@ -65,7 +69,7 @@ class Parser : public Object {
 		Statement getStatement(ParsingContext & ctxt,int & cursor,int to=-1)const throw (Exception *);
 		Object * getExpression(ParsingContext & ctxt,int & cursor,int to=-1)const throw (Exception *);
 		Object * getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)const throw (Exception *);
-		Object * getBlock(ParsingContext & ctxt,int & cursor)const throw (Exception *) ;
+		Block * getBlock(ParsingContext & ctxt,int & cursor)const throw (Exception *) ;
 		Object * getMap(ParsingContext & ctxt,int & cursor)const throw (Exception *);
 		Object * getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const throw (Exception *);
 		UserFunction::parameterList_t * getFunctionParameters(ParsingContext & ctxt,int & cursor)const throw (Exception *);

@@ -24,7 +24,7 @@ var t=(new Parser()).parseFile(__DIR__+"/Testcases_Core.escript");
 if(benchmark){
 	GLOBALS.out:=fn(values*){ ;};
 	for(var i=0;i<1000;i++){
-//		var t=Parser.parseFile("tests/Testcases_Core.escript");
+//		var t=(new Parser()).parseFile(__DIR__+"/Testcases_Core.escript");
 		t.execute();
 	}
 }else{
@@ -32,6 +32,7 @@ if(benchmark){
 }
 
 load("Testcases_IOLib.escript");
+//load("Testcases_MathLib.escript");
 load("Testcases_Runtime.escript");
 //if(getOS()=="WINDOWS")
 //	load(__DIR__+"/Testcases_Win32Lib.escript");
@@ -98,4 +99,5 @@ Rev 5 2011-02-01 1000x 4.2
 object.execute removed: 5.25 dynamic_cast at every rt.executeObj
 typeIds added: 4.25
 typeIds used to replace some additional dynamic_casts ->4.0s
+Rev29 3.92s
 */

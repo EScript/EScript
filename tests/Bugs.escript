@@ -1,5 +1,4 @@
-var OK="\t ok\n";
-var FAILED="\t failed\n";
+
 {
 	// Bug - Wrong Calling-Object when UserFunctionCall contains expression
 	// Found 2007-03-27 fixed 2007-03-27
@@ -267,7 +266,7 @@ var FAILED="\t failed\n";
 	//Memory not freed when a Map is cloned. (this can only be tested in memory debug mode)
 	var m1={1:2};
 	var m2=m1.clone();
-	out("MemLeak[20100604] \n");
+	out("MemLeak[20100604] \t ok?\n");
 }
 { // MEMLEAK
 	// assignInheritedAttribute not used in ExtObject
@@ -285,6 +284,7 @@ var FAILED="\t failed\n";
     }
     Runtime._setErrorConfig(0);
 	test( "BUG[20100605]", errorFound );
+	Type.thisShouldntBeHere=void;
 
 }
 {	// Object member functions are accessible locally without an Object!
