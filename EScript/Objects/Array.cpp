@@ -185,20 +185,20 @@ void Array::init(const ParameterValues & p){
 	resize(p.count());
 	size_t i=0;
 	for(ParameterValues::const_iterator it=p.begin();it!=p.end();++it)
-		vec[i++]=*it;
+		data[i++]=*it;
 }
 
 /*!	(internal)*/
 void Array::init(size_t num,Object ** objs) {
 	resize(num);
 	for(size_t i=0;i<num;++i)
-		vec[i]=objs[i];
+		data[i]=objs[i];
 }
 /*!	(internal)*/
 void Array::init(size_t num,char ** strings) {
 	resize(num);
 	for(size_t i=0;i<num;++i)
-		vec[i]=String::create(strings[i]);
+		data[i]=String::create(strings[i]);
 }
 
 //! ---|> [Object]
@@ -207,8 +207,8 @@ Object * Array::clone()const {
 
 	newArray->resize(count());
 	size_t i=0;
-	for (vector<ObjRef>::const_iterator it=vec.begin();it!=vec.end();++it)
-		newArray->vec[i++]=(*it)->getRefOrCopy();
+	for (const_iterator it=begin();it!=end();++it)
+		newArray->data[i++]=(*it)->getRefOrCopy();
 	return newArray;
 }
 
@@ -216,64 +216,38 @@ Object * Array::clone()const {
 Object * Array::getValue(ObjPtr key) {
 	if (key.isNull()) return NULL;
 	size_t  index=static_cast<size_t>(key->toInt());
-	if (index>=vec.size()) return NULL;
-	return vec.at(index).get();
+	if (index>=data.size()) return NULL;
+	return data.at(index).get();
 }
 
 /*!	---|> Collection*/
 void Array::setValue(ObjPtr key,ObjPtr value) {
 	if (key.isNull() ) return;
 	size_t index=static_cast<size_t>(key->toInt());
-	if (index>=vec.size())
-		vec.insert(vec.end(), index-vec.size()+1, 0);
-	vec[index]=value;
+	if (index>=data.size())
+		data.insert(data.end(), index-data.size()+1, 0);
+	data[index]=value;
 }
 
 /*!	---|> Collection*/
 size_t Array::count()const {
-	return vec.size();
+	return data.size();
 }
 
 //! ---|> Collection
-Iterator * Array::getIterator() {
+Array::ArrayIterator * Array::getIterator() {
 	return new ArrayIterator(this);
 }
 
 //! ---|> Collection
 void Array::clear(){
-	vec.clear();
-}
-
-void Array::pushBack(ObjPtr obj) {
-	if (obj.isNull()) return;
-	vec.push_back(obj);
-}
-
-void Array::popBack() {
-	vec.pop_back();
-}
-
-void  Array::pushFront(ObjPtr obj){
-	if (obj.isNull()) return;
-	vec.insert(vec.begin(),obj.get());
-}
-
-void  Array::popFront(){
-	vec.erase(vec.begin());
-}
-
-Object * Array::back() const{
-	return vec.empty() ? NULL : (*(vec.end()-1)).get();
-}
-
-Object * Array::front()const {
-	return vec.empty() ? NULL : (*(vec.begin())).get();
+	data.clear();
 }
 
 int Array::rt_indexOf(Runtime & runtime,ObjPtr search,size_t index){
 	if(index>=count()||search.isNull()) return -1;
 
-	for(vector<ObjRef>::const_iterator it=vec.begin()+index ; it!=vec.end() ; ++it) {
+	for(const_iterator it=begin()+index ; it!=end() ; ++it) {
 		if( search->isEqual(runtime,*it) )
 			return index;
 		++index;
@@ -282,21 +256,21 @@ int Array::rt_indexOf(Runtime & runtime,ObjPtr search,size_t index){
 }
 
 void Array::removeIndex(size_t index){
-	 if(index>=count())
+	 if(index>=size())
 		return;
-	vector<ObjRef>::iterator it=vec.begin()+index;
-	vec.erase(it);
+	iterator it=data.begin()+index;
+	data.erase(it);
 	return ;
 }
 
 void Array::reverse(){
-	if(count()>1){
-		size_t hSize=static_cast<size_t>(count()/2.0);
-		size_t j=count()-1;
+	if(size()>1){
+		size_t hSize=static_cast<size_t>(size()/2.0);
+		size_t j=size()-1;
 		for(size_t i=0;i<hSize;++i,--j){
-			ObjRef o=vec[i];
-			vec[i]=vec[j];
-			vec[j]=o;
+			ObjRef o=data[i];
+			data[i]=data[j];
+			data[j]=o;
 		}
 	}
 }
@@ -335,8 +309,8 @@ void Array::rt_sort(Runtime & runtime,Object * function/*=NULL*/,bool reverseOrd
 		//int split=partition(runtime,left,right);
 		size_t split=left;
 		for (size_t i=left;i<right;++i) {
-			Object * di=vec[i].get();
-			Object * dr=vec[right].get();
+			Object * di=data[i].get();
+			Object * dr=data[right].get();
 
 			bool change=false;
 
@@ -356,11 +330,11 @@ void Array::rt_sort(Runtime & runtime,Object * function/*=NULL*/,bool reverseOrd
 			}
 
 			if (change^reverseOrder) {
-				vec[i].swap(vec[split]);
+				data[i].swap(data[split]);
 				split++;
 			}
 		}
-		vec[split].swap(vec[right]);
+		data[split].swap(data[right]);
 
 		//--
 		//quicksort(runtime,left,split-1);
@@ -381,14 +355,14 @@ void Array::rt_filter(Runtime & runtime,ObjPtr function, const ParameterValues &
 	if(!additionalValues.empty())
 		std::copy(additionalValues.begin(),additionalValues.end(),parameters.begin()+1);
 
-	for (vector<ObjRef>::const_iterator it=vec.begin();it!=vec.end();++it) {
+	for (const_iterator it=begin();it!=end();++it) {
 		parameters.set(0,*it);
 		ObjRef resultRef=callFunction(runtime,function.get(),parameters);
 		if( resultRef.toBool() ){
 			tempArray.push_back(*it);
 		}
 	}
-	vec.swap(tempArray);
+	data.swap(tempArray);
 }
 
 void Array::append(Collection * c){
@@ -399,20 +373,20 @@ void Array::append(Collection * c){
 	for(ERef<Iterator> iRef=c->getIterator(); !iRef->end() ;iRef->next()){
 		ObjRef value=iRef->value();
 		if(!value.isNull())
-			vec[i++]=value->getRefOrCopy();
+			data[i++]=value->getRefOrCopy();
 	}
 }
 
 void Array::swap(Array * other){
-	vec.swap(other->vec);
+	data.swap(other->data);
 }
 
 void Array::resize(size_t newSize){
-	vec.resize(newSize);
+	data.resize(newSize);
 }
 
 void Array::reserve(size_t capacity){
-	vec.reserve(capacity);
+	data.reserve(capacity);
 }
 
 // ------- ArrayIterator
@@ -432,7 +406,7 @@ Object * Array::ArrayIterator::key() {
 
 //! ---|> [Iterator]
 Object * Array::ArrayIterator::value() {
-	return end() ? NULL : arrayRef->vec[index].get();
+	return end() ? NULL : arrayRef->data[index].get();
 }
 
 //! ---|> [Iterator]
@@ -447,6 +421,6 @@ void Array::ArrayIterator::reset() {
 
 //! ---|> [Iterator]
 bool Array::ArrayIterator::end() {
-	return index>=arrayRef->vec.size();
+	return index>=arrayRef->data.size();
 }
 }//namespace EScript

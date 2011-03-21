@@ -16,62 +16,104 @@ namespace EScript {
 /*! [Array]  ---|> [Collection] ---|> [Object]  */
 class Array : public Collection {
 		ES_PROVIDES_TYPE_NAME(Array)
+
+	//---------------------
+	
+	//! @name Types
+	// @{
+	public:
+		typedef ObjRef					 		value_type;
+
+		typedef std::vector<value_type>			container_t;
+		typedef container_t::iterator			iterator;
+		typedef container_t::pointer			pointer;
+		typedef container_t::const_pointer		const_pointer;
+		typedef container_t::const_iterator		const_iterator;
+		typedef container_t::reference			reference;
+		typedef container_t::const_reference	const_reference;
+		typedef container_t::size_type			size_type;
+
+		typedef std::ptrdiff_t							difference_type;
+		typedef std::reverse_iterator<iterator>			reverse_iterator;
+		typedef std::reverse_iterator<const_iterator>	const_reverse_iterator;
+	//	@}
+		
+	//---------------------
+		
+	//! @name Creation 
+	// @{		
 	private:
 		static std::stack<Array *> pool;
-	public:
-		static Type* typeObject;
-		static void init(EScript::Namespace & globals);
 
+		Array(Type * type=NULL);
+
+		void init(const ParameterValues & p);
+		void init(size_t num,Object ** objs);
+		void init(size_t num,char ** strings);
+	public:
 		static Array * create(Type * type=NULL);
 		static Array * create(const ParameterValues & p,Type * type=NULL);
 		static Array * create(size_t num,Object ** objs,Type * type=NULL);
 		static Array * create(size_t num,char ** strings,Type * type=NULL);
 		static void release(Array * b);
-
-		// ---
-
-		Array(Type * type=NULL);
 		virtual ~Array();
+	//	@}
+		
+	//---------------------
 
-		void pushBack(ObjPtr obj);
-		void popBack();
+	//! @name TypeObject
+	// @{		
+	public:
+		static Type* typeObject;
+		static void init(EScript::Namespace & globals);
+	//	@}
+		
+	//---------------------
 
-		void pushFront(ObjPtr obj);
-		void popFront();
+	//! @name Data
+	// @{		
+	private:
+		container_t data;
+	public:
+		iterator begin()						{	return data.begin(); }
+		const_iterator begin()const				{	return data.begin(); }
+		iterator end()							{	return data.end(); }
+		const_iterator end()const				{	return data.end(); }
+		reverse_iterator rbegin()				{	return data.rbegin(); }
+		const_reverse_iterator rbegin()const	{	return data.rbegin(); }
+		reverse_iterator rend()					{	return data.rend(); }
+		const_reverse_iterator rend()const		{	return data.rend(); }
+		
+		void append(Collection * c);
+		Object * back()const					{	return empty() ? NULL : (*(end()-1)).get();	}
+		bool empty() const						{	return data.empty();	}
+		iterator erase(iterator i)				{	return data.erase(i);	}
+		iterator erase(iterator i,iterator j)	{	return data.erase(i,j);	}
+		Object * front()const					{	return empty() ? NULL : (*(begin())).get();	}
+		Object * get(size_t index) const		{	return index<data.size() ?  data.at(index).get():NULL;	}
+		std::string implode(const std::string & delimiter=";");
+		void popBack()							{	data.pop_back();	}
+		void popFront()							{	data.erase(begin());	}
+		void pushBack(const ObjPtr & obj)		{	if (!obj.isNull()) data.push_back(obj);	}
+		void pushFront(const ObjPtr & obj)		{	if (!obj.isNull())	data.insert(begin(),obj.get());	}
+		void removeIndex(size_t index);
+		void reserve(size_t capacity);
+		void resize(size_t newSize);
 		void reverse();
-
-		Object * back()const;
-		Object * front()const;
-		void rt_sort(Runtime & runtime,Object * function=NULL,bool reverseOrder=false);
-		void rt_filter(Runtime & runtime,ObjPtr function, const ParameterValues & additionalValues);
-		Object * get(unsigned int index) {
-			return index<vec.size() ?  vec.at(index).get():NULL;
-		}
 		/// returns -1 if not found
 		int rt_indexOf(Runtime & runtime,ObjPtr search,size_t begin=0);
-		void removeIndex(size_t index);
-
-		std::string implode(const std::string & delimiter=";");
-		void append(Collection * c);
-		void resize(size_t newSize);
-		void reserve(size_t capacity);
+		void rt_sort(Runtime & runtime,Object * function=NULL,bool reverseOrder=false);
+		void rt_filter(Runtime & runtime,ObjPtr function, const ParameterValues & additionalValues);
+		size_t size() const						{	return data.size();		}
 		void swap(Array * other);
+	//	@}
+		
+	//---------------------
 
-		/// ---|> [Collection]
-		virtual Object * getValue(ObjPtr key);
-		virtual void setValue(ObjPtr key,ObjPtr value);
-		virtual size_t count()const;
-		virtual Iterator * getIterator();
-		virtual void clear();
-
-
-		/// ---|> [Object]
-		virtual Object * clone()const;
-		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_ARRAY;	}
-
-		/**
-		 * [ArrayIterator] ---|> [Iterator] ---|> [Object]
-		 */
+	//! @name ---|> Collection
+	// @{	
+	public:
+		//!	[ArrayIterator] ---|> [Iterator] ---|> [Object]
 		class ArrayIterator : public Iterator {
 				ES_PROVIDES_TYPE_NAME(ArrayIterator)
 			public:
@@ -89,15 +131,25 @@ class Array : public Collection {
 				// todo: clone!
 			private:
 				ERef<Array> arrayRef;
-				unsigned int index;
+				size_t index;
 		};
+						
+		virtual Object * getValue(ObjPtr key);
+		virtual void setValue(ObjPtr key,ObjPtr value);
+		virtual size_t count()const;
+		virtual ArrayIterator * getIterator();
+		virtual void clear();	
+	//	@}
+		
+	//---------------------
 
-	private:
-		void init(const ParameterValues & p);
-		void init(size_t num,Object ** objs);
-		void init(size_t num,char ** strings);
+	//! @name ---|> Object
+	// @{	
+		virtual Object * clone()const;
+		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_ARRAY;	}	
+	//	@}
 
-		std::vector<ObjRef> vec;
+	//---------------------
 };
 
 }
