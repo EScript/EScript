@@ -18,10 +18,11 @@ class Rand{
 		typedef double floatType;
 
 		Rand(intType initialSeed=0);
-		virtual ~Rand();
+		~Rand();
 		Rand(const Rand& other);
 
 		Rand& operator=(const Rand& other);
+		bool operator==(const Rand& other)const	{	return seed == other.seed;	}
 
 		//-----------------
 		// Seed
