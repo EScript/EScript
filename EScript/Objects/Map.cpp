@@ -82,8 +82,8 @@ Map::~Map() {
 }
 
 void Map::unset(ObjPtr key){
-	if(key.isNull()) return;
-	m.erase(key.toString());
+	if(!key.isNull())
+		data.erase(key.toString());
 }
 
 void Map::merge(Collection * c,bool overwrite/*=true*/){
@@ -106,7 +106,7 @@ void Map::merge(Collection * c,bool overwrite/*=true*/){
 }
 
 void Map::swap(Map * other){
-	m.swap(other->m);
+	data.swap(other->data);
 }
 
 //! ---|> Collection
@@ -116,8 +116,13 @@ Object * Map::getValue(ObjPtr key) {
 
 
 Object * Map::getValue(const std::string & key) {
-	objectMap_t::iterator it=m.find(key);
-	return it==m.end() ? NULL : (*it).second.value.get();
+	container_t::iterator it=data.find(key);
+	return it==data.end() ? NULL : (*it).second.value.get();
+}
+
+Object * Map::getKeyObject(const std::string & key) {
+	container_t::iterator it=data.find(key);
+	return it==data.end() ? NULL : (*it).second.key.get();
 }
 
 //! ---|> Collection
@@ -125,34 +130,34 @@ void Map::setValue(ObjPtr key,ObjPtr value) {
 	if (key.isNull()) return ;
 	std::string ident=key->toString();
 
-	objectMap_t::iterator it=m.find(ident);
-	if(it!=m.end()){
+	container_t::iterator it=data.find(ident);
+	if(it!=data.end()){
 		it->second.key=key;
 		it->second.value=value;
 	}else{
-		m[ident]=MapEntry(key,value);
+		data[ident]=MapEntry(key,value);
 	}
 }
 
 //! ---|> Collection
 size_t Map::count() const{
-	return m.size();
+	return data.size();
 }
 
 //! ---|> Collection
-Iterator * Map::getIterator() {
+Map::MapIterator * Map::getIterator() {
 	return new MapIterator(this);
 }
 
 //! ---|> Collection
 void  Map::clear() {
-	m.clear();
+	data.clear();
 }
 
 //! ---|> [Object]
 Object * Map::clone()const {
 	Map *newMap= new Map(getType());
-	for (objectMap_t::const_iterator it=m.begin() ; it!=m.end() ; ++it) {
+	for (container_t::const_iterator it=data.begin() ; it!=data.end() ; ++it) {
 		const MapEntry & sourceEntry=(*it).second;
 		newMap->setValue(sourceEntry.key->getRefOrCopy(),sourceEntry.value->getRefOrCopy());
 	}
@@ -160,13 +165,13 @@ Object * Map::clone()const {
 }
 
 void Map::rt_filter(Runtime & runtime,ObjPtr function, const ParameterValues & additionalValues) {
-	objectMap_t tempMap;
+	container_t tempMap;
 
 	ParameterValues parameters(additionalValues.count()+2);
 	if(!additionalValues.empty())
 		std::copy(additionalValues.begin(),additionalValues.end(),parameters.begin()+2);
 
-	for (objectMap_t::const_iterator it=m.begin() ; it!=m.end() ; ++it) {
+	for (container_t::const_iterator it=data.begin() ; it!=data.end() ; ++it) {
 		const MapEntry & sourceEntry=(*it).second;
 		parameters.set(0,sourceEntry.key);
 		parameters.set(1,sourceEntry.value);
@@ -175,13 +180,13 @@ void Map::rt_filter(Runtime & runtime,ObjPtr function, const ParameterValues & a
 			tempMap[ it->first ] = sourceEntry;
 		}
 	}
-	m.swap(tempMap);
+	data.swap(tempMap);
 }
 // ------- MapIterator
 
 //! (ctor)
 Map::MapIterator::MapIterator(Map * map):Iterator(),mapRef(map) {
-	it=mapRef->m.begin();
+	it=mapRef->data.begin();
 }
 
 //! (dtor)
@@ -204,17 +209,16 @@ Object * Map::MapIterator::value() {
 
 //! ---|> [Iterator]
 void Map::MapIterator::next() {
-	if (!end()) {
+	if (!end()) 
 		++it;
-	}
 }
 
 //! ---|> [Iterator]
 void Map::MapIterator::reset() {
-	it=mapRef->m.begin();
+	it=mapRef->data.begin();
 }
 
 //! ---|> [Iterator]
 bool Map::MapIterator::end() {
-	return it==mapRef->m.end();
+	return it==mapRef->data.end();
 }

@@ -20,9 +20,17 @@ void ExtObject::init(EScript::Namespace & globals) {
 	Type * typeObject=getTypeObject();
 	declareConstant(&globals,getClassName(),typeObject);
 
-	//!	[ESMF] ExtObject new ExtObject()
-	ESF_DECLARE(typeObject,"_constructor",0,0,
-				new ExtObject(assertType<Type>(runtime,caller)))
+	//!	[ESMF] ExtObject new ExtObject( [Map objAttributes] )
+	ES_FUNCTION_DECLARE(typeObject,"_constructor",0,1,{
+		ERef<ExtObject> result(new ExtObject(assertType<Type>(runtime,caller)));
+		if(parameter.count()>0){
+			Map * m=assertType<Map>(runtime,parameter[0]);
+			for(Map::const_iterator it=m->begin();it!=m->end();++it)
+				result->setObjAttribute( it->first.c_str(), it->second.value );
+		}
+		return result.detachAndDecrease();
+	})
+
 }
 
 // -----------------------------------------------------------------------------------------------

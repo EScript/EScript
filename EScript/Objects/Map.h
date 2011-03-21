@@ -14,10 +14,16 @@ namespace EScript {
 /*! [Map] ---|> [Collection] ---|> [Object] */
 class Map : public Collection {
 		ES_PROVIDES_TYPE_NAME(Map)
-		/*!	[MapEntry]	*/
+
+	//---------------------
+	
+	//! @name Types
+	// @{
+	public:
+		//!	MapEntry:   (key,value)
 		struct MapEntry {
 			MapEntry() {	}
-			MapEntry(ObjPtr _key,ObjPtr _value) : key(_key),value(_value) {	}
+			MapEntry(const ObjPtr & _key,const ObjPtr & _value) : key(_key),value(_value) {	}
 			MapEntry(const MapEntry &other) : key(other.key),value(other.value) {}
 			MapEntry & operator=(const MapEntry &other){
 				if(this!=&other){
@@ -29,11 +35,73 @@ class Map : public Collection {
 			ObjRef key;
 			ObjRef value;
 		};
-		typedef std::map<std::string,MapEntry>  objectMap_t;
+		typedef std::map<std::string,MapEntry>	container_t;
+		typedef container_t::iterator			iterator;
+		typedef container_t::pointer			pointer;
+		typedef container_t::const_pointer		const_pointer;
+		typedef container_t::const_iterator		const_iterator;
+		typedef container_t::reference			reference;
+		typedef container_t::const_reference	const_reference;
+		typedef container_t::size_type			size_type;
 
+		typedef std::ptrdiff_t							difference_type;
+		typedef std::reverse_iterator<iterator>			reverse_iterator;
+		typedef std::reverse_iterator<const_iterator>	const_reverse_iterator;
+	//	@}
+
+	//---------------------
+
+	//! @name Creation 
+	// @{	
 	public:
+		static Map * create();
+		static Map * create(const std::map<identifierId,Object *> &);
 
-		/*!	[MapIterator] ---|> [Iterator]	*/
+		// ---
+		Map(Type * type=NULL);
+		virtual ~Map();
+	//	@}
+
+	//---------------------
+		
+	//! @name TypeObject 
+	// @{	
+	public:
+		static Type* typeObject;
+		static void init(EScript::Namespace & globals);
+	//	@}
+
+	//---------------------
+
+	//! @name Data 
+	// @{	
+	private:
+		container_t data;
+	public:
+		iterator begin()						{	return data.begin(); }
+		const_iterator begin()const				{	return data.begin(); }
+		iterator end()							{	return data.end(); }
+		const_iterator end()const				{	return data.end(); }
+		reverse_iterator rbegin()				{	return data.rbegin(); }
+		const_reverse_iterator rbegin()const	{	return data.rbegin(); }
+		reverse_iterator rend()					{	return data.rend(); }
+		const_reverse_iterator rend()const		{	return data.rend(); }
+		
+		bool empty()const						{	return data.empty();	}
+		size_type erase(const std::string & key){	return data.erase(key);	}
+		Object * getValue(const std::string & key);
+		Object * getKeyObject(const std::string & key);
+		void merge(Collection * c,bool overwrite=true);
+		void rt_filter(Runtime & runtime,ObjPtr function, const ParameterValues & additionalValues);
+		void unset(ObjPtr key);
+		void swap(Map * other);
+	//	@}
+
+	//---------------------
+
+	//! @name ---|> [Collection] 
+	// @{	
+		//!	[MapIterator] ---|> [Iterator]
 		class MapIterator : public Iterator {
 				ES_PROVIDES_TYPE_NAME(MapIterator)
 			public:
@@ -42,53 +110,30 @@ class Map : public Collection {
 
 				/// ---|> [Iterator]
 				virtual Object * key();
-				/// ---|> [Iterator]
 				virtual Object * value();
-				/// ---|> [Iterator]
 				virtual void reset();
-				/// ---|> [Iterator]
 				virtual void next();
-				/// ---|> [Iterator]
 				virtual bool end();
 
 			private:
 				ERef<Map> mapRef;
-				objectMap_t::iterator it;
+				container_t::iterator it;
 		};
-		// -----------------------------------
-
-		static Type* typeObject;
-		static void init(EScript::Namespace & globals);
-
-		static Map * create();
-		static Map * create(const std::map<identifierId,Object *> &);
-
-		// ---
-		Map(Type * type=NULL);
-		virtual ~Map();
-
-		void unset(ObjPtr key);
-		Object * getValue(const std::string & key);
-		void merge(Collection * c,bool overwrite=true);
-		void rt_filter(Runtime & runtime,ObjPtr function, const ParameterValues & additionalValues);
-		void swap(Map * other);
-
-		/// ---|> [Collection]
-		virtual Object * getValue(ObjPtr key);
-		/// ---|> [Collection]
-		virtual void setValue(ObjPtr key,ObjPtr value);
-		/// ---|> [Collection]
-		virtual size_t count()const;
-		/// ---|> [Collection]
-		virtual Iterator * getIterator();
-		/// ---|> [Collection]
 		virtual void clear();
+		virtual size_t count()const;
+		virtual MapIterator * getIterator();
+		virtual Object * getValue(ObjPtr key);
+		virtual void setValue(ObjPtr key,ObjPtr value);
+	//	@}
 
-		/// ---|> [Object]
+	//---------------------
+
+	//! @name ---|> [Object]
+	// @{	
 		Object * clone()const;
+	//	@}
 
-	private:
-		objectMap_t m;
+	//---------------------
 };
 
 }

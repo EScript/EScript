@@ -614,12 +614,12 @@ if(!benchmark)
 //---
 {
 	out("Identifier/isSet:");
-	var a=new ExtObject();
+	var a=new ExtObject({ $foo2:2 });
 	a.foo:=1;
 	var t1=a.getAttribute($foo);
 	a.$foo=2;
 
-	if( t1==1 && a.foo==2 && a.isSet($foo) && a.isSet('foo') &&	!a.isSet('bar'))
+	if( t1==1 && a.foo==2 && a.isSet($foo) && a.isSet('foo') &&	!a.isSet('bar') && a.foo2==2 )
         {out (OK);}else { errors+=1; out(FAILED); }
 }
 //---
