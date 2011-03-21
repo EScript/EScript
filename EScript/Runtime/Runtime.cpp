@@ -619,7 +619,11 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 		} else { /// !isConstructorCall
 			UserFunction * ufun=static_cast<UserFunction*>(fun.get());
 			RuntimeContext * fctxt=createFunctionCallContext(_callingObject,ufun,params);
-			if(fctxt==NULL) {// error occured
+			
+			// error occured
+			if(!checkNormalState()){
+				return NULL;
+			}else if(fctxt==NULL) {
 				exception("Could not call function. ");
 				return NULL;
 			}
@@ -746,8 +750,8 @@ bool Runtime::checkType(const identifierId & name, Object * obj,Object *typeExpr
 	}else if(obj->isA(typeObj.toType<Type>()) ||  obj->isIdentical(*this,typeObj)){
 		return true;
 	}
-	exception("Wrong parameter type for parameter " + EScript::identifierIdToString(name)+"\n"+
-		"Expected: "+typeExpression->toString()+"\tRecieved: "+obj->getTypeName()+" \t");
+	exception("Wrong value type for parameter '" + EScript::identifierIdToString(name)+"'. "+
+		"Expected object of type '"+typeExpression->toString()+"', but received object of type '"+obj->getTypeName()+"'.");
 	return false;
 }
 
@@ -793,6 +797,14 @@ Object * Runtime::executeUserConstructor(const ObjPtr & _callingObject,const Par
 
 		/// \note the created RTB must not have a parent:
 		RuntimeContext::RTBRef funCtxt=createFunctionCallContext(NULL,uCons,currentParams); // we don't know the baseObj yet.
+		// error occured
+		if(!checkNormalState()){
+			return NULL;
+		}else if(funCtxt==NULL) {
+			exception("Could not call function. ");
+			return NULL;
+		}
+						
 		consCallStack.push(funCtxt);
 
 		/// create new set of params according to super constructor parameters
@@ -940,15 +952,15 @@ void Runtime::error(const std::string & s,Object * obj) {
 
 std::string Runtime::getStackInfo(){
 	std::ostringstream os;
-	os<<"\n\n----------------------\nCall stack:\n";
+	os<<"\n\n----------------------\nCall stack:";
 	int nr=0;
 	for(std::vector<FunctionCallInfo>::reverse_iterator it=functionCallStack.rbegin();it!=functionCallStack.rend();++it){
-		if(it!=functionCallStack.rbegin())
-			os<<"\n-----------\n";
-		os<<(++nr)<<".\n";
+//		if(it!=functionCallStack.rbegin())
+//			os<<"\n \n";
+		os<<"\n\n"<<(++nr)<<".";
 		FunctionCallInfo & i=*it;
 		if(i.funCall!=NULL)
-			os<< "call:\t"<< i.funCall->toDbgString();
+			os<< "\t"<< i.funCall->toDbgString();
 		if(i.callingObject!=NULL)
 			os<< "\ncaller:\t"<<i.callingObject;
 		if(i.function!=NULL)
@@ -963,6 +975,6 @@ std::string Runtime::getStackInfo(){
 			}
 		}
 	}
-	os<<"\n----------------------\n";
+	os<<"\n\n----------------------\n";
 	return os.str();
 }

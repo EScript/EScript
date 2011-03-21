@@ -368,3 +368,19 @@
 	test( "BUG[20110314]", errorFound && i>17 && i<22);
 
 }
+
+
+
+{	// system crashes if a wrong parameter type is given in a user constructor call.
+	var exceptionCaught=false;
+    try{
+		var A=new Type();
+		A._constructor ::= fn( Array a){
+		};
+		new A("foo");
+    }catch(e){
+		exceptionCaught=true;
+    }
+	test( "BUG[20110321]", exceptionCaught);	
+}
+
