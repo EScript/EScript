@@ -20,7 +20,6 @@ set(ESCRIPT_SOURCES
 	EScript/Objects/Internals/LogicOp.cpp
 	EScript/Objects/Internals/SetAttribute.cpp
 	EScript/Objects/Internals/Statement.cpp
-	EScript/Objects/Internals/TryCatchControl.cpp
 	EScript/Objects/Map.cpp
 	EScript/Objects/Namespace.cpp
 	EScript/Objects/Number.cpp
@@ -30,6 +29,7 @@ set(ESCRIPT_SOURCES
 	EScript/Objects/Type.cpp
 	EScript/Objects/UserFunction.cpp
 	EScript/Objects/Void.cpp
+	EScript/Objects/YieldIterator.cpp
 	EScript/Parser/Parser.cpp
 	EScript/Parser/Operators.cpp
 	EScript/Parser/Token.cpp
