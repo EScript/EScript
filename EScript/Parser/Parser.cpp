@@ -634,7 +634,7 @@ Statement Parser::getStatement(ParsingContext & ctxt,int & cursor,int to)const t
 		return Statement(Statement::TYPE_UNDEFINED);
 	}
 
-};
+}
 
 /**
  * Get block of statements
