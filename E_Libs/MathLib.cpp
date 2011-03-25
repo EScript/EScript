@@ -16,7 +16,7 @@ namespace MathLib{
 
 //! EWrapper for Rand-Class
 class E_RandNumGenerator : public ReferenceObject<Rand> {
-	ES_PROVIDES_TYPE_NAME(RandNumGenerator);
+	ES_PROVIDES_TYPE_NAME(RandNumGenerator)
 public:
 	//! (static)
 	static Type * getTypeObject() {
