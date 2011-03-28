@@ -58,14 +58,14 @@ void Runtime::init(EScript::Namespace & globals) {
 	ESF_DECLARE(typeObject,"_setStackSizeLimit",1,1,
 				(runtime.setStackSizeLimit(static_cast<size_t>(parameter[0].toInt())),Void::get()) )
 
-	//!	[ESMF] void Runtime.exception(message);
-	ESF_DECLARE(typeObject,"exception",1,1, (runtime.exception(parameter[0].toString()),Void::get()))
+	//!	[ESMF] void Runtime.exception( [message] );
+	ESF_DECLARE(typeObject,"exception",0,1, (runtime.exception(parameter[0].toString()),Void::get()))
 
 	//!	[ESMF] String Runtime.getStackInfo();
 	ESF_DECLARE(typeObject,"getStackInfo",0,0, String::create(runtime.getStackInfo()))
 
-	//!	[ESMF] void Runtime.warn(message);
-	ESF_DECLARE(typeObject,"warn",1,1, (runtime.warn(parameter[0].toString()),Void::get()))
+	//!	[ESMF] void Runtime.warn([message]);
+	ESF_DECLARE(typeObject,"warn",0,1, (runtime.warn(parameter[0].toString()),Void::get()))
 
 }
 
@@ -75,7 +75,7 @@ void Runtime::init(EScript::Namespace & globals) {
 //! (ctor)
 Runtime::Runtime() :
 		ExtObject(Runtime::typeObject), stackSizeLimit(512),
-		state(STATE_NORMAL),errorConfig(0),currentLine(0) {
+		state(STATE_NORMAL),errorConfig(0){ //,currentLine(0) {
 
 	globals=EScript::getSGlobals()->clone();
 	globals->setObjAttribute(stringToIdentifierId( "GLOBALS"),globals.get());
@@ -194,8 +194,6 @@ Object * Runtime::executeObj(Object * obj){
 
 	case _TypeIds::TYPE_SET_ATTRIBUTE:{
 		SetAttribute * sa=static_cast<SetAttribute *>(exp);
-		if(sa->line>0)
-			setCurrentLine(sa->line);
 		ObjRef value;
 		if (!sa->valueExpr.isNull()) {
 			value=executeObj(sa->valueExpr.get());
@@ -294,7 +292,6 @@ Object * Runtime::executeObj(Object * obj){
 }
 
 Object * Runtime::executeBlock(Block * block) {
-	setCurrentLine(block->getLine());
 	getCurrentContext()->createAndPushRTB(block);
 	ObjRef resultRef = executeCurrentContext(true);
 	getCurrentContext()->popRTB();
@@ -322,8 +319,6 @@ Object * Runtime::executeCurrentContext(bool markEntry) {
 			stmt = rtb->nextStatement();
 			continue;
 		}
-//		if(stmt->getLine()>0)
-//			setCurrentLine(stmt->getLine());
 		resultRef = NULL;
 		try {
 			switch( stmt->getType()){
@@ -489,7 +484,6 @@ Object * Runtime::executeCurrentContext(bool markEntry) {
 Object * Runtime::executeFunctionCall(FunctionCall * fCall){
 	size_t numParams=0;
 	setCallingObject(NULL);
-	setCurrentLine(fCall->getLine());
 
 	// get calling object
 	ObjRef funRef=executeObj(fCall->getStatement()); // this sets the new calling object
@@ -563,7 +557,7 @@ Object * Runtime::executeFunctionCall(FunctionCall * fCall){
 	- UserFunction constructor:
 	    - return executeUserConstructor(...)
 	- UserFunction:
-		- createFunctionCallContext(...)
+		- createAndPushFunctionCallContext(...)
 		- return executeContext(...)
 	- Delegate: return executeFunction(...) for contained function.
 */
@@ -579,11 +573,9 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 
 	// is  C++ function ?
 	int type=fun->_getInternalTypeId();
-//	Function * libfun=fun.toType<Function>();
-//	if (libfun && libfun->getFnPtr()) {
+
 	if (type==_TypeIds::TYPE_FUNCTION) {
 		Function * libfun=static_cast<Function*>(fun.get());
-//		if( libfun->getFnPtr()==NULL)
 
 		if(isConstructorCall && _callingObject.toType<Type>()==NULL){
 			exception("Can not instantiate non-Type-Object. Hint: Try to check the type you use with 'new'.");
@@ -613,21 +605,18 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 		}
 	} // is UserFunction?
 	else if (type==_TypeIds::TYPE_USER_FUNCTION){
-//			UserFunction * ufun=fun.toType<UserFunction>()) {
 		if (isConstructorCall) {
 			return executeUserConstructor(_callingObject,params); // this ufun is not used, as it's origin is not known
 		} else { /// !isConstructorCall
 			UserFunction * ufun=static_cast<UserFunction*>(fun.get());
-			RuntimeContext * fctxt=createFunctionCallContext(_callingObject,ufun,params);
+			RuntimeContext * fctxt=createAndPushFunctionCallContext(_callingObject,ufun,params);
 			
 			// error occured
-			if(!checkNormalState()){
-				return NULL;
-			}else if(fctxt==NULL) {
-				exception("Could not call function. ");
+			if(fctxt==NULL) {
+				if( checkNormalState() ) // no context, but normal state? --> strange things happend
+					exception("Could not call function. ");
 				return NULL;
 			}
-			pushContext(fctxt);
 			ObjRef result=executeCurrentContext();
 			result=NULL;
 
@@ -652,7 +641,6 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 	} // is Delegate?
 	else if(type==_TypeIds::TYPE_DELEGATE){
 		Delegate * d=static_cast<Delegate*>(fun.get());
-		//fun.toType<Delegate>())
 		return executeFunction(d->getFunction(),d->getObject(),params,isConstructorCall);
 	} else {
 		warn("No function to call.");
@@ -663,13 +651,14 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 /*! (internal)	Create a RuntimeContext for a user function and assign the parameterValues to the corresponding local variables.
 	\note The calling object is not set here.
 	Called by executeFunction(...) and executeUserConstructor(...)	*/
-RuntimeContext * Runtime::createFunctionCallContext(const ObjPtr & _callingObject,UserFunction * ufun,const ParameterValues & paramValues){
+RuntimeContext * Runtime::createAndPushFunctionCallContext(const ObjPtr & _callingObject,UserFunction * ufun,const ParameterValues & paramValues){
 
 	RuntimeContext::RTBRef ctxt = RuntimeContext::create();
 	RuntimeBlock * rtb=ctxt->createAndPushRTB(ufun->getBlock());// this is later popped implicitly when the context is executed.
-//	ctxt->pushRTB(rtb);
 	ctxt->initCaller(_callingObject);
-
+	
+	pushContext(ctxt.get());
+	
 	/// Assign parameter values
 	UserFunction::parameterList_t * paramExpressions=ufun->getParamList();
 	size_t paramExpSize=paramExpressions->size();
@@ -703,6 +692,7 @@ RuntimeContext * Runtime::createFunctionCallContext(const ObjPtr & _callingObjec
 		/// check type
 		Object * typeExpression=(*paramExpressions)[i]->getType();
 		if(typeExpression!=NULL && !checkType( name,valueRef.get(),typeExpression)){
+			popContext();
 			return NULL;
 		}
 		rtb->initLocalVariable( name,valueRef.get());
@@ -718,6 +708,7 @@ RuntimeContext * Runtime::createFunctionCallContext(const ObjPtr & _callingObjec
 			/// check type
 			Object * typeExpression=(*paramExpressions)[paramExpSize-1]->getType();
 			if(typeExpression!=NULL && !checkType(name,valueRef.get(),typeExpression)){
+				popContext();
 				return NULL;
 			}
 			multiParam->pushBack(valueRef.get());
@@ -731,7 +722,7 @@ RuntimeContext * Runtime::createFunctionCallContext(const ObjPtr & _callingObjec
 	return ctxt.detachAndDecrease();
 }
 
-/*! (internal) Called by createFunctionCallContext(...)*/
+/*! (internal) Called by createAndPushFunctionCallContext(...)*/
 bool Runtime::checkType(const identifierId & name, Object * obj,Object *typeExpression){
 	if(obj==NULL)
 		return false;
@@ -796,23 +787,19 @@ Object * Runtime::executeUserConstructor(const ObjPtr & _callingObject,const Par
 		UserFunction * uCons = static_cast<UserFunction*>(currentCons);
 
 		/// \note the created RTB must not have a parent:
-		RuntimeContext::RTBRef funCtxt=createFunctionCallContext(NULL,uCons,currentParams); // we don't know the baseObj yet.
-		// error occured
-		if(!checkNormalState()){
-			return NULL;
-		}else if(funCtxt==NULL) {
-			exception("Could not call function. ");
+		RuntimeContext::RTBRef fctxt=createAndPushFunctionCallContext(NULL,uCons,currentParams); // we don't know the baseObj yet.
+		if(fctxt==NULL) {
+			if( checkNormalState() ) // no context, but normal state? --> strange things happend
+				exception("Could not call function. ");
 			return NULL;
 		}
-						
-		consCallStack.push(funCtxt);
+		consCallStack.push(fctxt);
 
 		/// create new set of params according to super constructor parameters
 		std::vector<ObjRef> & sConstrExpressions=uCons->getSConstructorExpressions();
 		if(sConstrExpressions.size()>0){
 			currentParams=ParameterValues(sConstrExpressions.size());
 			size_t i=0;
-			pushContext(funCtxt.get());
 			for(std::vector<ObjRef>::iterator it=sConstrExpressions.begin();it!=sConstrExpressions.end();++it){
 				Object * expr=it->get();
 				ObjRef result;
@@ -830,11 +817,11 @@ Object * Runtime::executeUserConstructor(const ObjPtr & _callingObject,const Par
 				currentParams.set(i,result);
 				++i;
 			}
-			popContext(); // the RTB is not destroyed here because of the remaining reference (it is re-used later);
-			// this is only allowed as it is not part of a RTB-hirarchie
 		}else{
 			currentParams=ParameterValues();
 		}
+		popContext(); // the RTB is not destroyed here because of the remaining reference (it is re-used later);
+		// this is only allowed as it is not part of a RTB-hirarchie
 
 	}
 	if(baseObj.isNull()){
@@ -860,7 +847,6 @@ Object * Runtime::executeUserConstructor(const ObjPtr & _callingObject,const Par
 			}
 		}
 
-//		ObjRef tmp = executeContext(ctxt); // here the RTB is poped and destroyed... //,false
 		if ( (!tmp.isNull()) && (!dynamic_cast<Void *>(tmp.get()))) {
 			warn("Contructor calls should not return anything!.");
 			std::cout<< " #"<<tmp.toString()<<"\n";
@@ -897,11 +883,11 @@ bool Runtime::stateError(Object * obj){
 			break;
 		}
 		case STATE_EXITING:{
-//			setExceptionState(new Exception("No exit here!"+(obj?" ["+obj->toString()+"]":"")+getStackInfo(),getCurrentLine()));
-//			break;
+			break;
 		}
 		case STATE_EXCEPTION:{
 			// we are already in an exception state...
+			break;
 		}
 	}
 	return false;
@@ -931,6 +917,7 @@ void Runtime::warn(const std::string & s) {
 void Runtime::exception(const std::string & s) {
 	Exception * e = new Exception(s,getCurrentLine());
 	e->setStackInfo(getStackInfo());
+	e->setFilename(getCurrentFile());
 	setExceptionState(e);
 }
 
@@ -944,11 +931,33 @@ void Runtime::error(const std::string & s,Object * obj) {
 			 os<<"\tFile:"<<b->getFilename()<<" near line "<<getCurrentLine()<<"\n";
 	}
 	os<<getStackInfo();
-	throw(new Exception(os.str(),getCurrentLine()));
+	Exception * e = new Exception(os.str(),getCurrentLine()); // \todo remove line 
+	e->setFilename(getCurrentFile());
+	throw e;
 }
+
 
 // ----------------------------------------------------------------------
 // ---- Debugging
+
+std::string Runtime::getCurrentFile()const{
+	if(getCurrentContext()->getCurrentRTB()!=NULL){
+		Block * b=getCurrentContext()->getCurrentRTB()->getStaticBlock();
+		if(b)
+			 return b->getFilename();
+	}
+	return std::string();
+}
+
+int Runtime::getCurrentLine()const{
+ 	int line = getCurrentContext()->getPrevLine();
+ 	if(line<0 && !functionCallStack.empty()){
+		UserFunction * ufun=dynamic_cast<UserFunction *>(functionCallStack.back().function);
+		if(ufun!=NULL)
+			line = ufun->getBlock()->getLine();
+ 	}
+ 	return line;
+}
 
 std::string Runtime::getStackInfo(){
 	std::ostringstream os;

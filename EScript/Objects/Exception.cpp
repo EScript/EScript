@@ -20,20 +20,26 @@ void Exception::init(EScript::Namespace & globals) {
 	//!	[ESMF] new Exception([String message])
 	ESF_DECLARE(typeObject,"_constructor",0,1, new Exception(parameter[0].toString(""),0,dynamic_cast<Type*>(caller)))
 
-	//!	[ESMF] String Exception.getMessage()
-	ESMF_DECLARE(typeObject,Exception,"getMessage",0,0, String::create(self->getMessage()))
+	//!	[ESMF] String Exception.getFilename()
+	ESMF_DECLARE(typeObject,Exception,"getFilename",0,0, String::create(self->getFilename()))
 
 	//!	[ESMF] Number Exception.getLine()
 	ESMF_DECLARE(typeObject,Exception,"getLine",0,0, Number::create(self->getLine()))
 
+	//!	[ESMF] String Exception.getMessage()
+	ESMF_DECLARE(typeObject,Exception,"getMessage",0,0, String::create(self->getMessage()))
+
 	//!	[ESMF] String Exception.getStackInfo()
 	ESMF_DECLARE(typeObject,Exception,"getStackInfo",0,0, String::create(self->getStackInfo()))
 
-	//!	[ESMF] self Exception.setMessage(String)
-	ESMF_DECLARE(typeObject,Exception,"setMessage",1,1, (self->setMessage(parameter[0].toString()),self))
+	//!	[ESMF] self Exception.getFilename(String)
+	ESMF_DECLARE(typeObject,Exception,"setFilename",1,1, (self->setFilename(parameter[0].toString()),self))
 
 	//!	[ESMF] self Exception.setLine(Number)
 	ESMF_DECLARE(typeObject,Exception,"setLine",1,1, (self->setLine(parameter[0].toInt()),self))
+
+	//!	[ESMF] self Exception.setMessage(String)
+	ESMF_DECLARE(typeObject,Exception,"setMessage",1,1, (self->setMessage(parameter[0].toString()),self))
 
 	//!	[ESMF] self Exception.setStackInfo(String)
 	ESMF_DECLARE(typeObject,Exception,"setStackInfo",1,1, (self->setStackInfo(parameter[0].toString()),self))
@@ -42,7 +48,7 @@ void Exception::init(EScript::Namespace & globals) {
 
 //! (ctor)
 Exception::Exception(const std::string & _msg,int _line,Type * type):
-		ExtObject(type?type:typeObject),msg(_msg),line(_line) {
+		ExtObject(type?type:typeObject),msg(_msg),line(_line),filenameId(0) {
 	//ctor
 }
 
@@ -55,6 +61,7 @@ Exception::~Exception() {
 Object *  Exception::clone()const {
 	Exception * e = new Exception(msg,line,getType());
 	e->setStackInfo(getStackInfo());
+	e->setFilenameId(getFilenameId());
 	return e;
 }
 
@@ -62,8 +69,14 @@ Object *  Exception::clone()const {
 std::string Exception::toString()const {
 	std::ostringstream sprinter;
 	sprinter << "[#EXCEPTION \""<<msg<<"\"";
-	if(getLine()>=0)
-		sprinter<<" (near line "<<getLine()<<")";
+	if(getLine()>=0 || getFilenameId()!=0){
+		sprinter<<" (near ";
+		if(getFilenameId()!=0)
+			sprinter<<getFilename();
+		if(getLine()>=0)
+			sprinter<<":"<<getLine();
+		sprinter<<")";
+	}
 	if( !stackInfo.empty() )
 		sprinter << "\n"<<stackInfo;
 	sprinter << "]";

@@ -89,7 +89,7 @@ class Runtime : public ExtObject  {
 		Object * executeFunction(const ObjPtr & fun,const ObjPtr & callingObject,const ParameterValues & params,bool isConstructor=false);
 
 	private:
-		RuntimeContext * createFunctionCallContext(const ObjPtr & callingObject,UserFunction * ufun,const ParameterValues & paramValues);
+		RuntimeContext * createAndPushFunctionCallContext(const ObjPtr & callingObject,UserFunction * ufun,const ParameterValues & paramValues);
 		Object * executeUserConstructor(const ObjPtr & _callingObject,const ParameterValues & paramValues);
 		bool checkType(const identifierId & name,Object * obj,Object *typeExpression);
 		/*! (internal) Used to track the status of the active function calls (for stack traces) */
@@ -172,14 +172,13 @@ class Runtime : public ExtObject  {
 		void setErrorConfig(unsigned int _errorConfig)	{	errorConfig=_errorConfig;	}
 		unsigned int getErrorConfig()					{	return this->errorConfig;	}
 
-		int getCurrentLine()const						{	return currentLine;	}
-		void setCurrentLine(int l)						{	currentLine=l;	}
+		int getCurrentLine()const;
+		std::string getCurrentFile()const;
 
 		std::string getStackInfo();
 
 	private:
 		unsigned int errorConfig;
-		int currentLine;
 	// 	@}
 
 };

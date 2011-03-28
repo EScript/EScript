@@ -22,17 +22,19 @@ class RuntimeContext:public EReferenceCounter<RuntimeContext,RuntimeContext> {
 		static void release(RuntimeContext *rts);
 
 		// ----
+		RuntimeBlock * createAndPushRTB(const Block * staticBlock);
 
 		Object * getCaller()const    				{   return caller.get(); }
+		RuntimeBlock * getCurrentRTB()const			{	return runtimeBlockStack.top().get();	}
+
+		//! returns the line number of the previously executed statement or -1
+		int getPrevLine()const						{	return runtimeBlockStack.empty() ? -1 : runtimeBlockStack.top()->getPrevLine(); }
 
 		//! \note assumes that the stack contains exactly one RTB, otherwise [this] is not set correctly
 		void initCaller(const ObjPtr & obj);
 
-		RuntimeBlock * createAndPushRTB(const Block * staticBlock);
-
-		void pushRTB(RuntimeBlock * rtb)			{	runtimeBlockStack.push(rtb); }
 		void popRTB()								{	runtimeBlockStack.pop();		}
-		RuntimeBlock * getCurrentRTB()const			{	return runtimeBlockStack.top().get();	}
+		void pushRTB(RuntimeBlock * rtb)			{	runtimeBlockStack.push(rtb); }
 
 	private:
 		RuntimeContext();

@@ -346,41 +346,93 @@
     Runtime._setErrorConfig(0);
 	test( "BUG[20110217]", ok );
 }
+{ // #17966	Wrong line number is reported when parameter type check fails
+	var lineOfFunction;
+	var lineOfException;
+	try{
+		lineOfFunction = __LINE__ + 1;
+		var f=fn(Number a){};
+		f("bla");
+	}catch(e){
+		lineOfException=e.getLine();
+//		out(lineOfException,":",lineOfFunction);
+	}
+
+	// check exception line
+	var exceptionLineCorrect=false;
+	try{
+		Runtime.exception(""+__LINE__);
+	}catch(e){
+		exceptionLineCorrect = e.getMessage() == ""+e.getLine();
+	}
+
+	test( "BUG[20110227]", lineOfException==lineOfFunction && exceptionLineCorrect);	
+	
+}
 
 { 	// endless recursion does not throw an exception but results in a crash
 
 	var errorFound=false;
 	var oldLimit = Runtime._getStackSizeLimit();
 	Runtime._setStackSizeLimit(Runtime._getStackSize()+20);
-    var i=0;
-    try{
+	var i=0;
+	try{
 		var f=i->fn(){
 //			out(Runtime._getStackSize()," ");
 			++this;
 			(this->thisFn)();
 		};
 		f();
-    }catch(e){
-        errorFound=true;
-    }
+	}catch(e){
+		errorFound=true;
+	}
 //    out("\n",i,"\n");
-    Runtime._setStackSizeLimit(oldLimit);
+	Runtime._setStackSizeLimit(oldLimit);
 	test( "BUG[20110314]", errorFound && i>17 && i<22);
 
 }
-
-
-
 {	// system crashes if a wrong parameter type is given in a user constructor call.
 	var exceptionCaught=false;
-    try{
+	try{
 		var A=new Type();
 		A._constructor ::= fn( Array a){
 		};
 		new A("foo");
-    }catch(e){
+	}catch(e){
 		exceptionCaught=true;
-    }
+	}
 	test( "BUG[20110321]", exceptionCaught);	
 }
 
+{	// execution of default parameter expressions and type checks are performed in the calling context and not the function context
+
+	// typeCheck
+	var exceptionCaught=false;
+	try{
+		var f=fn(Array a){
+		};
+		
+		{
+			var Array = new Type();
+			f([]);
+		}
+	}catch(e){
+		Runtime.warn(e);
+		exceptionCaught=true;
+	}
+
+	// default parameter expression
+	try{
+		var f=fn(a=new Array()){
+		};
+		
+		{
+			var Array = "noType";
+			f();
+		}
+	}catch(e){
+		Runtime.warn(e);
+		exceptionCaught=true;
+	}
+	test( "BUG[20110328]", !exceptionCaught);	
+}
