@@ -42,6 +42,7 @@ var FAILED="\t failed\n";
 			&& Math.PI.format(4,false,10,"-")=="----3.1416" && Math.PI.format(5,true).beginsWith("3.14159e+00" )
 			&& 1.clamp(2,3)==2 && 17.clamp(-2,20)==17 && 9.clamp(1,1.6)==1.6
 			&& (180).degToRad().radToDeg().matches(180) && !(179.9999).degToRad().radToDeg().matches(180)
+			&& (0.1+0.1+0.1) ~= 0.3 && !(0.9999999 ~= 1.0)
 		)
         {out(OK);}else{ errors+=1; out(FAILED); }
 }

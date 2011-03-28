@@ -41,6 +41,7 @@ const Operator * Operator::getOperator(identifierId id) {
 		declareOperator(p   ,">");
 		declareOperator(p   ,">=");
 		declareOperator(p   ,"<=");
+		declareOperator(p   ,"~=");
 		declareOperator(++p ,"==");
 		declareOperator(p   ,"!=");
 		declareOperator(p   ,"===");
