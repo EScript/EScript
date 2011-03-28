@@ -21,7 +21,7 @@
 #ifndef ESCRIPT_H
 #define ESCRIPT_H
 
-#define ES_VERSION "EScript 0.5.3 Stoepselhase - exp (http://fetter-hase.de)"
+#define ES_VERSION "EScript 0.5.4 Stoepselhase - stable (http://fetter-hase.de)"
 
 #include "Objects/Object.h"
 #include "Objects/Type.h"
