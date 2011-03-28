@@ -41,6 +41,7 @@ var FAILED="\t failed\n";
 			&& 100.log()==2 && (128).log(2)==7 && 1.sign()==1 && -2.3.sign()==-1
 			&& Math.PI.format(4,false,10,"-")=="----3.1416" && Math.PI.format(5,true).beginsWith("3.14159e+00" )
 			&& 1.clamp(2,3)==2 && 17.clamp(-2,20)==17 && 9.clamp(1,1.6)==1.6
+			&& (180).degToRad().radToDeg().matches(180) && !(179.9999).degToRad().radToDeg().matches(180)
 		)
         {out(OK);}else{ errors+=1; out(FAILED); }
 }
@@ -463,17 +464,18 @@ if(!benchmark)
 	{out (OK);}else { errors+=1; out(FAILED); }
 }
 //---
-if(!benchmark)
-{ // disble for benchmarks
-    out("NumberRef:\t");
-    var f=fn(a){
-        a++;
-        return true;
-    };
-    if( ++numberRefTest1==18 && --numberRefTest2==16 &&f(numberRefTest2) && numberRefTest2==16)
-        {out (OK);}else { errors+=1; out(FAILED); }
-    // Note: numberRefTest(1&2) ist defined in test.cpp and transparently introduced
-    // as EScript-variable.
+if(GLOBALS.isSet($TestObject)){  // TestObject is defined in test.cpp
+	var t=new TestObject(1,1); 
+	t.m1=9; // int
+	t.m2=9; // float
+	t.m1+=1.7; // (int) (9 + 1.7) == 10
+	t.m2+=1.7; // 9+1.7 == 10.7
+	t.m1++;
+	t.m2++;
+
+	var m2=t.getM2();
+
+	test("NumberRef", t.getM1()== 11 && t.getM2().matches(11.7) );
 }
 //---
 if(!benchmark)

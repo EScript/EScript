@@ -32,7 +32,7 @@ void Map::init(EScript::Namespace & globals) {
 		return a;
 	})
 
-	//! [ESMF] Map Map.filter( fn(key,value){return false|true;} [,additionalParameter*] )
+	//! [ESMF] self Map.filter( fn(key,value){return false|true;} [,additionalParameter*] )
 	ES_MFUNCTION_DECLARE(typeObject,Map,"filter",1,-1,{
 		ParameterValues additionalValues(parameter.count()-1);
 		if(!additionalValues.empty())

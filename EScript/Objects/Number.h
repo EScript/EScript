@@ -8,7 +8,8 @@
 #include "Object.h"
 #include <stack>
 #include <string>
-
+#include <cmath>
+#include <limits>
 namespace EScript {
 
 /*! [Number] ---|> [Object] */
@@ -24,6 +25,22 @@ class Number : public Object {
 		static void release(Number * n);
 
 		// ---
+		/**
+		 * Test if the two parameters are essentially equal as defined in
+		 * the given reference by Knuth.
+		 *
+		 * @param u First floating point parameter.
+		 * @param v Second floating point parameter.
+		 * @return @c true if both floating point values are essentially
+		 * equal, @c false otherwise.
+		 * @see Donald E. Knuth: The art of computer programming.
+		 * Volume II: Seminumerical algorithms. Addison-Wesley, 1969.
+		 * Page 128, Equation (24).
+		 */
+		inline static bool matches(const float u, const float v) {
+			return std::abs(v - u) <= std::numeric_limits<float>::epsilon() * std::min(std::abs(u), std::abs(v));
+		}
+
 		Number(double value,Type * type=NULL,bool isReference=false);
 		virtual ~Number();
 

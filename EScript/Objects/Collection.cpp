@@ -84,7 +84,6 @@ void Collection::init(EScript::Namespace & globals) {
 	ESMF_DECLARE(typeObject,Collection, "findValue",1,1,
 				self->rt_findValue(runtime,parameter[0]))
 
-
 	//! [ESMF] KEY Collection.reduce(fn(runningVar,key,value){ return ...}[,initialValue=void,[,additionalParameters]])
 	ES_MFUNCTION_DECLARE(typeObject,Collection,"reduce",1,-1,{
 		ParameterValues additionalValues(parameter.count()>2 ? parameter.count()-2 : 0);
@@ -92,11 +91,6 @@ void Collection::init(EScript::Namespace & globals) {
 			std::copy(parameter.begin()+2,parameter.end(),additionalValues.begin());
 		return self->rt_reduce(runtime,parameter[0],parameter[1],additionalValues);
 	})
-
-
-	// replace, split, filter ?
-	// avg, median ?
-
 }
 
 //---

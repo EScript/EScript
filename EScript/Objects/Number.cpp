@@ -119,7 +119,7 @@ void Number::init(EScript::Namespace & globals) {
 	//! [ESMF] Numbern ^= Number2
 	ESMF_DECLARE(typeObject,Number,"^=",1,1,(self->setValue(caller->toInt() ^ parameter[0].toInt()) ,caller))
 
-
+// ~=
 
 	//- Comparisons
 
@@ -185,6 +185,9 @@ void Number::init(EScript::Namespace & globals) {
 
 	//! [ESMF] Number Number.log([basis=10])
 	ESF_DECLARE(typeObject,"log",0,1,Number::create( parameter.count()>0?log(caller->toDouble())/log(parameter[0]->toDouble()) : log10(caller->toDouble())))
+
+	//! [ESMF] bool Number.matches(other)
+	ESF_DECLARE(typeObject,"matches",1,1,Bool::create( Number::matches(caller->toFloat(), parameter[0]->toFloat())))
 
 	//! [ESMF] Number Number.pow(Number)
 	ESF_DECLARE(typeObject,"pow",1,1,Number::create(pow( caller->toDouble(),parameter[0]->toDouble())))
