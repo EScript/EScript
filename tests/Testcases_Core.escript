@@ -636,7 +636,7 @@ if(!benchmark)
 
     var d2=a -> fn(){return this.m1;};
 
-    if(d(3)==4 && d2()==1)
+    if(d(3)==4 && d2()==1 && d2.getObject()==a && d.getFunction()==a.f )
         {out (OK);}else { errors+=1; out(FAILED); }
 }
 //---
