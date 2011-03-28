@@ -1,5 +1,5 @@
 #include <windows.h>
-#define _VERSION 0,5,2,0
+#define _VERSION 0,5,3,0
 
 Application ICON DISCARDABLE "resources/icon.ico"
 VS_VERSION_INFO VERSIONINFO
@@ -19,16 +19,16 @@ BEGIN
    BEGIN
        BLOCK "040904b0"
        BEGIN
-           VALUE "Comments", "fetter-hase.de\0"
-           VALUE "CompanyName", "WolfiSoft\0"
-           VALUE "FileDescription", "EScript 0.5.2 Stoepselhase\0"
-           VALUE "FileVersion", "0, 5, 2, 0\0"
+           VALUE "Comments", "http://escript.fetter-hase.de/\0"
+//           VALUE "CompanyName", "WolfiSoft\0"
+           VALUE "FileDescription", "EScript 0.5.3 Stoepselhase (experimental)\0"
+           VALUE "FileVersion", "0, 5, 3, 0\0"
 //           VALUE "InternalName", "Schmörf\0"
-//           VALUE "LegalCopyright", "Copyright CJ 2007\0"
+           VALUE "LegalCopyright", "See http://escript.fetter-hase.de\0"
 //           VALUE "LegalTrademarks", "\0"
            VALUE "OriginalFilename", "EScript.exe\0"
 //           VALUE "PrivateBuild", "\0"
-           VALUE "ProductName", "EScript 0.5.2 Stoepselhase\0"
+           VALUE "ProductName", "EScript 0.5.3 Stoepselhase (experimental)\0"
 //           VALUE "ProductVersion", "0, 3, 0, 0\0"
 //           VALUE "SpecialBuild", "\0"
        END
