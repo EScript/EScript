@@ -32,7 +32,7 @@ if(benchmark){
 }
 
 load("Testcases_IOLib.escript");
-//load("Testcases_MathLib.escript");
+load("Testcases_MathLib.escript");
 load("Testcases_Runtime.escript");
 //if(getOS()=="WINDOWS")
 //	load(__DIR__+"/Testcases_Win32Lib.escript");

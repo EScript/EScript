@@ -756,9 +756,4 @@ if(!benchmark)
 	&&  s=="0:1 1:2 2:4 "
 	);
 }
-//{
-//	print_r( Object.isSet._getAttributes()	);
-//
-//}
-
 //out("\n");
