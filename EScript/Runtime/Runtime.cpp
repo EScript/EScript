@@ -963,10 +963,15 @@ std::string Runtime::getStackInfo(){
 	std::ostringstream os;
 	os<<"\n\n----------------------\nCall stack:";
 	int nr=0;
+	const int skipStart = functionCallStack.size()>50 ? 20 : functionCallStack.size()+1;
+	const int skipEnd = functionCallStack.size()>50 ? functionCallStack.size()-20 : 0;
 	for(std::vector<FunctionCallInfo>::reverse_iterator it=functionCallStack.rbegin();it!=functionCallStack.rend();++it){
-//		if(it!=functionCallStack.rbegin())
-//			os<<"\n \n";
-		os<<"\n\n"<<(++nr)<<".";
+		++nr;
+		if(nr==skipStart)
+			os<<"\n\n ... \n";
+		if( nr>=skipStart && nr<skipEnd)
+			continue;
+		os<<"\n\n"<<nr<<".";
 		FunctionCallInfo & i=*it;
 		if(i.funCall!=NULL)
 			os<< "\t"<< i.funCall->toDbgString();
