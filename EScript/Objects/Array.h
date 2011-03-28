@@ -100,10 +100,11 @@ class Array : public Collection {
 		void reserve(size_t capacity);
 		void resize(size_t newSize);
 		void reverse();
+		void rt_filter(Runtime & runtime,ObjPtr function, const ParameterValues & additionalValues);
 		/// returns -1 if not found
 		int rt_indexOf(Runtime & runtime,ObjPtr search,size_t begin=0);
+		size_t rt_removeValue(Runtime & runtime,const ObjPtr value,const int limit=-1,const size_t begin=0);
 		void rt_sort(Runtime & runtime,Object * function=NULL,bool reverseOrder=false);
-		void rt_filter(Runtime & runtime,ObjPtr function, const ParameterValues & additionalValues);
 		size_t size() const						{	return data.size();		}
 		void swap(Array * other);
 	//	@}

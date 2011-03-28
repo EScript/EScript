@@ -334,7 +334,6 @@ var FAILED="\t failed\n";
 
 	var q=new ExtObject(); // used for sorting by the distance from 59
 	q.c:=59;
-
 	if( accum=="1827Hoobelbarding18bardidu" && a ---|> Array && ! (1 ---|> Array)
 			&& (new Array(1,'a','b')).implode(',')=='1,a,b'
 			&& b.implode()=='1234' && c.implode()=='12foo'
@@ -365,6 +364,9 @@ var FAILED="\t failed\n";
 			&& e.reduce(fn(sum,key,value){return sum+value+key;},0) == (172+0+1+2+3+4+5+6)
 			&& e.reduce(fn(accum,key,value,delimiter){return (accum ? accum+delimiter : "")+key+":"+value; },false,",") == "0:3,1:23,2:7,3:3,4:100,5:1,6:35"
 			&& [1,2].clear().empty()
+			&& [1,2,2,2,3,2,4].removeValue(2) == [1,3,4]
+			&& [1,2,2,2,3,2,4].removeValue(2,3) == [1,3,2,4] // three times
+			&& [1,2,2,2,3,2,4].removeValue(2,3,2) == [1,2,3,4] // three times, beginning from position 2
 			)
 	{out (OK);}else { errors+=1; out(FAILED); }
 

@@ -93,8 +93,11 @@ void Array::init(EScript::Namespace & globals) {
 		return  self;
 	})
 
-	//! [ESMF] Array Array.removeIndex(int index)
-	ESMF_DECLARE(typeObject,Array,"removeIndex",1,1,(self->removeIndex(parameter[0]->toInt()),self))
+	//! [ESMF] self Array.removeIndex(int index)
+	ESMF_DECLARE(typeObject,Array,"removeIndex",1,1,(self->removeIndex(parameter[0].toInt()),self))
+
+	//! [ESMF] self Array.removeValue(value [,limit [,begin]] )
+	ESMF_DECLARE(typeObject,Array,"removeValue",1,3,(self->rt_removeValue(runtime,parameter[0],parameter[1].toInt(-1),parameter[2].toInt(0)),self))
 
 	//! [ESMF] self Array.reverse()
 	ESMF_DECLARE(typeObject,Array,"reverse",0,0,(self->reverse(),self))
@@ -253,6 +256,24 @@ int Array::rt_indexOf(Runtime & runtime,ObjPtr search,size_t index){
 		++index;
 	}
 	return -1;
+}
+
+size_t Array::rt_removeValue(Runtime & runtime,const ObjPtr value,const int limit,const size_t start){
+	if(start > size() || value.isNull() || limit==0)
+		return 0;
+	
+	int numberOfDeletions=0;
+	std::vector<ObjRef> tempArray;
+	const std::vector<ObjRef>::const_iterator startIt=begin()+start;
+	for (const_iterator it=begin();it!=end();++it) {
+		if( it>=startIt && (limit<0 || numberOfDeletions<limit) && value->isEqual(runtime,*it) ){
+			++numberOfDeletions;
+		}else{
+			tempArray.push_back(*it);	
+		}
+	}
+	data.swap(tempArray);
+	return numberOfDeletions;
 }
 
 void Array::removeIndex(size_t index){
