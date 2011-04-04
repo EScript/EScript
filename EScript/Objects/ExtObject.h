@@ -25,6 +25,7 @@ class ExtObject : public Object {
 	/*! @name Main */
 	//	@{
 	public:
+		static ExtObject * create();
 		ExtObject();
 		ExtObject(Type * parentExtObject);
 		virtual ~ExtObject();

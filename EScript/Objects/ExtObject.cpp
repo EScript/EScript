@@ -35,16 +35,21 @@ void ExtObject::init(EScript::Namespace & globals) {
 
 // -----------------------------------------------------------------------------------------------
 
+//! (static) factory
+ExtObject * ExtObject::create(){
+	return new ExtObject();
+}
+
 
 //! (ctor)
 ExtObject::ExtObject():
-	Object(ExtObject::getTypeObject()),objAttributes(NULL) {
+		Object(ExtObject::getTypeObject()),objAttributes(NULL) {
 	//ctor
 }
 
 //! (ctor)
 ExtObject::ExtObject(Type * parentType):
-	Object(parentType),objAttributes(NULL) {
+		Object(parentType),objAttributes(NULL) {
 	if (typeRef.isNull())
 		return;
 
