@@ -400,7 +400,7 @@ var FAILED="\t failed\n";
 
 	if( accum=="|bla:dada|dum:dada|foo:barbar3"
 			&& m2=={"foo":"bar","bla":[1,2,3]}	&& m2!={"foo":"bar","bla":[1,2,3,4]}
-			&& m1=={1:2,3:4}
+			&& m1=={1:2,3:4} && m1.containsKey("1") && !m1.containsKey(5)
 			&& ({:} ---|> Map) && ! (({})---|> Map )
 			&& {"a":"b","c":"d",1>2?"x":"y":"foo"}.map(fn(k,v){return k+v;}) =={"a":"ab","c":"cd","y":"yfoo"}
 			&& {1:2,3:4,5:6}.map(fn(k,v,i){return k+v-i;},1) == {1:2,3:6,5:10}

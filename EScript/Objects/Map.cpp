@@ -45,6 +45,10 @@ void Map::init(EScript::Namespace & globals) {
 	ESMF_DECLARE(typeObject,Map,"unset",1,1,
 				(self->unset(parameter[0]),caller))
 
+	//! [ESMF] bool Collection.containsKey(Object)
+	ESMF_DECLARE(typeObject,Map,"containsKey",1,1,
+				Bool::create(self->getValue(parameter[0].toString())!=NULL))
+
 	//! [ESMF] self Map.merge( Collection [,bool overwrite=true] )
 	ESMF_DECLARE(typeObject,Map,"merge",1,2,
 				(self->merge(assertType<Collection>(runtime,parameter[0]),parameter[1].toBool(true)),caller))
