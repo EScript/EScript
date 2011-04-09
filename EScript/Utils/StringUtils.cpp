@@ -38,7 +38,7 @@ double StringUtils::getNumber(const char * s,int &cursor,bool checkSign) {
 		}
 		unsigned int number=0;
 		sscanf(accum.c_str(),"%x",&number);
-		return static_cast<double>(sign?number:-number);
+		return sign?static_cast<double>(number) : -static_cast<double>(number);
 	} else if (c>='0' && c<='9') {
 		//const char * begin=s+cursor;
 		int dot=0;

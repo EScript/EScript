@@ -189,7 +189,7 @@ void Map::rt_filter(Runtime & runtime,ObjPtr function, const ParameterValues & a
 // ------- MapIterator
 
 //! (ctor)
-Map::MapIterator::MapIterator(Map * map):Iterator(),mapRef(map) {
+Map::MapIterator::MapIterator(Map * _map):Iterator(),mapRef(_map) {
 	it=mapRef->data.begin();
 }
 

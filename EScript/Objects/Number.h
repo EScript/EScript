@@ -5,10 +5,14 @@
 #ifndef NUMBER_H
 #define NUMBER_H
 
+// assure M_PI is defined in VC (necessary for VC)
+#define _USE_MATH_DEFINES 
+#include <cmath>
+
 #include "Object.h"
 #include <stack>
 #include <string>
-#include <cmath>
+
 #include <limits>
 namespace EScript {
 

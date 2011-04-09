@@ -118,7 +118,7 @@ Object * Parser::clone()const {
  *  Loads and parses a File.
  */
 Object *  Parser::parseFile(Block * rootBlock,const std::string & filename)throw(Exception *) {
-	long size=0;
+	size_t size=0;
 	char * buffer=NULL;
 	buffer=FileUtils::loadFile(filename,size);
 	if (buffer==NULL)
@@ -366,7 +366,7 @@ void Parser::pass_2(ParsingContext & ctxt,
 				}
 				/// for(...) ---> for{...}
 				else if(tc->getId()==Consts::IDENTIFIER_for || tc->getId()==Consts::IDENTIFIER_foreach || tc->getId()==Consts::IDENTIFIER_while){
-					if( !ctxt.tokens.at(cursor+1)->getType()==TStartBracket::TYPE_ID )
+					if( ctxt.tokens.at(cursor+1)->getType()!=TStartBracket::TYPE_ID )
 						throw new Error(tc->toString()+" expects '('",tc);
 					int endPos = findCorrespondingBracket<TStartBracket,TEndBracket>(ctxt,cursor+1);
 					if(endPos<0)

@@ -10,8 +10,8 @@
 namespace EScript {
 namespace FileUtils{
 
-char * loadFile(const std::string & filename,long & size);
-bool saveFile(const std::string & filename,const char * content,const long size);
+char * loadFile(const std::string & filename,size_t & size);
+bool saveFile(const std::string & filename,const char * content,const size_t size);
 
 /*! @param filename
  *	@return file modification Time	*/

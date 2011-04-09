@@ -14,6 +14,20 @@
 #include <ctime>
 using namespace EScript;
 
+std::string StdLib::getOS(){
+	#if defined(_WIN32) || defined(_WIN64)
+	return std::string("WINDOWS");
+	#elif defined(__APPLE__)
+	return std::string("MAC OS");
+	#elif defined(__linux__)
+	return std::string("LINUX");
+	#elif defined(__unix__)
+	return std::string("UNIX");
+	#else
+	return std::string("UNKNOWN");
+	#endif
+}
+
 //! (static)
 void StdLib::print_r(Object * o,int maxLevel,int level) {
 	if (!o) return;
@@ -188,19 +202,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	})
 
 	//! [ESF]  string getOS()
-	ES_FUNCTION_DECLARE(globals,"getOS",0,0,{
-		#if defined(_WIN32) || defined(_WIN64)
-		return String::create("WINDOWS");
-		#elif defined(__APPLE__)
-		return String::create("MAC OS");
-		#elif defined(__linux__)
-		return String::create("LINUX");
-		#elif defined(__unix__)
-		return String::create("UNIX");
-		#else
-		return String::create("UNKNOWN");
-		#endif
-	})
+	ESF_DECLARE(globals,"getOS",0,0,String::create(StdLib::getOS()))
 
 	//! [ESF] Runtime getRuntime( )
 	ESF_DECLARE(globals,"getRuntime",0,0, &runtime)
@@ -250,7 +252,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	ESF_DECLARE(globals,"system",1,1,Number::create(system(parameter[0]->toString().c_str())))
 
 	//! [ESF]  number time()
-	ESF_DECLARE(globals,"time",0,0,Number::create(time(NULL)))
+	ESF_DECLARE(globals,"time",0,0,Number::create(static_cast<double>(time(NULL))))
 
 	//! [ESF]  string toJSON(obj[,formatted=true])
 	ESF_DECLARE(globals,"toJSON",1,2,String::create(JSON::toJSON(parameter[0].get(),parameter[1].toBool(true))))

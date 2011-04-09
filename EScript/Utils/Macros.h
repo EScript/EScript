@@ -5,6 +5,12 @@
 #ifndef ES_MACROS_H_INCLUDED
 #define ES_MACROS_H_INCLUDED
 
+#if !defined(_MSC_VER)
+#define UNUSED_ATTRIBUTE __attribute__ ((unused)) 
+#else
+#define UNUSED_ATTRIBUTE 
+#endif
+
 /*! Macro for defining an EScript function.
 	\example
 		ES_FUNCTION(esmf_Collection_equal) {
@@ -13,9 +19,9 @@
 		}
 */
 #define ES_FUNCTION(_name) \
-	static EScript::Object * _name(	EScript::Runtime & runtime __attribute__ ((unused)), \
-									EScript::Object * caller __attribute__ ((unused)), \
-									const EScript::ParameterValues & parameter __attribute__ ((unused)))
+	static EScript::Object * _name(	EScript::Runtime & runtime UNUSED_ATTRIBUTE, \
+									EScript::Object * caller UNUSED_ATTRIBUTE, \
+									const EScript::ParameterValues & parameter UNUSED_ATTRIBUTE)
 
 
 /*! Macro for defining a (simple) EScript function in short form.

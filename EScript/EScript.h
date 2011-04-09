@@ -49,6 +49,10 @@
 #include "Utils/Debug.h"
 #endif
 
+#if defined(_MSC_VER)
+#pragma warning( disable : 4290 )
+#endif
+
 /*! \mainpage A short introduction into EScript
  *
  * \htmlinclude docs/Introduction.html

@@ -84,7 +84,7 @@ void Object::init(EScript::Namespace & globals) {
 	ESF_DECLARE(typeObject,"getAttribute",1,1,caller->getAttribute(parameter[0]->hash()))
 
 	//! [ESMF] Bool Object.isSet(key)
-	ESF_DECLARE(typeObject,"isSet",1,1,Bool::create(caller->getAttribute(parameter[0]->hash())))
+	ESF_DECLARE(typeObject,"isSet",1,1,Bool::create(caller->getAttribute(parameter[0]->hash())!=NULL))
 
 	//! [ESMF] Bool Object.setObjAttribute(key,value)
 	ESF_DECLARE(typeObject,"setObjAttribute",2,2,Bool::create(caller->setObjAttribute(parameter[0]->hash(),parameter[1])))
@@ -196,7 +196,7 @@ double Object::toDouble()const {
 
 //! ---o
 float Object::toFloat()const {
-	return toDouble();
+	return static_cast<float>(toDouble());
 }
 
 //! ---o

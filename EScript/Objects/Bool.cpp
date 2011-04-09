@@ -24,14 +24,6 @@ void Bool::init(EScript::Namespace & globals) {
 
 	//- Operators
 
-	//! [ESMF] Bool Bool + ((Bool)obj)
-	ESF_DECLARE(typeObject,"+",1,1,
-				Bool::create( caller->toBool() + parameter[0]->toBool()))
-
-	//! Bool Bool - ((Bool)obj)
-	ESF_DECLARE(typeObject,"-",1,1,
-				Bool::create( caller->toBool() - parameter[0]->toBool()))
-
 	//! Bool Bool & ((Bool)obj)
 	ESF_DECLARE(typeObject,"&",1,1,
 				Bool::create( caller->toBool() & parameter[0]->toBool()))

@@ -14,6 +14,10 @@
 
 #include <vector>
 
+#if defined(_MSC_VER)
+#pragma warning( disable : 4290 )
+#endif
+
 namespace EScript {
 
 class Statement;
@@ -51,13 +55,15 @@ class Parser : public Object {
 		/// ---|> [Object]
 		virtual Object * clone()const;
 
-	private:
+		//! (internal)
 		struct ParsingContext{
 			Tokenizer::tokenList & tokens;
 			Block * rootBlock;
 			std::deque<Block*> blocks; // used as a stack
 			ParsingContext(Tokenizer::tokenList & _tokens) : tokens(_tokens),rootBlock(NULL){}
 		};
+
+	private:
 		// only for debugging
 		identifierId currentFilename;
 		std::string getCurrentFilename()const	{	return identifierIdToString(currentFilename);	}

@@ -54,7 +54,7 @@ void Win32Lib::setClipboard(const std::string & s){
 		char * pchData;
 		pchData = reinterpret_cast<char*>(GlobalLock(hClipboardData));
 
-		strcpy(pchData, s.c_str());// LPCSTR(strData));
+		strncpy(pchData, s.c_str(),s.size());// LPCSTR(strData));
 		GlobalUnlock(hClipboardData);
 		SetClipboardData(CF_TEXT,hClipboardData);
 		CloseClipboard();

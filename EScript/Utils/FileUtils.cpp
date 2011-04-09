@@ -5,7 +5,12 @@
 #include "FileUtils.h"
 #include "StringUtils.h"
 
+#if defined(_MSC_VER)
+#include "ext/dirent.h"
+#else
 #include <dirent.h>
+#endif
+
 #include <sys/stat.h>
 #include <iostream>
 #include <fstream>
@@ -18,7 +23,7 @@ using std::ifstream;
 using std::ofstream;
 using std::ios;
 
-char * FileUtils::loadFile(const std::string & filename,long & size) {
+char * FileUtils::loadFile(const std::string & filename,size_t & size) {
 	//std::cout<< "\nopening "<<filename;
 
 	ifstream inputFile( filename.c_str(), ios::in | ios::binary);
@@ -26,7 +31,7 @@ char * FileUtils::loadFile(const std::string & filename,long & size) {
 		return 0; // "Couldn't open the model file."
 
 	inputFile.seekg( 0, ios::end );
-	size = inputFile.tellg();
+	size = static_cast<size_t>(inputFile.tellg());
 	//std::cout<< "\nloading "<<size<<"byte";
 	inputFile.seekg( 0, ios::beg );
 
@@ -39,7 +44,7 @@ char * FileUtils::loadFile(const std::string & filename,long & size) {
 	return pBuffer;
 }
 
-bool FileUtils::saveFile(const std::string & filename,const char * content,const long size) {
+bool FileUtils::saveFile(const std::string & filename,const char * content,const size_t size) {
 	ofstream outputFile( filename.c_str(), ios::out | ios::binary);
 	if ( outputFile.fail())
 		return false;

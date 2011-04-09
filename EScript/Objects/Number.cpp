@@ -7,7 +7,11 @@
 #include "Bool.h"
 
 #include <sstream>
-#include <cmath>
+
+#if defined(_MSC_VER)
+static inline double round(const double & x) { return floor(x + 0.5); }
+static inline float roundf(const float & x) { return floorf(x + 0.5f); }
+#endif
 
 using namespace EScript;
 
@@ -137,7 +141,7 @@ void Number::init(EScript::Namespace & globals) {
 	ESF_DECLARE(typeObject,"<=",1,1,Bool::create( caller->toDouble()<=parameter[0]->toDouble()))
 
 	//! [ESMF] Bool (Numbern ~= Number2)
-	ESF_DECLARE(typeObject,"~=",1,1,Bool::create( Number::matches(caller->toDouble(), parameter[0]->toDouble())))
+	ESF_DECLARE(typeObject,"~=",1,1,Bool::create( Number::matches(caller->toFloat(), parameter[0]->toFloat())))
 
 	// - Misc
 
@@ -191,7 +195,7 @@ void Number::init(EScript::Namespace & globals) {
 	ESF_DECLARE(typeObject,"log",0,1,Number::create( parameter.count()>0?log(caller->toDouble())/log(parameter[0]->toDouble()) : log10(caller->toDouble())))
 
 	//! [ESMF] bool Number.matches(other)
-	ESF_DECLARE(typeObject,"matches",1,1,Bool::create( Number::matches(caller->toDouble(), parameter[0]->toDouble())))
+	ESF_DECLARE(typeObject,"matches",1,1,Bool::create( Number::matches(caller->toFloat(), parameter[0]->toFloat())))
 
 	//! [ESMF] Number Number.pow(Number)
 	ESF_DECLARE(typeObject,"pow",1,1,Number::create(pow( caller->toDouble(),parameter[0]->toDouble())))

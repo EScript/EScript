@@ -3,6 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "MathLib.h"
+#define _USE_MATH_DEFINES 
 #include <cmath>
 
 #include "ext/Rand.h"

@@ -30,7 +30,7 @@ void IOLib::init(EScript::Namespace * o) {
 	//! [ESF] string fileGetContents(string filename,[format])
 	ES_FUNCTION_DECLARE(lib,"fileGetContents",1,2, {
 		std::string fs=parameter[0]->toString();
-		long size;
+		size_t size;
 		char * content=FileUtils::loadFile(parameter[0]->toString().c_str(),size);
 		if (content==0){
 			runtime.setExceptionState(new Exception("Could not open File!"));

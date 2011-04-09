@@ -18,7 +18,7 @@
 namespace EScript {
 using std::string;
 class Block;
-class TokenReleaseHandler;
+struct TokenReleaseHandler;
 
 /*! [Token] */
 class Token:public EReferenceCounter<Token,TokenReleaseHandler> {
