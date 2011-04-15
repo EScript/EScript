@@ -624,7 +624,9 @@ if(!benchmark)
 	var t1=a.getAttribute($foo);
 	a.$foo=2;
 
-	if( t1==1 && a.foo==2 && a.isSet($foo) && a.isSet('foo') &&	!a.isSet('bar') && a.foo2==2 )
+	if( t1==1 && a.foo==2 && a.isSet($foo) && a.isSet('foo') &&	!a.isSet('bar') && a.foo2==2 
+		&& $a != "a" && $a !== "a" && "a" !== $a && "a" == $a 
+		&& $a ---|> Identifier && $a == new Identifier("a") && $a!=$b )
         {out (OK);}else { errors+=1; out(FAILED); }
 }
 //---

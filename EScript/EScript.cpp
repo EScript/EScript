@@ -34,6 +34,7 @@ void EScript::init() {
 	String::init(*SGLOBALS);
 
 	Collection::init(*SGLOBALS);
+	Identifier::init(*SGLOBALS);
 	Iterator::init(*SGLOBALS);
 	Array::init(*SGLOBALS);
 	Map::init(*SGLOBALS);

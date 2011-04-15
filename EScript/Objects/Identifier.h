@@ -12,7 +12,17 @@ namespace EScript{
 /*! Wrapper object for an identifierId
 	[Identifier]  ---|> [Object]  */
 class Identifier:public Object{
+	ES_PROVIDES_TYPE_NAME(Identifier)
+
+	/*! @name Initialization */
+	//	@{
 	public:
+		static Type * getTypeObject();
+		static void init(EScript::Namespace & globals);
+	//	@}
+
+	// -----
+		
 		/*! (static) Factory */
 		static Identifier * create( identifierId id);
 
@@ -30,6 +40,8 @@ class Identifier:public Object{
 		identifierId getId()const {	return id;	}
 
 		/// ---|> [Object]
+		virtual Identifier * clone()const;
+		virtual bool rt_isEqual(Runtime & rt,const ObjPtr o);
 		virtual std::string toString()const;
 		virtual identifierId hash()const	{	return id;	}
 };
