@@ -758,9 +758,31 @@ if(!benchmark)
 	var s="";
 	foreach(f1(3) as var i,var j) s+=""+i+":"+j+" ";
 
+	// ---
+	// yield and return
+	var f2 = fn(){
+		yield 1;
+		yield 2;
+		return 3;
+	};
+	var s2="";
+	foreach(f2() as var value) s2+=value;
+
+	var s3="";
+	{
+		var it=f2();
+		for(;!it.end();it.next())
+			s3+=it.value();
+		s3+=it.value();
+	}
+
 	test("yield:",
 		a==[1,2,4,8,16]
 	&&  s=="0:1 1:2 2:4 "
+	&& s2=="12"
+	&& s3=="123"
 	);
+	
+	
 }
 //out("\n");
