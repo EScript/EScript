@@ -49,7 +49,7 @@ void Number::init(EScript::Namespace & globals) {
 	ES_FUNCTION_DECLARE(typeObject,"/",1,1,{
 		double d=parameter[0]->toDouble();
 		if (d==0){
-			runtime.error("Division by zero");
+			runtime.exception("Division by zero");
 			return NULL;
 		}
 		return  Number::create( caller->toDouble()/d);
@@ -65,7 +65,14 @@ void Number::init(EScript::Namespace & globals) {
 	ESF_DECLARE(typeObject,"^",1,1,Number::create( static_cast<double>(caller->toInt()^parameter[0]->toInt())))
 
 	//! [ESMF] Number % Number2
-	ESF_DECLARE(typeObject,"%",1,1,Number::create( static_cast<double>(caller->toInt()%parameter[0]->toInt())))
+	ES_MFUNCTION_DECLARE(typeObject,Number,"%",1,1,{
+		double d=parameter[0]->toDouble();
+		if (d==0){
+			runtime.exception("Modulo with zero");
+			return NULL;
+		}
+		return  Number::create( self->modulo(d) );
+	})
 
 	//- Modificators
 
@@ -104,7 +111,7 @@ void Number::init(EScript::Namespace & globals) {
 	ES_MFUNCTION_DECLARE(typeObject,Number,"/=",1,1,{
 		double d=parameter[0]->toDouble();
 		if (d==0){
-			runtime.error("Division by zero");
+			runtime.exception("Division by zero");
 			return NULL;
 		}
 		self->setValue(self->getValue()/d);
@@ -112,6 +119,15 @@ void Number::init(EScript::Namespace & globals) {
 	})
 
 	//! [ESMF] Numbern %= Number2
+	ES_MFUNCTION_DECLARE(typeObject,Number,"%=",1,1,{
+		double d=parameter[0]->toDouble();
+		if (d==0){
+			runtime.exception("Modulo with zero");
+			return NULL;
+		}
+		self->setValue(self->modulo(d));
+		return self;
+	})
 	ESMF_DECLARE(typeObject,Number,"%=",1,1,(self->setValue(caller->toInt() % parameter[0].toInt()) ,caller))
 
 	//! [ESMF] Numbern |= Number2
@@ -299,6 +315,12 @@ double Number::getValue()const{
 void Number::setValue(double _value){
 //    *((double *)value)=_value;
 	doubleValue=_value;
+}
+
+double Number::modulo(double m)const{
+	const double a = getValue();
+	const double a_m = a/m;
+	return a - (a_m<0 ? ceil(a_m) : floor(a_m)) * m;
 }
 
 //! ---|> [Object]

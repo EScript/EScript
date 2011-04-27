@@ -58,6 +58,9 @@ class Number : public Object {
 		 * @return Formatted string representation of the number.
 		 */
 		std::string format(std::streamsize precision = 3, bool scientific = true, std::streamsize width = 0, char fill = '0') const;
+		
+		//! Floating point symmetric modulo operation
+		double modulo(const double m)const;
 
 		/// ---o
 		virtual double getValue()const;

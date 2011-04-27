@@ -36,6 +36,8 @@ var FAILED="\t failed\n";
 	var n=1;
 	(fn(value){value++;})(n); // test call by value
     var i=(9).sqrt();
+    
+    out( 3.7 % 0.7 );
     if(n==1 && i==3 && (0x01+255).toHex()=="0x100" && "-1.7".toNumber()==-1.7 && 1.getType()==Number
 			&& (180).degToRad()== Math.PI && (Math.PI.radToDeg()-180).abs() < 0.001
 			&& 100.log()==2 && (128).log(2)==7 && 1.sign()==1 && -2.3.sign()==-1
@@ -43,6 +45,7 @@ var FAILED="\t failed\n";
 			&& 1.clamp(2,3)==2 && 17.clamp(-2,20)==17 && 9.clamp(1,1.6)==1.6
 			&& (180).degToRad().radToDeg().matches(180) && !(179.9999).degToRad().radToDeg().matches(180)
 			&& (0.1+0.1+0.1) ~= 0.3 && !(0.9999999 ~= 1.0)
+			&& (3.7 % 0.7) ~= 0.2 && (-2 % 3) == -2
 		)
         {out(OK);}else{ errors+=1; out(FAILED); }
 }
