@@ -219,8 +219,21 @@ void Number::init(EScript::Namespace & globals) {
 	//! [ESMF] String Number.radToDeg()
 	ESF_DECLARE(typeObject,"radToDeg",0,0,Number::create( (caller->toFloat()*180.0)/M_PI))
 
-	//! [ESMF] Number Number.round()
-	ESF_DECLARE(typeObject,"round",0,0,Number::create(round( caller->toDouble())))
+	/*! [ESMF] Number Number.round( [reference=1.0] )
+		@param reference Reference value to which should be rounded:  x.round(reference) ^== reference * round(x/reference)
+		@example (123.456).round(0.1) == 123.5 
+				(123.456).round(5) == 125
+				(123.456).round(10) == 120 */
+	ES_FUNCTION_DECLARE(typeObject,"round",0,1,{
+		if(parameter.count()==0)
+			return 	Number::create(round( caller->toDouble()));
+		double reference = parameter[0].toDouble();
+		if (reference==0){
+			runtime.exception("round with zero");
+			return NULL;
+		}
+		return Number::create(round(caller->toDouble()/reference) * reference);
+	})
 
 	//! [ESMF] +1|-1 Number.sign()
 	ESF_DECLARE(typeObject,"sign",0,0,Number::create( (caller->toFloat()<0)?-1.0:1.0))
