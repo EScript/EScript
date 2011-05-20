@@ -6,6 +6,7 @@
 #define STRING_H
 
 #include "Object.h"
+#include "../Utils/StringData.h"
 #include <stack>
 #include <string>
 
@@ -16,22 +17,30 @@ class String : public Object {
 		ES_PROVIDES_TYPE_NAME(String)
 	private:
 		static std::stack<String *> stringPool;
+		
+		String(const StringData & sData,Type * type=NULL);
+		
+		//! internal helper
+		static StringData objToStringData(Object * obj);
+
 	public:
 		static Type* typeObject;
 		static void init(EScript::Namespace & globals);
 
-		static String * create(const std::string & s);
-		static String * create(const std::string & s,Type*type);
+		static String * create(const std::string & s)				{	return create(StringData(s));	}
+		static String * create(const std::string & s,Type*type)		{	return create(StringData(s),type);	}
+		static String * create(const StringData & sData);
+		static String * create(const StringData & sData,Type * type);
 		static void release(String * b);
 
 		// ---
-		String(const std::string & s,Type * type=NULL);
 		virtual ~String();
 
-		const std::string & getString()const		{	return s;	}
-		void setString(const std::string & _s)		{	s=_s;	}
-		void appendString(const std::string & _s)	{	s+=_s;	}
-		bool empty()const							{	return s.empty();	}
+		const std::string & getString()const		{	return sData.str();	}
+		void setString(const std::string & _s)		{	sData.set(_s);	}
+		void setString(const StringData & _sData)	{	sData.set(_sData);	}
+		void appendString(const std::string & _s)	{	sData.set(sData.str()+_s);	}
+		bool empty()const							{	return sData.empty();	}
 
 		/// ---|> [Object]
 		virtual Object * clone()const;
@@ -44,8 +53,7 @@ class String : public Object {
 		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_STRING;	}
 
 	private:
-		std::string s;
-
+		StringData sData;
 };
 }
 

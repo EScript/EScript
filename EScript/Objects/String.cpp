@@ -16,8 +16,14 @@ using std::string;
 
 std::stack<String *> String::stringPool;
 
+//! static, internal
+StringData String::objToStringData(Object * obj){
+	String * strObj=dynamic_cast<String*>(obj);
+	return strObj==NULL ? StringData(obj->toString()) : strObj->sData;
+}
 
 //---
+
 Type* String::typeObject=NULL;
 
 //! initMembers
@@ -245,27 +251,28 @@ void String::init(EScript::Namespace & globals) {
 
 //---
 
-String * String::create(const string & s){
+
+String * String::create(const StringData & sData){
 	#ifdef ES_DEBUG_MEMORY
 	return new String(s);
 	#endif
 	if(stringPool.empty()){
-		return new String (s);
+		return new String (sData);
 	}else{
 		String * o=stringPool.top();
 		stringPool.pop();
-		o->setString(s);
+		o->setString(sData);
 		return o;
 	}
 }
-String * String::create(const string & s,Type * type){
+String * String::create(const StringData & sData,Type * type){
 	#ifdef ES_DEBUG_MEMORY
-	return new String(s,type);
+	return new String(sData,type);
 	#endif
 	if(type==typeObject){
-		return create(s);
+		return create(sData);
 	}else{
-		return new String(s,type);
+		return new String(sData,type);
 	}
 }
 void String::release(String * o){
@@ -283,8 +290,8 @@ void String::release(String * o){
 //---
 
 //! (ctor)
-String::String(const string & _s,Type * type):
-		Object(type?type:typeObject),s(_s) {
+String::String(const StringData & _sData,Type * type):
+		Object(type?type:typeObject),sData(_sData) {
 	//ctor
 }
 
@@ -295,29 +302,29 @@ String::~String() {
 
 //! ---|> [Object]
 Object * String::clone() const {
-	return String::create(s,getType());
+	return String::create(sData,getType());
 }
 
 //! ---|> [Object]
-string String::toString()const {
-	return s;
+std::string String::toString()const {
+	return sData.str();
 }
 
 //! ---|> [Object]
 std::string String::toDbgString()const{
-	return std::string("\"")+s+"\"";
+	return std::string("\"")+sData.str()+"\"";
 }
 
 //! ---|> [Object]
 double String::toDouble()const {
 	int to=0;
-	return StringUtils::getNumber(s.c_str(),to, true);
+	return StringUtils::getNumber(sData.str().c_str(),to, true);
 }
 
 //! ---|> [Object]
 int String::toInt()const {
 	int to=0;
-	return static_cast<int>(StringUtils::getNumber(s.c_str(),to,  true));
+	return static_cast<int>(StringUtils::getNumber(sData.str().c_str(),to,  true));
 }
 
 //! ---|> [Object]
@@ -327,5 +334,5 @@ bool String::toBool()const {
 
 //! ---|> [Object]
 bool String::rt_isEqual(Runtime &, const ObjPtr o){
-	return o.isNull()?false:s==o.toString();
+	return o.isNull()?false:sData==objToStringData(o.get());
 }

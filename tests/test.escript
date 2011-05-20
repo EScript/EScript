@@ -1,5 +1,5 @@
 // Testcases for HasEScript Scripting-Language 0.5
-out ("Testcases for ",VERSION,"\n","-"*70,"\n");
+out ("Testcases for ",VERSION,"\n","-"*79,"\n");
 
 //----
 // init
@@ -100,4 +100,5 @@ object.execute removed: 5.25 dynamic_cast at every rt.executeObj
 typeIds added: 4.25
 typeIds used to replace some additional dynamic_casts ->4.0s
 Rev29 3.92s
+0.5.5 Rev 56 4.12s
 */

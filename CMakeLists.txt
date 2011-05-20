@@ -41,6 +41,7 @@ set(ESCRIPT_SOURCES
 	EScript/Utils/FileUtils.cpp
 	EScript/Utils/Hashing.cpp
 	EScript/Utils/LocalVarMap.cpp
+	EScript/Utils/StringData.cpp
 	EScript/Utils/StringUtils.cpp
 	E_Libs/ext/Rand.cpp
 	E_Libs/ext/JSON.cpp
