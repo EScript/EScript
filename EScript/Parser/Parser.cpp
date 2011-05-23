@@ -34,7 +34,7 @@ using std::string;
 
 template<class BracketStart,class BracketEnd>
 int findCorrespondingBracket(const Parser::ParsingContext & ctxt,int from,int to=-1,int direction=1){
-	const Tokenizer::tokenList & tokens = ctxt.tokens;
+	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	if (!Token::isA<BracketStart>(tokens.at(from))){
 		std::cout << __FILE__<<":"<<__LINE__<<" should not happen!";
 		return -1;
@@ -150,8 +150,8 @@ Object *  Parser::parseFile(Block * rootBlock,const std::string & filename)throw
  */
 Object *  Parser::parse(Block * rootBlock,const char * c)throw(Exception *) {
 
-	Tokenizer::tokenList tokens;
-	ParsingContext ctxt(tokens);
+	Tokenizer::tokenList_t tokens;
+	ParsingContext ctxt(tokens,String::create(c));
 	ctxt.rootBlock=rootBlock;
 
 	/// 1. Tokenize
@@ -164,7 +164,7 @@ Object *  Parser::parse(Block * rootBlock,const char * c)throw(Exception *) {
 	}
 	/// 2. Parse definitions
 	{
-		Tokenizer::tokenList  enrichedTokens;
+		Tokenizer::tokenList_t  enrichedTokens;
 		pass_2(ctxt,enrichedTokens);
 		tokens.swap(enrichedTokens);
 	}
@@ -208,7 +208,7 @@ struct _BlockInfo {
  * - colon ( Mapdelimiter / shortIf ?:)
  */
 void Parser::pass_1(ParsingContext & ctxt)throw(Exception *) {
-	Tokenizer::tokenList & tokens = ctxt.tokens;
+	Tokenizer::tokenList_t & tokens = ctxt.tokens;
 
 	std::stack<_BlockInfo> bInfStack;
 	bInfStack.push(_BlockInfo());
@@ -317,7 +317,7 @@ void Parser::pass_1(ParsingContext & ctxt)throw(Exception *) {
  * ?????- TODO: Undefined scope for i: "{ var i;  do{ var i; }while(var i); }"
  */
 void Parser::pass_2(ParsingContext & ctxt,
-					Tokenizer::tokenList & enrichedTokens)const throw(Exception *) {
+					Tokenizer::tokenList_t & enrichedTokens)const throw(Exception *) {
 
 	std::stack<Block *> blockStack;
 	blockStack.push(ctxt.rootBlock);
@@ -502,7 +502,7 @@ void Parser::pass_2(ParsingContext & ctxt,
  *
  */
 Object * Parser::getExpression(ParsingContext & ctxt,int & cursor,int to)const throw(Exception *) {
-	const Tokenizer::tokenList & tokens = ctxt.tokens;
+	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	if (cursor>=static_cast<int>(tokens.size())){
 		return NULL;
 	}/// Commands: if(...){}
@@ -621,7 +621,7 @@ Statement Parser::createStatement(Object *exp)const{
 /*! (internal) */
 Statement Parser::getStatement(ParsingContext & ctxt,int & cursor,int to)const throw (Exception *){
 
-	const Tokenizer::tokenList & tokens = ctxt.tokens;
+	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	if (Token::isA<TControl>(tokens.at(cursor))) {
 		return getControl(ctxt,cursor);
 	} /// sub-Block: {...}
@@ -641,7 +641,7 @@ Statement Parser::getStatement(ParsingContext & ctxt,int & cursor,int to)const t
  * {out("foo");exit;}
  */
 Block * Parser::getBlock(ParsingContext & ctxt,int & cursor)const throw (Exception *) {
-	const Tokenizer::tokenList & tokens = ctxt.tokens;
+	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	TStartBlock * tsb=Token::cast<TStartBlock>(tokens.at(cursor));
 	Block * b=tsb?reinterpret_cast<Block *>(tsb->getBlock()):NULL;
 	if (b==NULL)
@@ -678,7 +678,7 @@ Block * Parser::getBlock(ParsingContext & ctxt,int & cursor)const throw (Excepti
 
 /*!	getMap */
 Object * Parser::getMap(ParsingContext & ctxt,int & cursor)const throw(Exception *) {
-	const Tokenizer::tokenList & tokens = ctxt.tokens;
+	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	if (!Token::isA<TStartMap>(tokens.at(cursor)))
 		throw new Error("No Map!",tokens.at(cursor));
 
@@ -746,7 +746,7 @@ Object * Parser::getMap(ParsingContext & ctxt,int & cursor)const throw(Exception
 
 /*!	Binary expression	*/
 Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)const throw(Exception *) {
-	const Tokenizer::tokenList & tokens = ctxt.tokens;
+	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	int currentLine = tokens.at(cursor).isNull() ? -1 : tokens.at(cursor)->getLine();
 
 	int opPosition=-1; /// Position of operator with lowest precedence
@@ -1076,7 +1076,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 	*/
 Object * Parser::getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const throw (Exception *){
 //	bool lambda=false;
-	const Tokenizer::tokenList & tokens = ctxt.tokens;
+	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	Token * t=tokens.at(cursor).get();
 
 //	if(t->toString()=="lambda"){
@@ -1085,6 +1085,8 @@ Object * Parser::getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const
 	if(t->toString()!="fn"){
 		throw new Error("No function! ",tokens.at(cursor));
 	}
+	size_t codeStartPos = t->getStartingPos();
+	
 	++cursor;
 
 	/// step over '(' inserted at pass_2(...)
@@ -1112,10 +1114,17 @@ Object * Parser::getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const
 	}
 	ctxt.blocks.pop_back(); // remove marking for local namespace
 
+	size_t codeEndPos = tokens.at(cursor)->getStartingPos(); // position of '}'
+	
 	/// step over ')' inserted at pass_2(...)
 	++cursor;
 
-	return new UserFunction(params,block,superConCallExpressions);
+	UserFunction * uFun = new UserFunction(params,block,superConCallExpressions);
+	// store code segment in userFunction 
+	if(codeStartPos!=std::string::npos && codeEndPos!=std::string::npos && !ctxt.code.isNull()){
+		uFun->setCodeString(ctxt.code,codeStartPos,codeEndPos-codeStartPos+1);
+	}
+	return uFun;
 }
 
 
@@ -1127,7 +1136,7 @@ Object * Parser::getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const
  * @return Control-statement or NULL if no Control-Statement could be read.
  */
 Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const throw(Exception *) {
-	const Tokenizer::tokenList & tokens = ctxt.tokens;
+	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	TControl * tc=Token::cast<TControl>(tokens.at(cursor));
 	if (!tc) return Statement(Statement::TYPE_UNDEFINED);
 	++cursor;
@@ -1543,7 +1552,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const throw(Exce
 */
 Parser::lValue_t Parser::getLValue(ParsingContext & ctxt,int from,int to,Object * & obj,
 								identifierId & identifier,Object * &indexExpression)const throw(Exception *) {
-	const Tokenizer::tokenList & tokens = ctxt.tokens;
+	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	/// Single Element: "a"
 	if (to==from) {
 		if (Token::isA<TIdentifier>(tokens[from])) {
@@ -1616,7 +1625,7 @@ Parser::lValue_t Parser::getLValue(ParsingContext & ctxt,int from,int to,Object 
  *
  */
 int Parser::findExpression(ParsingContext & ctxt,int cursor)const {
-	const Tokenizer::tokenList & tokens = ctxt.tokens;
+	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	if (Token::isA<TEndScript>(tokens.at(cursor)))
 		return 0;
 
@@ -1711,7 +1720,7 @@ UserFunction::parameterList_t * Parser::getFunctionParameters(ParsingContext & c
 
 	UserFunction::parameterList_t * params = new UserFunction::parameterList_t();
 
-	const Tokenizer::tokenList & tokens = ctxt.tokens;
+	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	if (!Token::isA<TStartBracket>(tokens.at(cursor))) {
 		return params;
 	}
@@ -1815,7 +1824,7 @@ UserFunction::parameterList_t * Parser::getFunctionParameters(ParsingContext & c
 	Cursor is moved at closing bracket ')'
 */
 void Parser::getExpressionsInBrackets(ParsingContext & ctxt,int & cursor,std::vector<ObjRef> & expressions)const throw (Exception *){
-	const Tokenizer::tokenList & tokens = ctxt.tokens;
+	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	Token * t=tokens.at(cursor).get();
 	if(t->toString()!="(") {
 		std::cout << " #"<<t->toString();

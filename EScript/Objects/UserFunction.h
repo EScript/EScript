@@ -11,12 +11,26 @@
 namespace EScript {
 
 class Block;
+class String;
 
 /*! [UserFunction]  ---|> [ExtObject]	*/
 class UserFunction : public ExtObject {
 		ES_PROVIDES_TYPE_NAME(UserFunction)
 	public:
+	// -------------------------------------------------------------
 
+	/*! @name Initialization */
+	//	@{
+	public:
+		static Type * getTypeObject();
+		static void init(Namespace & globals);
+	//	@}
+
+	// -------------------------------------------------------------
+
+	/*! @name Parameter */
+	//	@{
+	
 		/*! [Parameter] */
 		class Parameter {
 			private:
@@ -45,7 +59,13 @@ class UserFunction : public ExtObject {
 		};
 
 		typedef std::vector<Parameter *> parameterList_t;
+	//	@}
 
+	// -------------------------------------------------------------
+
+	/*! @name Main */
+	//	@{
+	
 		UserFunction(parameterList_t * params,Block * block);
 		UserFunction(parameterList_t * params,Block * block,const std::vector<ObjRef> & _sConstrExpressions);
 		virtual ~UserFunction();
@@ -57,6 +77,9 @@ class UserFunction : public ExtObject {
 		int getLine()const;
 
 		std::vector<ObjRef> & getSConstructorExpressions() 	{	return sConstrExpressions;	}
+		
+		void setCodeString(const EPtr<String> & _fileString,size_t _begin,size_t _codeLen);
+		std::string getCode()const;
 
 		/// ---|> [Object]
 		virtual std::string toString()const;
@@ -67,6 +90,11 @@ class UserFunction : public ExtObject {
 		ERef<Block> blockRef;
 		parameterList_t * params;
 		std::vector<ObjRef> sConstrExpressions;
+		
+		ERef<String> fileString;
+		size_t posInFile,codeLen;
+
+	//	@}		
 };
 }
 

@@ -98,7 +98,7 @@ void JSON::toJSON(std::ostringstream & out,Object * obj,bool formatted/*=true*/,
 }
 
 //! helper
-Object * _parseJSON(Tokenizer::tokenList::iterator & cursor,const Tokenizer::tokenList::iterator end){
+Object * _parseJSON(Tokenizer::tokenList_t::iterator & cursor,const Tokenizer::tokenList_t::iterator end){
 	if(cursor==end)
 		return NULL;
 	Token * token=(*cursor).get();
@@ -221,9 +221,9 @@ Object * _parseJSON(Tokenizer::tokenList::iterator & cursor,const Tokenizer::tok
 Object* JSON::parseJSON(const std::string &s){
 	Tokenizer t;
 
-	Tokenizer::tokenList tokens;
+	Tokenizer::tokenList_t tokens;
 	t.getTokens(s.c_str(),tokens);
-	Tokenizer::tokenList::iterator it=tokens.begin();
+	Tokenizer::tokenList_t::iterator it=tokens.begin();
 	Object * result= _parseJSON(it,tokens.end());
 	if(it!=tokens.end() && !Token::isA<TEndScript>(*it)){
 		std::cout << "JSON Syntax Error\n";

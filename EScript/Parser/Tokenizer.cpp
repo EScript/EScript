@@ -71,20 +71,20 @@ Tokenizer::~Tokenizer() {
 	//dtor
 }
 
-void Tokenizer::getTokens( const char * prog,tokenList & tokens)  throw (Exception *) {
+void Tokenizer::getTokens( const char * prog,tokenList_t & tokens)  throw (Exception *) {
 	int cursor=0;
 	int line=1;
+	size_t startPos = std::string::npos;
 
-	Token * obj;
+	Token * token;
 	do {
-		obj=readNextToken(prog,cursor,line,tokens);
-		if (obj!=NULL) {
-			obj->setLine(line);
-
-			tokens.push_back(obj);
-//			Token::addReference(obj);
+		token=readNextToken(prog,cursor,line,startPos,tokens);
+		if (token!=NULL) {
+			token->setLine(line);
+			token->setStaringPos(startPos);
+			tokens.push_back(token);
 		}
-	} while (! Token::isA<TEndScript>(obj) );
+	} while (! Token::isA<TEndScript>(token) );
 
 }
 
@@ -92,7 +92,7 @@ void Tokenizer::getTokens( const char * prog,tokenList & tokens)  throw (Excepti
  *   Reads the next Token from prog beginning with position cursor and moves
  *   cursor to the next Token.
  */
-Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,tokenList & tokens)  throw (Exception *) {
+Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_t & startPos,tokenList_t & tokens)  throw (Exception *) {
 
 	char c=prog[cursor];
 
@@ -104,6 +104,7 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,token
 		cursor++;
 		c=prog[cursor];
 	}
+	startPos = static_cast<size_t>(cursor);
 
 	// Multiline Comment
 	// Returns 0 if a comment is read.
@@ -117,7 +118,7 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,token
 			cursor++;
 			if ( prog[cursor] =='/' && prog[cursor-1] =='*') {
 				cursor++;
-				return 0;
+				return NULL;
 				//return new TEndCommand(); // Shure of this?
 			}
 
@@ -132,7 +133,7 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,token
 		cursor++;
 		while (true) {
 			if (prog[cursor]=='\0'||prog[cursor]=='\n')
-				return 0;
+				return NULL;
 			cursor++;
 		}
 	}
@@ -150,7 +151,7 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,token
 
 		// Identifiers, Control commands, true/false
 	} else if (isChar(c)) {
-	std::string accum;
+		std::string accum;
 		while ( isNumber(c) || isChar(c)) {
 			accum+=c;
 			cursor++;

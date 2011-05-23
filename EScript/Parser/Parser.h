@@ -10,6 +10,7 @@
 #include "Tokenizer.h"
 
 #include "../Objects/Exception.h"
+#include "../Objects/String.h"
 #include "../Objects/UserFunction.h"
 
 #include <vector>
@@ -57,10 +58,11 @@ class Parser : public Object {
 
 		//! (internal)
 		struct ParsingContext{
-			Tokenizer::tokenList & tokens;
+			Tokenizer::tokenList_t & tokens;
 			Block * rootBlock;
 			std::deque<Block*> blocks; // used as a stack
-			ParsingContext(Tokenizer::tokenList & _tokens) : tokens(_tokens),rootBlock(NULL){}
+			ERef<String> code;
+			ParsingContext(Tokenizer::tokenList_t & _tokens,const EPtr<String> & _code ) : tokens(_tokens),rootBlock(NULL),code(_code){}
 		};
 
 	private:
@@ -70,7 +72,7 @@ class Parser : public Object {
 
 		Tokenizer tokenizer;
 		void pass_1(ParsingContext & ctxt)throw (Exception *);
-		void pass_2(ParsingContext & ctxt, Tokenizer::tokenList  & enrichedTokens)const throw (Exception *);
+		void pass_2(ParsingContext & ctxt, Tokenizer::tokenList_t  & enrichedTokens)const throw (Exception *);
 		Statement getControl(ParsingContext & ctxt,int & cursor)const throw (Exception *);
 		Statement getStatement(ParsingContext & ctxt,int & cursor,int to=-1)const throw (Exception *);
 		Object * getExpression(ParsingContext & ctxt,int & cursor,int to=-1)const throw (Exception *);

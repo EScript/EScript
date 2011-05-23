@@ -4,17 +4,19 @@
 // ------------------------------------------------------
 #include "UserFunction.h"
 #include "Internals/Block.h"
+#include "../EScript.h"
 #include <sstream>
 
 using namespace EScript;
 
-
+//! (ctor) UserFunction::Parameter
 UserFunction::Parameter::Parameter(identifierId _name,Object * defaultValueExpression/*=NULL*/,Object * type/*=NULL*/):
 	name(_name),defaultValueExpressionRef(defaultValueExpression),typeRef(type),multiParam(false){
 }
+
+//! (dtor) UserFunction::Parameter
 UserFunction::Parameter::~Parameter(){
 }
-
 
 std::string UserFunction::Parameter::toString()const{
 	std::string s=typeRef.toString()+" "+EScript::identifierIdToString(name);
@@ -26,16 +28,35 @@ std::string UserFunction::Parameter::toString()const{
 }
 // ------------------------------------------------------------
 
+//! (static)
+Type * UserFunction::getTypeObject()	{
+	static Type * typeObject=new Type(ExtObject::getTypeObject());
+	return typeObject;
+}
+
+//! (static) initMembers
+void UserFunction::init(EScript::Namespace & globals) {
+	// [UserFunction] ---|> [ExtObject] ---|> [Object]
+	Type * t=getTypeObject();
+	declareConstant(&globals,getClassName(),t);
+	
+	//! [ESMF] String UserFunction.getFilename()
+	ESMF_DECLARE(t,UserFunction,"getFilename",0,0,String::create(self->getFilename()))
+	
+	//! [ESMF] String UserFunction.getCode()
+	ESMF_DECLARE(t,UserFunction,"getCode",0,0,String::create(self->getCode()))
+}
+
 //! (ctor)
 UserFunction::UserFunction(parameterList_t * _params,Block * block):
-		ExtObject(), params(_params) {
+		ExtObject(getTypeObject()), params(_params),posInFile(0),codeLen(0) {
 
 	setBlock(block);
 	//ctor
 }
 //! (ctor)
 UserFunction::UserFunction(parameterList_t * _params,Block * block,const std::vector<ObjRef> & _sConstrExpressions):
-		ExtObject(), params(_params),sConstrExpressions(_sConstrExpressions.begin(),_sConstrExpressions.end()) {
+		ExtObject(getTypeObject()), params(_params),sConstrExpressions(_sConstrExpressions.begin(),_sConstrExpressions.end()),posInFile(0),codeLen(0) {
 
 	setBlock(block);
 	//ctor
@@ -88,4 +109,14 @@ std::string UserFunction::getFilename()const {
 
 int UserFunction::getLine()const	{
 	return blockRef.isNull() ? -1 : blockRef->getLine();
+}
+
+void UserFunction::setCodeString(const EPtr<String> & _fileString,size_t _begin,size_t _codeLen){
+	fileString = _fileString.get();
+	posInFile = _begin;
+	codeLen = _codeLen;
+}
+
+std::string UserFunction::getCode()const{
+	return fileString->toString().substr(posInFile,codeLen);
 }

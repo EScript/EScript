@@ -41,6 +41,7 @@ void EScript::init() {
 	Exception::init(*SGLOBALS);
 	Delegate::init(*SGLOBALS);
 	Namespace::init(*SGLOBALS);
+	UserFunction::init(*SGLOBALS);
 	YieldIterator::init(*SGLOBALS);
 
 	declareConstant(SGLOBALS,"VERSION",String::create(ES_VERSION));

@@ -47,7 +47,7 @@ class Token:public EReferenceCounter<Token,TokenReleaseHandler> {
 		static int tokenCount;
 
 		Token(const uint32_t _type=getTypeId()) :
-				typeId(_type),line(0) 		{	tokenCount++;	}
+				typeId(_type),line(0),startingPos(std::string::npos) 		{	tokenCount++;	}
 		virtual ~Token() 					{	tokenCount--;	}
 		virtual string toString()const 		{	return string("Token");	}
 
@@ -59,8 +59,13 @@ class Token:public EReferenceCounter<Token,TokenReleaseHandler> {
 
 		uint32_t getType()const				{	return typeId;	}
 		const uint32_t typeId;
+		
+		void setStaringPos(size_t p)		{	startingPos = p;	}
+		size_t getStartingPos()const		{	return startingPos; }
+		
 	private:
 		int line;
+		size_t startingPos;
 };
 // -----
 class TIdentifier :  public Token {

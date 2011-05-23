@@ -233,12 +233,15 @@ var FAILED="\t failed\n";
 //	var x=new Array(1,,,4);
 //	print_r(x);
 
+	// function members
 	var f3=fn(){
 		if(!thisFn.isSet($staticVar))
 			thisFn.staticVar:=0;
 		thisFn.staticVar+=1;
 		return thisFn.staticVar;
 	};
+	
+	out(f3.getCode());
 
 	test("User Functions:",
 		plusRec(a,7)==17 && plusRec2(a,7)==17 && minusOne(a)==9 && (fn(a){return a*a;})(2)==4
@@ -246,6 +249,7 @@ var FAILED="\t failed\n";
         && mulSum(2,1,2,3)==12 && typeException2 && typeException3
         && f2(,,10)==13
         && f3()==1 && f3()==2 // a static counter is increased each time f3 is called
+        && f3 ---|> UserFunction
 	 );
 	 f3.staticVar=0; // reset staticVar for next testing loop.
 }
