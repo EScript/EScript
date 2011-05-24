@@ -68,7 +68,7 @@ class _CountedRef  {
 		inline bool isNull()const                           {   return obj==NULL;   }
 
 		/*! Returns true if the referenced object is not NULL.  */
-		inline bool notNull()const							{   return obj!=NULL;   }
+		inline bool isNotNull()const							{   return obj!=NULL;   }
 
 		inline bool operator==(const _CountedRef & other)const 	{   return obj==other.obj;  }
 		inline bool operator==(const _T * o2)const          	{   return obj==o2; }
@@ -163,7 +163,7 @@ class EPtr{
 		inline bool isNull()const                           {   return obj==NULL;   }
 
 		/*! Returns true if the referenced object is not NULL.  */
-		inline bool notNull()const							{   return obj!=NULL;   }
+		inline bool isNotNull()const							{   return obj!=NULL;   }
 
 		inline bool operator==(const EPtr<_T> & other)const {   return obj==other.obj;  }
 		inline bool operator==(const _T * o2)const          {   return obj==o2; }

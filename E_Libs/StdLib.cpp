@@ -258,17 +258,5 @@ void StdLib::init(EScript::Namespace * globals) {
 	ESF_DECLARE(globals,"toJSON",1,2,String::create(JSON::toJSON(parameter[0].get(),parameter[1].toBool(true))))
 
 
-	// --- internals and experimental functions
 
-	//! [ESF]  object _callFunction(fun,obj[,params*])
-	ES_FUNCTION_DECLARE(globals,"_callFunction",1,-1, {
-		ObjPtr fun(parameter[0]);
-		ObjPtr obj(parameter[1].get());
-		ParameterValues params=ParameterValues(parameter.count()>2?parameter.count()-2:0);
-		for(unsigned int i=2;i<parameter.count();i++){
-			params.set(i-2,parameter[i]);
-		}
-		ObjRef resultRef=runtime.executeFunction(fun.get(),obj.get(),params);
-		return resultRef.detachAndDecrease();
-	})
 }

@@ -14,6 +14,7 @@ namespace EScript{
 struct Consts{
 	static const identifierId IDENTIFIER_this;
 	static const identifierId IDENTIFIER_thisFn;
+	static const identifierId IDENTIFIER_fn_call;
 	static const identifierId IDENTIFIER_fn_constructor;
 	static const identifierId IDENTIFIER_fn_greater;
 	static const identifierId IDENTIFIER_fn_less;

@@ -234,8 +234,8 @@ Object * Object::getRefOrCopy() {
 }
 
 bool Object::isIdentical(Runtime & rt,const ObjPtr o) {
-	if( (typeRef.notNull() && getType()->getFlag(Type::FLAG_CALL_BY_VALUE))){
-		return o.notNull() && getType() == o->getType() && isEqual(rt,o);
+	if( (typeRef.isNotNull() && getType()->getFlag(Type::FLAG_CALL_BY_VALUE))){
+		return o.isNotNull() && getType() == o->getType() && isEqual(rt,o);
 	}else{
 		return this==o.get();
 	}

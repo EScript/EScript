@@ -66,7 +66,25 @@ void Runtime::init(EScript::Namespace & globals) {
 
 	//!	[ESMF] void Runtime.warn([message]);
 	ESF_DECLARE(typeObject,"warn",0,1, (runtime.warn(parameter[0].toString()),Void::get()))
-
+	
+	// --- internals and experimental functions
+	
+	//! [ESF]  object _callFunction(fun[,obj[,Array params]])
+	ES_FUNCTION_DECLARE(typeObject,"_callFunction",1,3, {
+		ObjPtr fun(parameter[0]);
+		ObjPtr obj(parameter[1].get());
+		EPtr<Array> paramArr(parameter[3].toType<Array>());
+		
+		ParameterValues params=ParameterValues(paramArr.isNotNull() ? paramArr->count() : 0);
+		if(paramArr.isNotNull()){
+			int i=0;
+			for(Array::iterator it=paramArr->begin();it!=paramArr->end();++it){
+				params.set(i++,*it);
+			}
+		}
+		ObjRef resultRef=runtime.executeFunction(fun.get(),obj.get(),params);
+		return resultRef.detachAndDecrease();
+	})
 }
 
 // ----------------------------------------------------------------------
@@ -571,9 +589,9 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 		return NULL;
 	}
 
-	// is  C++ function ?
 	int type=fun->_getInternalTypeId();
 
+	// is  C++ function ?
 	if (type==_TypeIds::TYPE_FUNCTION) {
 		Function * libfun=static_cast<Function*>(fun.get());
 
@@ -643,9 +661,16 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 		Delegate * d=static_cast<Delegate*>(fun.get());
 		return executeFunction(d->getFunction(),d->getObject(),params,isConstructorCall);
 	} else {
+		// function-object has a user defined "_call"-member?
+		
+		// EXPERIMENTAL!!!
+		ObjPtr otherFun = fun->getAttribute(Consts::IDENTIFIER_fn_call);
+		if(otherFun.isNotNull())
+			return executeFunction(otherFun,_callingObject,params,isConstructorCall);
+		
 		warn("No function to call.");
 	}
-	return NULL;//resultRef.detachAndDecrease();
+	return NULL;
 }
 
 /*! (internal)	Create a RuntimeContext for a user function and assign the parameterValues to the corresponding local variables.

@@ -243,6 +243,17 @@ var FAILED="\t failed\n";
 	
 	out(f3.getCode());
 
+//	var f4 = fn(p1,p2,p3){
+//		out(p1,p2,p3,"\n");
+//	};
+//	var bind = fn( fun, params)
+	var userDefinedFunction = new ExtObject();
+	userDefinedFunction._call := fn(foo){
+		out("userDefinedFunction:",foo,"\n");
+	};
+
+	userDefinedFunction(2);
+
 	test("User Functions:",
 		plusRec(a,7)==17 && plusRec2(a,7)==17 && minusOne(a)==9 && (fn(a){return a*a;})(2)==4
         && increase(3)==4 && increase(3,2)==5 && typeException==true && repeat(3,".")=="..."
