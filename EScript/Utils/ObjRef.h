@@ -87,12 +87,12 @@ template<class _T>class EPtr;
 template<class _T>
 class ERef : public _CountedRef<_T> {
 	public:
-		ERef<_T>() : _CountedRef<_T>(NULL)                              {   }
-		ERef<_T>(_T * _obj) : _CountedRef<_T>(_obj)                     {   }
-		ERef<_T>(const ERef<_T>& other) : _CountedRef<_T>(other.get())  {   }
-		ERef<_T>(const EPtr<_T>& other) : _CountedRef<_T>(other.get())  {   }
+		ERef() : _CountedRef<_T>(NULL)                              {   }
+		ERef(_T * _obj) : _CountedRef<_T>(_obj)                     {   }
+		ERef(const ERef<_T>& other) : _CountedRef<_T>(other.get())  {   }
+		ERef(const EPtr<_T>& other) : _CountedRef<_T>(other.get())  {   }
 
-		~ERef<_T>()     {	}
+		~ERef()     {	}
 
 	/*! @name Conversion */
 	// @{
@@ -139,17 +139,17 @@ template<class _T>
 class EPtr{
 		_T * obj;
 	public:
-		EPtr<_T>() : obj(NULL)                              {   }
-		EPtr<_T>(_T * _obj) : obj(_obj)                     {   }
-		EPtr<_T>(const EPtr<_T>& other) : obj(other.obj)    {   }
-		EPtr<_T>(const ERef<_T>& other) : obj(other.get())  {   }
+		EPtr() : obj(NULL)                              {   }
+		EPtr(_T * _obj) : obj(_obj)                     {   }
+		EPtr(const EPtr<_T>& other) : obj(other.obj)    {   }
+		EPtr(const ERef<_T>& other) : obj(other.get())  {   }
 
-		EPtr<_T>& operator=(const EPtr<_T>& other) {
+		EPtr& operator=(const EPtr<_T>& other) {
 			obj=other.obj;
 			return *this;
 		}
 
-		~EPtr<_T>()     {   }
+		~EPtr()     {   }
 
 	/*! @name Information */
 	// @{
