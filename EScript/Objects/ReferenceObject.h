@@ -6,14 +6,41 @@
 #define REFERENCE_OBJECT_H
 
 #include "Object.h"
+#include "Exception.h"
 
 namespace EScript {
 
+struct ReferenceObjectClonePolicies{
+	//! Create a clone using the same value
+	struct ByReference {
+		template<typename ReferenceObject_T>
+		static ReferenceObject_T * createClone(const ReferenceObject_T * original){
+			return new ReferenceObject_T( original->ref() );
+		}
+	};
+	//! Create a clone using the clone() member function of the (pointer-)value (value->clone())
+	struct ExplicitClone {
+		template<typename ReferenceObject_T>
+		static ReferenceObject_T * createClone(const ReferenceObject_T * original){
+			return new ReferenceObject_T( original->ref()->clone() );
+		}
+	};
+	//! Issue an exception when trying to clone
+	struct Unclonable {
+		template<typename ReferenceObject_T>
+		static ReferenceObject_T * createClone(const ReferenceObject_T * original){
+			throw new Exception(std::string("Trying to clone unclonable object")+original->toString());
+		}
+	};
+};
+
 /*! [ReferenceObject] ---|> [Object]    */
-template <typename _T>
+template <typename _T,typename ClonePolicy = ReferenceObjectClonePolicies::ByReference >
 class ReferenceObject : public Object {
 		ES_PROVIDES_TYPE_NAME(ReferenceObject)
 	public:
+		typedef ReferenceObject<_T,ClonePolicy> ReferenceObject_t;
+		
 		// ---
 		ReferenceObject(const _T & _obj, Type * type=NULL):
 				Object(type),obj(_obj)					{	}
@@ -23,11 +50,13 @@ class ReferenceObject : public Object {
 		inline _T & ref()  								{	return obj;	}
 
 		/// ---|> [Object]
-		virtual Object * clone()const					{	return new ReferenceObject<_T>(ref());	}
+		virtual ReferenceObject * clone()const			{	
+			return ClonePolicy::createClone(this);
+		}
 
 		/// ---|> [Object]
 		virtual bool rt_isEqual(Runtime &,const ObjPtr o){
-			ReferenceObject<_T> * other=o.toType<ReferenceObject<_T> >();
+			ReferenceObject_t * other=o.toType<ReferenceObject_t >();
 			return other && obj == other->obj;
 		}
 	private:
