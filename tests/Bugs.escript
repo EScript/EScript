@@ -436,3 +436,18 @@
 	}
 	test( "BUG[20110328]", !exceptionCaught);	
 }
+{	// cloned ReferenceObjects are broken (due to silly ReferenceObjectClonePolicies idea)
+
+	var exceptionCaught=false;
+	try{
+		var r1 = new Math.RandomNumberGenerator();
+		r1.equilikely(0,10);
+		r1.clone().equilikely(0,10);
+
+	}catch(e){
+		Runtime.warn(e);
+		exceptionCaught=true;
+	}
+	test( "BUG[20110530]", !exceptionCaught);	
+
+}

@@ -28,15 +28,14 @@ public:
 
 	//! (ctor)
 	E_RandomNumberGenerator(uint32_t seed=0):
-			ReferenceObject<Rand>(seed,getTypeObject()){}
+			ReferenceObject_t(seed,getTypeObject()){}
 
 	//! (dtor)
 	virtual ~E_RandomNumberGenerator(){}
-
+	
 	//! ---|> Object
-	virtual E_RandomNumberGenerator * clone()const{
-		return new E_RandomNumberGenerator(ref().getSeed());
-	}
+	virtual E_RandomNumberGenerator * clone()const	{	return new E_RandomNumberGenerator(ref().getSeed());	}
+
 };
 
 
