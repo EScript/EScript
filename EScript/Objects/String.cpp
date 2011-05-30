@@ -173,7 +173,8 @@ void String::init(EScript::Namespace & globals) {
 	//! [ESMF] String String.replace((String)search,(String)replace)
 	ESMF_DECLARE(typeObject,String,"replace",2,2,
 				String::create(StringUtils::replaceAll(self->getString(),parameter[0]->toString(),parameter[1]->toString(),1)))
-
+	
+	typedef std::pair<std::string,std::string> keyValuePair_t;
 	//! [ESMF] String.replaceAll( (Map | ((String)search,(String)replace)) [,(Number)max])
 	ES_MFUNCTION_DECLARE(typeObject,String,"replaceAll",1,3,{
 		const string & subject(self->getString());
@@ -181,29 +182,19 @@ void String::init(EScript::Namespace & globals) {
 		//Map * m
 		if ( Map * m=parameter[0].toType<Map>()) {
 			assertParamCount(runtime,parameter.count(),1,2);
-			int i=m->count();
-			string * searches =new string[i];
-			string * replaces =new string[i];
-
+			std::vector<keyValuePair_t> rules;
 			ERef<Iterator> iRef=m->getIterator();
-			int i2=0;
 			while (!iRef->end()) {
 				ObjRef key=iRef->key();
 				ObjRef value=iRef->value();
-				searches[i2]=key.toString();
-				replaces[i2]=value.toString();
-				i2++;
+				rules.push_back(std::make_pair(key.toString(),value.toString()));
 				iRef->next();
 			}
-
-			String * s=String::create(StringUtils::replaceMultiple(subject,i,searches,replaces,parameter[1].toInt(-1)));
-			delete [] searches;
-			delete [] replaces;
-			return s;
+			return String::create(StringUtils::replaceMultiple(subject,rules,parameter[1].toInt(-1)));
 		}
 
-		string search=parameter[0]->toString();
-		string replace=parameter[1]->toString();
+		const std::string search(parameter[0]->toString());
+		const std::string replace(parameter[1]->toString());
 
 		return String::create(StringUtils::replaceAll(subject,search,replace,parameter[2].toInt(-1)));
 	})

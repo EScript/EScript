@@ -677,7 +677,10 @@ if(!benchmark)
 //    print_r(list);
 //    print_r(parseJSON(jsonList));
 
-    if(list==parseJSON(jsonList))
+    if(list==parseJSON(jsonList) &&
+		parseJSON('"a\\"test\\"b"') == 'a"test"b' &&
+		toJSON('a"test"b') == '"a\\"test\\"b"'
+	)
         {out (OK);}else { errors+=1; out(FAILED); }
 }
 // ---

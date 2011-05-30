@@ -5,6 +5,7 @@
 #include "JSON.h"
 
 #include "../../EScript/EScript.h"
+#include "../../EScript/Utils/StringUtils.h"
 #include "../../EScript/Parser/Tokenizer.h"
 
 using namespace EScript;
@@ -25,7 +26,7 @@ void JSON::toJSON(std::ostringstream & out,Object * obj,bool formatted/*=true*/,
 	}else if(Bool * b=dynamic_cast<Bool *>(obj)){
 		out<<b->toString();
 	}else if(String * s=dynamic_cast<String *>(obj)){
-		out<<"\""<<s->toString()<<"\""; // TODO! Escape
+		out<<"\""<<StringUtils::escape(s->toString())<<"\""; 
 	}else if(Array * a=dynamic_cast<Array *>(obj)){
 		ERef<Iterator> itRef=dynamic_cast<Iterator *>(a->getIterator());
 

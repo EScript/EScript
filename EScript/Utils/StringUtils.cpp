@@ -78,7 +78,7 @@ double StringUtils::getNumber(const char * s,int &cursor,bool checkSign) {
 
 string StringUtils::trim(const string & s) {
 	if(s.empty())
-		return "";
+		return std::string();
 	unsigned int start,end;
 	for (start=0;start<s.length();start++) {
 		char c=s[start];
@@ -92,11 +92,8 @@ string StringUtils::trim(const string & s) {
 			continue;
 		break;
 	}
-	int count=end-start+1;
-	std::string s2="";
-	if (count>0)
-		s2=s.substr(start,count);
-	return s2;
+	const int count=end-start+1;
+	return count>0 ? s.substr(start,count) : std::string();
 }
 string StringUtils::rTrim(const string & s){
 	for(int right=s.length()-1 ; right >= 0 ; --right){
@@ -104,7 +101,7 @@ string StringUtils::rTrim(const string & s){
 		if( !(c==' '||c=='\t'||c=='\n'||c=='\r'||c=='\0'||c==11))
 			return s.substr(0,right+1);
 	}
-	return "";
+	return std::string();
 }
 string StringUtils::lTrim(const string & s){
 	for(size_t left=0 ; left<s.length() ; ++left){
@@ -112,7 +109,7 @@ string StringUtils::lTrim(const string & s){
 		if( !(c==' '||c=='\t'||c=='\n'||c=='\r'||c=='\0'||c==11))
 			return s.substr(left,s.length()-left);
 	}
-	return "";
+	return std::string();
 }
 
 string StringUtils::replaceAll(const string &subject,const string &find,const string &replace,int count) {
@@ -137,7 +134,7 @@ string StringUtils::replaceAll(const string &subject,const string &find,const st
 		}
 		s<<replace;
 		cursor+=fLen;
-		nr++;
+		++nr;
 	}
 
 	if (cursor<len) {
@@ -147,51 +144,66 @@ string StringUtils::replaceAll(const string &subject,const string &find,const st
 	return s.str();
 }
 
-string StringUtils::replaceMultiple(const string &subject,int replaceCount,const string find[],const string replace[],int max) {
-	std::ostringstream s;
+string StringUtils::replaceMultiple(const string &subject,const std::vector<std::pair<std::string,std::string> > & rules,int max){
+	typedef std::pair<std::string,std::string> keyValuePair_t;
+    const size_t ruleCount=rules.size();
+	std::vector<size_t> findLen(ruleCount);
+	std::vector<size_t> pos(ruleCount);
 
-	unsigned int cursor=0;
-
-	unsigned int  len=subject.length();
-	unsigned int * findLen=new unsigned int[replaceCount];
-	size_t * pos=new size_t[replaceCount];
-	for (int i=0;i<replaceCount;++i) {
-		findLen[i]=find[i].length();
-		pos[i]=subject.find(find[i],0);
+	size_t i=0;
+	for(std::vector<keyValuePair_t>::const_iterator it=rules.begin();it!=rules.end();++it) {
+		// length of the search pattern
+		findLen[i]=(*it).first.length();
+		// first position
+		pos[i]=subject.find((*it).first,0);
+		++i;
 	}
 	int nr=0;
-	while (cursor<len&& nr!=max) {
+	std::ostringstream s;
+	size_t cursor=0;
+	const size_t len=subject.length();
+	while(cursor<len&& nr!=max) {
 		// select next match
 		size_t nextPos=string::npos;
-		int nextIndex=-1;
-		for (int i=0;i<replaceCount;i++) {
-			if (pos[i]==string::npos) continue;
-			if (pos[i]<cursor) {
-				pos[i]=subject.find(find[i],cursor);
-			}
+		size_t nextFindLength=0;
+
+		std::vector<keyValuePair_t>::const_iterator nextReplace=rules.begin();
+		std::vector<keyValuePair_t>::const_iterator ruleIt=rules.begin();
+
+		for(i=0;i<ruleCount;++i,++ruleIt) {
+		    
+			// search not found -> continue
+			if(pos[i]==string::npos) {
+				continue;
+			} 
+			// stepped over position (overlapping foundings) -> search again
+			if(cursor>pos[i]) {
+				pos[i]=subject.find((*ruleIt).first,cursor);
+			} 
+			// nearest founding?
 			if (pos[i]<nextPos) {
-				nextIndex=i;
+				nextReplace=ruleIt;
 				nextPos=pos[i];
+				nextFindLength=findLen[i];
 			}
+
 		}
-		if (nextPos==string::npos) break;
+		// found nothing? -> finished
+		if (nextPos==string::npos) 
+			break;
 
+        // append string
 		s<<subject.substr(cursor,nextPos-cursor);
-		s<<replace[nextIndex];
-		cursor=nextPos+findLen[nextIndex];//findLen[nextIndex];
+		s<<(*nextReplace).second;
+		cursor=nextPos+nextFindLength;
 
-		nr++;
+		++nr;
 	}
-	if (cursor<len) {
+	// add ending
+	if (cursor<len) 
 		s<<subject.substr(cursor,len-cursor);
-	}
-	delete [] findLen;
-	delete [] pos;
-//
-
 	return s.str();
 }
-
 /**
  * TODO: 4byte encoding!
  */
@@ -265,15 +277,15 @@ string StringUtils::charToString(char c) {
 bool StringUtils::stepText(const char * subject,int & cursor,const char * search) {
 	int _cursor=cursor;
 	while (true) {
-		char s=search[0];
+		const char s=search[0];
 		if (s==0) {
 			cursor=_cursor;
 			return true;
 		}
 		if (subject[_cursor]!=s ||subject[_cursor]==0 )
 			return false;
-		_cursor++;
-		search++;
+		++_cursor;
+		++search;
 	}
 }
 
@@ -311,4 +323,13 @@ void StringUtils::split(const string & subject,const string & delimiter, std::ve
 		if (cursor<len)
 			result.push_back( subject.substr(cursor,len-cursor) );
 	}
+}
+
+std::string StringUtils::escape(const std::string & s){
+	typedef std::pair<std::string,std::string> keyValuePair_t;
+    std::vector<keyValuePair_t> replace;
+    replace.push_back(keyValuePair_t("\"","\\\""));
+    replace.push_back(keyValuePair_t("\n","\\\n"));
+    replace.push_back(keyValuePair_t("\\","\\\\"));
+    return replaceMultiple(s,replace);
 }
