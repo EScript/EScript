@@ -87,14 +87,18 @@ Namespace * getSGlobals();
 
 /*! Add a type Function attribute to @p type with given name. */
 void declareFunction( Type * type,identifierId nameId, Function::functionPtr fn);
-void declareFunction( Type * type,const char *name, Function::functionPtr fn);
+void declareFunction( Type * type,const char * name, Function::functionPtr fn);
+void declareFunction( Type * type,identifierId nameId,int minParamCount,int maxParamCount, Function::functionPtr fn);
+void declareFunction( Type * type,const char * name,int minParamCount,int maxParamCount, Function::functionPtr fn);
 void declareConstant( Type * type,identifierId nameId, Object * value);
-void declareConstant( Type * type,const char *name, Object * value);
+void declareConstant( Type * type,const char * name, Object * value);
 
 void declareFunction( Namespace * type,identifierId nameId, Function::functionPtr fn);
-void declareFunction( Namespace * type,const char *name, Function::functionPtr fn);
+void declareFunction( Namespace * type,const char * name, Function::functionPtr fn);
+void declareFunction( Namespace * type,identifierId nameId,int minParamCount,int maxParamCount, Function::functionPtr fn);
+void declareFunction( Namespace * type,const char *name,int minParamCount,int maxParamCount, Function::functionPtr fn);
 void declareConstant( Namespace * type,identifierId nameId, Object * value);
-void declareConstant( Namespace * type,const char *name, Object * value);
+void declareConstant( Namespace * type,const char * name, Object * value);
 //@}
 
 // -----------------------------------------------

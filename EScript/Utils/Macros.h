@@ -58,10 +58,13 @@
 #define ESF_DECLARE(_obj, _fnNameStr, _min, _max, _returnExpr) \
 	{ \
 		struct _fnWrapper { \
-			ESF(function, _min, _max, _returnExpr) \
+			ES_FUNCTION(function) {\
+				return (_returnExpr); \
+			} \
 		}; \
-		declareFunction(_obj, _fnNameStr, _fnWrapper::function); \
+		declareFunction(_obj, _fnNameStr, _min, _max, _fnWrapper::function); \
 	}
+
 
 /*! Macro for defining and declaring a (simple) EScript member function in short form.
 	\note The variable \a self contains the caller with the type \a _objType (otherwise an exception is thrown).
@@ -72,9 +75,12 @@
 #define ESMF_DECLARE(_obj, _objType, _fnNameStr, _min, _max, _returnExpr) \
 	{ \
 		struct _fnWrapper { \
-			ESMF(_objType, function, _min, _max, _returnExpr) \
+			ES_FUNCTION(function) {\
+				_objType * self = EScript::assertType<_objType>(runtime, caller); \
+				return (_returnExpr); \
+			} \
 		}; \
-		declareFunction(_obj, _fnNameStr, _fnWrapper::function); \
+		declareFunction(_obj, _fnNameStr, _min, _max, _fnWrapper::function); \
 	}
 
 
@@ -89,11 +95,10 @@
 	{ \
 		struct _fnWrapper { \
 			ES_FUNCTION(function){ \
-				assertParamCount(runtime,parameter.count(),_min,_max);\
 				do _block while(false); \
 			} \
 		}; \
-		declareFunction(_obj, _fnNameStr, _fnWrapper::function); \
+		declareFunction(_obj, _fnNameStr, _min, _max, _fnWrapper::function); \
 	}
 
 
@@ -108,12 +113,11 @@
 	{ \
 		struct _fnWrapper { \
 			ES_FUNCTION(function){ \
-				assertParamCount(runtime,parameter.count(),_min,_max);\
 				_objType * self = assertType<_objType>(runtime, caller); \
 				do _block while(false); \
 			} \
 		}; \
-		declareFunction(_obj, _fnNameStr, _fnWrapper::function); \
+		declareFunction(_obj, _fnNameStr, _min, _max, _fnWrapper::function); \
 	}
 
 #endif // ES_MACROS_H_INCLUDED

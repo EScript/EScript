@@ -601,6 +601,23 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 			exception("Can not instantiate non-Type-Object. Hint: Try to check the type you use with 'new'.");
 			return NULL;
 		}
+		{	// check param count
+			const int min = libfun->getMinParamCount();
+			const int max = libfun->getMaxParamCount();
+			if( (min>0 && static_cast<int>(params.count())<min)){
+				std::ostringstream sprinter;
+				sprinter<<"Too few parameters: Expected " <<min<<", got "<<params.count()<<".";
+				//! \todo improve message
+				exception(sprinter.str());
+				return NULL;
+			} else  if (max>0 && static_cast<int>(params.count())>max) {
+				std::ostringstream sprinter;
+				sprinter<<"Too many parameters: Expected " <<max<<", got "<<params.count()<<".";
+				//! \todo improve message
+				warn(sprinter.str());
+			}
+		}
+	
 		try {
 			return (*libfun->getFnPtr())(*this,_callingObject.get(),params);
 		} catch (Exception * e) {

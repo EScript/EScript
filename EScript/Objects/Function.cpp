@@ -10,11 +10,15 @@
 using namespace EScript;
 
 //! (ctor)
-Function::Function(functionPtr _fnptr):ExtObject(),fnptr(_fnptr) {
-	//ctor
+Function::Function(identifierId _originalName, int _minParamCountint, int _maxParamCount,functionPtr _fnptr) : 
+		Object(),fnptr(_fnptr),minParamCount(_minParamCountint),maxParamCount(_maxParamCount),originalName(_originalName) {
+}
+		
+//! (ctor)
+Function::Function(functionPtr _fnptr) : 
+		Object(),fnptr(_fnptr),minParamCount(0),maxParamCount(-1),originalName(0) {
 }
 
 //! (ctor)
 Function::~Function() {
-	//dtor
 }

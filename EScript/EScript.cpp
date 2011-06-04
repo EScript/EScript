@@ -122,6 +122,17 @@ void EScript::declareFunction( Type * t,const char *name, Function::functionPtr 
 }
 
 //! (static)
+void EScript::declareFunction( Type * t,identifierId nameId, int minParamCount,int maxParamCount,Function::functionPtr fn){
+	Function * fun=new Function(nameId,minParamCount,maxParamCount,fn);
+	t->setTypeAttribute(nameId,fun);
+}
+
+//! (static)
+void EScript::declareFunction( Type * t,const char *name,int minParamCount,int maxParamCount, Function::functionPtr fn ){
+	declareFunction(t,stringToIdentifierId(name),minParamCount,maxParamCount,fn);
+}
+
+//! (static)
 void EScript::declareConstant( Type * type,const char *name, Object * value){
 	declareConstant(type,stringToIdentifierId(name),value);
 }
@@ -141,6 +152,17 @@ void EScript::declareFunction( Namespace * t,identifierId nameId, Function::func
 //! (static)
 void EScript::declareFunction( Namespace * t,const char *name, Function::functionPtr fn ){
 	declareFunction(t,stringToIdentifierId(name),fn);
+}
+
+//! (static)
+void EScript::declareFunction( Namespace * t,identifierId nameId, int minParamCount,int maxParamCount, Function::functionPtr fn){
+	Function * fun=new Function(nameId,minParamCount,maxParamCount,fn);
+	t->setObjAttribute(nameId,fun);
+}
+
+//! (static)
+void EScript::declareFunction( Namespace * t,const char *name, int minParamCount,int maxParamCount, Function::functionPtr fn ){
+	declareFunction(t,stringToIdentifierId(name),minParamCount,maxParamCount,fn);
 }
 
 //! (static)

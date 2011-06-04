@@ -855,7 +855,43 @@ if(!benchmark)
 	&& s2=="12"
 	&& s3=="123"
 	);
-	
-	
 }
+
+
+//{
+//
+//	
+//	// Function parameter checks
+//	out("\n Function Tests..\n");
+//	Runtime._setErrorConfig(Runtime.TREAT_WARNINGS_AS_ERRORS);
+//
+//	var exceptionCount = 0;
+//	var okCount = 0;
+//	out(":",__LINE__,"\n");
+//	
+//	try { // too few params
+//		var f=fn(p1,p2,p3,p4=1){};
+//		f(1,2);
+//	}catch(e){++exceptionCount;}
+//
+//	out(":",__LINE__,"\n");
+//	try { // too many params
+//		var f=fn(p1,p2,p3,p4=1){};
+//		f(1,2,3,4,5);
+//	}catch(e){++exceptionCoun;}
+//	out(":",__LINE__,"\n");
+//	
+//	try { // wrong type
+//		var f=fn([1,2,Array] p1){ return 1; };
+//		okCount += f(1);
+//		okCount += f(2);
+//		okCount += f([]);
+//		f(3);
+//	}catch(e){++exceptionCount;}
+//	
+//	out(":",__LINE__,"\n");
+//	out(exceptionCount , "\t", okCount );
+//	Runtime._setErrorConfig(0);
+//	
+//}
 //out("\n");
