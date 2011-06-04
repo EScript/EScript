@@ -69,22 +69,24 @@ void Runtime::init(EScript::Namespace & globals) {
 	
 	// --- internals and experimental functions
 	
-	//! [ESF]  object _callFunction(fun[,obj[,Array params]])
+	//! [ESF]  Object _callFunction(fun[,obj[,Array params]])
 	ES_FUNCTION_DECLARE(typeObject,"_callFunction",1,3, {
 		ObjPtr fun(parameter[0]);
 		ObjPtr obj(parameter[1].get());
-		EPtr<Array> paramArr(parameter[3].toType<Array>());
-		
+
+		EPtr<Array> paramArr( (parameter.count()>2) ? assertType<Array>(runtime,parameter[2]) : NULL );
 		ParameterValues params=ParameterValues(paramArr.isNotNull() ? paramArr->count() : 0);
 		if(paramArr.isNotNull()){
 			int i=0;
-			for(Array::iterator it=paramArr->begin();it!=paramArr->end();++it){
+			for(Array::iterator it=paramArr->begin();it!=paramArr->end();++it)
 				params.set(i++,*it);
-			}
 		}
 		ObjRef resultRef=runtime.executeFunction(fun.get(),obj.get(),params);
 		return resultRef.detachAndDecrease();
 	})
+	
+	//! [ESF]  Object _getCurrentCaller()
+	ESF_DECLARE(typeObject,"_getCurrentCaller",0,0, runtime.getCurrentContext()->getCaller() )
 }
 
 // ----------------------------------------------------------------------
@@ -663,13 +665,17 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 	else if(type==_TypeIds::TYPE_DELEGATE){
 		Delegate * d=static_cast<Delegate*>(fun.get());
 		return executeFunction(d->getFunction(),d->getObject(),params,isConstructorCall);
-	} else {
-		// function-object has a user defined "_call"-member?
-		
-		// EXPERIMENTAL!!!
+	} else { // function-object has a user defined "_call"-member?
+		//! \note This feature is still EXPERIMENTAL!!!
 		ObjPtr otherFun = fun->getAttribute(Consts::IDENTIFIER_fn_call);
-		if(otherFun.isNotNull())
-			return executeFunction(otherFun,_callingObject,params,isConstructorCall);
+		if(otherFun.isNotNull()){
+			// fun._call( callingObj , param0 , param1 , ... )
+			ParameterValues params2(params.count()+1);
+			params2.set(0,_callingObject.isNotNull() ? _callingObject : Void::get());
+			std::copy(params.begin(),params.end(),params2.begin()+1);
+				
+			return executeFunction(otherFun,fun,params2,isConstructorCall);	
+		}
 		
 		warn("No function to call.");
 	}
@@ -712,6 +718,7 @@ RuntimeContext * Runtime::createAndPushFunctionCallContext(const ObjPtr & _calli
 			Object* defaultValueExpression=(*paramExpressions)[i]->getDefaultValueExpression();
 			if(defaultValueExpression==NULL){
 				warn("Too few parameters given, missing \""+EScript::identifierIdToString((*paramExpressions)[i]->getName())+"\"");
+				valueRef = Void::get(); // init missing value with "void"
 			}else{
 				valueRef=executeObj(defaultValueExpression);
 			}

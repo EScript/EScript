@@ -171,7 +171,8 @@ var FAILED="\t failed\n";
 	if( file.substr(-3)=="txt" && file.substr(9)=="txt" && file.substr(1,1)=="i")
 	{out (OK);}else { errors+=1; out(FAILED); }
 }
-{	// User Functions:
+//---
+{	// UserFunctions:
 	//global plusRec;
 	var a=10;
 	GLOBALS.plusRec := fn (a,b){
@@ -240,54 +241,99 @@ var FAILED="\t failed\n";
 		thisFn.staticVar+=1;
 		return thisFn.staticVar;
 	};
-	
-	out(f3.getCode());
-
-//	var f4 = fn(p1,p2,p3){
-//		out(p1,p2,p3,"\n");
+//
+//	//! (internal) 
+//	UserFunction.__bindLastParamFunWrapper ::= fn(baseParams){
+//		
 //	};
-//	var bind = fn( fun, params)
-	var userDefinedFunction = new ExtObject();
-	userDefinedFunction._call := fn(foo){
-		out("userDefinedFunction:",foo,"\n");
+//	UserFunction.__bindLastParamFunWrapper.pValues := void;
+//
+//	// extend UserFunction-Type
+//	UserFunction.bindLastParam ::= fn(params*){
+//		var myFunWrapper = this.__bindLastParamFunWrapper.clone();
+//		myFunWrapper.pValues = params;
+//		myFunWrapper.fun = 
+//		return myFunWrapper;
+//	};
+	
+	// cloning USerFunction Objects
+	var f4=fn(a=1){ thisFn.m+=a; return thisFn.m; };
+	f4.m:=0;
+	f4(7);
+	var f4b = f4.clone();
+	f4(10); // 7+10 == 17
+	f4b(); // 7+1 = 8
+	f4b(19); // 8+19 ==27
+
+	
+	// Binding parameters with function wrappers
+	UserFunction.bindLastParams ::= fn(params*){
+		var myWrapper = thisFn.wrapperFn.clone();
+		myWrapper.wrappedFun := this;
+		myWrapper.boundParams := params;
+		return myWrapper;
+	};
+	UserFunction.bindLastParams.wrapperFn := fn(params*){
+		params.append(thisFn.boundParams);
+		// _getCurrentCaller() is used instead of "this", as "this" may not be defined if this function
+		// is called without aa caller. This then results in a warning due to an undefined variable "this".
+		return Runtime._callFunction(thisFn.wrappedFun, Runtime._getCurrentCaller(),params);
 	};
 
-	userDefinedFunction(2);
-
-	test("User Functions:",
+	test("UserFunctions:",
 		plusRec(a,7)==17 && plusRec2(a,7)==17 && minusOne(a)==9 && (fn(a){return a*a;})(2)==4
         && increase(3)==4 && increase(3,2)==5 && typeException==true && repeat(3,".")=="..."
         && mulSum(2,1,2,3)==12 && typeException2 && typeException3
         && f2(,,10)==13
         && f3()==1 && f3()==2 // a static counter is increased each time f3 is called
         && f3 ---|> UserFunction
+        && (fn(){/*bla*/}).getCode() == "fn(){/*bla*/}"
+        && f4(0) == 17 && f4b(0) ==27
+		&& (1->(fn(a){return this+a; }).bindLastParams(27)) () == 28 // 1+27
+		&& [1,2,3].map( (fn(key,value,sumA,sumB){return value+sumA+sumB;}).bindLastParams(90,10) )  == [101,102,103] 
+        
 	 );
 	 f3.staticVar=0; // reset staticVar for next testing loop.
 }
-//{
-//	out("Lambda Functions:");
-//
-//    var sum1=0;
-//    var sum2=0;
-//
-//	var a=10;
-//	var sumA=lambda(b){
-//        a+b;
-//	};
-//throw(" FOOO ");
-//    {
-//        var a=1;
-//        sum1=sumA(7); // 7+1=8
-//    }
-//    sum2=sumA(7); // 7+10=17
-//    var c=8;
-//    var d=3;
-//    var sum3 = (lambda(){ if(d>0){ c++;d--;thisFn();}else c;})(); // 8+3=1
-//
-//    if(sum1==8 && sum2==17 && sum3==11)
-//	{out (OK);}else { errors+=1; out(FAILED); }
+//---
+{	// User defined function (experimental!!!)
+	
+	// simple example
+	var userDefinedFunction = new ExtObject( {
+		$m1 : 17,
+		$_call : fn(obj,params*){
+			return m1+params[0];
+		}
+	});
 
-//}
+	// more complex example: Bind parameter by user defined function
+	UserFunction.bindLastParams2 ::= fn(params*){
+		return new thisFn.Wrapper( this, params );
+	};
+	{	// (internals)
+		UserFunction.bindLastParams2.Wrapper := new Type();
+		var Wrapper = UserFunction.bindLastParams2.Wrapper;
+		Wrapper.additionalParamValues := void;
+		Wrapper.fun := void;
+		
+		//! (ctor)
+		Wrapper._constructor ::= fn(_fun,_additionalParamValues){
+			this.fun = _fun;
+			this.additionalParamValues = _additionalParamValues;
+		};
+		Wrapper._call ::= fn(obj,params*){
+			params.append(additionalParamValues);
+			return Runtime._callFunction(fun,obj,params);
+		};
+	}
+
+	
+	test("User def function(EXP!):", true
+		&& userDefinedFunction(10) == 27 // 17+10
+		&& (1->(fn(a){return this+a; }).bindLastParams2(27)) () == 28 // 1+27
+		&& [1,2,3].map( (fn(key,value,sumA,sumB){return value+sumA+sumB;}).bindLastParams2(90,10) )  == [101,102,103] 
+	);
+}
 //---
 {
 	out("Collections:\t");

@@ -451,3 +451,14 @@
 	test( "BUG[20110530]", !exceptionCaught);	
 
 }
+
+{	// if too few parameters are given, the global value is used instead of a locally defined void
+	
+	GLOBALS.__test20110604a := 1;
+	GLOBALS.__test20110604b := 2;
+	  
+	Runtime._setErrorConfig(Runtime.IGNORE_WARNINGS);
+	test( "BUG[20110604]", 
+			(fn(__test20110604a,__test20110604b) { return void == __test20110604a && void == __test20110604b;	} )() );	
+	Runtime._setErrorConfig(0);	
+}

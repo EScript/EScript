@@ -43,6 +43,7 @@ class UserFunction : public ExtObject {
 				~Parameter();
 				std::string toString()const;
 
+				Parameter* clone()const;
 				identifierId getName()const					{   return name;    }
 				Object * getType()const						{   return typeRef.get();   }
 
@@ -82,6 +83,7 @@ class UserFunction : public ExtObject {
 		std::string getCode()const;
 
 		/// ---|> [Object]
+		virtual UserFunction * clone()const;
 		virtual std::string toString()const;
 		virtual std::string toDbgString()const;
 		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_USER_FUNCTION;	}

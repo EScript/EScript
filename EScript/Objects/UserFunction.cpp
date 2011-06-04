@@ -26,6 +26,13 @@ std::string UserFunction::Parameter::toString()const{
 		s+="*";
 	return s;
 }
+UserFunction::Parameter * UserFunction::Parameter::clone()const{
+	Parameter * p = new Parameter( name,
+								defaultValueExpressionRef.isNotNull() ? defaultValueExpressionRef->getRefOrCopy() : NULL,
+								typeRef.isNotNull() ? typeRef->getRefOrCopy() : NULL);
+	p->setMultiParam(isMultiParam());
+	return p;
+}
 // ------------------------------------------------------------
 
 //! (static)
@@ -73,6 +80,19 @@ UserFunction::~UserFunction() {
 
 void UserFunction::setBlock(Block * _block){
 	blockRef=_block;
+}
+
+//! ---|> [Object]
+UserFunction * UserFunction::clone()const{
+	parameterList_t * params2 = new parameterList_t;
+	for(parameterList_t::const_iterator it = params->begin();it!=params->end();++it){
+		params2->push_back( (*it)->clone());
+	}
+	
+	UserFunction * f = new UserFunction( params2,blockRef.get(),sConstrExpressions );
+	f->cloneAttributesFrom( this );
+	f->setCodeString(fileString,posInFile,codeLen);
+	return f;
 }
 
 //! ---|> [Object]
