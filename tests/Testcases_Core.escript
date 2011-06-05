@@ -1,49 +1,82 @@
 var OK="\t ok\n";
 var FAILED="\t failed\n";
+
 //---
-{
-	out("\nBinary expressions: ");
-	var a=(1.0+2)*3/(20-(1+(1)))+0.5+-1+1;
-	if(	a==1 ) out(OK); else { errors+=1; out(FAILED); }
-}
-//---
-{
-	out("Bit Operations:\t" );
-	var c=(2|3|255&1040) ^ 33;
-	if(c == 50){out (OK);}else { errors+=1; out(FAILED); }
-}
-//---
-{
-	out("Not Operation:\t" );
-	if( !(2!=1+1) && !(!(2==2)) ){out (OK);}else { errors+=1; out(FAILED); }
+{	// Bool operations && || !
+	var a=0;
+	a>0 || (a=a+1)>0 && (a=a+3)>0 || (a=0)>0;
+	a==7 && (a=10)>0;
+	a==4 && (a=5)>0;
+
+	test("Bool operations:", true
+		&& a==5 && !false 
+		&& !(2!=1+1) && !(!(2==2)) );
 }
 //---
 {
 	out("Assignment Operations:" );
 	var a=0;
-	a+=10;
-	a*=5;
-	a/=2;
-	a%=17;
+	a+=10; // 0+10 = 10
+	a*=5;  // 10*5 = 50
+	a/=2;  // 50/2 = 25
+	a%=17; // 25 % 17 = 8
 	var c;
 	var b=c=3;
 
 	if( a==8 && b==3 && c==3){out (OK);}else { errors+=1; out(FAILED); }
 }
-// ---
+//---
 {
-    out("Number Funktions:");
+	var b=false;
+	(fn(value){value|=true;})(b); // test call by value
+
+	var b2 = true;
+	var b2a = (b2&=true);
+	var b2b = (b2&=false);
+	
+	test("Bool:", true
+		&& !b 
+		&& true & true && !(true&false)
+		&& false | true  && true | true && true | false && ! (false |false)
+		&& true > false && false < true && !(true < false) && !(false > true) 
+		&& !(false > false) && !(true > true) && !(true < true) && !(false < false)
+		&& b2 == false && b2a && !b2b
+		&& (true ^ true) == false && (false ^ false) == false && (true ^ false) == true 
+		&& !false
+		, Bool);
+}
+
+// ---
+{	// Number
 	var n=1;
 	(fn(value){value++;})(n); // test call by value
     var i=(9).sqrt();
     
-//    out((123.456).round(0.1),"\n");
-//    out((123.456).round(10),"\n");
-//    out( 3.7 % 0.7,"\n" );
-//    
-    if(n==1 && i==3 && (0x01+255).toHex()=="0x100" && "-1.7".toNumber()==-1.7 && 1.getType()==Number
+	var n2 = 7;
+	n2 &= 12; // 7 & 12 == 4
+	var n2b = (n2 -= 10); // 4-10 == -6
+	
+	var n3 = 17;
+	var n3a = --n3;
+	var n3b = n3--;
+	
+	var n4 = 7;
+	var n4b = (n4 |= 9); // 7 & 9 == 15
+	
+	var n5 = 7;
+	var n5b = (n5 ^= 9); // 7 xor 9 == 14 cos
+
+	var n6 = 17;
+	var n6a = ++n6;
+	var n6b = n6++;
+
+	test("Number:", true
+			&& (2|3|255&1040) ^ 33 == 50
+			&& ((1.0+2)*3/(20-(1+(1)))+0.5+-1+1) == 1
+			&&	n==1 && i==3 
+			&& (0x01+255).toHex()=="0x100" && "-1.7".toNumber()==-1.7 && 1.getType()==Number
 			&& (180).degToRad()== Math.PI && (Math.PI.radToDeg()-180).abs() < 0.001
-			&& 100.log()==2 && (128).log(2)==7 && 1.sign()==1 && -2.3.sign()==-1
+			&& 1.sign()==1 && -2.3.sign()==-1
 			&& Math.PI.format(4,false,10,"-")=="----3.1416" && Math.PI.format(5,true).beginsWith("3.14159e+00" )
 			&& 1.clamp(2,3)==2 && 17.clamp(-2,20)==17 && 9.clamp(1,1.6)==1.6
 			&& (180).degToRad().radToDeg().matches(180) && !(179.9999).degToRad().radToDeg().matches(180)
@@ -52,26 +85,53 @@ var FAILED="\t failed\n";
 			&& (123.456).round(0.1) ~= 123.5
 			&& (123.456).round(10) ~= 120
 			&& (-123.456).round(10) ~= -120
-		)
-        {out(OK);}else{ errors+=1; out(FAILED); }
+			&& new Number("1") == 1
+			&& n2 == -6 && n2b == -6 
+			&& n3 == 15 && n3a == 16 && n3b ==16 
+			&& 1<=1 && 0<=1 && ! (1<=0)
+			&& 1>=1 && 1>=0 && ! (0>=1)
+			&& n4 == 15 && n4b ==15 
+			&& n5 == 14 && n5b == 14
+			&& n6 == 19 && n6a == 18 && n6b ==18
+			&& (0).sin() ~= 0 && (90).degToRad().sin() ~=1 && (0.5).asin().radToDeg()~=30
+			&& (0).cos() ~= 1 && (180).degToRad().cos() ~=-1 && (-0.5).acos().radToDeg()~=120
+			&& (45).degToRad().tan() ~= 1 && (-30).degToRad().tan() ~= -(3.pow(-0.5)) && (-1).atan().radToDeg() ~= -45
+			&& 1.0.ceil() == 1.0 && 1.5.ceil() == 2.0 && (-1.5).ceil() == -1
+			&& 1.0.floor() == 1.0 && 1.5.floor() == 1.0 && (-1.5).floor() == -2
+			&& 100.log()==2 && (128).log(2)==7 && 782.log(78) ~= 782.ln() / 78.ln()
+			&& (-327645342.123342).toIntStr() === "-327645342"
+			, Number);
 }
 //---
 {
-	out("Strings:\t" );
 	var mystring="bl\"#"+2;
 	(fn(value){value+="should do nothing";})(mystring); // test call by value
 
     var s="foobar";
 	var spacy = "\t   bla  \n\r  ";
+	
+	var s2 = "ab";
+	var s2b = (s2*=3);
 
-	if(mystring*3 == "bl\"#2bl\"#2bl\"#2" && !s.endsWith("\0")
+	test("String:", true
+		&& new String(2) === "2"
+		&& "foo".length()==3 && "\0\0".length()==2
+		&& "bar"[1] == "a" && void == "bar"[3]
+		&& mystring*3 == "bl\"#2bl\"#2bl\"#2" && !s.endsWith("\0")
         && s.endsWith("bar")&&!s.endsWith("b")&&s.beginsWith("foo")&& s.beginsWith(s)&&  !s.beginsWith(s+s)
         && s.contains("ob") && !s.contains("oc") && "f".getType()==String
 		&& "a,b,c".split(",",2) == ["a","b,c"] && "/".split("/") == ["",""]
         && "bla".fillUp(10,'.') == "bla......."
-		&& spacy.lTrim()== "bla  \n\r  " && spacy.rTrim()=="\t   bla" && spacy.trim()=="bla" && "".trim().empty();
-		)
-        out(OK); else { errors+=1; out(FAILED); }
+		&& spacy.lTrim()== "bla  \n\r  " && spacy.rTrim()=="\t   bla" && spacy.trim()=="bla" && "".trim().empty()
+		&& s2=="ababab" && s2b == "ababab"
+		&& "abc" <= "bcd" && "A" < "a" && !("bcd" <= "abc") && !("a" < "A")
+		&& "bcd" >= "abc" && "a" > "A" && !("abc" >= "bcd") && !("A" > "a")
+		&& "blub".find("lu") == 1 && !("blob".find("lu"))
+		&& ("foo"*3).replace("oo","x") == "fxfoofoo"
+		&& ("foo"*3).replaceAll( {"oo":"ar ","f":"b"},3 ) == "bar boofoo"
+		&& "foooooo".rFind("o") == 6 && "foooooo".rFind("o",4) == 4 && !("fooooxx".rFind("x",4))
+		&& "FooBar".substr(1) == "ooBar" && "FooBar".substr(-4) == "oBar" && "FooBar".substr(1,-3) == "oo"  && "FooBar".substr(-3,1) == "B"
+		,String);
 }
 //---
 {
@@ -82,15 +142,7 @@ var FAILED="\t failed\n";
     && 0 == void)
         out(OK); else { errors+=1; out(FAILED); }
 }
-//---
-{
-	out("Increments&&Decrements:" );
-	var a=0;
-	//  out(a--);
-	//	out(a++==0) ;
-	if( a++ == 0 && a==1 && a--==1 && a==0 && ++a==1 && --a==0)
-	out(OK); else { errors+=1; out(FAILED); }
-}
+
 //---
 {
 	out("While: \t\t");
@@ -109,7 +161,7 @@ var FAILED="\t failed\n";
 }
 //---
 {
-	out("for: \t\t");
+	out("For: \t\t");
 	var a=0;
 	var i=0;
 	for(i=5;i<10;){
@@ -150,27 +202,7 @@ var FAILED="\t failed\n";
 	{false?v1--:true?v1++:v1--;}
 	if(v1==2){out (OK);}else { errors+=1; out(FAILED); }
 }
-//---
-{
-	out("Bool operators:\t");
-	var b=false;
-	(fn(value){value|=true;})(b); // test call by value
 
-	var a=0;
-	a>0 || (a=a+1)>0 && (a=a+3)>0 || (a=0)>0;
-	a==7 && (a=10)>0;
-	a==4 && (a=5)>0;
-	if( a==5 && ! false && !b)
-	{out (OK);}else { errors+=1; out(FAILED); }
-}
-//---
-
-{
-	out("substr:\t\t");
-	var file="Dibbeldu.txt";
-	if( file.substr(-3)=="txt" && file.substr(9)=="txt" && file.substr(1,1)=="i")
-	{out (OK);}else { errors+=1; out(FAILED); }
-}
 //---
 {	// UserFunctions:
 	//global plusRec;
@@ -241,20 +273,6 @@ var FAILED="\t failed\n";
 		thisFn.staticVar+=1;
 		return thisFn.staticVar;
 	};
-//
-//	//! (internal) 
-//	UserFunction.__bindLastParamFunWrapper ::= fn(baseParams){
-//		
-//	};
-//	UserFunction.__bindLastParamFunWrapper.pValues := void;
-//
-//	// extend UserFunction-Type
-//	UserFunction.bindLastParam ::= fn(params*){
-//		var myFunWrapper = this.__bindLastParamFunWrapper.clone();
-//		myFunWrapper.pValues = params;
-//		myFunWrapper.fun = 
-//		return myFunWrapper;
-//	};
 	
 	// cloning USerFunction Objects
 	var f4=fn(a=1){ thisFn.m+=a; return thisFn.m; };
@@ -280,7 +298,7 @@ var FAILED="\t failed\n";
 		return Runtime._callFunction(thisFn.wrappedFun, Runtime._getCurrentCaller(),params);
 	};
 
-	test("UserFunctions:",
+	test("UserFunction:",
 		plusRec(a,7)==17 && plusRec2(a,7)==17 && minusOne(a)==9 && (fn(a){return a*a;})(2)==4
         && increase(3)==4 && increase(3,2)==5 && typeException==true && repeat(3,".")=="..."
         && mulSum(2,1,2,3)==12 && typeException2 && typeException3
@@ -291,6 +309,8 @@ var FAILED="\t failed\n";
         && f4(0) == 17 && f4b(0) ==27
 		&& (1->(fn(a){return this+a; }).bindLastParams(27)) () == 28 // 1+27
 		&& [1,2,3].map( (fn(key,value,sumA,sumB){return value+sumA+sumB;}).bindLastParams(90,10) )  == [101,102,103] 
+		&& plusRec.getFilename() == __FILE__
+		,UserFunction
         
 	 );
 	 f3.staticVar=0; // reset staticVar for next testing loop.
@@ -336,28 +356,16 @@ var FAILED="\t failed\n";
 }
 //---
 {	// Function
-	test("Functions:", true
+	test("Function:", true
 		&& print_r ---|> Function 
 		&& print_r.getMinParamCount()==0 && print_r.getMaxParamCount() == false && print_r.getOriginalName() == $print_r
 		&& Number."+".getMinParamCount() == 1 && Number."+".getMaxParamCount() == 1
+		, Function
 	);
 		
 }
 //---
-{
-	out("Collections:\t");
-	// element access
-	var O=new Type();
-	O._get::=fn(index){
-		return index*2;
-	};
-	var o=new O();
-	if(o[100]==200)
-		{out (OK);}else { errors+=1; out(FAILED); }
-}
-//---
-{
-	out("Array:\t\t");
+{	// Array
 	var a=new Array(17,27,1000);
 	a.pushBack("foo","bar");
 	a.pushBack("ding");
@@ -406,16 +414,17 @@ var FAILED="\t failed\n";
 	c.append([3,4]);		// c: 1,2,3,4
 	b.swap(c);				// b: 1,2,3,4 c: 1,2,foo
 
-//	var ar=[3,23,7,3,100,1,35].max()==100;
-//	out(ar.max());
-	//print_r(ar.sort());
-	//print_r(a);
-	//out(a.indexOf("ding"));
+
 	var e=[3,23,7,3,100,1,35];
 
 	var q=new ExtObject(); // used for sorting by the distance from 59
 	q.c:=59;
-	if( accum=="1827Hoobelbarding18bardidu" && a ---|> Array && ! (1 ---|> Array)
+	var a2 = [1,2,3];
+	a2.set(0,"foo");
+	var a2a = a2.popBack();
+	
+	test("Array:", true
+			&& accum=="1827Hoobelbarding18bardidu" && a ---|> Array && ! (1 ---|> Array)
 			&& (new Array(1,'a','b')).implode(',')=='1,a,b'
 			&& b.implode()=='1234' && c.implode()=='12foo'
 			&& keyOfHoobel(a)==2 && [3,23,7,3,100,1,35].rSort()==[100,35,23,7,3,3,"1"]
@@ -448,13 +457,15 @@ var FAILED="\t failed\n";
 			&& [1,2,2,2,3,2,4].removeValue(2) == [1,3,4]
 			&& [1,2,2,2,3,2,4].removeValue(2,3) == [1,3,2,4] // three times
 			&& [1,2,2,2,3,2,4].removeValue(2,3,2) == [1,2,3,4] // three times, beginning from position 2
-			)
-	{out (OK);}else { errors+=1; out(FAILED); }
+			&& ([1]+=2) == [1,2]
+			&& a2 == ["foo",2]
+			&& a2a == 3
+			&& a2.size() == 2 // deprecated
+			,Array);
 
 }
 //---
-{
-	out("Map:\t\t");
+{	// Map
 	var m=new Map();
 	m["foo"]="bar";
 	m["bla"]="da";
@@ -476,8 +487,8 @@ var FAILED="\t failed\n";
 	var m2={1:2,3:4};
 	m1.swap(m2);
 
-
-	if( accum=="|bla:dada|dum:dada|foo:barbar3"
+	test("Map:", true
+			&& accum=="|bla:dada|dum:dada|foo:barbar3"
 			&& m2=={"foo":"bar","bla":[1,2,3]}	&& m2!={"foo":"bar","bla":[1,2,3,4]}
 			&& m1=={1:2,3:4} && m1.containsKey("1") && !m1.containsKey(5)
 			&& ({:} ---|> Map) && ! (({})---|> Map )
@@ -493,8 +504,17 @@ var FAILED="\t failed\n";
 			&& {1:2,3:4,5:6}.reduce(fn(sum,key,value){return sum+value+key;},27) == (27+1+2+3+4+5+6)
 			&& {1:6}.clear().empty()
 			&& {1:2,3:4,5:6,7:8}.filter( fn(key,value){ return key!=3 && value!=8; }) == {1:2,5:6}
-			)
-	{out (OK);}else { errors+=1; out(FAILED); }
+			,Map);
+}
+//---
+{
+	// element access
+	var O=new Type();
+	O._get::=fn(index){
+		return index*2;
+	};
+	var o=new O();
+	test("Collection:",o[100]==200 ,Collection);
 }
 //---
 {
@@ -709,8 +729,7 @@ if(!benchmark)
         {out (OK);}else { errors+=1; out(FAILED); }
 }
 //---
-{
-    out("Delegate:\t");
+{	// Delegate
     var a=new ExtObject();
     a.m1:=1;
     a.f:=fn(Number p1){
@@ -720,8 +739,9 @@ if(!benchmark)
 
     var d2=a -> fn(){return this.m1;};
 
-    if(d(3)==4 && d2()==1 && d2.getObject()==a && d.getFunction()==a.f )
-        {out (OK);}else { errors+=1; out(FAILED); }
+    test( "Delegate:", true
+			&& d(3)==4 && d2()==1 && d2.getObject()==a && d.getFunction()==a.f 
+			,Delegate);
 }
 //---
 {
@@ -866,7 +886,30 @@ if(!benchmark)
 	);
 }
 
-
+//{	// coverage checks
+//	var typeNames = [ $Number ];
+//	
+//	foreach(typeNames as var typeName){
+//		var type = GLOBALS.getAttribute(typeName);
+//		
+//		out("[[ ",typeName ," ]]\n");
+//		
+//		foreach(type._getAttributes() as var fun){
+//			if(! (fun---|>Function))
+//				continue;
+//			out( fun.getOriginalName(),"\t",fun._getCallCounter(),"\n");
+//		
+//		
+//		}
+//		out("\n");
+//	
+//	
+//		
+//	}
+//	
+//	
+//	
+//}
 //{
 //
 //	

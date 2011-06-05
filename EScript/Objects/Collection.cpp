@@ -36,7 +36,7 @@ void Collection::init(EScript::Namespace & globals) {
 		return (parameter.count()>1 && result.isNull())?parameter[1].get():result.get();
 	})
 
-	//! [ESMF] self Collection[key] = value
+	//! [ESMF] self Collection.set(key,value)
 	ESMF_DECLARE(typeObject,Collection,"set",2,2,
 				(self->setValue(parameter[0],parameter[1]),caller))
 

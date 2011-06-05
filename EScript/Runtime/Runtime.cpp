@@ -617,7 +617,8 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 				warn(sprinter.str());
 			}
 		}
-	
+		libfun->increaseCallCounter();
+		
 		try {
 			return (*libfun->getFnPtr())(*this,_callingObject.get(),params);
 		} catch (Exception * e) {

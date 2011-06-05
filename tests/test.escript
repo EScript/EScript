@@ -7,11 +7,35 @@ out ("Testcases for ",VERSION,"\n","-"*79,"\n");
 GLOBALS.benchmark:=false;
 GLOBALS.errors:=0; // error count
 //! new testing function
-GLOBALS.test := fn(description,result){
+GLOBALS.test := fn(description,result,checkCoverageType=false){
 	if(!result)
 		++errors;
-	if(!benchmark)
-		out(description.fillUp(25," "),result?"ok":"failed","\n");
+	if(!benchmark){
+		out(description.fillUp(25," "),result?"ok":"failed");
+
+		if(checkCoverageType){
+			var numFunctions=0;
+			var coveredFunctions=0;
+			var missing = [];
+			foreach(checkCoverageType._getAttributes() as var fun){
+				if(! (fun---|>Function))
+					continue;
+				++numFunctions;
+				if(fun._getCallCounter()>0){
+					++coveredFunctions;
+				}else{
+					missing+=fun.getOriginalName();
+				}
+			}
+			out("\t (",coveredFunctions,"/",numFunctions,")");
+			if(!missing.empty()){
+				out("\nMissing: ",missing.implode(", "));
+			}
+		}
+		out("\n");
+		
+	}
+		
 };
 
 var start=clock();

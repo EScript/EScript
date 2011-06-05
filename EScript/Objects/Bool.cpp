@@ -36,9 +36,11 @@ void Bool::init(EScript::Namespace & globals) {
 	ESF_DECLARE(typeObject,"^",1,1,
 				Bool::create( caller->toBool() ^ parameter[0]->toBool()))
 
-	//! [ESMF] Bool !Bool
-	ESF_DECLARE(typeObject,"!_pre",0,0,
-				Bool::create(! caller->toBool()))
+//	//! [ESMF] Bool !Bool
+//	ES_FUNCTION_DECLARE(typeObject,"!_pre",0,0,{
+//						std::cout << " ????? ";
+//						return Bool::create(! caller->toBool());
+//						})
 
 	//! [ESMF] Bool |= Bool
 	ESMF_DECLARE(typeObject,Bool,"|=",1,1,

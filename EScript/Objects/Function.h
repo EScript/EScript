@@ -29,10 +29,13 @@ class Function : public Object {
 		Function(identifierId originalName, int minParamCountint, int maxParamCount,functionPtr fnptr);
 		virtual ~Function();
 		
+		int getCallCounter()const							{	return callCounter;	}
 		functionPtr getFnPtr()const							{	return fnptr;	}
 		int getMaxParamCount()const							{	return maxParamCount;	}
 		int getMinParamCount()const							{	return minParamCount;	}
 		identifierId getOriginalName()const					{	return originalName;	}
+		void increaseCallCounter()							{	++callCounter;	}
+		void resetCallCounter()								{	callCounter=0;	}
 
 		/// ---|> [Object]
 		virtual Object * clone()const 						{	return new Function(fnptr);	}
@@ -41,6 +44,7 @@ class Function : public Object {
 		functionPtr fnptr;
 		int minParamCount,maxParamCount;
 		identifierId originalName;
+		int callCounter;
 };
 
 }

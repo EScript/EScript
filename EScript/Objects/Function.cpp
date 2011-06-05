@@ -34,16 +34,20 @@ void Function::init(EScript::Namespace & globals) {
 
 	//! [ESMF] Identifier Function.getOriginalName() 
 	ESMF_DECLARE(typeObject,Function,"getOriginalName",0,0, Identifier::create(self->getOriginalName()))
+	
+	//! [ESMF] (experimental) Number Function._getCallCounter() 
+	ESMF_DECLARE(typeObject,Function,"_getCallCounter",0,0, Number::create(self->getCallCounter()))
 }
 
 //! (ctor)
 Function::Function(identifierId _originalName, int _minParamCountint, int _maxParamCount,functionPtr _fnptr) : 
-		Object(getTypeObject()),fnptr(_fnptr),minParamCount(_minParamCountint),maxParamCount(_maxParamCount),originalName(_originalName) {
+		Object(getTypeObject()),fnptr(_fnptr),minParamCount(_minParamCountint),maxParamCount(_maxParamCount),
+		originalName(_originalName),callCounter(0) {
 }
 		
 //! (ctor)
 Function::Function(functionPtr _fnptr) : 
-		Object(getTypeObject()),fnptr(_fnptr),minParamCount(0),maxParamCount(-1),originalName(0) {
+		Object(getTypeObject()),fnptr(_fnptr),minParamCount(0),maxParamCount(-1),originalName(0),callCounter(0) {
 }
 
 //! (ctor)
