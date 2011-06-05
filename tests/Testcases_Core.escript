@@ -335,6 +335,15 @@ var FAILED="\t failed\n";
 	);
 }
 //---
+{	// Function
+	test("Functions:", true
+		&& print_r ---|> Function 
+		&& print_r.getMinParamCount()==0 && print_r.getMaxParamCount() == false && print_r.getOriginalName() == $print_r
+		&& Number."+".getMinParamCount() == 1 && Number."+".getMaxParamCount() == 1
+	);
+		
+}
+//---
 {
 	out("Collections:\t");
 	// element access

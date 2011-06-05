@@ -41,6 +41,7 @@ void EScript::init() {
 	Exception::init(*SGLOBALS);
 	Delegate::init(*SGLOBALS);
 	Namespace::init(*SGLOBALS);
+	Function::init(*SGLOBALS);
 	UserFunction::init(*SGLOBALS);
 	YieldIterator::init(*SGLOBALS);
 

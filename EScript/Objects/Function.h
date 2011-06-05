@@ -14,6 +14,15 @@ namespace EScript {
 class Function : public Object {
 		ES_PROVIDES_TYPE_NAME(Function)
 	public:
+
+	/*! @name Initialization */
+	//	@{
+	public:
+		static Type * getTypeObject();
+		static void init(EScript::Namespace & globals);
+	//	@}
+
+	// -----		
 		typedef Object * ( * functionPtr)(Runtime & runtime,Object * caller, const ParameterValues & parameter);
 		// ---
 		Function(functionPtr fnptr);
@@ -23,6 +32,7 @@ class Function : public Object {
 		functionPtr getFnPtr()const							{	return fnptr;	}
 		int getMaxParamCount()const							{	return maxParamCount;	}
 		int getMinParamCount()const							{	return minParamCount;	}
+		identifierId getOriginalName()const					{	return originalName;	}
 
 		/// ---|> [Object]
 		virtual Object * clone()const 						{	return new Function(fnptr);	}
