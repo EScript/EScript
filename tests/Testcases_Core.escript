@@ -310,6 +310,9 @@ var FAILED="\t failed\n";
 		&& (1->(fn(a){return this+a; }).bindLastParams(27)) () == 28 // 1+27
 		&& [1,2,3].map( (fn(key,value,sumA,sumB){return value+sumA+sumB;}).bindLastParams(90,10) )  == [101,102,103] 
 		&& plusRec.getFilename() == __FILE__
+		&& (fn(a){}).getMinParamCount() == 1 && (fn(a*){}).getMinParamCount() == 0 && (fn(a,b,c=2){}).getMinParamCount() == 2 
+		&& (fn(a){}).getMaxParamCount() == 1 && !(fn(a*){}).getMaxParamCount() && (fn(a,b,c=2){}).getMaxParamCount() == 3 
+		
 		,UserFunction
         
 	 );
@@ -886,28 +889,7 @@ if(!benchmark)
 	);
 }
 
-//{	// coverage checks
-//	var typeNames = [ $Number ];
-//	
-//	foreach(typeNames as var typeName){
-//		var type = GLOBALS.getAttribute(typeName);
-//		
-//		out("[[ ",typeName ," ]]\n");
-//		
-//		foreach(type._getAttributes() as var fun){
-//			if(! (fun---|>Function))
-//				continue;
-//			out( fun.getOriginalName(),"\t",fun._getCallCounter(),"\n");
-//		
-//		
-//		}
-//		out("\n");
-//	
-//	
-//		
-//	}
-//	
-//	
+
 //	
 //}
 //{

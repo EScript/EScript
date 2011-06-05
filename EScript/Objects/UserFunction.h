@@ -81,6 +81,8 @@ class UserFunction : public ExtObject {
 		
 		void setCodeString(const EPtr<String> & _fileString,size_t _begin,size_t _codeLen);
 		std::string getCode()const;
+		int getMaxParamCount()const;
+		int getMinParamCount()const;
 
 		/// ---|> [Object]
 		virtual UserFunction * clone()const;

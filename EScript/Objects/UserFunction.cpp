@@ -52,6 +52,17 @@ void UserFunction::init(EScript::Namespace & globals) {
 	
 	//! [ESMF] String UserFunction.getCode()
 	ESMF_DECLARE(t,UserFunction,"getCode",0,0,String::create(self->getCode()))
+	
+	//! [ESMF] Number|false UserFunction.getMaxParamCount() 
+	ES_MFUNCTION_DECLARE(t,UserFunction,"getMaxParamCount",0,0,{
+		if(self->getMaxParamCount()<0 )
+			return Bool::create(false);
+		return Number::create(self->getMaxParamCount());
+	})
+
+	//! [ESMF] Number UserFunction.getMinParamCount() 
+	ESMF_DECLARE(t,UserFunction,"getMinParamCount",0,0, Number::create(self->getMinParamCount()))
+
 }
 
 //! (ctor)
@@ -139,4 +150,23 @@ void UserFunction::setCodeString(const EPtr<String> & _fileString,size_t _begin,
 
 std::string UserFunction::getCode()const{
 	return fileString->toString().substr(posInFile,codeLen);
+}
+
+int UserFunction::getMaxParamCount()const{
+	if(params->empty()){
+		return 0;
+	}else if(params->back()->isMultiParam()){
+		return -1;
+	}else 
+		return params->size();
+}
+
+int UserFunction::getMinParamCount()const{
+	int i=0;
+	for (parameterList_t::const_iterator it=params->begin();it!=params->end();++it) {	
+		if( (*it)->isMultiParam() || (*it)->getDefaultValueExpression() !=NULL )
+			break;
+		++i;
+	}
+	return i;
 }
