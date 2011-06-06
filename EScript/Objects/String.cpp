@@ -134,8 +134,25 @@ void String::init(EScript::Namespace & globals) {
 		} else return Number::create(pos);
 	})
 
-	//! [ESMF] Number|false String.rfind( (String)search [,(Number)startIndex] )
+	//! [ESMF] Number|false String.rfind( (String)search [,(Number)startIndex] ) \deprecated Use rFind instead
 	ES_MFUNCTION_DECLARE(typeObject,String,"rfind",1,2, {
+		const string & s(self->getString());
+		string search=parameter[0].toString();
+		size_t start=s.length();
+		if (parameter.count()>1) {
+			start=static_cast<size_t>(parameter[1].toInt());
+			if (start>=s.length())
+				start=s.length();
+			//std::cout << " #"<<start<< " ";
+		}
+		size_t pos=s.rfind(search,start);
+		if (pos==string::npos ) {
+			return Bool::create(false);
+		} else return Number::create(pos);
+	})
+	
+	//! [ESMF] Number|false String.rFind( (String)search [,(Number)startIndex] )
+	ES_MFUNCTION_DECLARE(typeObject,String,"rFind",1,2, {
 		const string & s(self->getString());
 		string search=parameter[0].toString();
 		size_t start=s.length();
