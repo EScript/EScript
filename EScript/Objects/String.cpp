@@ -38,6 +38,173 @@ void String::init(EScript::Namespace & globals) {
 	//! [ESMF] String new String((String)Obj)
 	ESF_DECLARE(typeObject,"_constructor",0,1,String::create(parameter[0].toString("")))
 
+	//! [ESMF] String String[(Number)position ]
+	ES_MFUNCTION_DECLARE(typeObject,String,"_get",1,1, {
+		assertParamCount(runtime,parameter.count(),1,1);
+		int pos=parameter[0]->toInt();
+		if (static_cast<unsigned int>(pos)>=self->getString().length())
+			return NULL;
+		return  String::create(self->getString().substr(pos,1));
+	})
+	
+
+	// ---
+	//! [ESMF] Bool String.beginsWith( (String)search )
+	ES_MFUNCTION_DECLARE(typeObject,String,"beginsWith",1,1, {
+		const string & s(self->getString());
+		string search=parameter[0]->toString();
+		if(s.length()<search.length())
+			return Bool::create(false);
+		return Bool::create(s.substr(0,search.length())==search);
+	})
+	
+	//! [ESMF] Bool String.contains (String)search [,(Number)startIndex] )
+	ES_MFUNCTION_DECLARE(typeObject,String,"contains",1,2, {
+		const string & s(self->getString());
+		string search=parameter[0]->toString();
+		size_t start=s.length();
+		if (parameter.count()>1) {
+			start=static_cast<size_t>(parameter[1].toInt());
+			if (start>=s.length())
+				start=s.length();
+		}
+		return Bool::create(s.rfind(search,start)!=string::npos);
+	})
+	
+	//! [ESMF] Bool String.empty()
+	ESMF_DECLARE(typeObject,String,"empty",0,0,Bool::create( self->getString().empty()))
+	
+	//! [ESMF] Bool String.endsWith( (String)search )
+	ES_MFUNCTION_DECLARE(typeObject,String,"endsWith",1,1, {
+		const string & s(self->getString());
+		string search=parameter[0]->toString();
+		if(s.length()<search.length()) return Bool::create(false);
+		return Bool::create(s.substr(s.length()-search.length(),search.length())==search);
+	})
+	
+	//! [ESMF] String String.fillUp(length[, string fill=" ")
+	ES_MFUNCTION_DECLARE(typeObject,String,"fillUp",1,2,{
+		const string & s(self->getString());
+		std::ostringstream sprinter;
+		sprinter<<s;
+		string fill=parameter[1].toString(" ");
+		int count=(parameter[0].toInt()-s.length())/(fill.length()>0?fill.length():0);
+		for(int i=0;i<count;++i)
+			sprinter<<fill;
+		return String::create(sprinter.str());
+	})
+
+	//! [ESMF] Number|false String.find( (String)search [,(Number)startIndex] )
+	ES_MFUNCTION_DECLARE(typeObject,String,"find",1,2, {
+		const string & s(self->getString());
+		string search=parameter[0].toString();
+		size_t start=0;
+		if (parameter.count()>1) {
+			start=static_cast<size_t>(parameter[1].toInt());
+			if (start>=s.length())
+				return Bool::create(false);
+		}
+		size_t pos=s.find(search,start);
+		if (pos==string::npos ) {
+			return Bool::create(false);
+		} else return Number::create(pos);
+	})
+	
+	//! [ESMF] Number String.length()
+	ESMF_DECLARE(typeObject,String,"length",0,0,Number::create( self->getString().length()))
+
+	//! [ESMF] String String.ltrim()
+	ESMF_DECLARE(typeObject,String,"lTrim",0,0,String::create( StringUtils::lTrim(self->getString())))
+
+	//! [ESMF] String String.rTrim()
+	ESMF_DECLARE(typeObject,String,"rTrim",0,0,String::create( StringUtils::rTrim(self->getString())))
+
+	//! [ESMF] String String.substr( (Number)begin [,(Number)length] )
+	ES_MFUNCTION_DECLARE(typeObject,String,"substr",1,2, {
+		int start=parameter[0].toInt();
+		int length=self->getString().length();
+		if (start>=length) return String::create("");
+		if (start<0) start=length+start;
+		if (start<0) start=0;
+		int count=length-start;
+		if (parameter.count()>1) {
+			int i=parameter[1].toInt();
+			if (i<count) {
+				if (i<0) {
+					count+=i;
+				} else {
+					count=i;
+				}
+			}
+		}
+		return  String::create(self->getString().substr(start,count));
+	})
+	
+	//! [ESMF] String String.trim()
+	ESMF_DECLARE(typeObject,String,"trim",0,0,String::create( StringUtils::trim(self->getString())))
+
+
+	//! [ESMF] String String.replace((String)search,(String)replace)
+	ESMF_DECLARE(typeObject,String,"replace",2,2,
+				String::create(StringUtils::replaceAll(self->getString(),parameter[0]->toString(),parameter[1]->toString(),1)))
+	
+	typedef std::pair<std::string,std::string> keyValuePair_t;
+	//! [ESMF] String.replaceAll( (Map | ((String)search,(String)replace)) [,(Number)max])
+	ES_MFUNCTION_DECLARE(typeObject,String,"replaceAll",1,3,{
+		const string & subject(self->getString());
+
+		//Map * m
+		if ( Map * m=parameter[0].toType<Map>()) {
+			assertParamCount(runtime,parameter.count(),1,2);
+			std::vector<keyValuePair_t> rules;
+			ERef<Iterator> iRef=m->getIterator();
+			while (!iRef->end()) {
+				ObjRef key=iRef->key();
+				ObjRef value=iRef->value();
+				rules.push_back(std::make_pair(key.toString(),value.toString()));
+				iRef->next();
+			}
+			return String::create(StringUtils::replaceMultiple(subject,rules,parameter[1].toInt(-1)));
+		}
+
+		const std::string search(parameter[0]->toString());
+		const std::string replace(parameter[1]->toString());
+
+		return String::create(StringUtils::replaceAll(subject,search,replace,parameter[2].toInt(-1)));
+	})
+
+	//! [ESMF] Number|false String.rFind( (String)search [,(Number)startIndex] )
+	ES_MFUNCTION_DECLARE(typeObject,String,"rFind",1,2, {
+		const string & s(self->getString());
+		string search=parameter[0].toString();
+		size_t start=s.length();
+		if (parameter.count()>1) {
+			start=static_cast<size_t>(parameter[1].toInt());
+			if (start>=s.length())
+				start=s.length();
+			//std::cout << " #"<<start<< " ";
+		}
+		size_t pos=s.rfind(search,start);
+		if (pos==string::npos ) {
+			return Bool::create(false);
+		} else return Number::create(pos);
+	})
+
+
+
+
+	//! [ESMF] Array String.split((String)search[,(Number)max])
+	ES_MFUNCTION_DECLARE(typeObject,String,"split",1,2, {
+		std::vector<std::string> result;
+		StringUtils::split( self->getString(), parameter[0].toString(), result, parameter[1].toInt(-1) );
+
+		Array * a=Array::create();
+		for(std::vector<std::string>::const_iterator it=result.begin();it!=result.end();++it)
+			a->pushBack( String::create(*it) );
+		return a;
+	})
+
+
 	//- Operators
 
 	//! [ESMF] String String+(String)Obj
@@ -76,168 +243,6 @@ void String::init(EScript::Namespace & globals) {
 
 	//! [ESMF] bool String<=(String)Obj
 	ESMF_DECLARE(typeObject,String,"<=",1,1,Bool::create( self->getString() <= parameter[0].toString()))
-
-	// ---
-
-	//! [ESMF] Bool String.empty()
-	ESMF_DECLARE(typeObject,String,"empty",0,0,Bool::create( self->getString().empty()))
-
-	//! [ESMF] Number String.length()
-	ESMF_DECLARE(typeObject,String,"length",0,0,Number::create( self->getString().length()))
-
-	//! [ESMF] String String.ltrim()
-	ESMF_DECLARE(typeObject,String,"lTrim",0,0,String::create( StringUtils::lTrim(self->getString())))
-
-	//! [ESMF] String String.trim()
-	ESMF_DECLARE(typeObject,String,"trim",0,0,String::create( StringUtils::trim(self->getString())))
-
-	//! [ESMF] String String.rTrim()
-	ESMF_DECLARE(typeObject,String,"rTrim",0,0,String::create( StringUtils::rTrim(self->getString())))
-
-	//! [ESMF] String String.substr( (Number)begin [,(Number)length] )
-	ES_MFUNCTION_DECLARE(typeObject,String,"substr",1,2, {
-		int start=parameter[0].toInt();
-		int length=self->getString().length();
-		if (start>=length) return String::create("");
-		if (start<0) start=length+start;
-		if (start<0) start=0;
-		int count=length-start;
-		if (parameter.count()>1) {
-			int i=parameter[1].toInt();
-			if (i<count) {
-				if (i<0) {
-					count+=i;
-				} else {
-					count=i;
-				}
-			}
-		}
-		return  String::create(self->getString().substr(start,count));
-	})
-
-	//! [ESMF] String String[(Number)position ]
-	ES_MFUNCTION_DECLARE(typeObject,String,"_get",1,1, {
-		assertParamCount(runtime,parameter.count(),1,1);
-		int pos=parameter[0]->toInt();
-		if (static_cast<unsigned int>(pos)>=self->getString().length())
-			return NULL;
-		return  String::create(self->getString().substr(pos,1));
-	})
-
-	//! [ESMF] Number|false String.find( (String)search [,(Number)startIndex] )
-	ES_MFUNCTION_DECLARE(typeObject,String,"find",1,2, {
-		const string & s(self->getString());
-		string search=parameter[0].toString();
-		size_t start=0;
-		if (parameter.count()>1) {
-			start=static_cast<size_t>(parameter[1].toInt());
-			if (start>=s.length())
-				return Bool::create(false);
-		}
-		size_t pos=s.find(search,start);
-		if (pos==string::npos ) {
-			return Bool::create(false);
-		} else return Number::create(pos);
-	})
-
-	//! [ESMF] Number|false String.rFind( (String)search [,(Number)startIndex] )
-	ES_MFUNCTION_DECLARE(typeObject,String,"rFind",1,2, {
-		const string & s(self->getString());
-		string search=parameter[0].toString();
-		size_t start=s.length();
-		if (parameter.count()>1) {
-			start=static_cast<size_t>(parameter[1].toInt());
-			if (start>=s.length())
-				start=s.length();
-			//std::cout << " #"<<start<< " ";
-		}
-		size_t pos=s.rfind(search,start);
-		if (pos==string::npos ) {
-			return Bool::create(false);
-		} else return Number::create(pos);
-	})
-
-	//! [ESMF] Bool String.contains (String)search [,(Number)startIndex] )
-	ES_MFUNCTION_DECLARE(typeObject,String,"contains",1,2, {
-		const string & s(self->getString());
-		string search=parameter[0]->toString();
-		size_t start=s.length();
-		if (parameter.count()>1) {
-			start=static_cast<size_t>(parameter[1].toInt());
-			if (start>=s.length())
-				start=s.length();
-		}
-		return Bool::create(s.rfind(search,start)!=string::npos);
-	})
-
-	//! [ESMF] String String.replace((String)search,(String)replace)
-	ESMF_DECLARE(typeObject,String,"replace",2,2,
-				String::create(StringUtils::replaceAll(self->getString(),parameter[0]->toString(),parameter[1]->toString(),1)))
-	
-	typedef std::pair<std::string,std::string> keyValuePair_t;
-	//! [ESMF] String.replaceAll( (Map | ((String)search,(String)replace)) [,(Number)max])
-	ES_MFUNCTION_DECLARE(typeObject,String,"replaceAll",1,3,{
-		const string & subject(self->getString());
-
-		//Map * m
-		if ( Map * m=parameter[0].toType<Map>()) {
-			assertParamCount(runtime,parameter.count(),1,2);
-			std::vector<keyValuePair_t> rules;
-			ERef<Iterator> iRef=m->getIterator();
-			while (!iRef->end()) {
-				ObjRef key=iRef->key();
-				ObjRef value=iRef->value();
-				rules.push_back(std::make_pair(key.toString(),value.toString()));
-				iRef->next();
-			}
-			return String::create(StringUtils::replaceMultiple(subject,rules,parameter[1].toInt(-1)));
-		}
-
-		const std::string search(parameter[0]->toString());
-		const std::string replace(parameter[1]->toString());
-
-		return String::create(StringUtils::replaceAll(subject,search,replace,parameter[2].toInt(-1)));
-	})
-
-	//! [ESMF] Array String.split((String)search[,(Number)max])
-	ES_MFUNCTION_DECLARE(typeObject,String,"split",1,2, {
-		std::vector<std::string> result;
-		StringUtils::split( self->getString(), parameter[0].toString(), result, parameter[1].toInt(-1) );
-
-		Array * a=Array::create();
-		for(std::vector<std::string>::const_iterator it=result.begin();it!=result.end();++it)
-			a->pushBack( String::create(*it) );
-		return a;
-	})
-
-	//! [ESMF] String String.fillUp(length[, string fill=" ")
-	ES_MFUNCTION_DECLARE(typeObject,String,"fillUp",1,2,{
-		const string & s(self->getString());
-		std::ostringstream sprinter;
-		sprinter<<s;
-		string fill=parameter[1].toString(" ");
-		int count=(parameter[0].toInt()-s.length())/(fill.length()>0?fill.length():0);
-		for(int i=0;i<count;++i)
-			sprinter<<fill;
-		return String::create(sprinter.str());
-	})
-
-	//! [ESMF] Bool String.beginsWith( (String)search )
-	ES_MFUNCTION_DECLARE(typeObject,String,"beginsWith",1,1, {
-		const string & s(self->getString());
-		string search=parameter[0]->toString();
-		if(s.length()<search.length())
-			return Bool::create(false);
-		return Bool::create(s.substr(0,search.length())==search);
-	})
-
-	//! [ESMF] Bool String.endsWith( (String)search )
-	ES_MFUNCTION_DECLARE(typeObject,String,"endsWith",1,1, {
-		const string & s(self->getString());
-		string search=parameter[0]->toString();
-		if(s.length()<search.length()) return Bool::create(false);
-		return Bool::create(s.substr(s.length()-search.length(),search.length())==search);
-	})
 }
 
 //---
