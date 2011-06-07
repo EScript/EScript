@@ -202,6 +202,7 @@ string StringUtils::replaceMultiple(const string &subject,const std::vector<std:
 	// add ending
 	if (cursor<len) 
 		s<<subject.substr(cursor,len-cursor);
+		
 	return s.str();
 }
 /**
@@ -329,7 +330,12 @@ std::string StringUtils::escape(const std::string & s){
 	typedef std::pair<std::string,std::string> keyValuePair_t;
     std::vector<keyValuePair_t> replace;
     replace.push_back(keyValuePair_t("\"","\\\""));
-    replace.push_back(keyValuePair_t("\n","\\\n"));
+    replace.push_back(keyValuePair_t("\b","\\b"));
+    replace.push_back(keyValuePair_t("\f","\\f"));
+    replace.push_back(keyValuePair_t("\n","\\n"));
+    replace.push_back(keyValuePair_t("\r","\\r"));
+    replace.push_back(keyValuePair_t("\t","\\t"));
+    replace.push_back(keyValuePair_t(std::string("\0",1),"\\0"));
     replace.push_back(keyValuePair_t("\\","\\\\"));
     return replaceMultiple(s,replace);
 }

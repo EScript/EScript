@@ -748,18 +748,20 @@ if(!benchmark)
 }
 //---
 {
-    out("JSON:\t\t");
     var list=[getDate(),{"foo":true,"bar":false,"dum":void},-1];
     var jsonList=toJSON(list,false);
 //    out("\n",jsonList);
 //    print_r(list);
 //    print_r(parseJSON(jsonList));
+	
+	var original = "foo\0	bar\0hubhub\n\n\n";
 
-    if(list==parseJSON(jsonList) &&
-		parseJSON('"a\\"test\\"b"') == 'a"test"b' &&
-		toJSON('a"test"b') == '"a\\"test\\"b"'
-	)
-        {out (OK);}else { errors+=1; out(FAILED); }
+    test("JSON:",true 
+		&& list==parseJSON(jsonList)
+		&& parseJSON('"a\\"test\\"b"') == 'a"test"b'
+		&& toJSON('a"test"b') == '"a\\"test\\"b"'
+		&& original == parseJSON(toJSON(original))
+	);
 }
 // ---
 {
