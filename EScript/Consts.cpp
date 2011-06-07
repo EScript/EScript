@@ -42,8 +42,6 @@ const identifierId Consts::IDENTIFIER_var=stringToIdentifierId("var");
 const identifierId Consts::IDENTIFIER_while=stringToIdentifierId("while");
 const identifierId Consts::IDENTIFIER_yield=stringToIdentifierId("yield");
 
-const identifierId Consts::IDENTIFIER_originalId=stringToIdentifierId("originalId"); // EXPERIMENTAL
-
 const identifierId Consts::IDENTIFIER_LINE=stringToIdentifierId("__LINE__");
 
 }

@@ -47,8 +47,6 @@ struct Consts{
 	static const identifierId IDENTIFIER_while;
 	static const identifierId IDENTIFIER_yield;
 
-	static const identifierId IDENTIFIER_originalId;
-
 	static const identifierId IDENTIFIER_LINE;
 };
 //	@}

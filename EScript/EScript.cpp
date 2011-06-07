@@ -112,9 +112,7 @@ Object * EScript::callFunction(Runtime & rt,Object * function,const ParameterVal
 
 //! (static)
 void EScript::declareFunction( Type * t,identifierId nameId, Function::functionPtr fn){
-	Function * fun=new Function(fn);
-	fun->setObjAttribute(Consts::IDENTIFIER_originalId,Identifier::create(nameId));
-	t->setTypeAttribute(nameId,fun);
+	t->setTypeAttribute(nameId,new Function(nameId,0,-1,fn));
 }
 
 //! (static)
@@ -124,8 +122,7 @@ void EScript::declareFunction( Type * t,const char *name, Function::functionPtr 
 
 //! (static)
 void EScript::declareFunction( Type * t,identifierId nameId, int minParamCount,int maxParamCount,Function::functionPtr fn){
-	Function * fun=new Function(nameId,minParamCount,maxParamCount,fn);
-	t->setTypeAttribute(nameId,fun);
+	t->setTypeAttribute(nameId,new Function(nameId,minParamCount,maxParamCount,fn));
 }
 
 //! (static)
@@ -145,9 +142,7 @@ void EScript::declareConstant( Type * type,identifierId nameId, Object * value){
 
 //! (static)
 void EScript::declareFunction( Namespace * t,identifierId nameId, Function::functionPtr fn){
-	Function * fun=new Function(fn);
-	fun->setObjAttribute(Consts::IDENTIFIER_originalId,Identifier::create(nameId));
-	t->setObjAttribute(nameId,fun);
+	t->setObjAttribute(nameId,new Function(nameId,0,-1,fn));
 }
 
 //! (static)
@@ -157,8 +152,7 @@ void EScript::declareFunction( Namespace * t,const char *name, Function::functio
 
 //! (static)
 void EScript::declareFunction( Namespace * t,identifierId nameId, int minParamCount,int maxParamCount, Function::functionPtr fn){
-	Function * fun=new Function(nameId,minParamCount,maxParamCount,fn);
-	t->setObjAttribute(nameId,fun);
+	t->setObjAttribute(nameId,new Function(nameId,minParamCount,maxParamCount,fn));
 }
 
 //! (static)
