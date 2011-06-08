@@ -179,7 +179,7 @@ void EScript::out(Object * obj) {
 }
 
 //! (static)
-Block * EScript::loadScriptFile(const string & filename,ERef<Block> block)throw(Exception *) {
+Block * EScript::loadScriptFile(const std::string & filename,ERef<Block> block)throw(Exception *) {
 	if(block.isNull())
 		block=new Block;
 	ERef<Parser> pRef=new Parser;

@@ -14,7 +14,6 @@
 #include <map>
 
 namespace EScript {
-using std::ostream;
 
 class Runtime;
 class Namespace;
@@ -47,7 +46,7 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 		Object(Type * type);
 		virtual ~Object();
 
-		friend ostream & operator<< (ostream &s, EScript::Object*o) {
+		friend std::ostream & operator<<(std::ostream & s, EScript::Object * o) {
 			return o==NULL ? s<<"NULL" :
 					s<< "[" << o->getTypeName() << ":" <<static_cast<void*>(o)<< ":"<<o->countReferences()<< "]";
 		}

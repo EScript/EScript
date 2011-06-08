@@ -23,9 +23,6 @@ namespace EScript {
 class Block;
 class Statement;
 
-using std::string;
-using std::vector;
-
 /*! [Parser] ---|> [Object] */
 class Parser : public Object {
 		ES_PROVIDES_TYPE_NAME(Parser)
