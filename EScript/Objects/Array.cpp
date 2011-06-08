@@ -6,6 +6,7 @@
 
 #include "../EScript.h"
 
+#include <iterator>
 #include <sstream>
 #include <string>
 #include <stack>
@@ -250,7 +251,9 @@ void Array::clear(){
 int Array::rt_indexOf(Runtime & runtime,ObjPtr search,size_t index){
 	if(index>=count()||search.isNull()) return -1;
 
-	for(const_iterator it=begin()+index ; it!=end() ; ++it) {
+	const_iterator it = begin();
+	std::advance(it, index);
+	for(; it != end(); ++it) {
 		if( search->isEqual(runtime,*it) )
 			return index;
 		++index;
@@ -264,7 +267,8 @@ size_t Array::rt_removeValue(Runtime & runtime,const ObjPtr value,const int limi
 	
 	int numberOfDeletions=0;
 	std::vector<ObjRef> tempArray;
-	const std::vector<ObjRef>::const_iterator startIt=begin()+start;
+	std::vector<ObjRef>::const_iterator startIt = begin();
+	std::advance(startIt, start);
 	for (const_iterator it=begin();it!=end();++it) {
 		if( it>=startIt && (limit<0 || numberOfDeletions<limit) && value->isEqual(runtime,*it) ){
 			++numberOfDeletions;
@@ -279,7 +283,8 @@ size_t Array::rt_removeValue(Runtime & runtime,const ObjPtr value,const int limi
 void Array::removeIndex(size_t index){
 	 if(index>=size())
 		return;
-	iterator it=data.begin()+index;
+	iterator it = data.begin();
+	std::advance(it, index);
 	data.erase(it);
 	return ;
 }
