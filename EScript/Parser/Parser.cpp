@@ -6,7 +6,6 @@
 #include <iostream>
 #include <stdio.h>
 #include <stack>
-#include <memory>
 #include "Tokenizer.h"
 #include "Operators.h"
 #include "../EScript.h"
@@ -19,7 +18,6 @@
 #include "../Objects/Internals/Statement.h"
 
 #include "../Objects/Number.h"
-#include "../Objects/Bool.h"
 #include "../Objects/String.h"
 #include "../Objects/UserFunction.h"
 #include "../Objects/YieldIterator.h"

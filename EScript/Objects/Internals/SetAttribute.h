@@ -6,6 +6,7 @@
 #define SETATTRIBUTE_H
 
 #include "../Object.h"
+#include <string>
 
 namespace EScript {
 

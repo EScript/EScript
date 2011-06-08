@@ -6,6 +6,7 @@
 #define STATEMENT_H
 
 #include "../Object.h"
+#include "../../Utils/ObjRef.h"
 
 namespace EScript {
 

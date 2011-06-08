@@ -3,10 +3,9 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Block.h"
-#include "../../Runtime/Runtime.h"
 
-#include <iostream>
 #include <sstream>
+#include <utility>
 
 using namespace EScript;
 

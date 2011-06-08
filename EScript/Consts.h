@@ -5,7 +5,7 @@
 #ifndef ES_CONSTS_H_INCLUDED
 #define ES_CONSTS_H_INCLUDED
 
-#include "Objects/Object.h"
+#include "Utils/Hashing.h"
 
 namespace EScript{
 

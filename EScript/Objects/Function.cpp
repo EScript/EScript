@@ -4,8 +4,6 @@
 // ------------------------------------------------------
 #include "Function.h"
 #include "Identifier.h"
-#include <iostream>
-#include <sstream>
 #include "../EScript.h"
 
 using namespace EScript;

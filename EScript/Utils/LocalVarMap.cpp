@@ -3,9 +3,6 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "LocalVarMap.h"
-#include "../Objects/Object.h"
-
-#include <iostream>
 
 using namespace EScript;
 

@@ -19,6 +19,9 @@
 #include "../Objects/UserFunction.h"
 #include "../Objects/Delegate.h"
 #include "../Objects/YieldIterator.h"
+#include <algorithm>
+#include <iostream>
+#include <list>
 #include <sstream>
 #include <stack>
 using namespace EScript;

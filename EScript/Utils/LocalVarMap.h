@@ -5,11 +5,12 @@
 #ifndef LOCAL_VAR_MAP_H
 #define LOCAL_VAR_MAP_H
 
-#include <map>
-#include <stack>
-
+#include "../Objects/Object.h"
 #include "Hashing.h"
 #include "ObjRef.h"
+
+#include <map>
+#include <stack>
 
 namespace EScript {
 class Object;

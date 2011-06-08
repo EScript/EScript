@@ -4,7 +4,6 @@
 // ------------------------------------------------------
 #include "Object.h"
 #include "../EScript.h"
-#include <sstream>
 
 #ifdef ES_DEBUG_MEMORY
 #include "../Utils/Debug.h"

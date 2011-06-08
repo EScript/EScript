@@ -3,8 +3,11 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Hashing.h"
-#include <iostream>
+
+#include <cstddef>
+#include <functional>
 #include <map>
+#include <utility>
 
 using namespace EScript;
 

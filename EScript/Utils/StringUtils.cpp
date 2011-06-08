@@ -3,7 +3,6 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "StringUtils.h"
-#include <iostream>
 #include <sstream>
 #include <iomanip>
 #include <cstdlib>

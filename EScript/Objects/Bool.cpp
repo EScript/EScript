@@ -5,10 +5,9 @@
 #include "Bool.h"
 
 #include "../EScript.h"
-#include "Function.h"
-#include "../Runtime/Runtime.h"
 
-#include <sstream>
+#include <iostream>
+#include <stack>
 
 namespace EScript{
 
@@ -64,7 +63,7 @@ void Bool::init(EScript::Namespace & globals) {
 
 }
 //----
-std::stack<Bool *> boolPool=std::stack<Bool *>();
+static std::stack<Bool *> boolPool;
 
 Bool * Bool::create(bool value){
 	#ifdef ES_DEBUG_MEMORY

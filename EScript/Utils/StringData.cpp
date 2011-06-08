@@ -3,7 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "StringData.h"
-#include <iostream>
+
 namespace EScript{
 
 // (internals)

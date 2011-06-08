@@ -7,7 +7,6 @@
 
 #include "Object.h"
 #include "../Runtime/RuntimeContext.h"
-#include <stack>
 
 namespace EScript {
 

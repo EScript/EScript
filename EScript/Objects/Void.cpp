@@ -3,7 +3,6 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Void.h"
-#include "../EScript.h"
 
 using namespace EScript;
 

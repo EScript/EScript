@@ -4,9 +4,9 @@
 // ------------------------------------------------------
 #include "RuntimeBlock.h"
 
+#include "../Objects/Object.h"
 #include "../Objects/Void.h"
 #include "RuntimeContext.h"
-#include <iostream>
 
 using namespace EScript;
 

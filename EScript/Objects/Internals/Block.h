@@ -8,7 +8,6 @@
 #include "../Object.h"
 #include "Statement.h"
 
-#include <list>
 #include <deque>
 #include <set>
 

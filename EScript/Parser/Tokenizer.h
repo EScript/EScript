@@ -7,14 +7,14 @@
 
 #include "Token.h"
 #include "../Objects/Exception.h"
-#include "../EScript.h"
+#include "../Utils/Hashing.h"
+#include "../Utils/ObjRef.h"
 
+#include <cstddef>
 #include <string>
 #include <cstring>
 #include <map>
 #include <vector>
-
-using std::string;
 
 namespace EScript {
 
@@ -32,7 +32,7 @@ class Tokenizer {
 		 */
 		class Error:public Exception {
 			public:
-				Error(string s,int _line=-1):Exception(string("Tokenizer:")+s) {
+				Error(std::string s,int _line=-1):Exception(std::string("Tokenizer:")+s) {
 					setLine(_line);
 				}
 		};

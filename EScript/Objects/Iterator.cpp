@@ -7,7 +7,6 @@
 #include "../EScript.h"
 
 #include "Bool.h"
-#include "Function.h"
 
 using namespace EScript;
 

@@ -3,8 +3,6 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "LogicOp.h"
-#include "../Bool.h"
-#include "../../Runtime/Runtime.h"
 #include <sstream>
 
 using namespace EScript;

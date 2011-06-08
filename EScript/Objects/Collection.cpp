@@ -5,8 +5,7 @@
 #include "Collection.h"
 #include "../EScript.h"
 
-#include <string>
-#include <sstream>
+#include <algorithm>
 
 namespace EScript{
 

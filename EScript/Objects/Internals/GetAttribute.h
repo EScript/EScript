@@ -6,6 +6,7 @@
 #define GETATTRIBUTE_H
 
 #include "../Object.h"
+#include <string>
 
 namespace EScript {
 
@@ -17,9 +18,9 @@ class GetAttribute : public Object {
 		GetAttribute(Object * obj,const std::string & attrName);
 		virtual ~GetAttribute();
 
-		identifierId getAttrId()const   {   return attrId;  }
-		std::string getAttrName()const  {   return identifierIdToString(attrId);    }
-		Object * getObjectExpression()  {   return objRef.get();    }
+		identifierId getAttrId()const			{   return attrId;  }
+		const std::string & getAttrName()const	{   return identifierIdToString(attrId);    }
+		Object * getObjectExpression()			{   return objRef.get();    }
 
 		/// ---|> [Object]
 		virtual std::string toString()const;

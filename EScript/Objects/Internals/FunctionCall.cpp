@@ -3,12 +3,10 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "FunctionCall.h"
-#include "../../EScript.h"
-#include "../../Runtime/Runtime.h"
 
-#include <iostream>
-#include <sstream>
+#include <algorithm>
 #include <iterator>
+#include <sstream>
 
 using namespace EScript;
 

@@ -3,10 +3,6 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "GetAttribute.h"
-#include "../../Runtime/Runtime.h"
-#include "../Void.h"
-
-#include <iostream>
 
 using namespace EScript;
 

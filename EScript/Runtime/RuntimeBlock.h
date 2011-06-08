@@ -5,13 +5,13 @@
 #ifndef RUNTIMEBLOCK_H
 #define RUNTIMEBLOCK_H
 
-#include "../Objects/Object.h"
 #include "../Objects/Internals/Block.h"
 #include "../Utils/ObjRef.h"
 #include "../Utils/LocalVarMap.h"
 #include <stack>
 
 namespace EScript {
+class Object;
 class RuntimeContext;
 
 /*! [RuntimeBlock]    */

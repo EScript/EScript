@@ -5,19 +5,20 @@
 #ifndef TOKENS_H
 #define TOKENS_H
 
-#include "../EScript.h"
-
+#include "../Objects/Internals/Block.h"
+#include "../Objects/Object.h"
+#include "../Utils/EReferenceCounter.h"
 #include "../Utils/Hashing.h"
+#include "../Utils/ObjRef.h"
 #include "Operators.h"
 
-#include <iostream>
+#include <cstddef>
+#include <cstdlib>
+#include <stdint.h>
 #include <string>
-#include <stdlib.h>
-#include <sstream>
 
 namespace EScript {
-using std::string;
-class Block;
+
 struct TokenReleaseHandler;
 
 /*! [Token] */
@@ -49,7 +50,7 @@ class Token:public EReferenceCounter<Token,TokenReleaseHandler> {
 		Token(const uint32_t _type=getTypeId()) :
 				typeId(_type),line(0),startingPos(std::string::npos) 		{	tokenCount++;	}
 		virtual ~Token() 					{	tokenCount--;	}
-		virtual string toString()const 		{	return string("Token");	}
+		virtual std::string toString()const 		{	return std::string("Token");	}
 
 		void setLine(int _line) 			{	line=_line;	}
 		int getLine()const					{	return line;	}
@@ -76,7 +77,7 @@ class TIdentifier :  public Token {
 		static uint32_t getTypeId()			{	return TYPE_ID;	}
 
 		TIdentifier(identifierId _id) : Token(getTypeId()),id(_id)	{	 }
-		virtual string toString()const      {  	return identifierIdToString(id);	}
+		virtual std::string toString()const      {  	return identifierIdToString(id);	}
 
 		identifierId getId()const          	{   return id;     }
 		virtual Token * clone()const		{   return new TIdentifier(id);   }
@@ -90,7 +91,7 @@ class TControl :  public Token {
 		static uint32_t getTypeId()			{	return TYPE_ID;	}
 		TControl(const char * _name) : id(stringToIdentifierId(_name)) {   }
 		TControl(identifierId _id) : Token(getTypeId()),id(_id) {   }
-		virtual string toString()const  	{   return identifierIdToString(id);    }
+		virtual std::string toString()const  	{   return identifierIdToString(id);    }
 		identifierId getId()const           {   return id;    }
 		virtual Token * clone()const		{   return new TControl(id);  }
 	private:
@@ -100,7 +101,7 @@ class TControl :  public Token {
 struct TEndCommand :  public Token {
 	static const uint32_t TYPE_ID=0x01 << 2;
 	TEndCommand() : Token(getTypeId()) 	{   }
-	virtual string toString()const		{	return ";";	}
+	virtual std::string toString()const		{	return ";";	}
 	virtual Token * clone()const 		{	return new TEndCommand();	}
 
 	static uint32_t getTypeId()			{	return TYPE_ID;	}
@@ -111,7 +112,7 @@ struct TEndScript :  public Token	{
 	static const uint32_t TYPE_ID=0x01 << 3;
 	static uint32_t getTypeId()			{	return TYPE_ID;	}
 	TEndScript() : Token(getTypeId()) 	{   }
-	virtual string toString()const 		{	return "EndScript";	}
+	virtual std::string toString()const 		{	return "EndScript";	}
 	virtual Token * clone()const 		{	return new TEndScript();	}
 };
 
@@ -122,7 +123,7 @@ struct TStartBlock :  public Token {
 	TStartBlock(Block * _block=NULL) : Token(getTypeId()),block(_block) {}
 	void setBlock(Block * _block)    	{   block=_block;   }
 	Block * getBlock()const          	{   return block.get();   }
-	virtual string toString()const  	{   return "{"; }
+	virtual std::string toString()const  	{   return "{"; }
 	virtual Token * clone()const   		{   return new TStartBlock(block.get());  }
 
 	private:
@@ -134,7 +135,7 @@ struct TEndBlock :  public Token {
 	static const uint32_t TYPE_ID=0x01 << 5;
 	static uint32_t getTypeId()			{	return TYPE_ID;	}
 	TEndBlock() : Token(getTypeId()) 	{   }
-	virtual string toString()const 		{	return "}";	}
+	virtual std::string toString()const 		{	return "}";	}
 	virtual Token * clone()const 		{	return new TEndBlock();	}
 };
 // -----
@@ -143,7 +144,7 @@ struct TStartMap :  public Token {
 	static const uint32_t TYPE_ID=0x01 << 6;
 	static uint32_t getTypeId()			{	return TYPE_ID;	}
 	TStartMap()  : Token(getTypeId()) 	{	}
-	virtual string toString()const 		{	return "_{";	}
+	virtual std::string toString()const 		{	return "_{";	}
 	virtual Token * clone()const 		{	return new TStartMap();	}
 };
 
@@ -152,7 +153,7 @@ struct TEndMap :  public Token {
 	static const uint32_t TYPE_ID=0x01 << 7;
 	static uint32_t getTypeId()			{	return TYPE_ID;	}
 	TEndMap()  : Token(getTypeId()) 	{	}
-	virtual string toString()const 		{	return "}_";	}
+	virtual std::string toString()const 		{	return "}_";	}
 	virtual Token * clone()const 		{	return new TEndMap();	}
 };
 // -----
@@ -160,7 +161,7 @@ struct TMapDelimiter :  public Token {
 	static const uint32_t TYPE_ID=0x01 << 8;
 	static uint32_t getTypeId()			{	return TYPE_ID;	}
 	TMapDelimiter()  : Token(getTypeId()) {	}
-	virtual string toString()const 		{	return "_:_";	}
+	virtual std::string toString()const 		{	return "_:_";	}
 	virtual Token * clone()const 		{	return new TMapDelimiter();	}
 };
 
@@ -170,7 +171,7 @@ struct TColon :  public Token {
 	static const uint32_t TYPE_ID=0x01 << 9;
 	static uint32_t getTypeId()			{	return TYPE_ID;	}
 	TColon()  : Token(getTypeId()) 		{	}
-	virtual string toString()const 		{	return ":";	}
+	virtual std::string toString()const 		{	return ":";	}
 	virtual Token * clone()const 		{	return new TColon();	}
 };
 
@@ -180,7 +181,7 @@ struct TObject :  public Token {
 	static const uint32_t TYPE_ID=0x01 << 10;
 	static uint32_t getTypeId()			{	return TYPE_ID;	}
 	TObject(Object * _obj)  : Token(getTypeId()),obj(_obj) {}
-	virtual string toString()const 		{	return obj.toString();	}
+	virtual std::string toString()const 		{	return obj.toString();	}
 	virtual Token * clone()const 		{	return new TObject(obj->clone());	}
 	ObjRef obj;
 };
@@ -197,7 +198,7 @@ struct TOperator :  public Token {
 	int getAssociativity() 				{	return op->getAssociativity();	}
 	const Operator * getOperator()const {	return op;	}
 
-	virtual string toString()const 		{	return op->getString();	}
+	virtual std::string toString()const 		{	return op->getString();	}
 	virtual Token * clone()const 		{	return new TOperator(op);	}
 
 	private:
@@ -220,7 +221,7 @@ struct TEndBracket :  public TOperator { // Token: there may be a reason why TEn
 	static const uint32_t TYPE_ID=0x01 << 13 | TOperator::TYPE_ID;
 	static uint32_t getTypeId()			{	return TYPE_ID;	}
 	TEndBracket() : TOperator(")",getTypeId()) 		{}
-//    virtual string toString()const 		{	return ")";	}
+//    virtual std::string toString()const 		{	return ")";	}
 	virtual Token * clone()const 		{	return new TEndBracket();	}
 };
 // -----

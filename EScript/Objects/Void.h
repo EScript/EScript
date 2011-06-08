@@ -8,7 +8,6 @@
 #include "Type.h"
 
 namespace EScript {
-class Namespace;
 
 /*! [Void] ---|> [Type] ---|> [Object]   */
 class Void : public Type {

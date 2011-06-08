@@ -3,7 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Operators.h"
-#include <vector>
+
 namespace EScript {
 
 

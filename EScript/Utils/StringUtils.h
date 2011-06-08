@@ -5,6 +5,7 @@
 #ifndef STRINGUTILS_H
 #define STRINGUTILS_H
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace EScript {

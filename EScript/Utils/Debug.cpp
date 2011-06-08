@@ -3,8 +3,14 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Debug.h"
-#include <map>
+
+#include "../Objects/Object.h"
+
 #include <iostream>
+#include <map>
+#include <string>
+#include <utility>
+
 using namespace EScript;
 
 std::map<void *,Object *> debug_objects=std::map<void *,Object *>();

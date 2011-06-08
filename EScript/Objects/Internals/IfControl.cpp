@@ -3,8 +3,6 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "IfControl.h"
-#include <iostream>
-#include "../../Runtime/Runtime.h"
 
 using namespace EScript;
 

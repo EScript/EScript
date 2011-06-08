@@ -6,7 +6,6 @@
 #define ES_Type_H
 
 #include "Object.h"
-#include "Function.h"
 #include <stdint.h>
 
 namespace EScript {

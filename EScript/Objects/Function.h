@@ -6,9 +6,10 @@
 #define LIBFUNCTION_H
 
 #include "Object.h"
-#include "../Runtime/Runtime.h"
+#include "../Utils/ObjArray.h"
 
 namespace EScript {
+class Runtime;
 
 /*! [Function] ---|> [Object]   */
 class Function : public Object {

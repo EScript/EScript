@@ -6,7 +6,6 @@
 #define ES_DELEGATE_H
 
 #include "Object.h"
-#include <vector>
 
 namespace EScript {
 

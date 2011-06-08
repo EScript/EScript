@@ -3,8 +3,8 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Statement.h"
-#include "../../Runtime/Runtime.h"
-using namespace EScript;
+
+namespace EScript {
 
 //! (ctor)
 Statement::Statement( const Statement & other):
@@ -29,4 +29,4 @@ Statement::~Statement() {
 	//dtor
 }
 
-
+}

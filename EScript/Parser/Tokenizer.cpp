@@ -3,11 +3,20 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Tokenizer.h"
-#include "Operators.h"
-#include "../Utils/StringUtils.h"
+
 #include "../Consts.h"
+#include "../Objects/Bool.h"
 #include "../Objects/Identifier.h"
+#include "../Objects/Number.h"
+#include "../Objects/Object.h"
+#include "../Objects/String.h"
+#include "../Objects/Void.h"
+#include "../Utils/StringUtils.h"
+#include "Operators.h"
+
+#include <iostream>
 #include <sstream>
+#include <utility>
 
 namespace EScript {
 
@@ -146,7 +155,7 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_
 			return new TObject(Number::create(number));
 		} else {
 			std::cout << number ;
-			throw(new Error(  string("Syntax Error in Number."),line));
+			throw(new Error(  std::string("Syntax Error in Number."),line));
 		}
 
 		// Identifiers, Control commands, true/false
@@ -220,7 +229,7 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_
 		int size=accum.size();
 		const Operator * op=NULL;
 		while (true) {
-			string ops=accum.substr(0,size);
+			std::string ops=accum.substr(0,size);
 			op=Operator::getOperator(ops);
 			if (op!=NULL) {
 				cursor+=size;
@@ -230,7 +239,7 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_
 			size--;
 			if (size<=0) {
 				std::cout  << std::endl<< accum << std::endl;
-				throw(new Error(  string("Unknown Operator: ")+accum,line));
+				throw(new Error(std::string("Unknown Operator: ")+accum,line));
 			}
 		}
 		// test for unary minus
@@ -263,7 +272,7 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_
 				cursor++;
 				c=prog[cursor];
 				if (c==0)
-					throw(new Error(  string("Unclosed String. 1")+s.str().substr(0,10),line));
+					throw(new Error(std::string("Unclosed String. 1")+s.str().substr(0,10),line));
 				else if (c=='0') // NULL
 					c='\0';
 				else if (c=='a') // BELL
@@ -288,7 +297,7 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_
 			c=prog[cursor];
 		}
 		if (c=='\0')
-			throw(new Error(  string("Unclosed String. 2")+s.str().substr(0,10),line));
+			throw(new Error(std::string("Unclosed String. 2")+s.str().substr(0,10),line));
 		cursor++;
 		return new TObject(String::create(s.str()));
 	}
@@ -299,7 +308,7 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_
 	//    cursor++;
 	//std::cout << "\n"<<(int)(prog+cursor);
 	std::cout << " \a !!!";
-	throw(new Error(  string("Unknown Syntax Error near \n...")+(prog+ (cursor>10?(cursor-10):0) ),line));
+	throw(new Error(std::string("Unknown Syntax Error near \n...")+(prog+ (cursor>10?(cursor-10):0) ),line));
 	return new Token();
 }
 

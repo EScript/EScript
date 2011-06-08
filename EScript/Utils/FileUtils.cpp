@@ -12,10 +12,9 @@
 #endif
 
 #include <sys/stat.h>
-#include <iostream>
 #include <fstream>
-#include <ostream>
 #include <deque>
+#include <vector>
 
 using namespace EScript;
 

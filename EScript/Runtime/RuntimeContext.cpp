@@ -4,10 +4,7 @@
 // ------------------------------------------------------
 #include "RuntimeContext.h"
 
-#include "../Objects/Void.h"
 #include "../Consts.h"
-#include "Runtime.h"
-#include <iostream>
 
 using namespace EScript;
 

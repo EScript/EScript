@@ -5,7 +5,6 @@
 #ifndef PARSER_H
 #define PARSER_H
 
-#include "../Objects/Internals/Block.h"
 #include "Token.h"
 #include "Tokenizer.h"
 
@@ -21,6 +20,7 @@
 
 namespace EScript {
 
+class Block;
 class Statement;
 
 using std::string;
