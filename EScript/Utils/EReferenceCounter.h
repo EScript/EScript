@@ -4,10 +4,8 @@
 // ------------------------------------------------------
 #ifndef EREFERENCECOUNTER_H
 #define EREFERENCECOUNTER_H
-#include <iostream>
 
-namespace EScript{
-
+namespace EScript {
 
 /*! (Non virtual) base class for reference counting.
 	@p Obj_t  Should be the new class itself.
@@ -17,13 +15,13 @@ class EReferenceCounter {
 		int refCounter;
 
 	public:
-		/** Default constructor */
+		//! Default constructor
 		EReferenceCounter():refCounter(0){}
 
-		/** Default destructor */
+		//! Default destructor
 		~EReferenceCounter(){}
 
-		//! Returns the current number of references to this object.
+		//! Return the current number of references to this object.
 		inline int countReferences()const			{	return refCounter;	}
 
 		//! Increase the reference counter of @p o.

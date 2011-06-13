@@ -4,7 +4,7 @@
 // ------------------------------------------------------
 #ifndef OBJREF_H
 #define OBJREF_H
-#include <iostream>
+
 #include <string>
 
 namespace EScript {
