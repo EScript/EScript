@@ -120,6 +120,9 @@ Object * StdLib::load(Runtime & runtime,const std::string & filename){
 		return NULL;
 
 	ObjRef resultRef(runtime.executeObj(bRef.get()));
+	/* reset the Block at this point is important as it might hold a reference to the result, which may then
+		be destroyed when the function is left after the resultRef-reference has already been decreased. */
+	bRef = NULL; 
 	if(runtime.getState() == Runtime::STATE_RETURNING){
 			resultRef=runtime.getResult();
 			runtime.resetState();

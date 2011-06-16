@@ -462,3 +462,7 @@
 			(fn(__test20110604a,__test20110604b) { return void == __test20110604a && void == __test20110604b;	} )() );	
 	Runtime._setErrorConfig(0);	
 }
+{	// if a file is loaded that returns a UserFunction, this function is destroyed during loading and the system crashes.
+	
+	test( "BUG[20110616]", (load(__DIR__+"/BUG20110616.escript"))(27) == 27);
+}
