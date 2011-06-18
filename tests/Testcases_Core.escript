@@ -934,8 +934,70 @@ if(!benchmark)
 
 
 { // streams
-	var s = new StringStream();
-	s << "foo";
+
+//	StreamBase.WRITABLE ::= 0;
+//	StreamBase.OPEN ::= 1;
+//	StreamBase.GOOD ::= 2;
+//	StreamBase.READABLE ::= 3;
+//	StreamBase.EOF ::= 4;
+//	StreamBase.SEEKABLE ::= 5;
+
+// base:
+// -------
+// getFlag(Good|eof|fail|bad)
+// isGood
+// eof
+// fail
+// bad
+// get flags
+//
+
+// reading:
+// ---------
+// isReadable()
+// readLine( ["delimiter"[,max]] )
+// readString( [max] )
+// readJSON( ... )
+// readRAW(StreamBase.uint8 ( [number = 1] )
+// readRAW_uint16
+// readRAW_uint32
+// readRAW_int32
+// readRAW_int8
+// readRAW_int16
+// readRAW_float
+// readRAW_double
+// tellg seekg
+// ignore
+
+// FileStream:
+// isOpen
+// open	("test.txt" , StreamBase::in) Open file
+// close
+// g
+
+// writing
+// -------
+// isWritable()
+//   tellW seekW
+// flush
+// write(string)
+// writeJSON(mixed)
+// writeRAW( StreamBase.uint8, number|collection )
+
+	var StringStream = new Type(StreamBase);
+	StringStream.str := "";
+	StringStream."<<" ::= fn(s){str+=s; return this;};
+	StringStream.getString ::= fn(){return str;};
+	StringStream.tell ::= fn(){return str.length();};
+
+
+	StringStream._constructor ::= fn(s=""){
+		str = s;
+	};
+
+
+	var s = new StringStream( "::" );
+	s << "foo" << 1+2 << "bar";
 	out( s.getString() );
 
 }
