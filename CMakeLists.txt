@@ -3,13 +3,14 @@ project(EScript CXX)
 set(ESCRIPT_SOURCES
 	EScript/Consts.cpp
 	EScript/EScript.cpp
-	EScript/Objects/Array.cpp
-	EScript/Objects/Bool.cpp
-	EScript/Objects/Collection.cpp
-	EScript/Objects/Delegate.cpp
+	EScript/Objects/Collections/Array.cpp
+	EScript/Objects/Collections/Collection.cpp
+	EScript/Objects/Collections/Map.cpp
 	EScript/Objects/Exception.cpp
 	EScript/Objects/ExtObject.cpp
-	EScript/Objects/Function.cpp
+	EScript/Objects/Functions/Delegate.cpp
+	EScript/Objects/Functions/Function.cpp
+	EScript/Objects/Functions/UserFunction.cpp
 	EScript/Objects/Iterator.cpp
 	EScript/Objects/Identifier.cpp
 	EScript/Objects/Internals/Block.cpp
@@ -20,15 +21,14 @@ set(ESCRIPT_SOURCES
 	EScript/Objects/Internals/LogicOp.cpp
 	EScript/Objects/Internals/SetAttribute.cpp
 	EScript/Objects/Internals/Statement.cpp
-	EScript/Objects/Map.cpp
 	EScript/Objects/Namespace.cpp
-	EScript/Objects/Number.cpp
-	EScript/Objects/NumberRef.cpp
 	EScript/Objects/Object.cpp
-	EScript/Objects/String.cpp
 	EScript/Objects/Type.cpp
-	EScript/Objects/UserFunction.cpp
-	EScript/Objects/Void.cpp
+	EScript/Objects/Values/Bool.cpp
+	EScript/Objects/Values/Number.cpp
+	EScript/Objects/Values/NumberRef.cpp
+	EScript/Objects/Values/String.cpp
+	EScript/Objects/Values/Void.cpp
 	EScript/Objects/YieldIterator.cpp
 	EScript/Parser/Parser.cpp
 	EScript/Parser/Operators.cpp

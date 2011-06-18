@@ -4,7 +4,7 @@
 // ------------------------------------------------------
 #include "Array.h"
 
-#include "../EScript.h"
+#include "../../EScript.h"
 
 #include <iterator>
 #include <sstream>
@@ -264,7 +264,7 @@ int Array::rt_indexOf(Runtime & runtime,ObjPtr search,size_t index){
 size_t Array::rt_removeValue(Runtime & runtime,const ObjPtr value,const int limit,const size_t start){
 	if(start > size() || value.isNull() || limit==0)
 		return 0;
-	
+
 	int numberOfDeletions=0;
 	std::vector<ObjRef> tempArray;
 	std::vector<ObjRef>::const_iterator startIt = begin();
@@ -273,7 +273,7 @@ size_t Array::rt_removeValue(Runtime & runtime,const ObjPtr value,const int limi
 		if( it>=startIt && (limit<0 || numberOfDeletions<limit) && value->isEqual(runtime,*it) ){
 			++numberOfDeletions;
 		}else{
-			tempArray.push_back(*it);	
+			tempArray.push_back(*it);
 		}
 	}
 	data.swap(tempArray);
@@ -376,7 +376,7 @@ void Array::rt_sort(Runtime & runtime,Object * function/*=NULL*/,bool reverseOrd
 
 void Array::rt_filter(Runtime & runtime,ObjPtr function, const ParameterValues & additionalValues) {
 	std::vector<ObjRef> tempArray;
-	
+
 	ParameterValues parameters(additionalValues.count()+1);
 	if(!additionalValues.empty())
 		std::copy(additionalValues.begin(),additionalValues.end(),parameters.begin()+1);

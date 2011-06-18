@@ -5,8 +5,8 @@
 #ifndef LIBFUNCTION_H
 #define LIBFUNCTION_H
 
-#include "Object.h"
-#include "../Utils/ObjArray.h"
+#include "../Object.h"
+#include "../../Utils/ObjArray.h"
 
 namespace EScript {
 class Runtime;
@@ -23,13 +23,13 @@ class Function : public Object {
 		static void init(EScript::Namespace & globals);
 	//	@}
 
-	// -----		
+	// -----
 		typedef Object * ( * functionPtr)(Runtime & runtime,Object * caller, const ParameterValues & parameter);
 		// ---
 		Function(functionPtr fnptr);
 		Function(identifierId originalName, int minParamCountint, int maxParamCount,functionPtr fnptr);
 		virtual ~Function();
-		
+
 		int getCallCounter()const							{	return callCounter;	}
 		functionPtr getFnPtr()const							{	return fnptr;	}
 		int getMaxParamCount()const							{	return maxParamCount;	}

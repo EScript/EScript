@@ -3,7 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Map.h"
-#include "../EScript.h"
+#include "../../EScript.h"
 
 #include <string>
 
@@ -39,7 +39,7 @@ void Map::init(EScript::Namespace & globals) {
 		self->rt_filter(runtime,parameter[0],additionalValues);
 		return self;
 	})
-	
+
 	//! [ESMF] self Map.unset( key )
 	ESMF_DECLARE(typeObject,Map,"unset",1,1,
 				(self->unset(parameter[0]),caller))
@@ -212,7 +212,7 @@ Object * Map::MapIterator::value() {
 
 //! ---|> [Iterator]
 void Map::MapIterator::next() {
-	if (!end()) 
+	if (!end())
 		++it;
 }
 

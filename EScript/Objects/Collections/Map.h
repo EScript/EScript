@@ -6,7 +6,7 @@
 #define MAP_H
 
 #include "Collection.h"
-#include "Iterator.h"
+#include "../Iterator.h"
 #include <map>
 
 namespace EScript {
@@ -16,7 +16,7 @@ class Map : public Collection {
 		ES_PROVIDES_TYPE_NAME(Map)
 
 	//---------------------
-	
+
 	//! @name Types
 	// @{
 	public:
@@ -51,8 +51,8 @@ class Map : public Collection {
 
 	//---------------------
 
-	//! @name Creation 
-	// @{	
+	//! @name Creation
+	// @{
 	public:
 		static Map * create();
 		static Map * create(const std::map<identifierId,Object *> &);
@@ -63,9 +63,9 @@ class Map : public Collection {
 	//	@}
 
 	//---------------------
-		
-	//! @name TypeObject 
-	// @{	
+
+	//! @name TypeObject
+	// @{
 	public:
 		static Type* typeObject;
 		static void init(EScript::Namespace & globals);
@@ -73,8 +73,8 @@ class Map : public Collection {
 
 	//---------------------
 
-	//! @name Data 
-	// @{	
+	//! @name Data
+	// @{
 	private:
 		container_t data;
 	public:
@@ -86,7 +86,7 @@ class Map : public Collection {
 		const_reverse_iterator rbegin()const	{	return data.rbegin(); }
 		reverse_iterator rend()					{	return data.rend(); }
 		const_reverse_iterator rend()const		{	return data.rend(); }
-		
+
 		bool empty()const						{	return data.empty();	}
 		size_type erase(const std::string & key){	return data.erase(key);	}
 		Object * getValue(const std::string & key);
@@ -99,8 +99,8 @@ class Map : public Collection {
 
 	//---------------------
 
-	//! @name ---|> [Collection] 
-	// @{	
+	//! @name ---|> [Collection]
+	// @{
 		//!	[MapIterator] ---|> [Iterator]
 		class MapIterator : public Iterator {
 				ES_PROVIDES_TYPE_NAME(MapIterator)
@@ -129,7 +129,7 @@ class Map : public Collection {
 	//---------------------
 
 	//! @name ---|> [Object]
-	// @{	
+	// @{
 		Object * clone()const;
 	//	@}
 

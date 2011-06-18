@@ -3,8 +3,8 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "UserFunction.h"
-#include "Internals/Block.h"
-#include "../EScript.h"
+#include "../Internals/Block.h"
+#include "../../EScript.h"
 #include <sstream>
 
 using namespace EScript;
@@ -46,21 +46,21 @@ void UserFunction::init(EScript::Namespace & globals) {
 	// [UserFunction] ---|> [ExtObject] ---|> [Object]
 	Type * t=getTypeObject();
 	declareConstant(&globals,getClassName(),t);
-	
+
 	//! [ESMF] String UserFunction.getFilename()
 	ESMF_DECLARE(t,UserFunction,"getFilename",0,0,String::create(self->getFilename()))
-	
+
 	//! [ESMF] String UserFunction.getCode()
 	ESMF_DECLARE(t,UserFunction,"getCode",0,0,String::create(self->getCode()))
-	
-	//! [ESMF] Number|false UserFunction.getMaxParamCount() 
+
+	//! [ESMF] Number|false UserFunction.getMaxParamCount()
 	ES_MFUNCTION_DECLARE(t,UserFunction,"getMaxParamCount",0,0,{
 		if(self->getMaxParamCount()<0 )
 			return Bool::create(false);
 		return Number::create(self->getMaxParamCount());
 	})
 
-	//! [ESMF] Number UserFunction.getMinParamCount() 
+	//! [ESMF] Number UserFunction.getMinParamCount()
 	ESMF_DECLARE(t,UserFunction,"getMinParamCount",0,0, Number::create(self->getMinParamCount()))
 
 }
@@ -99,7 +99,7 @@ UserFunction * UserFunction::clone()const{
 	for(parameterList_t::const_iterator it = params->begin();it!=params->end();++it){
 		params2->push_back( (*it)->clone());
 	}
-	
+
 	UserFunction * f = new UserFunction( params2,blockRef.get(),sConstrExpressions );
 	f->cloneAttributesFrom( this );
 	f->setCodeString(fileString,posInFile,codeLen);
@@ -157,13 +157,13 @@ int UserFunction::getMaxParamCount()const{
 		return 0;
 	}else if(params->back()->isMultiParam()){
 		return -1;
-	}else 
+	}else
 		return params->size();
 }
 
 int UserFunction::getMinParamCount()const{
 	int i=0;
-	for (parameterList_t::const_iterator it=params->begin();it!=params->end();++it) {	
+	for (parameterList_t::const_iterator it=params->begin();it!=params->end();++it) {
 		if( (*it)->isMultiParam() || (*it)->getDefaultValueExpression() !=NULL )
 			break;
 		++i;

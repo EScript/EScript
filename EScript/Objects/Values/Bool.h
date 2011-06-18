@@ -5,7 +5,7 @@
 #ifndef BOOL_H
 #define BOOL_H
 
-#include "Object.h"
+#include "../Object.h"
 #include <string>
 
 namespace EScript {

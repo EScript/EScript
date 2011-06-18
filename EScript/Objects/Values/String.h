@@ -5,8 +5,8 @@
 #ifndef STRING_H
 #define STRING_H
 
-#include "Object.h"
-#include "../Utils/StringData.h"
+#include "../Object.h"
+#include "../../Utils/StringData.h"
 #include <stack>
 #include <string>
 
@@ -17,9 +17,9 @@ class String : public Object {
 		ES_PROVIDES_TYPE_NAME(String)
 	private:
 		static std::stack<String *> stringPool;
-		
+
 		String(const StringData & sData,Type * type=NULL);
-		
+
 		//! internal helper
 		static StringData objToStringData(Object * obj);
 

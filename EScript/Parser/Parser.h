@@ -9,8 +9,8 @@
 #include "Tokenizer.h"
 
 #include "../Objects/Exception.h"
-#include "../Objects/String.h"
-#include "../Objects/UserFunction.h"
+#include "../Objects/Values/String.h"
+#include "../Objects/Functions/UserFunction.h"
 
 #include <vector>
 

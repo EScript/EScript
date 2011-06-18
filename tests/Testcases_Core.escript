@@ -9,7 +9,7 @@ var FAILED="\t failed\n";
 	a==4 && (a=5)>0;
 
 	test("Bool operations:", true
-		&& a==5 && !false 
+		&& a==5 && !false
 		&& !(2!=1+1) && !(!(2==2)) );
 }
 //---
@@ -33,15 +33,15 @@ var FAILED="\t failed\n";
 	var b2 = true;
 	var b2a = (b2&=true);
 	var b2b = (b2&=false);
-	
+
 	test("Bool:", true
-		&& !b 
+		&& !b
 		&& true & true && !(true&false)
 		&& false | true  && true | true && true | false && ! (false |false)
-		&& true > false && false < true && !(true < false) && !(false > true) 
+		&& true > false && false < true && !(true < false) && !(false > true)
 		&& !(false > false) && !(true > true) && !(true < true) && !(false < false)
 		&& b2 == false && b2a && !b2b
-		&& (true ^ true) == false && (false ^ false) == false && (true ^ false) == true 
+		&& (true ^ true) == false && (false ^ false) == false && (true ^ false) == true
 		&& !false
 		, Bool);
 }
@@ -51,18 +51,18 @@ var FAILED="\t failed\n";
 	var n=1;
 	(fn(value){value++;})(n); // test call by value
     var i=(9).sqrt();
-    
+
 	var n2 = 7;
 	n2 &= 12; // 7 & 12 == 4
 	var n2b = (n2 -= 10); // 4-10 == -6
-	
+
 	var n3 = 17;
 	var n3a = --n3;
 	var n3b = n3--;
-	
+
 	var n4 = 7;
 	var n4b = (n4 |= 9); // 7 & 9 == 15
-	
+
 	var n5 = 7;
 	var n5b = (n5 ^= 9); // 7 xor 9 == 14 cos
 
@@ -73,7 +73,7 @@ var FAILED="\t failed\n";
 	test("Number:", true
 			&& (2|3|255&1040) ^ 33 == 50
 			&& ((1.0+2)*3/(20-(1+(1)))+0.5+-1+1) == 1
-			&&	n==1 && i==3 
+			&&	n==1 && i==3
 			&& (0x01+255).toHex()=="0x100" && "-1.7".toNumber()==-1.7 && 1.getType()==Number
 			&& (180).degToRad()== Math.PI && (Math.PI.radToDeg()-180).abs() < 0.001
 			&& 1.sign()==1 && -2.3.sign()==-1
@@ -86,11 +86,11 @@ var FAILED="\t failed\n";
 			&& (123.456).round(10) ~= 120
 			&& (-123.456).round(10) ~= -120
 			&& new Number("1") == 1
-			&& n2 == -6 && n2b == -6 
-			&& n3 == 15 && n3a == 16 && n3b ==16 
+			&& n2 == -6 && n2b == -6
+			&& n3 == 15 && n3a == 16 && n3b ==16
 			&& 1<=1 && 0<=1 && ! (1<=0)
 			&& 1>=1 && 1>=0 && ! (0>=1)
-			&& n4 == 15 && n4b ==15 
+			&& n4 == 15 && n4b ==15
 			&& n5 == 14 && n5b == 14
 			&& n6 == 19 && n6a == 18 && n6b ==18
 			&& (0).sin() ~= 0 && (90).degToRad().sin() ~=1 && (0.5).asin().radToDeg()~=30
@@ -109,7 +109,7 @@ var FAILED="\t failed\n";
 
     var s="foobar";
 	var spacy = "\t   bla  \n\r  ";
-	
+
 	var s2 = "ab";
 	var s2b = (s2*=3);
 
@@ -273,7 +273,7 @@ var FAILED="\t failed\n";
 		thisFn.staticVar+=1;
 		return thisFn.staticVar;
 	};
-	
+
 	// cloning USerFunction Objects
 	var f4=fn(a=1){ thisFn.m+=a; return thisFn.m; };
 	f4.m:=0;
@@ -283,7 +283,7 @@ var FAILED="\t failed\n";
 	f4b(); // 7+1 = 8
 	f4b(19); // 8+19 ==27
 
-	
+
 	// Binding parameters with function wrappers
 	UserFunction.bindLastParams ::= fn(params*){
 		var myWrapper = thisFn.wrapperFn.clone();
@@ -308,19 +308,19 @@ var FAILED="\t failed\n";
         && (fn(){/*bla*/}).getCode() == "fn(){/*bla*/}"
         && f4(0) == 17 && f4b(0) ==27
 		&& (1->(fn(a){return this+a; }).bindLastParams(27)) () == 28 // 1+27
-		&& [1,2,3].map( (fn(key,value,sumA,sumB){return value+sumA+sumB;}).bindLastParams(90,10) )  == [101,102,103] 
+		&& [1,2,3].map( (fn(key,value,sumA,sumB){return value+sumA+sumB;}).bindLastParams(90,10) )  == [101,102,103]
 		&& plusRec.getFilename() == __FILE__
-		&& (fn(a){}).getMinParamCount() == 1 && (fn(a*){}).getMinParamCount() == 0 && (fn(a,b,c=2){}).getMinParamCount() == 2 
-		&& (fn(a){}).getMaxParamCount() == 1 && !(fn(a*){}).getMaxParamCount() && (fn(a,b,c=2){}).getMaxParamCount() == 3 
-		
+		&& (fn(a){}).getMinParamCount() == 1 && (fn(a*){}).getMinParamCount() == 0 && (fn(a,b,c=2){}).getMinParamCount() == 2
+		&& (fn(a){}).getMaxParamCount() == 1 && !(fn(a*){}).getMaxParamCount() && (fn(a,b,c=2){}).getMaxParamCount() == 3
+
 		,UserFunction
-        
+
 	 );
 	 f3.staticVar=0; // reset staticVar for next testing loop.
 }
 //---
 {	// User defined function (experimental!!!)
-	
+
 	// simple example
 	var userDefinedFunction = new ExtObject( {
 		$m1 : 17,
@@ -338,7 +338,7 @@ var FAILED="\t failed\n";
 		var Wrapper = UserFunction.bindLastParams2.Wrapper;
 		Wrapper.additionalParamValues := void;
 		Wrapper.fun := void;
-		
+
 		//! (ctor)
 		Wrapper._constructor ::= fn(_fun,_additionalParamValues){
 			this.fun = _fun;
@@ -350,22 +350,22 @@ var FAILED="\t failed\n";
 		};
 	}
 
-	
+
 	test("User def function(EXP!):", true
 		&& userDefinedFunction(10) == 27 // 17+10
 		&& (1->(fn(a){return this+a; }).bindLastParams2(27)) () == 28 // 1+27
-		&& [1,2,3].map( (fn(key,value,sumA,sumB){return value+sumA+sumB;}).bindLastParams2(90,10) )  == [101,102,103] 
+		&& [1,2,3].map( (fn(key,value,sumA,sumB){return value+sumA+sumB;}).bindLastParams2(90,10) )  == [101,102,103]
 	);
 }
 //---
 {	// Function
 	test("Function:", true
-		&& print_r ---|> Function 
+		&& print_r ---|> Function
 		&& print_r.getMinParamCount()==0 && print_r.getMaxParamCount() == false && print_r.getOriginalName() == $print_r
 		&& Number."+".getMinParamCount() == 1 && Number."+".getMaxParamCount() == 1
 		, Function
 	);
-		
+
 }
 //---
 {	// Array
@@ -425,7 +425,7 @@ var FAILED="\t failed\n";
 	var a2 = [1,2,3];
 	a2.set(0,"foo");
 	var a2a = a2.popBack();
-	
+
 	test("Array:", true
 			&& accum=="1827Hoobelbarding18bardidu" && a ---|> Array && ! (1 ---|> Array)
 			&& (new Array(1,'a','b')).implode(',')=='1,a,b'
@@ -568,7 +568,7 @@ if(!benchmark)
 }
 //---
 if(GLOBALS.isSet($TestObject)){  // TestObject is defined in test.cpp
-	var t=new TestObject(1,1); 
+	var t=new TestObject(1,1);
 	t.m1=9; // int
 	t.m2=9; // float
 	t.m1+=1.7; // (int) (9 + 1.7) == 10
@@ -726,8 +726,8 @@ if(!benchmark)
 	var t1=a.getAttribute($foo);
 	a.$foo=2;
 
-	if( t1==1 && a.foo==2 && a.isSet($foo) && a.isSet('foo') &&	!a.isSet('bar') && a.foo2==2 
-		&& $a != "a" && $a !== "a" && "a" !== $a && "a" == $a 
+	if( t1==1 && a.foo==2 && a.isSet($foo) && a.isSet('foo') &&	!a.isSet('bar') && a.foo2==2
+		&& $a != "a" && $a !== "a" && "a" !== $a && "a" == $a
 		&& $a ---|> Identifier && $a == new Identifier("a") && $a!=$b )
         {out (OK);}else { errors+=1; out(FAILED); }
 }
@@ -743,7 +743,7 @@ if(!benchmark)
     var d2=a -> fn(){return this.m1;};
 
     test( "Delegate:", true
-			&& d(3)==4 && d2()==1 && d2.getObject()==a && d.getFunction()==a.f 
+			&& d(3)==4 && d2()==1 && d2.getObject()==a && d.getFunction()==a.f
 			,Delegate);
 }
 //---
@@ -753,10 +753,10 @@ if(!benchmark)
 //    out("\n",jsonList);
 //    print_r(list);
 //    print_r(parseJSON(jsonList));
-	
+
 	var original = "foo\0	bar\0hubhub\n\n\n";
 
-    test("JSON:",true 
+    test("JSON:",true
 		&& list==parseJSON(jsonList)
 		&& parseJSON('"a\\"test\\"b"') == 'a"test"b'
 		&& toJSON('a"test"b') == '"a\\"test\\"b"'
@@ -892,11 +892,11 @@ if(!benchmark)
 }
 
 
-//	
+//
 //}
 //{
 //
-//	
+//
 //	// Function parameter checks
 //	out("\n Function Tests..\n");
 //	Runtime._setErrorConfig(Runtime.TREAT_WARNINGS_AS_ERRORS);
@@ -904,7 +904,7 @@ if(!benchmark)
 //	var exceptionCount = 0;
 //	var okCount = 0;
 //	out(":",__LINE__,"\n");
-//	
+//
 //	try { // too few params
 //		var f=fn(p1,p2,p3,p4=1){};
 //		f(1,2);
@@ -916,7 +916,7 @@ if(!benchmark)
 //		f(1,2,3,4,5);
 //	}catch(e){++exceptionCoun;}
 //	out(":",__LINE__,"\n");
-//	
+//
 //	try { // wrong type
 //		var f=fn([1,2,Array] p1){ return 1; };
 //		okCount += f(1);
@@ -924,10 +924,19 @@ if(!benchmark)
 //		okCount += f([]);
 //		f(3);
 //	}catch(e){++exceptionCount;}
-//	
+//
 //	out(":",__LINE__,"\n");
 //	out(exceptionCount , "\t", okCount );
 //	Runtime._setErrorConfig(0);
-//	
+//
 //}
 //out("\n");
+
+
+{ // streams
+	var s = new StringStream();
+	s << "foo";
+	out( s.getString() );
+
+}
+

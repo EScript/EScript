@@ -5,7 +5,7 @@
 #ifndef USERFUNCTION_H
 #define USERFUNCTION_H
 
-#include "ExtObject.h"
+#include "../ExtObject.h"
 #include <vector>
 
 namespace EScript {
@@ -30,7 +30,7 @@ class UserFunction : public ExtObject {
 
 	/*! @name Parameter */
 	//	@{
-	
+
 		/*! [Parameter] */
 		class Parameter {
 			private:
@@ -66,7 +66,7 @@ class UserFunction : public ExtObject {
 
 	/*! @name Main */
 	//	@{
-	
+
 		UserFunction(parameterList_t * params,Block * block);
 		UserFunction(parameterList_t * params,Block * block,const std::vector<ObjRef> & _sConstrExpressions);
 		virtual ~UserFunction();
@@ -78,7 +78,7 @@ class UserFunction : public ExtObject {
 		int getLine()const;
 
 		std::vector<ObjRef> & getSConstructorExpressions() 	{	return sConstrExpressions;	}
-		
+
 		void setCodeString(const EPtr<String> & _fileString,size_t _begin,size_t _codeLen);
 		std::string getCode()const;
 		int getMaxParamCount()const;
@@ -94,11 +94,11 @@ class UserFunction : public ExtObject {
 		ERef<Block> blockRef;
 		parameterList_t * params;
 		std::vector<ObjRef> sConstrExpressions;
-		
+
 		ERef<String> fileString;
 		size_t posInFile,codeLen;
 
-	//	@}		
+	//	@}
 };
 }
 

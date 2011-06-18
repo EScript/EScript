@@ -3,7 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Number.h"
-#include "../EScript.h"
+#include "../../EScript.h"
 #include "Bool.h"
 
 #include <sstream>
@@ -221,7 +221,7 @@ void Number::init(EScript::Namespace & globals) {
 
 	/*! [ESMF] Number Number.round( [reference=1.0] )
 		@param reference Reference value to which should be rounded:  x.round(reference) ^== reference * round(x/reference)
-		@example (123.456).round(0.1) == 123.5 
+		@example (123.456).round(0.1) == 123.5
 				(123.456).round(5) == 125
 				(123.456).round(10) == 120 */
 	ES_FUNCTION_DECLARE(typeObject,"round",0,1,{

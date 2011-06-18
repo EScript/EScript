@@ -3,7 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "NumberRef.h"
-#include "../EScript.h"
+#include "../../EScript.h"
 
 using namespace EScript;
 //---

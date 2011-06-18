@@ -5,7 +5,7 @@
 #ifndef VOIDVALUE_H
 #define VOIDVALUE_H
 
-#include "Type.h"
+#include "../Type.h"
 
 namespace EScript {
 

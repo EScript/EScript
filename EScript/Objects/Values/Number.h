@@ -5,15 +5,16 @@
 #ifndef NUMBER_H
 #define NUMBER_H
 
-// assure M_PI is defined in VC (necessary for VC)
-#define _USE_MATH_DEFINES 
-#include <cmath>
-
-#include "Object.h"
+#include "../Object.h"
 #include <stack>
 #include <string>
 
 #include <limits>
+
+// assure M_PI is defined in VC (necessary for VC)
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 namespace EScript {
 
 /*! [Number] ---|> [Object] */
@@ -58,7 +59,7 @@ class Number : public Object {
 		 * @return Formatted string representation of the number.
 		 */
 		std::string format(std::streamsize precision = 3, bool scientific = true, std::streamsize width = 0, char fill = '0') const;
-		
+
 		//! Floating point symmetric modulo operation
 		double modulo(const double m)const;
 

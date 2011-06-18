@@ -3,7 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Collection.h"
-#include "../EScript.h"
+#include "../../EScript.h"
 
 #include <algorithm>
 
@@ -215,7 +215,7 @@ Object * Collection::rt_map(Runtime & runtime,ObjPtr function, const ParameterVa
 	if(!additionalValues.empty())
 		std::copy(additionalValues.begin(),additionalValues.end(),parameters.begin()+2);
 
-	
+
 	for( ERef<Iterator> it=getIterator(); ! it->end() ; it->next()){
 		ObjRef key=it->key();
 		ObjRef value=it->value();

@@ -13,11 +13,11 @@
 #include "../Objects/Internals/LogicOp.h"
 #include "../Objects/Internals/Statement.h"
 #include "RuntimeBlock.h"
-#include "../Objects/Void.h"
+#include "../Objects/Values/Void.h"
 #include "../Objects/Exception.h"
-#include "../Objects/Function.h"
-#include "../Objects/UserFunction.h"
-#include "../Objects/Delegate.h"
+#include "../Objects/Functions/Function.h"
+#include "../Objects/Functions/UserFunction.h"
+#include "../Objects/Functions/Delegate.h"
 #include "../Objects/YieldIterator.h"
 #include <algorithm>
 #include <iostream>
@@ -69,9 +69,9 @@ void Runtime::init(EScript::Namespace & globals) {
 
 	//!	[ESMF] void Runtime.warn([message]);
 	ESF_DECLARE(typeObject,"warn",0,1, (runtime.warn(parameter[0].toString()),Void::get()))
-	
+
 	// --- internals and experimental functions
-	
+
 	//! [ESF]  Object _callFunction(fun[,obj[,Array params]])
 	ES_FUNCTION_DECLARE(typeObject,"_callFunction",1,3, {
 		ObjPtr fun(parameter[0]);
@@ -87,7 +87,7 @@ void Runtime::init(EScript::Namespace & globals) {
 		ObjRef resultRef=runtime.executeFunction(fun.get(),obj.get(),params);
 		return resultRef.detachAndDecrease();
 	})
-	
+
 	//! [ESF]  Object _getCurrentCaller()
 	ESF_DECLARE(typeObject,"_getCurrentCaller",0,0, runtime.getCurrentContext()->getCaller() )
 }
@@ -621,7 +621,7 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 			}
 		}
 		libfun->increaseCallCounter();
-		
+
 		try {
 			return (*libfun->getFnPtr())(*this,_callingObject.get(),params);
 		} catch (Exception * e) {
@@ -654,7 +654,7 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 		} else { /// !isConstructorCall
 			UserFunction * ufun=static_cast<UserFunction*>(fun.get());
 			RuntimeContext * fctxt=createAndPushFunctionCallContext(_callingObject,ufun,params);
-			
+
 			// error occured
 			if(fctxt==NULL) {
 				if( checkNormalState() ) // no context, but normal state? --> strange things happend
@@ -694,10 +694,10 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 			ParameterValues params2(params.count()+1);
 			params2.set(0,_callingObject.isNotNull() ? _callingObject : Void::get());
 			std::copy(params.begin(),params.end(),params2.begin()+1);
-				
-			return executeFunction(otherFun,fun,params2,isConstructorCall);	
+
+			return executeFunction(otherFun,fun,params2,isConstructorCall);
 		}
-		
+
 		warn("No function to call.");
 	}
 	return NULL;
@@ -711,9 +711,9 @@ RuntimeContext * Runtime::createAndPushFunctionCallContext(const ObjPtr & _calli
 	RuntimeContext::RTBRef ctxt = RuntimeContext::create();
 	RuntimeBlock * rtb=ctxt->createAndPushRTB(ufun->getBlock());// this is later popped implicitly when the context is executed.
 	ctxt->initCaller(_callingObject);
-	
+
 	pushContext(ctxt.get());
-	
+
 	/// Assign parameter values
 	UserFunction::parameterList_t * paramExpressions=ufun->getParamList();
 	size_t paramExpSize=paramExpressions->size();
@@ -987,7 +987,7 @@ void Runtime::error(const std::string & s,Object * obj) {
 			 os<<"\tFile:"<<b->getFilename()<<" near line "<<getCurrentLine()<<"\n";
 	}
 	os<<getStackInfo();
-	Exception * e = new Exception(os.str(),getCurrentLine()); // \todo remove line 
+	Exception * e = new Exception(os.str(),getCurrentLine()); // \todo remove line
 	e->setFilename(getCurrentFile());
 	throw e;
 }

@@ -6,7 +6,7 @@
 
 #include "../EScript.h"
 
-#include "Bool.h"
+#include "Values/Bool.h"
 
 using namespace EScript;
 

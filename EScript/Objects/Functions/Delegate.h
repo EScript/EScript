@@ -5,7 +5,7 @@
 #ifndef ES_DELEGATE_H
 #define ES_DELEGATE_H
 
-#include "Object.h"
+#include "../Object.h"
 
 namespace EScript {
 

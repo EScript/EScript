@@ -6,8 +6,8 @@
 #define ARRAY_H
 
 #include "Collection.h"
-#include "Iterator.h"
-#include "../Utils/ObjArray.h"
+#include "../Iterator.h"
+#include "../../Utils/ObjArray.h"
 #include <vector>
 #include <stack>
 
@@ -18,7 +18,7 @@ class Array : public Collection {
 		ES_PROVIDES_TYPE_NAME(Array)
 
 	//---------------------
-	
+
 	//! @name Types
 	// @{
 	public:
@@ -37,11 +37,11 @@ class Array : public Collection {
 		typedef std::reverse_iterator<iterator>			reverse_iterator;
 		typedef std::reverse_iterator<const_iterator>	const_reverse_iterator;
 	//	@}
-		
+
 	//---------------------
-		
-	//! @name Creation 
-	// @{		
+
+	//! @name Creation
+	// @{
 	private:
 		static std::stack<Array *> pool;
 
@@ -58,20 +58,20 @@ class Array : public Collection {
 		static void release(Array * b);
 		virtual ~Array();
 	//	@}
-		
+
 	//---------------------
 
 	//! @name TypeObject
-	// @{		
+	// @{
 	public:
 		static Type* typeObject;
 		static void init(EScript::Namespace & globals);
 	//	@}
-		
+
 	//---------------------
 
 	//! @name Data
-	// @{		
+	// @{
 	private:
 		container_t data;
 	public:
@@ -83,7 +83,7 @@ class Array : public Collection {
 		const_reverse_iterator rbegin()const	{	return data.rbegin(); }
 		reverse_iterator rend()					{	return data.rend(); }
 		const_reverse_iterator rend()const		{	return data.rend(); }
-		
+
 		void append(Collection * c);
 		Object * back()const					{	return empty() ? NULL : (*(end()-1)).get();	}
 		bool empty() const						{	return data.empty();	}
@@ -108,11 +108,11 @@ class Array : public Collection {
 		size_t size() const						{	return data.size();		}
 		void swap(Array * other);
 	//	@}
-		
+
 	//---------------------
 
 	//! @name ---|> Collection
-	// @{	
+	// @{
 	public:
 		//!	[ArrayIterator] ---|> [Iterator] ---|> [Object]
 		class ArrayIterator : public Iterator {
@@ -134,20 +134,20 @@ class Array : public Collection {
 				ERef<Array> arrayRef;
 				size_t index;
 		};
-						
+
 		virtual Object * getValue(ObjPtr key);
 		virtual void setValue(ObjPtr key,ObjPtr value);
 		virtual size_t count()const;
 		virtual ArrayIterator * getIterator();
-		virtual void clear();	
+		virtual void clear();
 	//	@}
-		
+
 	//---------------------
 
 	//! @name ---|> Object
-	// @{	
+	// @{
 		virtual Object * clone()const;
-		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_ARRAY;	}	
+		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_ARRAY;	}
 	//	@}
 
 	//---------------------

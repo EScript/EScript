@@ -5,8 +5,8 @@
 #ifndef COLLECTION_H
 #define COLLECTION_H
 
-#include "ExtObject.h"
-#include "../Utils/ObjArray.h"
+#include "../ExtObject.h"
+#include "../../Utils/ObjArray.h"
 
 namespace EScript {
 class Iterator;

@@ -17,9 +17,9 @@
 #include "../Objects/Internals/LogicOp.h"
 #include "../Objects/Internals/Statement.h"
 
-#include "../Objects/Number.h"
-#include "../Objects/String.h"
-#include "../Objects/UserFunction.h"
+#include "../Objects/Values/Number.h"
+#include "../Objects/Values/String.h"
+#include "../Objects/Functions/UserFunction.h"
 #include "../Objects/YieldIterator.h"
 #include "../Objects/Identifier.h"
 
@@ -1084,7 +1084,7 @@ Object * Parser::getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const
 		throw new Error("No function! ",tokens.at(cursor));
 	}
 	size_t codeStartPos = t->getStartingPos();
-	
+
 	++cursor;
 
 	/// step over '(' inserted at pass_2(...)
@@ -1113,12 +1113,12 @@ Object * Parser::getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const
 	ctxt.blocks.pop_back(); // remove marking for local namespace
 
 	size_t codeEndPos = tokens.at(cursor)->getStartingPos(); // position of '}'
-	
+
 	/// step over ')' inserted at pass_2(...)
 	++cursor;
 
 	UserFunction * uFun = new UserFunction(params,block,superConCallExpressions);
-	// store code segment in userFunction 
+	// store code segment in userFunction
 	if(codeStartPos!=std::string::npos && codeEndPos!=std::string::npos && !ctxt.code.isNull()){
 		uFun->setCodeString(ctxt.code,codeStartPos,codeEndPos-codeStartPos+1);
 	}

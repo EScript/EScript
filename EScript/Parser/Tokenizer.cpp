@@ -5,12 +5,12 @@
 #include "Tokenizer.h"
 
 #include "../Consts.h"
-#include "../Objects/Bool.h"
+#include "../Objects/Values/Bool.h"
 #include "../Objects/Identifier.h"
-#include "../Objects/Number.h"
+#include "../Objects/Values/Number.h"
 #include "../Objects/Object.h"
-#include "../Objects/String.h"
-#include "../Objects/Void.h"
+#include "../Objects/Values/String.h"
+#include "../Objects/Values/Void.h"
 #include "../Utils/StringUtils.h"
 #include "Operators.h"
 

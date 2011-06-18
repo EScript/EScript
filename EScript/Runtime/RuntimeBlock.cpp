@@ -5,7 +5,7 @@
 #include "RuntimeBlock.h"
 
 #include "../Objects/Object.h"
-#include "../Objects/Void.h"
+#include "../Objects/Values/Void.h"
 #include "RuntimeContext.h"
 
 using namespace EScript;

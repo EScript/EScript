@@ -3,9 +3,9 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "String.h"
-#include "../EScript.h"
+#include "../../EScript.h"
 
-#include "../Utils/StringUtils.h"
+#include "../../Utils/StringUtils.h"
 
 #include <sstream>
 
@@ -46,7 +46,7 @@ void String::init(EScript::Namespace & globals) {
 			return NULL;
 		return  String::create(self->getString().substr(pos,1));
 	})
-	
+
 
 	// ---
 	//! [ESMF] Bool String.beginsWith( (String)search )
@@ -57,7 +57,7 @@ void String::init(EScript::Namespace & globals) {
 			return Bool::create(false);
 		return Bool::create(s.substr(0,search.length())==search);
 	})
-	
+
 	//! [ESMF] Bool String.contains (String)search [,(Number)startIndex] )
 	ES_MFUNCTION_DECLARE(typeObject,String,"contains",1,2, {
 		const string & s(self->getString());
@@ -70,10 +70,10 @@ void String::init(EScript::Namespace & globals) {
 		}
 		return Bool::create(s.rfind(search,start)!=string::npos);
 	})
-	
+
 	//! [ESMF] Bool String.empty()
 	ESMF_DECLARE(typeObject,String,"empty",0,0,Bool::create( self->getString().empty()))
-	
+
 	//! [ESMF] Bool String.endsWith( (String)search )
 	ES_MFUNCTION_DECLARE(typeObject,String,"endsWith",1,1, {
 		const string & s(self->getString());
@@ -81,7 +81,7 @@ void String::init(EScript::Namespace & globals) {
 		if(s.length()<search.length()) return Bool::create(false);
 		return Bool::create(s.substr(s.length()-search.length(),search.length())==search);
 	})
-	
+
 	//! [ESMF] String String.fillUp(length[, string fill=" ")
 	ES_MFUNCTION_DECLARE(typeObject,String,"fillUp",1,2,{
 		const string & s(self->getString());
@@ -109,7 +109,7 @@ void String::init(EScript::Namespace & globals) {
 			return Bool::create(false);
 		} else return Number::create(pos);
 	})
-	
+
 	//! [ESMF] Number String.length()
 	ESMF_DECLARE(typeObject,String,"length",0,0,Number::create( self->getString().length()))
 
@@ -139,7 +139,7 @@ void String::init(EScript::Namespace & globals) {
 		}
 		return  String::create(self->getString().substr(start,count));
 	})
-	
+
 	//! [ESMF] String String.trim()
 	ESMF_DECLARE(typeObject,String,"trim",0,0,String::create( StringUtils::trim(self->getString())))
 
@@ -147,7 +147,7 @@ void String::init(EScript::Namespace & globals) {
 	//! [ESMF] String String.replace((String)search,(String)replace)
 	ESMF_DECLARE(typeObject,String,"replace",2,2,
 				String::create(StringUtils::replaceAll(self->getString(),parameter[0]->toString(),parameter[1]->toString(),1)))
-	
+
 	typedef std::pair<std::string,std::string> keyValuePair_t;
 	//! [ESMF] String.replaceAll( (Map | ((String)search,(String)replace)) [,(Number)max])
 	ES_MFUNCTION_DECLARE(typeObject,String,"replaceAll",1,3,{
