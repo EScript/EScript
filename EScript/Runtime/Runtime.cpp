@@ -633,6 +633,9 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 		} catch(const std::string & message) {
 			exception(std::string("C++ exception: ") + message);
 			return NULL;
+		} catch(const std::exception & e) {
+			exception(std::string("C++ exception: ") + e.what());
+			return NULL;
 		} catch (Object * obj) {
 			// workaround: this should be covered by catching the Exception* directly, but that doesn't always seem to work!?!
 			Exception * e=dynamic_cast<Exception *>(obj);
