@@ -26,7 +26,7 @@ std::string escape(const std::string & s);
 std::string replaceMultiple(const std::string & subject,const std::vector<std::pair<std::string,std::string> > & rules,int max=-1);
 
 //! \note this is only a hack!
-std::string UCS2LE_to_ANSII(int length,unsigned char * c);
+std::string UCS2LE_to_ANSII(const std::string & str);
 
 bool beginsWith(const char * subject,const char * find);
 bool nextLine(const char * subject,int & cursor);

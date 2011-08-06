@@ -16,7 +16,7 @@ class ReferenceObject : public Object {
 		ES_PROVIDES_TYPE_NAME(ReferenceObject)
 	public:
 		typedef ReferenceObject<_T> ReferenceObject_t;
-		
+
 		// ---
 		ReferenceObject(const _T & _obj, Type * type=NULL):
 				Object(type),obj(_obj)					{	}
@@ -27,9 +27,9 @@ class ReferenceObject : public Object {
 
 		/*! ---|> [Object]
 			Direct cloning of a ReferenceObject is forbidden; but you may overide the clone function in the specific implementation */
-		virtual ReferenceObject_t * clone()const {	
+		virtual ReferenceObject_t * clone()const {
 			throw new Exception(std::string("Trying to clone unclonable object '")+this->toString()+"'");
-			
+
 		}
 		/// ---|> [Object]
 		virtual bool rt_isEqual(Runtime &,const ObjPtr o){

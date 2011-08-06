@@ -23,6 +23,20 @@ StringData::Data * StringData::createData(const std::string & s){
 		return d;
 	}
 }
+//! (static,internal)
+StringData::Data * StringData::createData(const char * c,size_t size){
+	if(size==0)
+		return getEmptyData();
+	else if(dataPool.empty()){
+		return new Data(c,size);
+	}else{
+		Data * d=dataPool.top();
+		dataPool.pop();
+		std::string s(c,size);
+		d->s.swap(s);
+		return d;
+	}
+}
 
 //! (static,internal)
 void StringData::releaseData(Data * data){

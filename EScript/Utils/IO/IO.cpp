@@ -1,9 +1,10 @@
-// FileUtils.cpp
+// IO.cpp
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
-#include "FileUtils.h"
-#include "StringUtils.h"
+#include "IO.h"
+#include "DefaultFileSystemhandler.h"
+#include "../StringUtils.h"
 
 #if defined(_MSC_VER)
 #include "ext/dirent.h"
@@ -15,50 +16,37 @@
 #include <fstream>
 #include <deque>
 #include <vector>
+#include <memory>
+namespace EScript{
+namespace IO{
+std::auto_ptr<AbstractFileSystemHandler> fileSystemHandler(new DefaultFileSystemHandler);
+}
+}
 
 using namespace EScript;
 
-using std::ifstream;
-using std::ofstream;
-using std::ios;
-
-char * FileUtils::loadFile(const std::string & filename,size_t & size) {
-	//std::cout<< "\nopening "<<filename;
-
-	ifstream inputFile( filename.c_str(), ios::in | ios::binary);
-	if ( inputFile.fail())
-		return 0; // "Couldn't open the model file."
-
-	inputFile.seekg( 0, ios::end );
-	size = static_cast<size_t>(inputFile.tellg());
-	//std::cout<< "\nloading "<<size<<"byte";
-	inputFile.seekg( 0, ios::beg );
-
-	char *pBuffer = new char[size+1];
-	inputFile.read( pBuffer, size );
-	inputFile.close();
-	pBuffer[size]=0;
-	//std::cout<< "\n: "<<pBuffer<<"\n---\n";
-
-	return pBuffer;
+void IO::setFileSystemHandler(AbstractFileSystemHandler * handler){
+	fileSystemHandler.reset(handler);
 }
 
-bool FileUtils::saveFile(const std::string & filename,const char * content,const size_t size) {
-	ofstream outputFile( filename.c_str(), ios::out | ios::binary);
-	if ( outputFile.fail())
-		return false;
-
-	outputFile.write( content, size );
-	outputFile.close();
-	return true;
+IO::AbstractFileSystemHandler * IO::getFileSystemHandler(){
+	return fileSystemHandler.get();
 }
 
-unsigned int FileUtils::getFileMTime(const std::string& filename) {
+StringData IO::loadFile(const std::string & filename)throw(std::ios_base::failure) {
+	return getFileSystemHandler()->loadFile(filename);
+}
+
+void IO::saveFile(const std::string & filename,const std::string & content,bool overwrite) throw (std::ios_base::failure){
+	getFileSystemHandler()->saveFile(filename,content,overwrite);
+}
+
+unsigned int IO::getFileMTime(const std::string& filename) {
 	struct stat fileStat;
 	return stat(filename.c_str(), &fileStat)!=0 ? 0 : static_cast<unsigned int>(fileStat.st_mtime);
 }
 
-int FileUtils::isFile(const std::string& filename) {
+int IO::isFile(const std::string& filename) {
 	struct stat fileStat;
 
 	if ( stat(filename.c_str(), &fileStat)!=0 )
@@ -67,17 +55,17 @@ int FileUtils::isFile(const std::string& filename) {
 	return (S_ISDIR(fileStat.st_mode)) ? 2: (S_ISREG(fileStat.st_mode)) ? 1 : -1;
 }
 
-unsigned long FileUtils::getFileSize(const std::string& filename) {
+unsigned long IO::getFileSize(const std::string& filename) {
 	struct stat fileStat;
 
 	return stat(filename.c_str(), &fileStat)!=0 ? 0 :  static_cast<unsigned long>(fileStat.st_size);
 }
 
-void FileUtils::getFilesInDir(const std::string & dirname,std::list<std::string> & files,int flags) {
+void IO::getFilesInDir(const std::string & dirname,std::list<std::string> & files,int flags) {
 
 	DIR *dir = opendir (dirname.c_str ());
 	if (!dir)
-		throw ( std::string("Could not open dir \""+dirname+"\"!"));
+		throw std::ios_base::failure( std::string("Could not open dir \""+dirname+"\"!"));
 
 	for( dirent * entry=readdir(dir) ; entry!=NULL ; entry=readdir(dir)){
 
@@ -101,12 +89,12 @@ void FileUtils::getFilesInDir(const std::string & dirname,std::list<std::string>
 	return;
 }
 
-std::string  FileUtils::dirname(const std::string & filename) {
+std::string IO::dirname(const std::string & filename) {
 	size_t slash=filename.find_last_of("/\\");
 	return slash==std::string::npos ? "." : filename.substr(0,slash);
 }
 
-std::string FileUtils::condensePath(const std::string & inputPath){
+std::string IO::condensePath(const std::string & inputPath){
 	// split
 	std::vector<std::string> parts;
 	StringUtils::split(inputPath,"/",parts);

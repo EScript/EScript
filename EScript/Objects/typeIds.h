@@ -1,3 +1,7 @@
+// typeIds.h
+// This file is part of the EScript programming language.
+// See copyright notice in EScript.h
+// ------------------------------------------------------
 #ifndef ES_TYPEIDS_H_INCLUDED
 #define ES_TYPEIDS_H_INCLUDED
 

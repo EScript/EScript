@@ -16,4 +16,3 @@ IfControl::IfControl(Object * condition,const Statement & action,const Statement
 IfControl::~IfControl() {
 	//dtor
 }
-

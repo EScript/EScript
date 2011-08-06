@@ -6,9 +6,9 @@
 #define ES_MACROS_H_INCLUDED
 
 #if !defined(_MSC_VER)
-#define UNUSED_ATTRIBUTE __attribute__ ((unused)) 
+#define UNUSED_ATTRIBUTE __attribute__ ((unused))
 #else
-#define UNUSED_ATTRIBUTE 
+#define UNUSED_ATTRIBUTE
 #endif
 
 /*! Macro for defining an EScript function.

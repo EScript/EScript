@@ -66,5 +66,3 @@ void RuntimeContext::initCaller(const ObjPtr &  obj){
 		getCurrentRTB()->initLocalVariable( Consts::IDENTIFIER_this,caller.get());
 	}
 }
-
-

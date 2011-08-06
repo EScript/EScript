@@ -15,7 +15,7 @@ int main(int argc,char * argv[]) {
 
 	if(argc<2){
 		std::cout << ES_VERSION<<"\nNo filename given.\n";
-		return EXIT_SUCCESS;	
+		return EXIT_SUCCESS;
 	}
 
 	EScript::init();

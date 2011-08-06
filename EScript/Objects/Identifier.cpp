@@ -6,7 +6,7 @@
 #include "../EScript.h"
 
 namespace EScript{
-	
+
 //! (static)
 Type * Identifier::getTypeObject(){
 	// [ExtObject] ---|> [Object]

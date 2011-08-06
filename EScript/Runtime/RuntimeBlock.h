@@ -37,10 +37,10 @@ class RuntimeBlock:public EReferenceCounter<RuntimeBlock,RuntimeBlock> {
 			return currentStatement==staticBlock->getStatements().end() ? NULL : &(*currentStatement++);
 		}
 		void gotoStatement(int pos);
-		
+
 		//! returns the line number of the previously executed statement or -1
 		int getPrevLine()const	{	return currentStatement==staticBlock->getStatements().begin() ? -1 : (currentStatement-1)->getLine(); }
-		
+
 	private:
 		RuntimeBlock();
 		~RuntimeBlock();

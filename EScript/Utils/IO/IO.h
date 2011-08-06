@@ -1,19 +1,27 @@
-// FileUtils.h
+// IO.h
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #ifndef UTILS_H
 #define UTILS_H
 
+#include "../StringData.h"
 #include <cstddef>
 #include <list>
 #include <string>
+#include <ios>
 
 namespace EScript {
-namespace FileUtils{
+namespace IO{
+class AbstractFileSystemHandler;
 
-char * loadFile(const std::string & filename,size_t & size);
-bool saveFile(const std::string & filename,const char * content,const size_t size);
+/*! Set a new fileSystemHandler responsible for all io-operations.
+	The old handler is deleted.	*/
+void setFileSystemHandler(AbstractFileSystemHandler * handler);
+AbstractFileSystemHandler * getFileSystemHandler();
+
+StringData loadFile(const std::string & filename) throw (std::ios_base::failure);
+void saveFile(const std::string & filename,const std::string & content,bool overwrite=true) throw (std::ios_base::failure);
 
 /*! @param filename
  *	@return file modification Time	*/

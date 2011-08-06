@@ -16,21 +16,24 @@ class StringData{
 	//! internals
 		struct Data{
 			Data(const std::string & _s) : s(_s),referenceCounter(0){}
+			Data(const char * c,size_t size) : s(c,size),referenceCounter(0){}
 			std::string s;
 			int referenceCounter;
 		};
 		static std::stack<StringData::Data*> dataPool;
 		static Data * createData(const std::string & s);
+		static Data * createData(const char * c,size_t size);
 		static void releaseData(Data * data);
 
 		void setData(Data * newData);
 		Data * data;
 		static Data * getEmptyData();
 	public:
-		StringData() : data(getEmptyData())								{	++data->referenceCounter;	} 
+		StringData() : data(getEmptyData())								{	++data->referenceCounter;	}
 		explicit StringData(const std::string & s) : data(createData(s)){	++data->referenceCounter;	}
+		explicit StringData(const char * c,size_t size) : data(createData(c,size)){	++data->referenceCounter;	}
 		StringData(const StringData & other) : data(other.data)			{	++data->referenceCounter;	}
-		
+
 		~StringData(){
 			if( (--data->referenceCounter) <=0 )
 				releaseData(data);

@@ -39,8 +39,9 @@ set(ESCRIPT_SOURCES
 	EScript/Runtime/RuntimeBlock.cpp
 	EScript/Runtime/RuntimeContext.cpp
 	EScript/Utils/Debug.cpp
-	EScript/Utils/FileUtils.cpp
 	EScript/Utils/Hashing.cpp
+	EScript/Utils/IO/DefaultFileSystemHandler.cpp
+	EScript/Utils/IO/IO.cpp
 	EScript/Utils/LocalVarMap.cpp
 	EScript/Utils/StringData.cpp
 	EScript/Utils/StringUtils.cpp

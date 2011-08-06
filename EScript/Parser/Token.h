@@ -60,10 +60,10 @@ class Token:public EReferenceCounter<Token,TokenReleaseHandler> {
 
 		uint32_t getType()const				{	return typeId;	}
 		const uint32_t typeId;
-		
+
 		void setStaringPos(size_t p)		{	startingPos = p;	}
 		size_t getStartingPos()const		{	return startingPos; }
-		
+
 	private:
 		int line;
 		size_t startingPos;

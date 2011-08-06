@@ -6,7 +6,7 @@
 
 #include "../EScript/EScript.h"
 #include "../EScript/Parser/Parser.h"
-#include "../EScript/Utils/FileUtils.h"
+#include "../EScript/Utils/IO/IO.h"
 #include "ext/JSON.h"
 
 #include <sstream>
@@ -92,13 +92,13 @@ void StdLib::print_r(Object * o,int maxLevel,int level) {
 static std::string findFile(Runtime & runtime, const std::string & filename){
 	static const identifierId seachPathsId=stringToIdentifierId("__searchPaths");
 
-	std::string file(FileUtils::condensePath(filename));
-	if( FileUtils::isFile(file)!=1 ){
+	std::string file(IO::condensePath(filename));
+	if( IO::isFile(file)!=1 ){
 		if(Array * searchPaths = dynamic_cast<Array*>(runtime.getAttribute(seachPathsId))){
 			for(ERef<Iterator> itRef=searchPaths->getIterator();!itRef->end();itRef->next()){
 				ObjRef valueRef = itRef->value();
-				std::string s(FileUtils::condensePath(valueRef.toString()+"/"+filename));
-				if( FileUtils::isFile(s)==1 ){
+				std::string s(IO::condensePath(valueRef.toString()+"/"+filename));
+				if( IO::isFile(s)==1 ){
 					file = s;
 					break;
 				}
@@ -122,7 +122,7 @@ Object * StdLib::load(Runtime & runtime,const std::string & filename){
 	ObjRef resultRef(runtime.executeObj(bRef.get()));
 	/* reset the Block at this point is important as it might hold a reference to the result, which may then
 		be destroyed when the function is left after the resultRef-reference has already been decreased. */
-	bRef = NULL; 
+	bRef = NULL;
 	if(runtime.getState() == Runtime::STATE_RETURNING){
 			resultRef=runtime.getResult();
 			runtime.resetState();
@@ -135,7 +135,7 @@ Object * StdLib::load(Runtime & runtime,const std::string & filename){
 Object * StdLib::loadOnce(Runtime & runtime,const std::string & filename){
 	static const identifierId mapId=stringToIdentifierId("__loadOnce_loadedFiles");
 
-	std::string condensedFilename( FileUtils::condensePath(findFile(runtime,filename)) );
+	std::string condensedFilename( IO::condensePath(findFile(runtime,filename)) );
 	Map * m=dynamic_cast<Map*>(runtime.getAttribute(mapId));
 	if(m==NULL){
 		m=Map::create();
@@ -231,7 +231,7 @@ void StdLib::init(EScript::Namespace * globals) {
 		ERef<Parser> pRef(new Parser());
 
 		try{
-			pRef->parse(bRef.get(),parameter[0]->toString().c_str());
+			pRef->parse(bRef.get(),StringData(parameter[0]->toString()));
 		}catch(Object * e){
 			runtime.setExceptionState(e);
 		}

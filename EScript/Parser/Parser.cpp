@@ -23,7 +23,7 @@
 #include "../Objects/YieldIterator.h"
 #include "../Objects/Identifier.h"
 
-#include "../Utils/FileUtils.h"
+#include "../Utils/IO/IO.h"
 
 using namespace EScript;
 using std::string;
@@ -68,11 +68,11 @@ void Parser::init(EScript::Namespace & globals) {
 	//!	[ESMF] Parser new Parser();
 	ESF_DECLARE(typeObject,"_constructor",0,0,new Parser())
 
-	//!	[ESMF] Block Parser.parse();
+	//!	[ESMF] Block Parser.parse(string);
 	ES_MFUNCTION_DECLARE(typeObject,Parser,"parse",1,1,{
 		ERef<Block> blockRef(new Block());
 		try {
-			self->parse(blockRef.get(),parameter[0]->toString().c_str());
+			self->parse(blockRef.get(),StringData(parameter[0]->toString()));
 		} catch (Object * e) {
 			runtime.error("",e);
 			return NULL;
@@ -116,37 +116,36 @@ Object * Parser::clone()const {
  *  Loads and parses a File.
  */
 Object *  Parser::parseFile(Block * rootBlock,const std::string & filename)throw(Exception *) {
-	size_t size=0;
-	char * buffer=NULL;
-	buffer=FileUtils::loadFile(filename,size);
-	if (buffer==NULL)
-		throw new Error(string("Could not open file:")+filename);
+
+	StringData content;
+	try{
+		content = IO::loadFile(filename);
+	}catch(std::ios::failure e){
+		throw new Error(e.what());
+	}
 
 	tokenizer.defineToken("__FILE__",new TObject(String::create(filename)));
-	tokenizer.defineToken("__DIR__",new TObject(String::create(FileUtils::dirname(filename))));
+	tokenizer.defineToken("__DIR__",new TObject(String::create(IO::dirname(filename))));
 
 	currentFilename=stringToIdentifierId(filename);
 
-	//    cout << buffer;
 	Object *  s=NULL;
 	try {
-		s= parse(rootBlock,buffer);
+		s = parse(rootBlock,content);
 	} catch (Exception * e) {
 		e->setMessage(e->getMessage()+" in file \'"+filename+"\'");
-		delete [] buffer;
 		throw(e);
 	} catch (...) {
 		std::cout << "!!!!";
 	}
 
-	delete [] buffer;
 	return s;
 }
 
 /**
  *  Parse a CString.
  */
-Object *  Parser::parse(Block * rootBlock,const char * c)throw(Exception *) {
+Object *  Parser::parse(Block * rootBlock,const StringData & c)throw(Exception *) {
 
 	Tokenizer::tokenList_t tokens;
 	ParsingContext ctxt(tokens,String::create(c));
@@ -154,7 +153,7 @@ Object *  Parser::parse(Block * rootBlock,const char * c)throw(Exception *) {
 
 	/// 1. Tokenize
 	try {
-		tokenizer.getTokens(c,tokens);
+		tokenizer.getTokens(c.str().c_str(),tokens);
 		pass_1(ctxt);
 	} catch (Exception * e) {
 		//std::cerr << e->toString() << std::endl;

@@ -33,7 +33,7 @@ foreach(files as var file){
 	if(lines[0].beginsWith("/*")){
 		headerRead=true;
 	}else{
-		output+="// " + file.substr(file.rfind("/")+1) + lineEnding;
+		output+="// " + file.substr(file.rFind("/")+1) + lineEnding;
 		output+="// This file is part of the EScript programming language." + lineEnding;
 		output+="// See copyright notice in EScript.h" + lineEnding;
 		output+="// ------------------------------------------------------" + lineEnding;
@@ -74,8 +74,12 @@ foreach(files as var file){
 		output+=line+lineEnding;
 	}
 	if(output!=input){
-		var success = IO.filePutContents(file,output);
+		try{
+			IO.filePutContents(file,output);
 		out(success,"\n");
+		}catch(e){
+			out("\n",e,"\n");
+		}
 	}else{
 		out("unchanged\n");
 	}

@@ -97,4 +97,3 @@ void RuntimeBlock::gotoStatement(int pos){
 	}
 
 }
-

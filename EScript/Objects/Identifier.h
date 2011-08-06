@@ -22,7 +22,7 @@ class Identifier:public Object{
 	//	@}
 
 	// -----
-		
+
 		/*! (static) Factory */
 		static Identifier * create( identifierId id);
 

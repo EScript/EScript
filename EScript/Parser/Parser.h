@@ -47,7 +47,7 @@ class Parser : public Object {
 		Parser(Type * type=NULL);
 		virtual ~Parser();
 
-		Object * parse(Block * rootBlock,const char * c) throw (Exception *);
+		Object * parse(Block * rootBlock,const StringData & code) throw (Exception *);
 		Object * parseFile(Block * rootBlock,const std::string & filename) throw (Exception *);
 
 		/// ---|> [Object]

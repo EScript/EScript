@@ -145,7 +145,7 @@ string StringUtils::replaceAll(const string &subject,const string &find,const st
 
 string StringUtils::replaceMultiple(const string &subject,const std::vector<std::pair<std::string,std::string> > & rules,int max){
 	typedef std::pair<std::string,std::string> keyValuePair_t;
-    const size_t ruleCount=rules.size();
+	const size_t ruleCount=rules.size();
 	std::vector<size_t> findLen(ruleCount);
 	std::vector<size_t> pos(ruleCount);
 
@@ -170,15 +170,15 @@ string StringUtils::replaceMultiple(const string &subject,const std::vector<std:
 		std::vector<keyValuePair_t>::const_iterator ruleIt=rules.begin();
 
 		for(i=0;i<ruleCount;++i,++ruleIt) {
-		    
+
 			// search not found -> continue
 			if(pos[i]==string::npos) {
 				continue;
-			} 
+			}
 			// stepped over position (overlapping foundings) -> search again
 			if(cursor>pos[i]) {
 				pos[i]=subject.find((*ruleIt).first,cursor);
-			} 
+			}
 			// nearest founding?
 			if (pos[i]<nextPos) {
 				nextReplace=ruleIt;
@@ -188,10 +188,10 @@ string StringUtils::replaceMultiple(const string &subject,const std::vector<std:
 
 		}
 		// found nothing? -> finished
-		if (nextPos==string::npos) 
+		if (nextPos==string::npos)
 			break;
 
-        // append string
+		// append string
 		s<<subject.substr(cursor,nextPos-cursor);
 		s<<(*nextReplace).second;
 		cursor=nextPos+nextFindLength;
@@ -199,19 +199,21 @@ string StringUtils::replaceMultiple(const string &subject,const std::vector<std:
 		++nr;
 	}
 	// add ending
-	if (cursor<len) 
+	if (cursor<len)
 		s<<subject.substr(cursor,len-cursor);
-		
+
 	return s.str();
 }
 /**
  * TODO: 4byte encoding!
  */
-string StringUtils::UCS2LE_to_ANSII(int length,unsigned char * c)   {
+string StringUtils::UCS2LE_to_ANSII(const std::string & source)   {
 	std::ostringstream s;
+	size_t length = source.length();
 	if (length%2==1)
 		length--;
-	for (int i=0;i<length;i+=2) {
+	const uint8_t * c = reinterpret_cast<const uint8_t*>(source.data());
+	for (size_t i=0;i<length;i+=2) {
 		// ascii char
 		if (c[i+1]==0x00) {
 			s<<static_cast<char>(c[i]);
@@ -327,14 +329,14 @@ void StringUtils::split(const string & subject,const string & delimiter, std::ve
 
 std::string StringUtils::escape(const std::string & s){
 	typedef std::pair<std::string,std::string> keyValuePair_t;
-    std::vector<keyValuePair_t> replace;
-    replace.push_back(keyValuePair_t("\"","\\\""));
-    replace.push_back(keyValuePair_t("\b","\\b"));
-    replace.push_back(keyValuePair_t("\f","\\f"));
-    replace.push_back(keyValuePair_t("\n","\\n"));
-    replace.push_back(keyValuePair_t("\r","\\r"));
-    replace.push_back(keyValuePair_t("\t","\\t"));
-    replace.push_back(keyValuePair_t(std::string("\0",1),"\\0"));
-    replace.push_back(keyValuePair_t("\\","\\\\"));
-    return replaceMultiple(s,replace);
+	std::vector<keyValuePair_t> replace;
+	replace.push_back(keyValuePair_t("\"","\\\""));
+	replace.push_back(keyValuePair_t("\b","\\b"));
+	replace.push_back(keyValuePair_t("\f","\\f"));
+	replace.push_back(keyValuePair_t("\n","\\n"));
+	replace.push_back(keyValuePair_t("\r","\\r"));
+	replace.push_back(keyValuePair_t("\t","\\t"));
+	replace.push_back(keyValuePair_t(std::string("\0",1),"\\0"));
+	replace.push_back(keyValuePair_t("\\","\\\\"));
+	return replaceMultiple(s,replace);
 }

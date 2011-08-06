@@ -578,7 +578,7 @@ Object * Runtime::executeFunctionCall(FunctionCall * fCall){
 /*! Dispatch according to type of fun:
 	- Funtion: return result of function
 	- UserFunction constructor:
-	    - return executeUserConstructor(...)
+		- return executeUserConstructor(...)
 	- UserFunction:
 		- createAndPushFunctionCallContext(...)
 		- return executeContext(...)
@@ -1009,13 +1009,13 @@ std::string Runtime::getCurrentFile()const{
 }
 
 int Runtime::getCurrentLine()const{
- 	int line = getCurrentContext()->getPrevLine();
- 	if(line<0 && !functionCallStack.empty()){
+	 int line = getCurrentContext()->getPrevLine();
+	 if(line<0 && !functionCallStack.empty()){
 		UserFunction * ufun=dynamic_cast<UserFunction *>(functionCallStack.back().function);
 		if(ufun!=NULL)
 			line = ufun->getBlock()->getLine();
- 	}
- 	return line;
+	 }
+	 return line;
 }
 
 std::string Runtime::getStackInfo(){
