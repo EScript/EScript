@@ -113,7 +113,7 @@
 	{ \
 		struct _fnWrapper { \
 			ES_FUNCTION(function){ \
-				_objType * self = assertType<_objType>(runtime, caller); \
+				_objType * self = EScript::assertType<_objType>(runtime, caller); \
 				do _block while(false); \
 			} \
 		}; \

@@ -137,7 +137,7 @@ Object * _parseJSON(Tokenizer::tokenList_t::iterator & cursor,const Tokenizer::t
 			TObject * tObj2=Token::cast<TObject>(*cursor);
 			String * key= (tObj2==NULL ? NULL : dynamic_cast<String*>(tObj2->obj.get()));
 			if(!key){
-				std::cout << tObj2->toString()<<"M2! \n";
+				std::cout << "string expected \n";
 				break;
 			}
 			++cursor;
@@ -145,7 +145,7 @@ Object * _parseJSON(Tokenizer::tokenList_t::iterator & cursor,const Tokenizer::t
 				std::cout << "M3! \n";
 				break;
 			}else if(!Token::isA<TColon>(*cursor)){
-				std::cout << "M3 : expected! \n";
+				std::cout << "':' expected \n";
 				break;
 			}
 			++cursor;
@@ -162,7 +162,7 @@ Object * _parseJSON(Tokenizer::tokenList_t::iterator & cursor,const Tokenizer::t
 			m->setValue(key->clone(),o);
 //            ++cursor;
 			if(cursor==end){
-				std::cout << "M6! \n";
+				std::cout << "unexpected ending. \n";
 				break;
 			}else  if(Token::isA<TEndBlock>(*cursor)){
 				cursor++;
@@ -171,7 +171,7 @@ Object * _parseJSON(Tokenizer::tokenList_t::iterator & cursor,const Tokenizer::t
 				cursor++;
 				continue;
 			}
-			std::cout << "M7! \n";
+			std::cout << "',' or '}' expected \n";
 			std::cout <<(*cursor)->toString()<<"\n";
 			break;
 		}
