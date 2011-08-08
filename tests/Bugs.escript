@@ -466,3 +466,18 @@
 	
 	test( "BUG[20110616]", (load(__DIR__+"/BUG20110616.escript"))(27) == 27);
 }
+
+{	// continue without loop crashes the runtime.
+	var exceptionCounter=0;
+	try{	
+		(fn(){	continue; })();	
+	}catch(e){
+		++exceptionCounter;
+	}
+	try{	
+		(fn(){	break; })();	
+	}catch(e){
+		++exceptionCounter;
+	}
+	test( "BUG[20110808]", exceptionCounter==2);
+}
