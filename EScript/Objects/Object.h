@@ -126,6 +126,8 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 		//! ---o
 		virtual int toInt()const;
 		//! ---o
+		virtual unsigned int toUInt()const;
+		//! ---o
 		virtual double toDouble()const;
 		//! ---o
 		virtual float toFloat()const;
