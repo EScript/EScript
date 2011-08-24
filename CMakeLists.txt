@@ -3,6 +3,7 @@ project(EScript CXX)
 set(ESCRIPT_SOURCES
 	EScript/Consts.cpp
 	EScript/EScript.cpp
+	EScript/Helper.cpp
 	EScript/Objects/Array.cpp
 	EScript/Objects/Bool.cpp
 	EScript/Objects/Collection.cpp
