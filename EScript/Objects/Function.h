@@ -27,7 +27,7 @@ class Function : public Object {
 		typedef Object * ( * functionPtr)(Runtime & runtime,Object * caller, const ParameterValues & parameter);
 		// ---
 		Function(functionPtr fnptr);
-		Function(identifierId originalName, int minParamCountint, int maxParamCount,functionPtr fnptr);
+		Function(identifierId originalName, int minParamCount, int maxParamCount, functionPtr fnptr);
 		virtual ~Function();
 		
 		int getCallCounter()const							{	return callCounter;	}
