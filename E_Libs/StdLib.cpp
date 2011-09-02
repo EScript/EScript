@@ -12,10 +12,7 @@
 #include <sstream>
 #include <stdlib.h>
 #include <ctime>
-
-#if defined(__linux__)
 #include <unistd.h>
-#endif
 
 using namespace EScript;
 
@@ -259,7 +256,6 @@ void StdLib::init(EScript::Namespace * globals) {
 	//!	[ESF]  number system(command)
 	ESF_DECLARE(globals,"system",1,1,Number::create(system(parameter[0]->toString().c_str())))
 	
-#if defined(__linux__)
 	//!	[ESF] Number exec(String path, Array argv)
 	ES_FUNCTION_DECLARE(globals, "exec", 2, 2, {
 		Array * array = assertType<Array>(runtime, parameter[1]);
@@ -283,7 +279,6 @@ void StdLib::init(EScript::Namespace * globals) {
 		
 		return result;
 	})
-#endif
 
 	//! [ESF]  number time()
 	ESF_DECLARE(globals,"time",0,0,Number::create(static_cast<double>(time(NULL))))
