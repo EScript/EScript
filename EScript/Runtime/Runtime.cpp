@@ -622,7 +622,7 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 				//! \todo improve message
 				exception(sprinter.str());
 				return NULL;
-			} else  if (max>0 && static_cast<int>(params.count())>max) {
+			} else  if (max>=0 && static_cast<int>(params.count())>max) {
 				std::ostringstream sprinter;
 				sprinter<<"Too many parameters: Expected " <<max<<", got "<<params.count()<<".";
 				//! \todo improve message
