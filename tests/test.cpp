@@ -68,16 +68,16 @@ public:
 	static void init(Namespace & ns){
 		Type * typeObject=getTypeObject();
 		declareConstant(&ns,getClassName(),typeObject);
-		
+
 		//! TestObject new TestObject([i [,j]])
 		ESF_DECLARE(typeObject,"_constructor",0,2,new E_TestObject(parameter[0].toInt(),parameter[1].toFloat()))
-		
+
 		//! Number getM1()
 		ESMF_DECLARE(typeObject,E_TestObject,"getM1",0,0,Number::create(self->ref().m1))
 
 		//! Number getM2()
 		ESMF_DECLARE(typeObject,E_TestObject,"getM2",0,0,Number::create(self->ref().m2))
-		
+
 	}
 };
 
@@ -88,8 +88,8 @@ int main(int argc,char * argv[]) {
 	EScript::init();
 
 	// --- Init the TestObejct-Type
-	E_TestObject::init(*EScript::getSGlobals()); 
-	
+	E_TestObject::init(*EScript::getSGlobals());
+
 #ifdef ES_DEBUG_MEMORY
 	Tokenizer::identifyStaticToken(0); // init constants
 	Debug::clearObjects();
@@ -98,7 +98,7 @@ int main(int argc,char * argv[]) {
 	ERef<Runtime> rt(new Runtime());
 
 	declareConstant(rt->getGlobals(),"args",Array::create(argc,argv));
-	
+
 	// --- Load and execute script
 	std::string file= argc>1 ? argv[1] : "tests/test.escript";
 	std::pair<bool,ObjRef> result = EScript::loadAndExecute(*rt.get(),file);

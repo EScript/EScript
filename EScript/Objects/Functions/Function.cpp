@@ -38,11 +38,11 @@ void Function::init(EScript::Namespace & globals) {
 }
 
 //! (ctor)
-Function::Function(identifierId _originalName, int _minParamCount, int _maxParamCount, functionPtr _fnptr) : 
+Function::Function(identifierId _originalName, int _minParamCount, int _maxParamCount, functionPtr _fnptr) :
 		Object(getTypeObject()),fnptr(_fnptr),minParamCount(_minParamCount),maxParamCount(_maxParamCount),
 		originalName(_originalName),callCounter(0) {
 }
-		
+
 //! (ctor)
 Function::Function(functionPtr _fnptr) :
 		Object(getTypeObject()),fnptr(_fnptr),minParamCount(0),maxParamCount(-1),originalName(0),callCounter(0) {

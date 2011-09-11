@@ -3,7 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "MathLib.h"
-#define _USE_MATH_DEFINES 
+#define _USE_MATH_DEFINES
 #include <cmath>
 
 #include "ext/Rand.h"
@@ -32,7 +32,7 @@ public:
 
 	//! (dtor)
 	virtual ~E_RandomNumberGenerator(){}
-	
+
 	//! ---|> Object
 	virtual E_RandomNumberGenerator * clone()const	{	return new E_RandomNumberGenerator(ref().getSeed());	}
 
@@ -120,7 +120,7 @@ void E_RandomNumberGenerator::init(EScript::Namespace & lib) {
 	//! [ESF] int RandomNumberGenerator.geometric(p)
 	ESMF_DECLARE(typeObject,E_RandomNumberGenerator,"geometric",1,1,
 				Number::create( self->ref().geometric(parameter[0].toDouble())))
-				
+
 	//! [ESF] int RandomNumberGenerator.getSeed()
 	ESMF_DECLARE(typeObject,E_RandomNumberGenerator,"getSeed",0,0,
 				Number::create( self->ref().getSeed()))
@@ -144,7 +144,7 @@ void E_RandomNumberGenerator::init(EScript::Namespace & lib) {
 	//! [ESF] float RandomNumberGenerator.random()      [0.0 ... 1.0]
 	ESMF_DECLARE(typeObject,E_RandomNumberGenerator,"random",0,0,
 				Number::create(self->ref().random()))
-				
+
 	//! [ESF] self RandomNumberGenerator.setSeed(Number)
 	ESMF_DECLARE(typeObject,E_RandomNumberGenerator,"setSeed",1,1,
 				(self->ref().setSeed(parameter[0].toInt()),self))

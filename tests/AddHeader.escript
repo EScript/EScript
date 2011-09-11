@@ -76,7 +76,7 @@ foreach(files as var file){
 	if(output!=input){
 		try{
 			IO.filePutContents(file,output);
-		out(success,"\n");
+		out("***changed***\n");
 		}catch(e){
 			out("\n",e,"\n");
 		}

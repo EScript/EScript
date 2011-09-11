@@ -29,7 +29,7 @@ class Function : public Object {
 		Function(functionPtr fnptr);
 		Function(identifierId originalName, int minParamCount, int maxParamCount, functionPtr fnptr);
 		virtual ~Function();
-		
+
 		int getCallCounter()const							{	return callCounter;	}
 		functionPtr getFnPtr()const							{	return fnptr;	}
 		int getMaxParamCount()const							{	return maxParamCount;	}
