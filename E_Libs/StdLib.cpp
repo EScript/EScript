@@ -12,6 +12,8 @@
 #include <sstream>
 #include <stdlib.h>
 #include <ctime>
+#include <unistd.h>
+
 using namespace EScript;
 
 std::string StdLib::getOS(){
@@ -253,6 +255,30 @@ void StdLib::init(EScript::Namespace * globals) {
 
 	//!	[ESF]  number system(command)
 	ESF_DECLARE(globals,"system",1,1,Number::create(system(parameter[0]->toString().c_str())))
+	
+	//!	[ESF] Number exec(String path, Array argv)
+	ES_FUNCTION_DECLARE(globals, "exec", 2, 2, {
+		Array * array = assertType<Array>(runtime, parameter[1]);
+		uint32_t argc = array->size();
+		
+		char ** argv  = new char *[argc + 1];
+		for(uint_fast32_t i = 0; i < argc; ++i) {
+			 std::string arg = array->get(i)->toString();
+			 argv[i] = new char[arg.length() + 1];
+			 std::copy(arg.begin(), arg.end(), argv[i]);
+			 argv[i][arg.length()] = '\0';
+		}
+		argv[argc] = NULL;
+		
+		Number * result = Number::create(execv(parameter[0]->toString().c_str(), argv));
+		
+		for(uint_fast32_t i = 0; i < argc; ++i) {
+			delete [] argv[i];
+		}
+		delete [] argv;
+		
+		return result;
+	})
 
 	//! [ESF]  number time()
 	ESF_DECLARE(globals,"time",0,0,Number::create(static_cast<double>(time(NULL))))

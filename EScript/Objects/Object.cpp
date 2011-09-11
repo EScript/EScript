@@ -189,6 +189,11 @@ int Object::toInt()const {
 }
 
 //! ---o
+unsigned int Object::toUInt()const {
+	return static_cast<unsigned int>(toDouble());
+}
+
+//! ---o
 double Object::toDouble()const {
 	return 0.0;//(double)std::atof(this->toString().c_str());
 }

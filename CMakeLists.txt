@@ -40,6 +40,7 @@ set(ESCRIPT_SOURCES
 	EScript/Runtime/RuntimeContext.cpp
 	EScript/Utils/Debug.cpp
 	EScript/Utils/Hashing.cpp
+	EScript/Utils/Helper.cpp
 	EScript/Utils/IO/DefaultFileSystemHandler.cpp
 	EScript/Utils/IO/IO.cpp
 	EScript/Utils/LocalVarMap.cpp

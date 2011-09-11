@@ -28,7 +28,7 @@ class RuntimeContext:public EReferenceCounter<RuntimeContext,RuntimeContext> {
 		RuntimeBlock * getCurrentRTB()const			{	return runtimeBlockStack.top().get();	}
 
 		//! returns the line number of the previously executed statement or -1
-		int getPrevLine()const						{	return runtimeBlockStack.empty() ? -1 : runtimeBlockStack.top()->getPrevLine(); }
+		int getPrevLine()const						{	return (runtimeBlockStack.empty()||runtimeBlockStack.top()==NULL) ? -1 : runtimeBlockStack.top()->getPrevLine(); }
 
 		//! \note assumes that the stack contains exactly one RTB, otherwise [this] is not set correctly
 		void initCaller(const ObjPtr & obj);

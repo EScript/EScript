@@ -742,8 +742,14 @@ if(!benchmark)
 
     var d2=a -> fn(){return this.m1;};
 
+	// WARNING! Altough this can lead to perhaps unexpected behavior, Delegates allow a access to primitive types by reference!!!!!
+	// I strongly encourage you to use this feature with care!
+	var i=0;
+	(i -> fn(){	this++; })();
+
     test( "Delegate:", true
-			&& d(3)==4 && d2()==1 && d2.getObject()==a && d.getFunction()==a.f
+			&& d(3)==4 && d2()==1 && d2.getObject()==a && d.getFunction()==a.f 
+			&& i==1
 			,Delegate);
 }
 //---

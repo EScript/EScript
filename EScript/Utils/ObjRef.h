@@ -120,6 +120,12 @@ class ERef : public _CountedRef<_T> {
 
 		/*! Returns object->toInt() if the referenced object is not NULL, defaultValue otherwise.   */
 		int toInt(int defaultValue)const    	{   return this->isNull()?defaultValue:this->get()->toInt();  }
+		
+		//! Return object->toUInt() if the referenced object is not NULL, 0 otherwise.
+		unsigned int toUInt() const				{	return this->isNull() ? 0u : this->get()->toUInt();	}
+
+		//! Return object->toUInt() if the referenced object is not NULL, defaultValue otherwise.
+		unsigned int toUInt(unsigned int defaultValue) const	{	return this->isNull() ? defaultValue : this->get()->toUInt();	}
 
 		/*! Returns object->toString() if the referenced object is not NULL, "" otherwise.  */
 		std::string toString()const         	{   return this->isNull()?"":this->get()->toString(); }
@@ -197,6 +203,12 @@ class EPtr{
 
 		/*! Returns object->toInt() if the referenced object is not NULL, defaultValue otherwise.   */
 		int toInt(int defaultValue)const    {   return isNull()?defaultValue:obj->toInt();  }
+		
+		//! Return object->toUInt() if the referenced object is not NULL, 0 otherwise.
+		unsigned int toUInt() const			{	return isNull() ? 0u : obj->toUInt();	}
+
+		//! Return object->toUInt() if the referenced object is not NULL, defaultValue otherwise.
+		unsigned int toUInt(unsigned int defaultValue) const	{	return isNull() ? defaultValue : obj->toUInt();	}
 
 		/*! Returns object->toString() if the referenced object is not NULL, "" otherwise.  */
 		std::string toString()const         {   return isNull()?"":obj->toString(); }

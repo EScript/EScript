@@ -466,3 +466,29 @@
 	
 	test( "BUG[20110616]", (load(__DIR__+"/BUG20110616.escript"))(27) == 27);
 }
+
+{	// continue without loop crashes the runtime.
+	var exceptionCounter=0;
+	try{	
+		(fn(){	continue; })();	
+	}catch(e){
+		++exceptionCounter;
+	}
+	try{	
+		(fn(){	break; })();	
+	}catch(e){
+		++exceptionCounter;
+	}
+	test( "BUG[20110808]", exceptionCounter==2);
+}
+{	// calling library functions which do not accept parameters does not produce a warning.
+	var errorFound=false;
+    Runtime._setErrorConfig(Runtime.TREAT_WARNINGS_AS_ERRORS);
+    try{
+        clock(12,3,4); 
+    }catch(e){
+        errorFound=true;
+    }
+    Runtime._setErrorConfig(0);
+	test( "BUG[20110905]", errorFound );
+}

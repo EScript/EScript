@@ -431,12 +431,16 @@ Object * Runtime::executeCurrentContext(bool markEntry) {
 			switch(getState()){
 			case STATE_BREAKING:{
 				while( rtb->getStaticBlock()->getBreakPos() == Block::POS_DONT_HANDLE ){
-					if( markEntry && (--localRTBs)<0 )
+					if( markEntry && (--localRTBs)<0 ){
+						exception("No break here!");
 						return NULL;
+					}
 					ctxt->popRTB();
 					rtb = ctxt->getCurrentRTB();
-					if( rtb==NULL )// warning?
+					if( rtb==NULL ){
+						exception("No break here!");
 						return NULL;
+					}
 				}
 				rtb->gotoStatement(rtb->getStaticBlock()->getBreakPos());
 				stmt = rtb->nextStatement();
@@ -445,12 +449,17 @@ Object * Runtime::executeCurrentContext(bool markEntry) {
 			}
 			case STATE_CONTINUING:{
 				while( rtb->getStaticBlock()->getContinuePos() == Block::POS_DONT_HANDLE ){
-					if( markEntry && (--localRTBs)<0 )
+					if( markEntry && (--localRTBs)<0 ){
+						exception("No continue here!");
 						return NULL;
+					}
 					ctxt->popRTB();
 					rtb = ctxt->getCurrentRTB();
-					if( rtb==NULL )// warning?
+
+					if( rtb==NULL ){
+						exception("No continue here!");
 						return NULL;
+					}
 				}
 				rtb->gotoStatement(rtb->getStaticBlock()->getContinuePos());
 				stmt = rtb->nextStatement();
@@ -613,7 +622,7 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 				//! \todo improve message
 				exception(sprinter.str());
 				return NULL;
-			} else  if (max>0 && static_cast<int>(params.count())>max) {
+			} else  if (max>=0 && static_cast<int>(params.count())>max) {
 				std::ostringstream sprinter;
 				sprinter<<"Too many parameters: Expected " <<max<<", got "<<params.count()<<".";
 				//! \todo improve message
