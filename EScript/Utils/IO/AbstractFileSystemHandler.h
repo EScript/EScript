@@ -6,6 +6,7 @@
 #define ABSTRACTFILESYSTEMHANDLER_H
 
 #include "../StringData.h"
+#include "IOBase.h"
 #include <ios>
 #include <list>
 #include <map>
@@ -25,47 +26,31 @@ public:
 	virtual ~AbstractFileSystemHandler(){}
 
 	//! ---o
-	virtual bool exists(const std::string &) throw (std::ios_base::failure){
+	virtual void deleteFile(const std::string &){
 		throw std::ios_base::failure("unsupported operation");
 	}
 	//! ---o
-	virtual bool isFile(const std::string &) throw (std::ios_base::failure){
+	virtual void dir(const std::string &/*path*/, std::list<std::string> &/*result*/, uint8_t/*flags*/){
 		throw std::ios_base::failure("unsupported operation");
 	}
 	//! ---o
-	virtual bool isDir(const std::string &) throw (std::ios_base::failure){
+	virtual entryType getEntryType(const std::string &){
 		throw std::ios_base::failure("unsupported operation");
 	}
 	//! ---o
-	virtual size_t fileSize(const std::string &) throw (std::ios_base::failure){
-		throw std::ios_base::failure("unsupported operation");
-	}
-
-	//! ---o
-	virtual void makeDir(const std::string &) throw (std::ios_base::failure){
+	virtual size_t fileSize(const std::string &){
 		throw std::ios_base::failure("unsupported operation");
 	}
 	//! ---o
-	virtual void makeDirRecursive(const std::string &) throw (std::ios_base::failure){
-		throw std::ios_base::failure("unsupported operation");
-	}
-
-	//! ---o
-	virtual void remove(const std::string &) throw (std::ios_base::failure){
-		throw std::ios_base::failure("unsupported operation");
-	}
-
-	//! ---o
-	virtual void dir(const std::string &/*path*/, std::list<std::string> &/*result*/, uint8_t/*flags*/) throw (std::ios_base::failure){
-		throw std::ios_base::failure("unsupported operation");
-	}
-
-	//! ---o
-	virtual StringData loadFile(const std::string &) throw (std::ios_base::failure){
+	virtual void makeDir(const std::string &){
 		throw std::ios_base::failure("unsupported operation");
 	}
 	//! ---o
-	virtual void saveFile(const std::string &, const std::string & /*data*/, bool /*overwrite*/) throw (std::ios_base::failure)   {
+	virtual StringData loadFile(const std::string &){
+		throw std::ios_base::failure("unsupported operation");
+	}
+	//! ---o
+	virtual void saveFile(const std::string &, const std::string & /*data*/, bool /*overwrite*/){
 		throw std::ios_base::failure("unsupported operation");
 	}
 

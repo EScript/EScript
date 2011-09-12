@@ -18,10 +18,10 @@ public:
 	virtual ~DefaultFileSystemHandler(){}
 
 	//! ---|> AbstractFileSystemHandler
-	virtual StringData loadFile(const std::string &)throw (std::ios_base::failure);
+	virtual StringData loadFile(const std::string &);
 
 	//! ---|> AbstractFileSystemHandler
-	virtual void saveFile(const std::string &, const std::string & /*data*/, bool /*overwrite*/)throw (std::ios_base::failure);
+	virtual void saveFile(const std::string &, const std::string & /*data*/, bool /*overwrite*/);
 
 };
 }

@@ -9,8 +9,7 @@ using namespace EScript;
 using namespace EScript::IO;
 
 //! ---|> AbstractFileSystemHandler
-StringData DefaultFileSystemHandler::loadFile(const std::string & filename)
-		throw (std::ios_base::failure){
+StringData DefaultFileSystemHandler::loadFile(const std::string & filename){
 
 	std::ifstream inputFile( filename.c_str(), std::ios::in | std::ios::binary);
 	if ( inputFile.fail())
@@ -33,8 +32,7 @@ StringData DefaultFileSystemHandler::loadFile(const std::string & filename)
 }
 
 //! ---|> AbstractFileSystemHandler
-void DefaultFileSystemHandler::saveFile(const std::string & filename, const std::string & content, bool overwrite)
-		throw (std::ios_base::failure){
+void DefaultFileSystemHandler::saveFile(const std::string & filename, const std::string & content, bool overwrite){
 	std::ofstream outputFile( filename.c_str(), std::ios::out | std::ios::binary);
 	if ( outputFile.fail())
 		throw std::ios_base::failure(std::string("Could not open file for writing '("+filename+"')."));

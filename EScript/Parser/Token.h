@@ -19,10 +19,9 @@
 
 namespace EScript {
 
-struct TokenReleaseHandler;
 
 /*! [Token] */
-class Token:public EReferenceCounter<Token,TokenReleaseHandler> {
+class Token:public EReferenceCounter<Token> {
 	public:
 		static const uint32_t TYPE_ID=0x00;
 		static uint32_t getTypeId()			{	return 0x00;	}
@@ -245,11 +244,6 @@ struct TEndIndex :public TOperator {
 	static uint32_t getTypeId()			{	return TYPE_ID;	}
 	TEndIndex() : TOperator("]",getTypeId()) 		{}
 	virtual Token * clone()const 		{	return new TEndIndex();	}
-};
-struct TokenReleaseHandler{
-	static void release(Token * t){
-		delete t;
-	}
 };
 
 

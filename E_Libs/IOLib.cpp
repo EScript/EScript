@@ -80,10 +80,10 @@ void IOLib::init(EScript::Namespace * o) {
 	ESF_DECLARE(lib,"condensePath",1,1,String::create(IO::condensePath(parameter[0].toString())))
 
 	//! [ESF] bool isDir(string dirname)
-	ESF_DECLARE(lib,"isDir",1,1,Bool::create(IO::isFile(parameter[0]->toString())==2))
+	ESF_DECLARE(lib,"isDir",1,1,Bool::create(IO::getEntryType(parameter[0]->toString())==IO::TYPE_DIRECTORY))
 
 	//! [ESF] bool isFile(string filename)
-	ESF_DECLARE(lib,"isFile",1,1,Bool::create(IO::isFile(parameter[0]->toString())==1))
+	ESF_DECLARE(lib,"isFile",1,1,Bool::create(IO::getEntryType(parameter[0]->toString())==IO::TYPE_FILE))
 
 	//! [ESF] int fileMTime(string filename)
 	ESF_DECLARE(lib,"fileMTime",1,1,Number::create( static_cast<int>(IO::getFileMTime(parameter[0]->toString()))))

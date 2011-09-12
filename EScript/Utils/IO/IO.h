@@ -6,7 +6,9 @@
 #define UTILS_H
 
 #include "../StringData.h"
+#include "IOBase.h"
 #include <cstddef>
+#include <stdint.h>
 #include <list>
 #include <string>
 #include <ios>
@@ -20,23 +22,20 @@ class AbstractFileSystemHandler;
 void setFileSystemHandler(AbstractFileSystemHandler * handler);
 AbstractFileSystemHandler * getFileSystemHandler();
 
-StringData loadFile(const std::string & filename) throw (std::ios_base::failure);
-void saveFile(const std::string & filename,const std::string & content,bool overwrite=true) throw (std::ios_base::failure);
+StringData loadFile(const std::string & filename);
+void saveFile(const std::string & filename,const std::string & content,bool overwrite=true);
 
 /*! @param filename
  *	@return file modification Time	*/
-unsigned int getFileMTime(const std::string& filename);
+uint32_t getFileMTime(const std::string& filename);
 
 /*!	@param filename
- *	@return  	-1   undefined
- *				0   not_found
- *				1   file
- *				2   directory	*/
-int isFile(const std::string& filename);
+ *	@return  IO::entryType (\see IOBase.h)	*/
+entryType getEntryType(const std::string& filename);
 
 /*!	@param filename
  *	@return filsize in byte.	*/
-unsigned long getFileSize(const std::string& filename);
+uint64_t getFileSize(const std::string& filename);
 
 /*!	@param   dirname
  *         flags:       1 ... Files

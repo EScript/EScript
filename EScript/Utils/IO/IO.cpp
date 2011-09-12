@@ -21,9 +21,6 @@ namespace EScript{
 namespace IO{
 std::auto_ptr<AbstractFileSystemHandler> fileSystemHandler(new DefaultFileSystemHandler);
 }
-}
-
-using namespace EScript;
 
 void IO::setFileSystemHandler(AbstractFileSystemHandler * handler){
 	fileSystemHandler.reset(handler);
@@ -33,31 +30,30 @@ IO::AbstractFileSystemHandler * IO::getFileSystemHandler(){
 	return fileSystemHandler.get();
 }
 
-StringData IO::loadFile(const std::string & filename)throw(std::ios_base::failure) {
+StringData IO::loadFile(const std::string & filename) {
 	return getFileSystemHandler()->loadFile(filename);
 }
 
-void IO::saveFile(const std::string & filename,const std::string & content,bool overwrite) throw (std::ios_base::failure){
+void IO::saveFile(const std::string & filename,const std::string & content,bool overwrite){
 	getFileSystemHandler()->saveFile(filename,content,overwrite);
 }
 
-unsigned int IO::getFileMTime(const std::string& filename) {
+uint32_t IO::getFileMTime(const std::string& filename) {
 	struct stat fileStat;
 	return stat(filename.c_str(), &fileStat)!=0 ? 0 : static_cast<unsigned int>(fileStat.st_mtime);
 }
 
-int IO::isFile(const std::string& filename) {
+IO::entryType IO::getEntryType(const std::string& filename) {
 	struct stat fileStat;
 
 	if ( stat(filename.c_str(), &fileStat)!=0 )
-		return -1;
+		return TYPE_NOT_FOUND;
 
-	return (S_ISDIR(fileStat.st_mode)) ? 2: (S_ISREG(fileStat.st_mode)) ? 1 : -1;
+	return (S_ISDIR(fileStat.st_mode)) ? TYPE_DIRECTORY : (S_ISREG(fileStat.st_mode)) ? TYPE_FILE : TYPE_UNKNOWN;
 }
 
-unsigned long IO::getFileSize(const std::string& filename) {
+uint64_t IO::getFileSize(const std::string& filename) {
 	struct stat fileStat;
-
 	return stat(filename.c_str(), &fileStat)!=0 ? 0 :  static_cast<unsigned long>(fileStat.st_size);
 }
 
@@ -72,15 +68,15 @@ void IO::getFilesInDir(const std::string & dirname,std::list<std::string> & file
 		if (entry->d_name[0] == '.')
 			continue;
 
-		std::string entryName( dirname+"/"+entry->d_name );
+		const std::string entryName( dirname+"/"+entry->d_name );
 
-		int type=isFile(entryName);
+		const entryType type = getEntryType(entryName);
 
-		if ( (type==2 && (flags & 2)) || ( type==1 && (flags & 1) )) {
+		if ( (type==IO::TYPE_DIRECTORY && (flags & 2)) || ( type==IO::TYPE_FILE && (flags & 1) )) {
 			files.push_back(entryName);
 		}
 
-		if (type==2 && (flags & 4)) { // recursive
+		if (type==IO::TYPE_DIRECTORY && (flags & 4)) { // recursive
 			// std::cout << "Recusrive dir:"<<entryName<<"\n";
 			getFilesInDir(entryName,files,flags);
 		}
@@ -90,7 +86,7 @@ void IO::getFilesInDir(const std::string & dirname,std::list<std::string> & file
 }
 
 std::string IO::dirname(const std::string & filename) {
-	size_t slash=filename.find_last_of("/\\");
+	const size_t slash=filename.find_last_of("/\\");
 	return slash==std::string::npos ? "." : filename.substr(0,slash);
 }
 
@@ -123,4 +119,5 @@ std::string IO::condensePath(const std::string & inputPath){
 			output += "/";
 	}
 	return output;
+}
 }

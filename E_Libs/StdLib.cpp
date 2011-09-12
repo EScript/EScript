@@ -95,12 +95,12 @@ static std::string findFile(Runtime & runtime, const std::string & filename){
 	static const identifierId seachPathsId=stringToIdentifierId("__searchPaths");
 
 	std::string file(IO::condensePath(filename));
-	if( IO::isFile(file)!=1 ){
+	if( IO::getEntryType(file)!=IO::TYPE_FILE ){
 		if(Array * searchPaths = dynamic_cast<Array*>(runtime.getAttribute(seachPathsId))){
 			for(ERef<Iterator> itRef=searchPaths->getIterator();!itRef->end();itRef->next()){
 				ObjRef valueRef = itRef->value();
 				std::string s(IO::condensePath(valueRef.toString()+"/"+filename));
-				if( IO::isFile(s)==1 ){
+				if( IO::getEntryType(s)==IO::TYPE_FILE ){
 					file = s;
 					break;
 				}

@@ -7,10 +7,15 @@
 
 namespace EScript {
 
+template<class Obj_t>
+struct _DefaultReleaseHandler{
+	static void release(Obj_t * t)	{	delete t;	}
+};
+
 /*! (Non virtual) base class for reference counting.
 	@p Obj_t  Should be the new class itself.
-	@p ObjReleaseHandler_T 	A class which has the function statc void release(Ojb_t *)	*/
-template<class Obj_t, class ObjReleaseHandler_T>
+	@p ObjReleaseHandler_T 	A class which has the function 'static void release(Ojb_t *)' for releasing (deleting or storing) counted objects.	*/
+template<class Obj_t, class ObjReleaseHandler_T = _DefaultReleaseHandler<Obj_t> >
 class EReferenceCounter {
 		int refCounter;
 
