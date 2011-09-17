@@ -617,10 +617,11 @@ if(!benchmark)
     };
     A.a:=1; /// object-member of A
     A.b:=1; /// object-member of A
-//    A.setTypeAttribute("c",1); /// class-member of A \TODO????????????????????????
+//    A.setTypeAttribute("c",1); /// type-member of A \TODO????????????????????????
 	A.c::=1;
     A.setObjAttribute("d",1); /// object-member of A
-    A.e::=1; /// class-member of A
+    A.e::=1; /// type-member of A
+    A.setTypeAttribute($f,1); /// type-member of A
 //    print_r(A._getAttributes());
 	var a=new A();
 //	print_r(a._getAttributes());
@@ -639,6 +640,7 @@ if(!benchmark)
     B.c++;
     B.d++;
     B.e++;
+    B.f++;
 
 	var b=new B();
 //	print_r(b._getAttributes());
@@ -658,7 +660,7 @@ if(!benchmark)
 //    out(c1==2);
 //    out(c1!=2);
 
-    if( A.a==1 &&A.b==1 &&A.c==2 &&A.d==1 &&A.e==2 &&B.a==2 &&B.b==2 &&B.c==2 &&B.d==2&&B.e==2
+    if( A.a==1 &&A.b==1 &&A.c==2 &&A.d==1 &&A.e==2  &&A.f==2 &&B.a==2 &&B.b==2 &&B.c==2 &&B.d==2&&B.e==2&&B.f==2
     && B.getType()==Type && B.getBaseType()==A && (new B()).getType()==B && (new B()).getType().getBaseType()==A
 	&& (new B()).f==2 && c1==1 && !(c1==2) && c1!=2  )
         {out (OK);}else { errors+=1; out(FAILED); }

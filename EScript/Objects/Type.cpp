@@ -33,7 +33,7 @@ void Type::init(EScript::Namespace & globals) {
 
 
 	//! [ESMF] Type Type.getBaseType()
-	ESMF_DECLARE(typeObject,Type,"getBaseType",0,0, self->getBaseType())
+	ESMF_DECLARE(typeObject,const Type,"getBaseType",0,0, self->getBaseType())
 
 
 	// attrMap_t is declared outside of the getObjAttributes declaration as it otherwise leads to a strange
@@ -41,18 +41,22 @@ void Type::init(EScript::Namespace & globals) {
 	typedef std::map<identifierId, Object *> attrMap_t;
 
 	//! [ESMF] Map Type.getObjAttributes()
-	ES_MFUNCTION_DECLARE(typeObject,Type,"getObjAttributes",0,0,{
+	ES_MFUNCTION_DECLARE(typeObject,const Type,"getObjAttributes",0,0,{
 		attrMap_t attrs;
 		self->getObjAttributes(attrs);
 		return Map::create(attrs);
 	})
 
 	//! [ESMF] Map Type.getTypeAttributes()
-	ES_MFUNCTION_DECLARE(typeObject,Type,"getTypeAttributes",0,0,{
+	ES_MFUNCTION_DECLARE(typeObject,const Type,"getTypeAttributes",0,0,{
 		attrMap_t attrs;
 		self->getTypeAttributes(attrs);
 		return Map::create(attrs);
 	})
+	
+	//! [ESMF] self Object.setTypeAttribute(key,value)
+	ESMF_DECLARE(typeObject,Type,"setTypeAttribute",2,2,
+				(self->setTypeAttribute(parameter[0]->hash(),parameter[1]),self))
 }
 
 //---
@@ -167,15 +171,15 @@ void Type::initInstanceObjAttributes(Object * instance){
 	}
 }
 
-void Type::getTypeAttributes(std::map<identifierId,Object *> & attrs){
-	for(AttributeMap_t::iterator it=attr.begin() ; it!=attr.end() ; ++it){
+void Type::getTypeAttributes(std::map<identifierId,Object *> & attrs)const{
+	for(AttributeMap_t::const_iterator it=attr.begin() ; it!=attr.end() ; ++it){
 		if(it->second.isTypeAttribute())
 			attrs[it->first] = it->second.getValue();
 	}
 }
 
-void Type::getObjAttributes(std::map<identifierId,Object *> & attrs){
-	for(AttributeMap_t::iterator it=attr.begin() ; it!=attr.end() ; ++it){
+void Type::getObjAttributes(std::map<identifierId,Object *> & attrs)const{
+	for(AttributeMap_t::const_iterator it=attr.begin() ; it!=attr.end() ; ++it){
 		if(it->second.isObjAttribute())
 			attrs[it->first] = it->second.getValue();
 	}

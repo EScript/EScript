@@ -50,9 +50,9 @@ class Type : public Object {
 		void setTypeAttribute(const identifierId id,ObjPtr val);
 
 		/*! Get only the typeAttributes. */
-		void getTypeAttributes(std::map<identifierId,Object *> & attrs);
+		void getTypeAttributes(std::map<identifierId,Object *> & attrs)const;
 		/*! Get only the objectAttributes. */
-		void getObjAttributes(std::map<identifierId,Object *> & attrs);
+		void getObjAttributes(std::map<identifierId,Object *> & attrs)const;
 
 		void initInstanceObjAttributes(Object * instance);
 
