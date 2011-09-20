@@ -252,7 +252,7 @@ bool Object::isIdentical(Runtime & rt,const ObjPtr o) {
 
 //! ---o
 Object * Object::getAttribute(const identifierId id){
-	return getType()!=NULL ? getType()->getInheritedAttribute(id) : NULL ;
+	return getType()!=NULL ? getType()->findTypeAttribute(id) : NULL ;
 }
 
 //! ---o
@@ -263,7 +263,7 @@ bool Object::setObjAttribute(const identifierId /*id*/,ObjPtr /*val*/){
 
 //! ---o
 bool Object::assignAttribute(const identifierId id,ObjPtr val){
-	return getType()==NULL ? false : getType()->assignToInheritedAttribute(id,val);
+	return getType()==NULL ? false : getType()->assignToTypeAttribute(id,val);
 }
 
 // -----------------------------------------------------------------------------------------------

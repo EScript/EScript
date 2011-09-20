@@ -586,14 +586,14 @@ if(!benchmark)
  //disble for benchmarks
    out("Get-/setAttribute:");
    var normalPlus=GLOBALS.Number.getAttribute("+");
-   Number.setObjAttribute("+",fn(i){
+   Number.setTypeAttribute("+",fn(i){
         return this-i;
    });
    var a=1+2; // = 1-2;
-   Number.setObjAttribute("+",normalPlus);
+   Number.setTypeAttribute("+",normalPlus);
    var b=1+2; // = 1+2//
  /// Fakultät
-   Number.setObjAttribute("!_post",fn(){
+   Number.setTypeAttribute("!_post",fn(){
        if(this<=1) return this;
        return this* ((this-1)!);
    });
@@ -602,7 +602,7 @@ if(!benchmark)
         {out (OK);}else { errors+=1; out(FAILED); }
  /// Note: 2008-02-11 When setting Attributes of Type-Objects, Debug-Object-Counting
  /// does not work properly until deleting new Attributes: \todo !!!check this
-    Number.setObjAttribute("!_post",void);
+    Number.setTypeAttribute("!_post",void);
 /// Todo:    Number.unsetAttribute("!_post");
 }
 

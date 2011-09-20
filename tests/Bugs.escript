@@ -492,3 +492,30 @@
     Runtime._setErrorConfig(0);
 	test( "BUG[20110905]", errorFound );
 }
+{	// late added object attributes result in unexpected behavior and should issue a warning on access.
+	var A = new Type();
+	var B = new Type(A);
+	var a = new A();
+
+	// adding object attribute AFTER creating an inherited Type and an instance.
+	A.m := 1;
+
+	var exceptionCounter=0;
+	Runtime._setErrorConfig(Runtime.TREAT_WARNINGS_AS_ERRORS);
+	try{	a.m;		}catch(e){	++exceptionCounter;	}
+	try{	a.m = 1;	}catch(e){	++exceptionCounter;	}
+	try{	B.m;		}catch(e){	++exceptionCounter;	}
+	try{	B.m = 1;	}catch(e){	++exceptionCounter;	}
+	
+	// accessing of object attributes of types which can't store object attributes should result in a warning.
+	
+	var C = new Type(Object);
+	C.m := 1;
+	var c = new C();
+	try{	c.m;		}catch(e){	++exceptionCounter;	}
+	try{	c.m = 1;	}catch(e){	++exceptionCounter;	}
+	
+
+	Runtime._setErrorConfig(0);
+	test( "BUG[20110918]", exceptionCounter == 6 );
+}
