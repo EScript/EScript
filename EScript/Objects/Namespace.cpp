@@ -19,8 +19,11 @@ Type * Namespace::getTypeObject()	{
 //! initMembers
 void Namespace::init(EScript::Namespace & globals) {
 	// [Namespace] ---|> [ExtObject] ---|> [Object]
-	Type * t=getTypeObject();
-	declareConstant(&globals,getClassName(),t);
+	Type * typeObject=getTypeObject();
+	declareConstant(&globals,getClassName(),typeObject);
+	
+	//! [ESMF] Namespace new Namespace()
+	ESF_DECLARE(typeObject,"_constructor",0,0, new Namespace())
 }
 
 //---
