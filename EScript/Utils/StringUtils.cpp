@@ -267,13 +267,6 @@ bool StringUtils::stepWhitespaces(const char * subject,int & cursor) {
 	}
 }
 
-string StringUtils::charToString(char c) {
-	char temp[2];
-	temp[0]=c;
-	temp[1]=0;
-	return temp;
-}
-
 bool StringUtils::stepText(const char * subject,int & cursor,const char * search) {
 	int _cursor=cursor;
 	while (true) {
