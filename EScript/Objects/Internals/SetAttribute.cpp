@@ -34,7 +34,10 @@ std::string SetAttribute::toString()const {
 		case SET_TYPE_ATTRIBUTE:
 			s+="::=";
 			break;
+		default:
+			s+="?=";
 	}
 	s+="("+valueExpr.toString()+") ";
 	return s;
 }
+			

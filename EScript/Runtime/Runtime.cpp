@@ -436,6 +436,7 @@ Object * Runtime::executeCurrentContext(bool markEntry) {
 				setExitState(returnValue);
 				break;
 			}
+			case Statement::TYPE_UNDEFINED:
 			default:{
 				std::cout << " #unimplementedStmt "<<stmt->getType();
 				resultRef=executeObj( stmt->getExpression() );
@@ -503,6 +504,9 @@ Object * Runtime::executeCurrentContext(bool markEntry) {
 				state = STATE_NORMAL; //! \note the state value is not resetted, as it may be needed in a catch block
 				break;
 			}
+			case STATE_NORMAL:
+			case STATE_RETURNING:
+			case STATE_EXITING:
 			default:{
 				if(markEntry){
 					while( localRTBs>0 ){
@@ -977,6 +981,8 @@ bool Runtime::stateError(Object * obj){
 			// we are already in an exception state...
 			break;
 		}
+		default:
+			exception("Unknown runtime state");
 	}
 	return false;
 }

@@ -102,8 +102,9 @@ double NumberRef::getValue()const {
 	case VT_FLOAT: {
 		return static_cast<double>(*reinterpret_cast<float *>(valuePtr));
 	}
+	default:
+		return 0;
 	}
-	return 0;
 }
 
 //! ---|> Number
@@ -138,6 +139,8 @@ void NumberRef::setValue(double _value) {
 		*reinterpret_cast<float *>(valuePtr)=static_cast<float>(_value);
 		break;
 	}
+	default:
+		break;
 	}
 }
 
