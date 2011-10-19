@@ -28,6 +28,7 @@ class Delegate : public Object {
 		/// ---|> [Object]
 		virtual Delegate * clone() const;
 		virtual bool rt_isEqual(Runtime &rt, const ObjPtr o);
+		virtual std::string toDbgString()const;
 		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_DELEGATE;	}
 	private:
 		ObjRef myObjectRef;

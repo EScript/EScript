@@ -50,3 +50,8 @@ bool Delegate::rt_isEqual(Runtime &,const ObjPtr o){
 	Delegate * d=o.toType<Delegate>();
 	return (d!=NULL) &&   d->getObject()==getObject() && d->getFunction()==getFunction();
 }
+
+//! ---|> [Object]
+std::string Delegate::toDbgString()const {
+	return std::string("("+myObjectRef.toString("?")+"->"+(functionRef.isNull() ? "?" : functionRef->toDbgString())+")");
+}

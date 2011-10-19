@@ -107,19 +107,6 @@ UserFunction * UserFunction::clone()const{
 }
 
 //! ---|> [Object]
-std::string UserFunction::toString()const {
-	std::ostringstream sprinter;
-	sprinter << "fn(";
-	int nr=0;
-	for (parameterList_t::const_iterator it=params->begin();it!=params->end();++it) {
-		if (nr++>0) sprinter<< ",";
-		if ( (*it) ) sprinter<<(*it)->toString();
-	}
-	sprinter << ")"<<blockRef.toString() << " ";
-	return sprinter.str();
-}
-
-//! ---|> [Object]
 std::string UserFunction::toDbgString()const {
 	std::ostringstream sprinter;
 	sprinter << "fn(";
