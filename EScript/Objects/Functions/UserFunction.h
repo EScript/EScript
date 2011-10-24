@@ -86,7 +86,6 @@ class UserFunction : public ExtObject {
 
 		/// ---|> [Object]
 		virtual UserFunction * clone()const;
-		virtual std::string toString()const;
 		virtual std::string toDbgString()const;
 		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_USER_FUNCTION;	}
 
