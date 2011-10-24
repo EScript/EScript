@@ -29,11 +29,8 @@ std::string replaceMultiple(const std::string & subject,const std::vector<std::p
 std::string UCS2LE_to_ANSII(const std::string & str);
 
 bool beginsWith(const char * subject,const char * find);
-bool nextLine(const char * subject,int & cursor);
-std::string getLine(const char * subject);
 bool stepWhitespaces(const char * subject,int & cursor);
 bool stepText(const char * subject,int & cursor,const char * search);
-std::string charToString(char c);
 
 //! Split the subject at the occurence of delimiter into at most max parts.
 void split(const std::string & subject,const std::string & delimiter, std::vector<std::string> & result,int max=-1);

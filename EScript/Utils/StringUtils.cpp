@@ -244,17 +244,6 @@ bool StringUtils::beginsWith(const char * subject,const char * find) {
 	return true;
 }
 
-bool StringUtils::nextLine(const char * subject,int & cursor) {
-	while (subject[cursor]!=0) {
-		cursor++;
-		if (subject[cursor]=='\n') {
-			cursor++;
-			return subject[cursor] != 0;
-		}
-	}
-	return false;
-}
-
 bool StringUtils::stepWhitespaces(const char * subject,int & cursor) {
 	while (true) {
 		char c=subject[cursor];
@@ -267,13 +256,6 @@ bool StringUtils::stepWhitespaces(const char * subject,int & cursor) {
 			return true;
 		}
 	}
-}
-
-string StringUtils::charToString(char c) {
-	char temp[2];
-	temp[0]=c;
-	temp[1]=0;
-	return temp;
 }
 
 bool StringUtils::stepText(const char * subject,int & cursor,const char * search) {
@@ -289,17 +271,6 @@ bool StringUtils::stepText(const char * subject,int & cursor,const char * search
 		++_cursor;
 		++search;
 	}
-}
-
-string StringUtils::getLine(const char * subject) {
-	std::ostringstream s;
-	int cursor=0;
-	char c=subject[cursor];
-	while (c!=0&&c!='\n') {
-		s<<c;
-		c=subject[++cursor];
-	}
-	return s.str();
 }
 
 void StringUtils::split(const string & subject,const string & delimiter, std::vector<std::string> & result, int max){
