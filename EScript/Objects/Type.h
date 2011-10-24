@@ -61,9 +61,9 @@ class Type : public Object {
 		inline Object * getLocalAttribute(const char * key)const		{	return getLocalAttribute(EScript::stringToIdentifierId(key));	}
 
 		/*! Used by instances of this type to assign a value to an inherited typeAttribute. */
-		bool assignToInheritedAttribute(const identifierId id,ObjPtr val);
+		bool assignToTypeAttribute(const identifierId id,ObjPtr val);
 		/*! Used by instances of this type get the value of an inherited typeAttribute. */
-		Object * getInheritedAttribute(const identifierId id)const;
+		Object * findTypeAttribute(const identifierId id)const;
 
 		using Object::getAttribute;
 		using Object::setObjAttribute;

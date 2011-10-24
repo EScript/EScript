@@ -125,6 +125,17 @@ Namespace * Runtime::getGlobals()const	{
 	return globals.get();
 }
 
+Object * Runtime::getMemberAttribute(Object * obj,const identifierId id){
+	try{ 
+		return obj->getAttribute(id);
+	}catch(Exception * e){
+		ERef<Exception> eHolder(e);
+		warn(eHolder->getMessage());
+		return NULL;
+	}
+}
+
+
 //!	@note Redesign due to [BUG20080324]
 //! \note calls setCallingObject
 Object * Runtime::getVariable(const identifierId id) {
@@ -137,7 +148,7 @@ Object * Runtime::getVariable(const identifierId id) {
 		// search for member variable (this.bla)
 		Object * caller = getCurrentContext()->getCaller();
 		if (caller!=NULL){
-			if((result=caller->getAttribute(id))){
+			if((result=getMemberAttribute(caller,id))){
 				setCallingObject(caller);
 				return result;
 			}
@@ -204,7 +215,7 @@ Object * Runtime::executeObj(Object * obj){
 				obj2Ref = Void::get();
 
 			setCallingObject(obj2Ref.get());
-			resultRef = obj2Ref->getAttribute(ga->getAttrId());
+			resultRef = getMemberAttribute( obj2Ref.get(),ga->getAttrId() );
 			if (resultRef.isNull()) {
 				warn("Member not set:"+ga->toString());
 			}
@@ -239,7 +250,16 @@ Object * Runtime::executeObj(Object * obj){
 		if(obj2.isNull())
 			obj2=Void::get();
 		if(sa->assignType == SetAttribute::ASSIGN){
-			if(!obj2->assignAttribute(sa->attrId,value.get())){
+			bool success = true;
+			// try to assign the value; this may produce an exception (\see Type::assignToTypeAttribute),
+			// which is caught and emitted as warning as this is normally no more critical than trying to assign to a nonexistent attribute.
+			try{ 
+				success = obj2->assignAttribute(sa->attrId,value.get());
+			}catch(Exception * e){
+				ERef<Exception> eHolder(e);
+				warn(eHolder->getMessage());
+			}
+			if(!success){
 				warn(std::string("Unkown attribute \"")+sa->getAttrName()+"\" ("+
 						(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+"."+sa->getAttrName()+"="+(value.isNull()?"":value->toDbgString())+")");
 				if(!obj2->setObjAttribute(sa->attrId,value.get())){
@@ -700,7 +720,7 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 		return executeFunction(d->getFunction(),d->getObject(),params,isConstructorCall);
 	} else { // function-object has a user defined "_call"-member?
 		//! \note This feature is still EXPERIMENTAL!!!
-		ObjPtr otherFun = fun->getAttribute(Consts::IDENTIFIER_fn_call);
+		ObjPtr otherFun = getMemberAttribute(fun.get(),Consts::IDENTIFIER_fn_call);
 		if(otherFun.isNotNull()){
 			// fun._call( callingObj , param0 , param1 , ... )
 			ParameterValues params2(params.count()+1);

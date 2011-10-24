@@ -6,7 +6,7 @@
 
 #include "../EScript.h"
 
-using namespace EScript;
+namespace EScript{
 
 //! (static)
 Type * Type::getTypeObject(){
@@ -95,11 +95,21 @@ Object * Type::clone() const{
 	return new Type(getBaseType(),getType());
 }
 
-bool Type::assignToInheritedAttribute(const identifierId id,ObjPtr val){
+static const char * typeAttrErrorHint = 
+	"This may be a result of: Adding object attributes to a Type AFTER inheriting from that Type, "
+	"adding object attributes to a Type AFTER creating instances of that Type, "
+	"or adding object attributes to a Type whose instances can't store object attributes. ";
+
+bool Type::assignToTypeAttribute(const identifierId id,ObjPtr val){
 	Type * t=this;
 	do{
 		AttributeMap_t::iterator fIt=t->attr.find(id);
 		if( fIt != t->attr.end()){
+			if( fIt->second.isObjAttribute() ){
+				std::string message = "(assignToTypeAttribute) type-attribute expected but object-attribute found. ('";
+				message += identifierIdToString(id) + "')\n" + typeAttrErrorHint;
+				throw new Exception(message);
+			}
 			(*fIt).second.assign(val.get());
 			return true;
 		}
@@ -108,30 +118,45 @@ bool Type::assignToInheritedAttribute(const identifierId id,ObjPtr val){
 	return false;
 }
 
-Object * Type::getInheritedAttribute(const identifierId id)const{
-	for(const Type * t=this; t!=NULL; t=t->getBaseType()){
-		Object * result=t->getLocalAttribute(id);
-		if(result!=NULL)
-			return result;
-	}
+Object * Type::findTypeAttribute(const identifierId id)const{
+	const Type * t=this;
+	do{
+		const AttributeMap_t::const_iterator fIt=t->attr.find(id);
+		if( fIt != t->attr.end() ){
+			if( fIt->second.isObjAttribute() ){
+				std::string message = "(findTypeAttribute) type-attribute expected but object-attribute found. ('";
+				message += identifierIdToString(id) + "')\n" + typeAttrErrorHint;
+				throw new Exception(message);
+			}
+			return fIt->second.getValue();
+		}
+		t=t->getBaseType();
+	}while(t!=NULL);
 	return NULL;
 }
 
 
 //! ---|> Object
 Object * Type::getAttribute(const identifierId id){
-	// try to find the attribute along the inheritated path...
-	Object * result=getInheritedAttribute(id);
+	// is local attribute?
+	Object * result=this->getLocalAttribute(id);
 	if(result!=NULL)
 		return result;
+	
+	// try to find the attribute along the inheritated path...
+	if(getBaseType()!=NULL){
+		result = getBaseType()->findTypeAttribute(id);
+		if(result!=NULL)
+			return result;
+	}
 
 	// try to find the attribute from this type's type.
-	return getType()!=NULL ? getType()->getInheritedAttribute(id) : NULL;
+	return getType()!=NULL ? getType()->findTypeAttribute(id) : NULL;
 }
 
 Object * Type::getLocalAttribute(const identifierId id)const{
-	AttributeMap_t::const_iterator f=attr.find(id);
-	return  f!=attr.end() ? f->second.getValue() : NULL ;
+	const AttributeMap_t::const_iterator fIt=attr.find(id);
+	return  fIt!=attr.end() ? fIt->second.getValue() : NULL ;
 }
 
 //! ---|> Object
@@ -143,12 +168,19 @@ bool Type::setObjAttribute(const identifierId id,ObjPtr val){
 
 //! ---|> Object
 bool Type::assignAttribute(const identifierId id,ObjPtr val){
-	// try to assign value along the inheritated path...
-	if(assignToInheritedAttribute(id,val))
+	// try to assign to local attribute (object attribute or type attribute)
+	AttributeMap_t::iterator fIt=attr.find(id);
+	if( fIt != attr.end()){
+		(*fIt).second.assign(val.get());
+		return true;
+	}
+	
+	// try to assign value along the inheritated path... (as type attribute only)
+	if(getBaseType()!=NULL && getBaseType()->assignToTypeAttribute(id,val))
 		return true;
 
 	// try to assign the attribute to this type's type (if this is not the type of itself)
-	return (getType()!=NULL  && getType()!=this) ? getType()->assignAttribute(id,val) : false;
+	return (getType()!=NULL  && getType()!=this) ? getType()->assignToTypeAttribute(id,val) : false;
 }
 
 void Type::setTypeAttribute(const identifierId id,ObjPtr val){
@@ -202,4 +234,6 @@ bool Type::isA(Type * type) const {
 			return true;
 	}
 	return Object::isA(type);
+}
+
 }

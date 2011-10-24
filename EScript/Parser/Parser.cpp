@@ -25,7 +25,7 @@
 
 #include "../Utils/IO/IO.h"
 
-using namespace EScript;
+namespace EScript {
 using std::string;
 // -------------------------------------------------------------------------------------------------------------------
 // helper
@@ -1843,4 +1843,6 @@ void Parser::getExpressionsInBrackets(ParsingContext & ctxt,int & cursor,std::ve
 			throw new Error("Expected )",tokens.at(cursor));
 		}
 	}
+}
+
 }

@@ -6,6 +6,8 @@
 #define RAND_H
 #include <stdint.h>
 
+namespace EScript {
+
 /**
  *  Rand - a pseudo random number generator
  **
@@ -54,5 +56,7 @@ class Rand{
 	private:
 		intType seed;
 };
+
+}
 
 #endif // RAND_H

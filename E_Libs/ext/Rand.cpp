@@ -20,6 +20,8 @@
 #define A256       22925      /* jump multiplier, DON'T CHANGE THIS VALUE */
 #define DEFAULT    123456789  /* initial seed, use 0 < DEFAULT < MODULUS  */
 
+namespace EScript {
+
 //! (ctor)
 Rand::Rand(intType initialSeed/*=0*/) {
 	if (initialSeed<=0)
@@ -225,4 +227,6 @@ Rand::floatType Rand::chisquare(intType n){
  */
 Rand::floatType Rand::student(intType n){
 	return normal(0.0, 1.0) / sqrt(chisquare(n) / n);
+}
+
 }
