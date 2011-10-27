@@ -35,6 +35,12 @@ bool stepText(const char * subject,int & cursor,const char * search);
 //! Split the subject at the occurence of delimiter into at most max parts.
 void split(const std::string & subject,const std::string & delimiter, std::vector<std::string> & result,int max=-1);
 
+//! Convert uppercase letter to lowercase
+std::string toLower(const std::string & s);
+
+//! Convert lowercase letter to uppercase
+std::string toUpper(const std::string & s);
+
 }
 }
 

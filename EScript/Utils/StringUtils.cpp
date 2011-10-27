@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <cstdlib>
 #include <cstdio>
+#include <locale>
 
 using namespace EScript;
 using std::string;
@@ -310,4 +311,31 @@ std::string StringUtils::escape(const std::string & s){
 	replace.push_back(keyValuePair_t(std::string("\0",1),"\\0"));
 	replace.push_back(keyValuePair_t("\\","\\\\"));
 	return replaceMultiple(s,replace);
+}
+
+std::string StringUtils::toLower(const std::string & s){
+	const size_t length = s.length();
+	if(length==0)
+		return "";
+	char * buffer = new char[length];
+	std::copy(s.c_str(),s.c_str()+length,buffer);
+	std::locale loc;
+	std::use_facet< std::ctype<char> >(loc).tolower( buffer, buffer+length );	
+	const std::string output(buffer,length);
+	delete[]buffer;
+	return output;
+}
+
+
+std::string StringUtils::toUpper(const std::string & s){
+	const size_t length = s.length();
+	if(length==0)
+		return "";
+	char * buffer = new char[length];
+	std::copy(s.c_str(),s.c_str()+length,buffer);
+	std::locale loc;
+	std::use_facet< std::ctype<char> >(loc).toupper( buffer, buffer+length );	
+	const std::string output(buffer,length);
+	delete[]buffer;
+	return output;
 }

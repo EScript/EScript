@@ -131,6 +131,7 @@ var FAILED="\t failed\n";
 		&& ("foo"*3).replaceAll( {"oo":"ar ","f":"b"},3 ) == "bar boofoo"
 		&& "foooooo".rFind("o") == 6 && "foooooo".rFind("o",4) == 4 && !("fooooxx".rFind("x",4))
 		&& "FooBar".substr(1) == "ooBar" && "FooBar".substr(-4) == "oBar" && "FooBar".substr(1,-3) == "oo"  && "FooBar".substr(-3,1) == "B"
+		&& " fOObaR12.3".toLower() == " foobar12.3" &&" fOObaR12.3".toUpper() == " FOOBAR12.3"
 		,String);
 }
 //---

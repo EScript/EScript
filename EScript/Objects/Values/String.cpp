@@ -204,6 +204,11 @@ void String::init(EScript::Namespace & globals) {
 		return a;
 	})
 
+	//! [ESMF] String String.toLower()
+	ESMF_DECLARE(typeObject,String,"toLower",0,0,String::create( StringUtils::toLower(self->getString())))
+	
+	//! [ESMF] String String.toUpper()
+	ESMF_DECLARE(typeObject,String,"toUpper",0,0,String::create( StringUtils::toUpper(self->getString())))
 
 	//- Operators
 
