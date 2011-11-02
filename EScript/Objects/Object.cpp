@@ -4,6 +4,8 @@
 // ------------------------------------------------------
 #include "Object.h"
 #include "../EScript.h"
+#include "../Consts.h"
+#include <sstream>
 
 #ifdef ES_DEBUG_MEMORY
 #include "../Utils/Debug.h"
@@ -180,7 +182,19 @@ bool Object::isA(Type * type) const {
 
 //! ---o
 std::string Object::toString()const {
-	return std::string("#")+getTypeName();
+	
+	//! \todo fixme! Remove the const_cast! Why is getAttribute(...) not const?????
+	const Object * printableName = const_cast<Object*>(this)->getAttribute(Consts::IDENTIFIER_attr_printableName);
+	
+	// #TYPENAME:0x42342
+	// #PRINTABLENAME:TYPENAME:0x42342
+	std::ostringstream sprinter;
+	sprinter << "#";
+	if(printableName!=NULL)
+		sprinter << printableName->toString() << ":";
+		
+	sprinter << getTypeName()<<":"<<static_cast<const void*>(this);
+	return sprinter.str();
 }
 
 //! ---o
