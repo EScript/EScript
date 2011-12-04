@@ -31,7 +31,7 @@ uint32_t getFileMTime(const std::string& filename);
 
 /*!	@param filename
  *	@return  IO::entryType (\see IOBase.h)	*/
-entryType getEntryType(const std::string& filename);
+entryType_t getEntryType(const std::string& filename);
 
 /*!	@param filename
  *	@return filsize in byte.	*/
@@ -41,8 +41,8 @@ uint64_t getFileSize(const std::string& filename);
  *         flags:       1 ... Files
  *                      2 ... Directories
  *                      4 ... Recurse Subdirectories
- * 	@throw string	*/
-void getFilesInDir(const std::string & dirname, std::list<std::string> & files,int flags) ;
+ * 	@throw std::ios_base::failure on failure.	*/
+void getFilesInDir(const std::string & dirname, std::list<std::string> & files,uint8_t flags) ;
 
 std::string dirname(const std::string & filename);
 

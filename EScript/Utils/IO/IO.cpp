@@ -6,83 +6,47 @@
 #include "DefaultFileSystemhandler.h"
 #include "../StringUtils.h"
 
-#if defined(_MSC_VER)
-#include "ext/dirent.h"
-#else
-#include <dirent.h>
-#endif
-
-#include <sys/stat.h>
-#include <fstream>
-#include <deque>
-#include <vector>
 #include <memory>
 namespace EScript{
 namespace IO{
 std::auto_ptr<AbstractFileSystemHandler> fileSystemHandler(new DefaultFileSystemHandler);
 }
 
+//! (static)
 void IO::setFileSystemHandler(AbstractFileSystemHandler * handler){
 	fileSystemHandler.reset(handler);
 }
 
+//! (static)
 IO::AbstractFileSystemHandler * IO::getFileSystemHandler(){
 	return fileSystemHandler.get();
 }
 
+//! (static)
 StringData IO::loadFile(const std::string & filename) {
 	return getFileSystemHandler()->loadFile(filename);
 }
 
+//! (static)
 void IO::saveFile(const std::string & filename,const std::string & content,bool overwrite){
 	getFileSystemHandler()->saveFile(filename,content,overwrite);
 }
 
+//! (static)
 uint32_t IO::getFileMTime(const std::string& filename) {
-	struct stat fileStat;
-	return stat(filename.c_str(), &fileStat)!=0 ? 0 : static_cast<unsigned int>(fileStat.st_mtime);
+	return getFileSystemHandler()->getFileMTime(filename);
 }
 
-IO::entryType IO::getEntryType(const std::string& filename) {
-	struct stat fileStat;
-
-	if ( stat(filename.c_str(), &fileStat)!=0 )
-		return TYPE_NOT_FOUND;
-
-	return (S_ISDIR(fileStat.st_mode)) ? TYPE_DIRECTORY : (S_ISREG(fileStat.st_mode)) ? TYPE_FILE : TYPE_UNKNOWN;
+IO::entryType_t IO::getEntryType(const std::string& path) {
+	return getFileSystemHandler()->getEntryType(path);
 }
 
 uint64_t IO::getFileSize(const std::string& filename) {
-	struct stat fileStat;
-	return stat(filename.c_str(), &fileStat)!=0 ? 0 :  static_cast<unsigned long>(fileStat.st_size);
+	return getFileSystemHandler()->getFileSize(filename);
 }
 
-void IO::getFilesInDir(const std::string & dirname,std::list<std::string> & files,int flags) {
-
-	DIR *dir = opendir (dirname.c_str ());
-	if (!dir)
-		throw std::ios_base::failure( std::string("Could not open dir \""+dirname+"\"!"));
-
-	for( dirent * entry=readdir(dir) ; entry!=NULL ; entry=readdir(dir)){
-
-		if (entry->d_name[0] == '.')
-			continue;
-
-		const std::string entryName( dirname+"/"+entry->d_name );
-
-		const entryType type = getEntryType(entryName);
-
-		if ( (type==IO::TYPE_DIRECTORY && (flags & 2)) || ( type==IO::TYPE_FILE && (flags & 1) )) {
-			files.push_back(entryName);
-		}
-
-		if (type==IO::TYPE_DIRECTORY && (flags & 4)) { // recursive
-			// std::cout << "Recusrive dir:"<<entryName<<"\n";
-			getFilesInDir(entryName,files,flags);
-		}
-	}
-	closedir(dir);
-	return;
+void IO::getFilesInDir(const std::string & dirname,std::list<std::string> & files,uint8_t flags) {
+	getFileSystemHandler()->dir(dirname,files,flags);
 }
 
 std::string IO::dirname(const std::string & filename) {

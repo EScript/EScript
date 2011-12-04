@@ -16,31 +16,55 @@
 namespace EScript{
 namespace IO{
 
-
+/*! A FileSystemHandler servers as interface to the file system.
+	Exchaninging this handler allows to globally add support for
+	additional file systems (e.g. by implementing a http interface),
+	or to add an access restriction to file operations (e.g. limit
+	all operations to certain folders).
+	\todo
+		 - (?) add flush()
+		 - add streaming support
+	*/
 class AbstractFileSystemHandler  {
-public:
-
-	// -------------------------
-
+protected:
 	AbstractFileSystemHandler(){}
+public:
 	virtual ~AbstractFileSystemHandler(){}
 
 	//! ---o
 	virtual void deleteFile(const std::string &){
 		throw std::ios_base::failure("unsupported operation");
 	}
-	//! ---o
+	/*!	---o
+	 *	@param   dirname
+	 *         flags:       1 ... Files
+	 *                      2 ... Directories
+	 *                      4 ... Recurse Subdirectories
+	 * 	@throw std::ios_base::failure on failure.	*/
 	virtual void dir(const std::string &/*path*/, std::list<std::string> &/*result*/, uint8_t/*flags*/){
 		throw std::ios_base::failure("unsupported operation");
 	}
 	//! ---o
-	virtual entryType getEntryType(const std::string &){
+	virtual entryType_t getEntryType(const std::string & path){
+		return getEntryInfo(path).type;
+	}
+	//! ---o
+	virtual EntryInfo getEntryInfo(const std::string &){
 		throw std::ios_base::failure("unsupported operation");
 	}
 	//! ---o
-	virtual size_t fileSize(const std::string &){
-		throw std::ios_base::failure("unsupported operation");
+	virtual uint32_t getFileCTime(const std::string & path){
+		return getEntryInfo(path).cTime;
 	}
+	//! ---o
+	virtual uint32_t getFileMTime(const std::string & path){
+		return getEntryInfo(path).mTime;
+	}
+	//! ---o
+	virtual uint64_t getFileSize(const std::string & path){
+		return getEntryInfo(path).fileSize;
+	}
+
 	//! ---o
 	virtual void makeDir(const std::string &){
 		throw std::ios_base::failure("unsupported operation");
@@ -53,38 +77,6 @@ public:
 	virtual void saveFile(const std::string &, const std::string & /*data*/, bool /*overwrite*/){
 		throw std::ios_base::failure("unsupported operation");
 	}
-
-//! \todo...
-//    struct FileStreamWrapper {
-//            FileStreamWrapper(){}
-//            virtual ~FileStreamWrapper(){}
-//            virtual void close()=0;
-//    };
-//    template<typename stream_t> class _SpecificStreamWrapper : public FileStreamWrapper{
-//    	stream_t * s;
-//    	_SpecificStreamWrapper(stream_t * _s) : FileStreamWrapper(), s(_s){}
-//    	virtual ~_SpecificStreamWrapper(){}
-//    };
-//	typedef _SpecificStreamWrapper<std::iostream> IOFileStreamWrapper;
-//	typedef _SpecificStreamWrapper<std::istream> IFileStreamWrapper;
-//	typedef _SpecificStreamWrapper<std::ostream> OFileStreamWrapper;
-//
-//    virtual IOFileStreamWrapper * open(const std::string & )             {   return NULL;    }
-//    virtual IFileStreamWrapper * openForReading(const std::string & )    {   return NULL;    }
-//    virtual OFileStreamWrapper * openForWriting(const std::string & )    {   return NULL;    }
-//    virtual OFileStreamWrapper * openForAppending(const std::string & )  {   return NULL;    }
-//
-//    static void closeStream(FileStreamWrapper * & stream){
-//    	if(stream !=NULL) {
-//    		stream->close();
-//			delete stream;
-//			stream = NULL;
-//    	}
-//    }
-//
-//	/*! If some kind of internal caching is used, all data should be written to disk
-//		\note May block if needed	*/
-//    virtual void flush()  {   return ;    }
 };
 }
 }
