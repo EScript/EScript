@@ -6,6 +6,7 @@
 #define ES_ExtObject_H
 
 #include "Object.h"
+#include "../Utils/HashMap.h"
 
 namespace EScript {
 
@@ -39,7 +40,7 @@ class ExtObject : public Object {
 	/*! @name Attributes */
 	//	@{
 	public:
-		typedef std::map<identifierId,ObjRef> attributeMap_t;
+		typedef HashMap<ObjRef,identifierId> attributeMap_t;
 
 		using Object::getAttribute;
 		using Object::setObjAttribute;

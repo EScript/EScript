@@ -6,6 +6,7 @@
 #define ES_Type_H
 
 #include "Object.h"
+#include "../Utils/HashMap.h"
 #include <stdint.h>
 
 namespace EScript {
@@ -103,7 +104,8 @@ class Type : public Object {
 				}
 		};
 
-		typedef std::map<identifierId,Attribute> AttributeMap_t;
+//		typedef std::map<identifierId,Attribute> AttributeMap_t;
+		typedef HashMap<Attribute,identifierId> AttributeMap_t; ;
 		AttributeMap_t attr;
 	// @}
 

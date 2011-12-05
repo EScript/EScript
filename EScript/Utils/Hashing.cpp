@@ -3,6 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Hashing.h"
+#include "HashMap.h"
 
 #include <cstddef>
 #include <functional>
@@ -11,7 +12,8 @@
 
 using namespace EScript;
 
-typedef std::map<identifierId,std::string> identifierDB;
+//typedef std::map<identifierId,std::string> identifierDB;
+typedef HashMap<std::string,identifierId> identifierDB;
 
 /**
  * (static) Returns the identifier database.
@@ -38,27 +40,49 @@ identifierId EScript::stringToIdentifierId(const std::string & s){
 	identifierDB & db=getIdentifierDB();
 	identifierId id=_hash(s);
 	while(true){
-	identifierDB::iterator lbIt=db.lower_bound(id);
-		if(lbIt==db.end() || db.key_comp()(id, lbIt->first) ){
-			// id not found -> insert it
-			db.insert(lbIt,std::make_pair(id,s));
+		std::string & oldString = db.get(id);
+		if(oldString.empty()){// id not found -> insert it
+			oldString=s;
 			break;
-		}else if( s==lbIt->second){
-			// same string already inserted
+		}else if(s==oldString){ // same string already inserted
 			break;
-		}else {
-			// collision
+		}else{
 			++id;
-		}
+		}	
+//		std::string * oldString = db.findPtr(id);
+//		if(oldString==NULL){// id not found -> insert it
+//			db.insert(id,s);
+//			break;
+//		}else if(s==*oldString){ // same string already inserted
+//			break;
+//		}else{
+//			++id;
+//		}
+//		
+//		identifierDB::iterator lbIt=db.lower_bound(id);
+//		if(lbIt==db.end() || db.key_comp()(id, lbIt->first) ){
+//			// id not found -> insert it
+//			db.insert(lbIt,std::make_pair(id,s));
+//			break;
+//		}else if( s==lbIt->second){
+//			// same string already inserted
+//			break;
+//		}else {
+//			// collision
+//			++id;
+//		}
 	}
 	return id;
 }
 
 const std::string & EScript::identifierIdToString(identifierId id){
-	 identifierDB & db=getIdentifierDB();
+	identifierDB & db=getIdentifierDB();
 
-	identifierDB::const_iterator it=db.find(id);
-	if(it == db.end() )
-		return ES_UNKNOWN_IDENTIFIER;
-	else return (*it).second;
+	std::string * str = db.findPtr(id);
+	return str==NULL ? ES_UNKNOWN_IDENTIFIER : *str;
+//	
+//	identifierDB::const_iterator it=db.find(id);
+//	if(it == db.end() )
+//		return ES_UNKNOWN_IDENTIFIER;
+//	else return *it;
 }
