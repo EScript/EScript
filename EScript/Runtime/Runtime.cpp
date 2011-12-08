@@ -78,7 +78,7 @@ void Runtime::init(EScript::Namespace & globals) {
 		ObjPtr obj(parameter[1].get());
 
 		EPtr<Array> paramArr( (parameter.count()>2) ? assertType<Array>(runtime,parameter[2]) : NULL );
-		ParameterValues params=ParameterValues(paramArr.isNotNull() ? paramArr->count() : 0);
+		ParameterValues params(paramArr.isNotNull() ? paramArr->count() : 0);
 		if(paramArr.isNotNull()){
 			int i=0;
 			for(Array::iterator it=paramArr->begin();it!=paramArr->end();++it)
@@ -723,7 +723,6 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 		Delegate * d=static_cast<Delegate*>(fun.get());
 		return executeFunction(d->getFunction(),d->getObject(),params,isConstructorCall);
 	} else { // function-object has a user defined "_call"-member?
-		//! \note This feature is still EXPERIMENTAL!!!
 		ObjPtr otherFun = getMemberAttribute(fun.get(),Consts::IDENTIFIER_fn_call);
 		if(otherFun.isNotNull()){
 			// fun._call( callingObj , param0 , param1 , ... )
@@ -841,7 +840,7 @@ bool Runtime::checkType(const identifierId & name, Object * obj,Object *typeExpr
 /*! (internal) Called by executeFunction.
 	 seach and stack all constructor method until c++ - constructor is found.
 	 C ---|> B ---|> A
-	 step along, create runtimeBlocks, calculate parametres, assign parameters
+	 step along, create runtimeBlocks, calculate parameters, assign parameters
 	 execute last c++ constructor to get Object
 	 execute other funcitons for initialization using the given blocks.
 
@@ -890,7 +889,7 @@ Object * Runtime::executeUserConstructor(const ObjPtr & _callingObject,const Par
 		/// create new set of params according to super constructor parameters
 		std::vector<ObjRef> & sConstrExpressions=uCons->getSConstructorExpressions();
 		if(sConstrExpressions.size()>0){
-			currentParams=ParameterValues(sConstrExpressions.size());
+			ParameterValues superConstrParams(sConstrExpressions.size());
 			size_t i=0;
 			for(std::vector<ObjRef>::iterator it=sConstrExpressions.begin();it!=sConstrExpressions.end();++it){
 				Object * expr=it->get();
@@ -906,11 +905,12 @@ Object * Runtime::executeUserConstructor(const ObjPtr & _callingObject,const Par
 					result=Void::get();
 				}
 				tmpRefHolderList.push_back(result.get()); /// hold a temporary reference until  all calls are made
-				currentParams.set(i,result);
+				superConstrParams.set(i,result);
 				++i;
 			}
+			currentParams.swap(superConstrParams);
 		}else{
-			currentParams=ParameterValues();
+			currentParams.clear();
 		}
 		popContext(); // the RTB is not destroyed here because of the remaining reference (it is re-used later);
 		// this is only allowed as it is not part of a RTB-hirarchie
