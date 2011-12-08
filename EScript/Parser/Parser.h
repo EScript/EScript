@@ -10,7 +10,7 @@
 
 #include "../Objects/Exception.h"
 #include "../Objects/Values/String.h"
-#include "../Objects/Functions/UserFunction.h"
+#include "../Objects/Callables/UserFunction.h"
 
 #include <vector>
 

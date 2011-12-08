@@ -9,7 +9,7 @@
 #include "ObjArray.h"
 #include "ObjRef.h"
 #include "../Objects/Exception.h"
-#include "../Objects/Functions/Function.h"
+#include "../Objects/Callables/Function.h"
 #include "../Objects/Internals/Block.h"
 #include <cstddef>
 #include <string>

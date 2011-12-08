@@ -19,7 +19,7 @@
 
 #include "../Objects/Values/Number.h"
 #include "../Objects/Values/String.h"
-#include "../Objects/Functions/UserFunction.h"
+#include "../Objects/Callables/UserFunction.h"
 #include "../Objects/YieldIterator.h"
 #include "../Objects/Identifier.h"
 

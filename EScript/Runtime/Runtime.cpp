@@ -15,9 +15,9 @@
 #include "RuntimeBlock.h"
 #include "../Objects/Values/Void.h"
 #include "../Objects/Exception.h"
-#include "../Objects/Functions/Function.h"
-#include "../Objects/Functions/UserFunction.h"
-#include "../Objects/Functions/Delegate.h"
+#include "../Objects/Callables/Function.h"
+#include "../Objects/Callables/UserFunction.h"
+#include "../Objects/Callables/Delegate.h"
 #include "../Objects/YieldIterator.h"
 #include <algorithm>
 #include <iostream>

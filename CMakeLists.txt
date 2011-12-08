@@ -3,14 +3,14 @@ project(EScript CXX)
 set(ESCRIPT_SOURCES
 	EScript/Consts.cpp
 	EScript/EScript.cpp
+	EScript/Objects/Callables/Delegate.cpp
+	EScript/Objects/Callables/Function.cpp
+	EScript/Objects/Callables/UserFunction.cpp
 	EScript/Objects/Collections/Array.cpp
 	EScript/Objects/Collections/Collection.cpp
 	EScript/Objects/Collections/Map.cpp
 	EScript/Objects/Exception.cpp
 	EScript/Objects/ExtObject.cpp
-	EScript/Objects/Functions/Delegate.cpp
-	EScript/Objects/Functions/Function.cpp
-	EScript/Objects/Functions/UserFunction.cpp
 	EScript/Objects/Iterator.cpp
 	EScript/Objects/Identifier.cpp
 	EScript/Objects/Internals/Block.cpp
