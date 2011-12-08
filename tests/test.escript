@@ -3,7 +3,6 @@ out ("Testcases for ",VERSION,"\n","-"*79,"\n");
 
 //----
 // init
-
 GLOBALS.benchmark:=false;
 GLOBALS.errors:=0; // error count
 //! new testing function
@@ -46,11 +45,35 @@ addSearchPath(__DIR__);
 var t=(new Parser()).parseFile(__DIR__+"/Testcases_Core.escript");
 
 if(benchmark){
+	var progress = fn( percent ){
+		var i = (percent*20).floor();
+		SGLOBALS.out("\r","|"+"="*i+"|"+" "*(20-i)+"| "+percent.round(0.01)*100+"%    ");
+	};
+	
 	GLOBALS.out:=fn(values*){ ;};
-	for(var i=0;i<1000;i++){
-//		var t=(new Parser()).parseFile(__DIR__+"/Testcases_Core.escript");
-		t.execute();
+	var times = [];
+	var tries = 200;
+	var innerLoops = 20;
+	var sum = 0;
+
+	progress(0);
+	
+	for(var i=0;i<tries;i++){
+		var startTime = clock();
+		for(var j=0;j<innerLoops;j++){
+//			var t=(new Parser()).parseFile(__DIR__+"/Testcases_Core.escript");
+			t.execute();
+		}
+		var time = (clock()-startTime)*1000;
+		sum += time;
+		times += (time/innerLoops).round(0.01); // ms per execution
+		progress(i/tries);
 	}
+	progress(1);
+//	print_r(times);
+	times.sort();
+	SGLOBALS.out("\nMin:",times.front(),"ms\tMed:",times[ (times.count()*0.5).floor() ],"ms\tMax:",times.back(),"ms\n" );
+	SGLOBALS.out("Avg:",sum/ (tries*innerLoops),"\n");
 }else{
     t.execute();
 }

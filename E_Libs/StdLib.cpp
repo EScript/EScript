@@ -14,7 +14,11 @@
 #include <ctime>
 #include <unistd.h>
 
-using namespace EScript;
+#if defined(_WIN32)
+#include <windows.h>
+#endif
+
+namespace EScript{
 
 std::string StdLib::getOS(){
 	#if defined(_WIN32) || defined(_WIN64)
@@ -151,6 +155,21 @@ Object * StdLib::loadOnce(Runtime & runtime,const std::string & filename){
 	return load(runtime,condensedFilename);
 }
 
+#if defined(_WIN32)
+static LARGE_INTEGER _getPerformanceCounter();
+
+// execute this as soon as possible (when the global static variables are initialized)
+static LARGE_INTEGER _clockStart = _getPerformanceCounter();
+
+// wrapper for the windows high performance timer.
+LARGE_INTEGER _getPerformanceCounter(){
+	LARGE_INTEGER c;
+	QueryPerformanceCounter(&c);
+	return c;
+}
+
+#endif
+
 // -------------------------------------------------------------
 
 //! init  (globals)
@@ -185,8 +204,27 @@ void StdLib::init(EScript::Namespace * globals) {
 		return String::create(s.str());
 	})
 
+
+	// clock
+	{
+	#if defined(_WIN32)
+	typedef LARGE_INTEGER timer_t;
+	static timer_t frequency; 
+	if(!QueryPerformanceFrequency(&frequency)) {
+		std::cout <<("QueryPerformanceFrequency failed, timer will not work properly!");
+	}
+
+	//! [ESF]  number clock()
+	ES_FUNCTION_DECLARE(globals,"clock",0,0,{
+		LARGE_INTEGER time = _getPerformanceCounter();
+		return Number::create( static_cast<double>(time.QuadPart-_clockStart.QuadPart) / static_cast<double>(frequency.QuadPart) );
+	})
+		
+	#else
 	//! [ESF]  number clock()
 	ESF_DECLARE(globals,"clock",0,0,Number::create( static_cast<double>(clock())/CLOCKS_PER_SEC))
+	#endif
+	}
 
 	/*!	[ESF]  Map getDate([time])
 		like http://de3.php.net/manual/de/function.getdate.php	*/
@@ -286,6 +324,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	//! [ESF]  string toJSON(obj[,formatted=true])
 	ESF_DECLARE(globals,"toJSON",1,2,String::create(JSON::toJSON(parameter[0].get(),parameter[1].toBool(true))))
 
+}
 
 
 }
