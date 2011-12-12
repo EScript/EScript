@@ -23,7 +23,6 @@ set(ESCRIPT_SOURCES
 	EScript/Objects/Internals/Statement.cpp
 	EScript/Objects/Namespace.cpp
 	EScript/Objects/Object.cpp
-	EScript/Objects/Streams/StreamBase.cpp
 	EScript/Objects/Type.cpp
 	EScript/Objects/Values/Bool.cpp
 	EScript/Objects/Values/Number.cpp
