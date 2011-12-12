@@ -11,6 +11,8 @@ namespace EScript{
 
 //! (static)
 Type * Collection::getTypeObject()	{
+	// \todo this should be Object::getTypeObject(), but then user defined Collections can't have data members... perhaps this can 
+	//  be fixed using interfaces some day.
 	static Type * typeObject=new Type(ExtObject::getTypeObject());
 	return typeObject;
 }

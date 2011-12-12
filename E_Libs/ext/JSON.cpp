@@ -8,7 +8,7 @@
 #include "../../EScript/Utils/StringUtils.h"
 #include "../../EScript/Parser/Tokenizer.h"
 
-using namespace EScript;
+namespace EScript{
 
 //! (static)
 std::string JSON::toJSON(Object * obj,bool formatted/*=true*/){
@@ -99,7 +99,7 @@ void JSON::toJSON(std::ostringstream & out,Object * obj,bool formatted/*=true*/,
 }
 
 //! helper
-Object * _parseJSON(Tokenizer::tokenList_t::iterator & cursor,const Tokenizer::tokenList_t::iterator end){
+static Object * _parseJSON(Tokenizer::tokenList_t::iterator & cursor,const Tokenizer::tokenList_t::iterator end){
 	if(cursor==end)
 		return NULL;
 	Token * token=(*cursor).get();
@@ -236,4 +236,5 @@ Object* JSON::parseJSON(const std::string &s){
 //		Token::removeReference(*it);
 //	}
 	return result;
+}
 }

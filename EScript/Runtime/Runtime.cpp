@@ -438,7 +438,7 @@ Object * Runtime::executeCurrentContext(bool markEntry) {
 			}
 			case Statement::TYPE_UNDEFINED:
 			default:{
-				std::cout << " #unimplementedStmt "<<stmt->getType();
+				std::cout << " #unimplementedStmt "<<static_cast<int>(stmt->getType());
 				resultRef=executeObj( stmt->getExpression() );
 				stmt = rtb->nextStatement();
 				break;

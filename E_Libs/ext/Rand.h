@@ -29,7 +29,13 @@ class Rand{
 		//-----------------
 		// Seed
 		intType getSeed() const 		{	return seed;	}
-		void setSeed(intType newSeed) 	{	seed = newSeed;	}
+		void setSeed(intType newSeed) {
+			if (newSeed <= 0) {
+				generateSeed();
+			} else {
+				seed = newSeed;
+			}
+		}
 		void generateSeed();
 
 		//-----------------

@@ -6,6 +6,7 @@
 
 namespace EScript{
 
+const identifierId Consts::IDENTIFIER_attr_printableName=stringToIdentifierId("_printableName");
 const identifierId Consts::IDENTIFIER_this=stringToIdentifierId("this");
 //const identifierId Indentifier::IDENTIFIER_parent=stringToIdentifierId("_parent");
 const identifierId Consts::IDENTIFIER_thisFn=stringToIdentifierId("thisFn");

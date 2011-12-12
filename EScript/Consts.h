@@ -12,6 +12,7 @@ namespace EScript{
 /*! Common identifiers */
 //	@{
 struct Consts{
+	static const identifierId IDENTIFIER_attr_printableName;
 	static const identifierId IDENTIFIER_this;
 	static const identifierId IDENTIFIER_thisFn;
 	static const identifierId IDENTIFIER_fn_call;

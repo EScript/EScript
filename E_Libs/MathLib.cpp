@@ -48,22 +48,7 @@ void init(EScript::Namespace * globals) {
 
 	declareConstant(lib,"PI",Number::create(M_PI));
 	declareConstant(lib,"PI_2",Number::create(M_PI_2));
-//
-//	/*!	[ESF] number Math.rand(max,[seed])
-//		based on // http://www.cs.wm.edu/~va/software/park/	*/
-//	ES_FUNCTION_DECLARE(lib,"rand",1,2,{
-//		static long seed=1;
-//		if (parameter.count()>1)
-//			seed=static_cast<unsigned int>(parameter[1].toInt());
-//		const long Q = 2147483647 / 48271;
-//		const long R = 2147483647 % 48271;
-//		long t = 48271 * (seed % Q) - R * (seed / Q);
-//		if (t > 0)
-//			seed = t;
-//		else
-//			seed = t + 2147483647;
-//		return Number::create( seed%(static_cast<unsigned int>(parameter[0].toInt()+1)));
-//	})
+
 
 	//! Number Math.atan2(a,b)
 	ESF_DECLARE(lib, "atan2", 2, 2,
