@@ -210,7 +210,7 @@ Object * Collection::rt_map(Runtime & runtime,ObjPtr function, const ParameterVa
 	Object * obj=callMemberFunction(runtime,this,Consts::IDENTIFIER_fn_constructor,ParameterValues());
 	ERef<Collection> newCollectionRef=dynamic_cast<Collection*>(obj);
 	if(newCollectionRef.isNull()){
-		runtime.error("Collection.map(..) No Constructor found!");
+		runtime.setException("Collection.map(..) No Constructor found!");
 		return NULL;
 	}
 	ParameterValues parameters(additionalValues.count()+2);

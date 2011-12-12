@@ -83,7 +83,7 @@ void assertParamCount_2(Runtime & runtime, int paramCount, int min, int max) {
 		if(object != NULL) {
 			sprinter << object->toString();
 		}
-		runtime.error(sprinter.str());
+		runtime.throwException(sprinter.str());
 	} else  if (max >= 0 && paramCount > max) {
 		std::ostringstream sprinter;
 		sprinter << "Too many parameters: Expected " << max << ", got " << paramCount << ".";
@@ -97,7 +97,7 @@ void assertParamCount_2(Runtime & runtime, int paramCount, int min, int max) {
 
 //! (static, internal) Non-inline part of assertType(...)
 void assertType_throwError(Runtime & runtime, const ObjPtr & obj) {
-	runtime.error("Wrong Object Type.", obj.get());
+	runtime.throwException("Wrong Object Type.", obj.get());
 }
 
 //! (static)
@@ -151,7 +151,7 @@ std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & fi
 	try {
 		script = loadScriptFile(filename);
 	} catch (Exception * error) {
-		std::cerr << "\nError occured while loading file \"" << filename << "\":\n" << error->toString() << std::endl;
+		std::cerr << "\nError occured while loading file '" << filename << "':\n" << error->toString() << std::endl;
 		return std::make_pair(false, error);
 	}
 	bool success = true;

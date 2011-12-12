@@ -33,7 +33,7 @@ void IOLib::init(EScript::Namespace * o) {
 		size_t size;
 		char * content=FileUtils::loadFile(parameter[0]->toString().c_str(),size);
 		if (content==0){
-			runtime.setExceptionState(new Exception("Could not open File!"));
+			runtime.setException("Could not open File!");
 			return NULL;
 		}
 		if (parameter.count()>1) {
@@ -42,7 +42,7 @@ void IOLib::init(EScript::Namespace * o) {
 				delete [] content;
 				return String::create(contentS);
 			} else {
-				runtime.setExceptionState(new Exception("Unknown format"));
+				runtime.setException("Unknown format");
 				return NULL;
 			}
 		}
@@ -64,7 +64,8 @@ void IOLib::init(EScript::Namespace * o) {
 		try {
 			FileUtils::getFilesInDir(parameter[0]->toString(),files,parameter[1].toInt(E_DIR_FILES));
 		} catch (std::string s) {
-			runtime.setExceptionState( new Exception(s));
+			runtime.setException(s);
+			return NULL;
 		}
 
 		Array * ar=Array::create();

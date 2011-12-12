@@ -116,7 +116,8 @@ Object * StdLib::load(Runtime & runtime,const std::string & filename){
 	try {
 		block=EScript::loadScriptFile(findFile(runtime,filename));
 	} catch (Exception * e) {
-		runtime.setExceptionState(e);
+		runtime.setException(e); // adds stack info
+		return NULL;
 	}
 	if (block.isNull())
 		return NULL;
@@ -173,7 +174,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	ES_FUNCTION_DECLARE(globals,"assert",1,2, {
 		assertParamCount(runtime,parameter.count(),1,2);
 		if(!parameter[0]->toBool()){
-			runtime.exception(parameter.count()>1?parameter[1]->toString():"Assert failed.");
+			runtime.setException(parameter.count()>1?parameter[1]->toString():"Assert failed.");
 		}
 		return NULL;
 	})
@@ -229,15 +230,17 @@ void StdLib::init(EScript::Namespace * globals) {
 	//!	[ESF]  Block parse(string)
 	ES_FUNCTION_DECLARE(globals,"parse",1,1, {
 		assertParamCount(runtime,parameter.count(),1,1);
-		ERef<Block> bRef(new Block());
-		ERef<Parser> pRef(new Parser());
-
+		ERef<Block> block(new Block());
+		static const identifierId inline_id = stringToIdentifierId("[inline]");
+		block->setFilename(inline_id);
 		try{
-			pRef->parse(bRef.get(),parameter[0]->toString().c_str());
-		}catch(Object * e){
-			runtime.setExceptionState(e);
+			Parser p;
+			p.parse(block.get(),parameter[0]->toString().c_str());
+		}catch(Exception * e){
+			runtime.setException(e); // adds stack info
+			return NULL;
 		}
-		return bRef.detachAndDecrease();
+		return block.detachAndDecrease();
 	})
 
 	//! [ESF]  obj parseJSON(string)
