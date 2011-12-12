@@ -42,17 +42,12 @@ void  LocalVarMap::reset(){
 
 //! findAndUpdate
 bool LocalVarMap::findAndUpdate(identifierId varId,Object * val) {
-	objStack_t * valueStack = getValues()->findPtr(varId);
-	if(valueStack==NULL || valueStack->empty())
+	objMap_t::iterator i=getValues()->find(varId);
+	if(i==getValues()->end())
 		return false;
-//			
-//	objMap_t::iterator i=getValues()->find(varId);
-//	if(i==getValues()->end())
-//		return false;
-//	objStack_t & s=i->second;
-//	if(s.empty())
-//		return false;
-//	s.top()=val;
-	valueStack->top()=val;
+	objStack_t & s=i->second;
+	if(s.empty())
+		return false;
+	s.top()=val;
 	return true;
 }
