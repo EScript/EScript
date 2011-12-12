@@ -54,13 +54,13 @@ public:
 	}
 
 	//! ---|> [Object]
-	virtual bool assignAttribute(const identifierId id,ObjPtr val){
+	virtual bool assignAttribute(Runtime & rt,const identifierId id,ObjPtr val){
 		if(id==ID_m1){
 			ref().m1=val.toInt();
 		}else if(id==ID_m2){
 			ref().m2=val.toFloat();
 		}else{
-			return Object::assignAttribute(id,val);
+			return Object::assignAttribute(rt,id,val);
 		}
 		return true;
 	}

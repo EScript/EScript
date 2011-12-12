@@ -76,7 +76,7 @@ class Type : public Object {
 		virtual bool setObjAttribute(const identifierId id,ObjPtr val);
 
 		/// ---|> [Object]
-		virtual bool assignAttribute(const identifierId id,ObjPtr val);
+		virtual bool assignAttribute(Runtime & rt,const identifierId id,ObjPtr val);
 
 		/// ---|> [Object]
 		virtual void getAttributes(std::map<identifierId,Object *> & attrs);

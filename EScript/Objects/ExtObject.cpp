@@ -104,8 +104,8 @@ bool ExtObject::setObjAttribute(const identifierId id,ObjPtr val){
 }
 
 //! ---|> [Object]
-bool ExtObject::assignAttribute(const identifierId id,ObjPtr val){
-	return assignObjAttribute(id,val) ? true :  Object::assignAttribute(id,val);
+bool ExtObject::assignAttribute(Runtime & rt,const identifierId id,ObjPtr val){
+	return assignObjAttribute(id,val) ? true :  Object::assignAttribute(rt,id,val);
 }
 
 

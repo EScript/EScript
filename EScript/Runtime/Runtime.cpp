@@ -168,10 +168,10 @@ Object * Runtime::getGlobalVariable(const identifierId id) {
 void Runtime::assignToVariable(const identifierId id,Object * value) {
 	// search for local variable (bla)
 	RuntimeBlock * rtb = getCurrentContext()->getCurrentRTB();
-	if (rtb && rtb->assignToVariable(id,value)) {
+	if (rtb && rtb->assignToVariable(*this,id,value)) {
 		// assigned to local variable
 		return;
-	} else if(  globals->assignAttribute(id,value)) {
+	} else if(  globals->assignAttribute(*this,id,value)) {
 		// assigned to global variable
 		return;
 	}else{
@@ -254,7 +254,7 @@ Object * Runtime::executeObj(Object * obj){
 			// try to assign the value; this may produce an exception (\see Type::assignToTypeAttribute),
 			// which is caught and emitted as warning as this is normally no more critical than trying to assign to a nonexistent attribute.
 			try{ 
-				success = obj2->assignAttribute(sa->attrId,value.get());
+				success = obj2->assignAttribute(*this,sa->attrId,value.get());
 			}catch(Exception * e){
 				ERef<Exception> eHolder(e);
 				warn(eHolder->getMessage());

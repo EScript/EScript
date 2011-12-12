@@ -28,7 +28,7 @@ class RuntimeBlock:public EReferenceCounter<RuntimeBlock,RuntimeBlock> {
 
 		Block * getStaticBlock()const		{   return staticBlock; }
 
-		bool assignToVariable(const identifierId id,Object * val);
+		bool assignToVariable(Runtime & rt,const identifierId id,Object * val);
 		void initLocalVariable(const identifierId id,Object * val)		{	localVariables.declare(id,val);	}
 		Object * getLocalVariable(const identifierId id)				{	return localVariables.find(id);	}
 
