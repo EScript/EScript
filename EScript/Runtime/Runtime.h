@@ -18,6 +18,7 @@ namespace EScript {
 
 class Block;
 class UserFunction;
+class Exception;
 class FunctionCall;
 
 /*! [Runtime] ---|> [ExtObject]    */
@@ -116,14 +117,39 @@ class Runtime : public ExtObject  {
 		enum state_t{
 			STATE_NORMAL,STATE_BREAKING,STATE_CONTINUING,STATE_RETURNING,STATE_YIELDING,STATE_EXITING,STATE_EXCEPTION
 		};
-
+		bool assertNormalState(Object * obj=NULL) 		{	return state==STATE_NORMAL ? true : stateError(obj);	}
+		
 		bool checkNormalState()const					{	return state==STATE_NORMAL;	}
 		state_t getState()const							{	return state;	}
-		void setState(state_t newState)					{	state=newState; /* TODO only when state was 0? */ }
 		void resetState() {
 			state=STATE_NORMAL;
 			returnRef=NULL;
 		}
+
+
+		Object * getResult()const 						{	return returnRef.get();	}
+
+		void info(const std::string & s);
+		void warn(const std::string & s);
+
+		/*! Creates an exception object including current stack info and
+			sets the state to STATE_EXCEPTION. Does NOT throw a C++ exception. */
+		void setException(const std::string & s);
+		
+		/*! Annotates the given Exception with the current stack info and set the state 
+			to STATE_EXCEPTION. Does NOT throw a C++ exception. */
+		void setException(Exception * e);
+
+		/**
+		 * Throws a runtime exception (a C++ Exception, not an internal one!).
+		 * Should only be used inside of library-functions
+		 * (otherwise, they are not handled and the program is likely to crash).
+		 * In all other situations try to use setException(...) 
+		 */
+		void throwException(const std::string & s,Object * obj=NULL);
+
+	private:
+		void setState(state_t newState)					{	state=newState; /* TODO only when state was 0? */ }
 		void setReturnState(const ObjRef & value) {
 			returnRef=value;
 			state=STATE_RETURNING;
@@ -139,26 +165,7 @@ class Runtime : public ExtObject  {
 		void setExceptionState(const ObjRef & exceptionObj) {
 			returnRef=exceptionObj;
 			state=STATE_EXCEPTION;
-		}
-		Object * getResult()const 						{	return returnRef.get();	}
-		bool assertNormalState(Object * obj=NULL) 		{	return state==STATE_NORMAL ? true : stateError(obj);	}
-
-		void info(const std::string & s);
-		void warn(const std::string & s);
-
-		/*! Creates an exception object including current stack info and
-			sets the state to exception STATE_EXCEPTION. Does NOT throw a C++ exception. */
-		void exception(const std::string & s);
-
-		/**
-		 * Throws a runtime exception (a C++ Exception, not an internal one!).
-		 * Should only be used inside of library-functions
-		 * (otherwise, they are not handled and the program is likely to crash).
-		 * In all other situations try to use setExceptionState(...) or exception(...)
-		 */
-		void error(const std::string & s,Object * obj=NULL);
-
-	private:
+		}		
 		bool stateError(Object * obj);
 		state_t state;
 		ObjRef returnRef;

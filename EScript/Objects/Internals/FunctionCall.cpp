@@ -4,7 +4,6 @@
 // ------------------------------------------------------
 #include "FunctionCall.h"
 
-#include <algorithm>
 #include <iterator>
 #include <sstream>
 
@@ -24,7 +23,12 @@ FunctionCall::FunctionCall(Object * exp,const std::vector<ObjRef> & parameterVec
 std::string FunctionCall::toString() const {
 	std::ostringstream sprinter;
 	sprinter << expRef.toString() << "(";
-	std::transform(parameters.begin(), parameters.end(), std::ostream_iterator<std::string>(sprinter, ", "), ObjectPrinter());
+	if(!parameters.empty()){
+		std::vector<ObjRef>::const_iterator it = parameters.begin();
+		sprinter<< (*it)->toDbgString();
+		for(++it;it!=parameters.end();++it)
+			sprinter<<", "<< (*it)->toDbgString();
+	}
 	sprinter << ")";
 	return sprinter.str();
 }
@@ -33,7 +37,13 @@ std::string FunctionCall::toString() const {
 std::string FunctionCall::toDbgString() const {
 	std::ostringstream sprinter;
 	sprinter << expRef.toString() << "(";
-	std::transform(parameters.begin(), parameters.end(), std::ostream_iterator<std::string>(sprinter, ", "), ObjectDebugPrinter());
-	sprinter << ") [" << getFilename() << ":" << getLine() << "]";
+	if(!parameters.empty()){
+		std::vector<ObjRef>::const_iterator it = parameters.begin();
+		sprinter<< (*it)->toDbgString();
+		for(++it;it!=parameters.end();++it)
+			sprinter<<", "<< (*it)->toDbgString();
+	}
+
+	sprinter << ") near '" << getFilename() << "':" << getLine() << "";
 	return sprinter.str();
 }

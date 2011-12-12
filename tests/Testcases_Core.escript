@@ -647,10 +647,6 @@ if(!benchmark)
 
 	var b=new B();
 	
-	out("\n");
-	out(b,"\n");
-	out(B);
-//	print_r(b._getAttributes());
 
 //    print_r(B._getAttributes());
 //    out("A.a: ",A.a," A.b: ",A.b," A.c: ",A.c," A.d: ",A.d," B.a: ",B.a," B.b: ",B.b," B.c: ",B.c," B.d: ",B.d," \n");
@@ -679,7 +675,7 @@ if(!benchmark)
 //        A.setClassMember("a",1);
 //
 //        var B=new A();
-//        /// this should produce a warnnig
+//        /// this should produce a warning
 //        B.a=2;
 //        out(A.a,"\t",B.a); /// should be 1 2
 //    }

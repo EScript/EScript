@@ -116,19 +116,20 @@ static std::string findFile(Runtime & runtime, const std::string & filename){
 
 //! (static)
 Object * StdLib::load(Runtime & runtime,const std::string & filename){
-	ERef<Block> bRef(new Block());
+	ERef<Block> block;
 	try {
-		bRef=EScript::loadScriptFile(findFile(runtime,filename),bRef.get());
+		block=EScript::loadScriptFile(findFile(runtime,filename));
 	} catch (Exception * e) {
-		runtime.setExceptionState(e);
+		runtime.setException(e); // adds stack info
+		return NULL;
 	}
-	if (bRef.isNull())
+	if (block.isNull())
 		return NULL;
 
-	ObjRef resultRef(runtime.executeObj(bRef.get()));
+	ObjRef resultRef(runtime.executeObj(block.get()));
 	/* reset the Block at this point is important as it might hold a reference to the result, which may then
 		be destroyed when the function is left after the resultRef-reference has already been decreased. */
-	bRef = NULL;
+	block = NULL; 
 	if(runtime.getState() == Runtime::STATE_RETURNING){
 			resultRef=runtime.getResult();
 			runtime.resetState();
@@ -192,7 +193,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	ES_FUNCTION_DECLARE(globals,"assert",1,2, {
 		assertParamCount(runtime,parameter.count(),1,2);
 		if(!parameter[0]->toBool()){
-			runtime.exception(parameter.count()>1?parameter[1]->toString():"Assert failed.");
+			runtime.setException(parameter.count()>1?parameter[1]->toString():"Assert failed.");
 		}
 		return NULL;
 	})
@@ -267,15 +268,17 @@ void StdLib::init(EScript::Namespace * globals) {
 	//!	[ESF]  Block parse(string)
 	ES_FUNCTION_DECLARE(globals,"parse",1,1, {
 		assertParamCount(runtime,parameter.count(),1,1);
-		ERef<Block> bRef(new Block());
-		ERef<Parser> pRef(new Parser());
-
+		ERef<Block> block(new Block());
+		static const identifierId inline_id = stringToIdentifierId("[inline]");
+		block->setFilename(inline_id);
 		try{
-			pRef->parse(bRef.get(),StringData(parameter[0]->toString()));
-		}catch(Object * e){
-			runtime.setExceptionState(e);
+			Parser p;
+			p.parse(block.get(),StringData(parameter[0]->toString()));
+		}catch(Exception * e){
+			runtime.setException(e); // adds stack info
+			return NULL;
 		}
-		return bRef.detachAndDecrease();
+		return block.detachAndDecrease();
 	})
 
 	//! [ESF]  obj parseJSON(string)

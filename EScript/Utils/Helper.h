@@ -80,7 +80,7 @@ Object * callFunction(Runtime & rt, Object * function, const ParameterValues & p
 
 void out(Object * obj);
 
-Block * loadScriptFile(const std::string & filename, ERef<Block> block = NULL) throw (Exception *);
+Block * loadScriptFile(const std::string & filename);
 
 //! @return (success, result)
 std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & filename);

@@ -255,7 +255,7 @@ void String::init(EScript::Namespace & globals) {
 
 String * String::create(const StringData & sData){
 	#ifdef ES_DEBUG_MEMORY
-	return new String(s);
+	return new String(sData);
 	#endif
 	if(stringPool.empty()){
 		return new String (sData);

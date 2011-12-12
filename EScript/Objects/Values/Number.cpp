@@ -47,9 +47,9 @@ void Number::init(EScript::Namespace & globals) {
 
 	//! [ESMF] Number / Number2
 	ES_FUNCTION_DECLARE(typeObject,"/",1,1,{
-		double d=parameter[0]->toDouble();
+		const double d=parameter[0]->toDouble();
 		if (d==0){
-			runtime.exception("Division by zero");
+			runtime.setException("Division by zero");
 			return NULL;
 		}
 		return  Number::create( caller->toDouble()/d);
@@ -66,9 +66,9 @@ void Number::init(EScript::Namespace & globals) {
 
 	//! [ESMF] Number % Number2
 	ES_MFUNCTION_DECLARE(typeObject,Number,"%",1,1,{
-		double d=parameter[0]->toDouble();
+		const double d=parameter[0]->toDouble();
 		if (d==0){
-			runtime.exception("Modulo with zero");
+			runtime.setException("Modulo with zero");
 			return NULL;
 		}
 		return  Number::create( self->modulo(d) );
@@ -109,9 +109,9 @@ void Number::init(EScript::Namespace & globals) {
 
 	//! [ESMF] Numbern /= Number2
 	ES_MFUNCTION_DECLARE(typeObject,Number,"/=",1,1,{
-		double d=parameter[0]->toDouble();
+		const double d=parameter[0]->toDouble();
 		if (d==0){
-			runtime.exception("Division by zero");
+			runtime.setException("Division by zero");
 			return NULL;
 		}
 		self->setValue(self->getValue()/d);
@@ -120,9 +120,9 @@ void Number::init(EScript::Namespace & globals) {
 
 	//! [ESMF] Numbern %= Number2
 	ES_MFUNCTION_DECLARE(typeObject,Number,"%=",1,1,{
-		double d=parameter[0]->toDouble();
+		const double d=parameter[0]->toDouble();
 		if (d==0){
-			runtime.exception("Modulo with zero");
+			runtime.setException("Modulo with zero");
 			return NULL;
 		}
 		self->setValue(self->modulo(d));
@@ -164,7 +164,7 @@ void Number::init(EScript::Namespace & globals) {
 	//! [ESMF] Number Number.abs()
 	ES_FUNCTION_DECLARE(typeObject,"abs",0,0,{
 		assertParamCount(runtime,parameter.count(),0,0);
-		double d=caller->toDouble();
+		const double d=caller->toDouble();
 		return  Number::create( d>0?d:-d);
 	})
 
@@ -185,11 +185,11 @@ void Number::init(EScript::Namespace & globals) {
 
 	/*!	[ESMF] Number Number.clamp(min,max)	*/
 	ES_FUNCTION_DECLARE(typeObject,"clamp",2,2, {
-		double d=caller->toDouble();
-		double min=parameter[0]->toDouble();
+		const double d=caller->toDouble();
+		const double min=parameter[0]->toDouble();
 		if(d<=min)
 			return Number::create(min);
-		double max=parameter[1]->toDouble();
+		const double max=parameter[1]->toDouble();
 		return Number::create(d<=max ? d : max );
 	})
 
@@ -227,9 +227,9 @@ void Number::init(EScript::Namespace & globals) {
 	ES_FUNCTION_DECLARE(typeObject,"round",0,1,{
 		if(parameter.count()==0)
 			return 	Number::create(round( caller->toDouble()));
-		double reference = parameter[0].toDouble();
+		const double reference = parameter[0].toDouble();
 		if (reference==0){
-			runtime.exception("round with zero");
+			runtime.setException("round with zero");
 			return NULL;
 		}
 		return Number::create(round(caller->toDouble()/reference) * reference);

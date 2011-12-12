@@ -62,7 +62,7 @@ void Runtime::init(EScript::Namespace & globals) {
 				(runtime.setStackSizeLimit(static_cast<size_t>(parameter[0].toInt())),Void::get()) )
 
 	//!	[ESMF] void Runtime.exception( [message] );
-	ESF_DECLARE(typeObject,"exception",0,1, (runtime.exception(parameter[0].toString()),Void::get()))
+	ESF_DECLARE(typeObject,"exception",0,1, (runtime.setException(parameter[0].toString()),Void::get()))
 
 	//!	[ESMF] String Runtime.getStackInfo();
 	ESF_DECLARE(typeObject,"getStackInfo",0,0, String::create(runtime.getStackInfo()))
@@ -203,7 +203,7 @@ Object * Runtime::executeObj(Object * obj){
 			setCallingObject(NULL);
 			resultRef = getVariable(ga->getAttrId());
 			if (resultRef.isNull())
-				warn("Unknown Variable:"+ga->toString());
+				warn("Unknown variable '"+ga->toString()+"'.");
 
 		}// obj.ident
 		else {
@@ -217,7 +217,7 @@ Object * Runtime::executeObj(Object * obj){
 			setCallingObject(obj2Ref.get());
 			resultRef = getMemberAttribute( obj2Ref.get(),ga->getAttrId() );
 			if (resultRef.isNull()) {
-				warn("Member not set:"+ga->toString());
+				warn("Member not set '"+ga->toString()+"'");
 			}
 		}
 		return resultRef.detachAndDecrease();
@@ -260,27 +260,27 @@ Object * Runtime::executeObj(Object * obj){
 				warn(eHolder->getMessage());
 			}
 			if(!success){
-				warn(std::string("Unkown attribute \"")+sa->getAttrName()+"\" ("+
+				warn(std::string("Unkown attribute '")+sa->getAttrName()+"' ("+
 						(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+"."+sa->getAttrName()+"="+(value.isNull()?"":value->toDbgString())+")");
 				if(!obj2->setObjAttribute(sa->attrId,value.get())){
-					warn(std::string("Can't set object attribute \"")+sa->getAttrName()+"\" ("+
+					warn(std::string("Can't set object attribute '")+sa->getAttrName()+"' ("+
 							(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+"."+sa->getAttrName()+"="+(value.isNull()?"":value->toDbgString())+")");
 				}
 			}
 		}else if(sa->assignType == SetAttribute::SET_OBJ_ATTRIBUTE){
 			if(!obj2->setObjAttribute(sa->attrId,value.get()))
-				warn(std::string("Can't set object attribute \"")+sa->getAttrName()+"\" ("+
+				warn(std::string("Can't set object attribute '")+sa->getAttrName()+"' ("+
 						(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+"."+sa->getAttrName()+"="+(value.isNull()?"":value->toDbgString())+")");
 		}else if(sa->assignType == SetAttribute::SET_TYPE_ATTRIBUTE){
 			Type * t=obj2.toType<Type>();
 			if(t){
 				t->setTypeAttribute(sa->attrId,value.get());
 			}else{
-				warn(std::string("Can not set typeAttr to non-Type-Object: \"")+sa->getAttrName()+"\" ("+
+				warn(std::string("Can not set typeAttr to non-Type-Object: '")+sa->getAttrName()+"' ("+
 						(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+"."+sa->getAttrName()+"="+(value.isNull()?"":value->toDbgString())+")"
 						+"Setting objAttr instead.");
 				if(!obj2->setObjAttribute(sa->attrId,value.get())){
-					warn(std::string("Can't set object attribute \"")+sa->getAttrName()+"\" ("+
+					warn(std::string("Can't set object attribute '")+sa->getAttrName()+"' ("+
 							(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+"."+sa->getAttrName()+"="+(value.isNull()?"":value->toDbgString())+")");
 				}
 			}
@@ -453,13 +453,13 @@ Object * Runtime::executeCurrentContext(bool markEntry) {
 			case STATE_BREAKING:{
 				while( rtb->getStaticBlock()->getBreakPos() == Block::POS_DONT_HANDLE ){
 					if( markEntry && (--localRTBs)<0 ){
-						exception("No break here!");
+						setException("No break here!");
 						return NULL;
 					}
 					ctxt->popRTB();
 					rtb = ctxt->getCurrentRTB();
 					if( rtb==NULL ){
-						exception("No break here!");
+						setException("No break here!");
 						return NULL;
 					}
 				}
@@ -471,14 +471,14 @@ Object * Runtime::executeCurrentContext(bool markEntry) {
 			case STATE_CONTINUING:{
 				while( rtb->getStaticBlock()->getContinuePos() == Block::POS_DONT_HANDLE ){
 					if( markEntry && (--localRTBs)<0 ){
-						exception("No continue here!");
+						setException("No continue here!");
 						return NULL;
 					}
 					ctxt->popRTB();
 					rtb = ctxt->getCurrentRTB();
 
 					if( rtb==NULL ){
-						exception("No continue here!");
+						setException("No continue here!");
 						return NULL;
 					}
 				}
@@ -618,12 +618,15 @@ Object * Runtime::executeFunctionCall(FunctionCall * fCall){
 	- Delegate: return executeFunction(...) for contained function.
 */
 Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObject,const ParameterValues & params,bool isConstructorCall/*=false*/){
-	if(fun.isNull())
+	if(fun.isNull()){
+		warn("Can't use '"+Void::get()->toDbgString()+"' as a function.");
 		return NULL;
+	}
+		
 
 	// possibly endless recursion?
 	if(getStackSize() >= getStackSizeLimit()){
-		exception("Stack size limit reached.");
+		setException("Stack size limit reached.");
 		return NULL;
 	}
 
@@ -634,7 +637,7 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 		Function * libfun=static_cast<Function*>(fun.get());
 
 		if(isConstructorCall && _callingObject.toType<Type>()==NULL){
-			exception("Can not instantiate non-Type-Object. Hint: Try to check the type you use with 'new'.");
+			setException("Can not instantiate non-Type-Object. Hint: Try to check the type you use with 'new'.");
 			return NULL;
 		}
 		{	// check param count
@@ -644,7 +647,7 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 				std::ostringstream sprinter;
 				sprinter<<"Too few parameters: Expected " <<min<<", got "<<params.count()<<".";
 				//! \todo improve message
-				exception(sprinter.str());
+				setException(sprinter.str());
 				return NULL;
 			} else  if (max>=0 && static_cast<int>(params.count())>max) {
 				std::ostringstream sprinter;
@@ -661,13 +664,13 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 			setExceptionState(e);
 			return NULL;
 		} catch(const char * message) {
-			exception(std::string("C++ exception: ")+message);
+			setException(std::string("C++ exception: ")+message);
 			return NULL;
 		} catch(const std::string & message) {
-			exception(std::string("C++ exception: ") + message);
+			setException(std::string("C++ exception: ") + message);
 			return NULL;
 		} catch(const std::exception & e) {
-			exception(std::string("C++ exception: ") + e.what());
+			setException(std::string("C++ exception: ") + e.what());
 			return NULL;
 		} catch (Object * obj) {
 			// workaround: this should be covered by catching the Exception* directly, but that doesn't always seem to work!?!
@@ -676,11 +679,11 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 				setExceptionState(e);
 				return NULL;
 			}
-			std::string message=(obj?obj->toString():"NULL");
-			exception(message);
+			const std::string message=(obj?obj->toString():"NULL");
+			setException(message);
 			return NULL;
 		}  catch (...){
-			exception("C++ exception");
+			setException("C++ exception");
 			return NULL;
 		}
 	} // is UserFunction?
@@ -694,7 +697,7 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 			// error occured
 			if(fctxt==NULL) {
 				if( checkNormalState() ) // no context, but normal state? --> strange things happend
-					exception("Could not call function. ");
+					setException("Could not call function. ");
 				return NULL;
 			}
 			ObjRef result=executeCurrentContext();
@@ -733,7 +736,7 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 			return executeFunction(otherFun,fun,params2,isConstructorCall);
 		}
 
-		warn("No function to call.");
+		warn("Can't use '"+fun->toDbgString()+"' as a function.");
 	}
 	return NULL;
 }
@@ -832,7 +835,7 @@ bool Runtime::checkType(const identifierId & name, Object * obj,Object *typeExpr
 	}else if(obj->isA(typeObj.toType<Type>()) ||  obj->isIdentical(*this,typeObj)){
 		return true;
 	}
-	exception("Wrong value type for parameter '" + EScript::identifierIdToString(name)+"'. "+
+	setException("Wrong value type for parameter '" + EScript::identifierIdToString(name)+"'. "+
 		"Expected object of type '"+typeExpression->toString()+"', but received object of type '"+obj->getTypeName()+"'.");
 	return false;
 }
@@ -848,7 +851,7 @@ bool Runtime::checkType(const identifierId & name, Object * obj,Object *typeExpr
 Object * Runtime::executeUserConstructor(const ObjPtr & _callingObject,const ParameterValues & params){
 	Type * type=_callingObject.toType<Type>();
 	if(type==NULL){
-		exception("Can not instantiate non-Type-Object. Hint: Try to check the type you use with 'new'.");
+		setException("Can not instantiate non-Type-Object. Hint: Try to check the type you use with 'new'.");
 		return NULL;
 	}
 
@@ -871,7 +874,7 @@ Object * Runtime::executeUserConstructor(const ObjPtr & _callingObject,const Par
 			baseObj = executeFunction(baseCons,type,currentParams,true);
 			break;
 		}else if(funType!=_TypeIds::TYPE_USER_FUNCTION ){
-			error("Constructor needs to be a function");
+			setException("Constructor needs to be a function");
 			return NULL;
 		}
 
@@ -881,7 +884,7 @@ Object * Runtime::executeUserConstructor(const ObjPtr & _callingObject,const Par
 		RuntimeContext::RTBRef fctxt=createAndPushFunctionCallContext(NULL,uCons,currentParams); // we don't know the baseObj yet.
 		if(fctxt==NULL) {
 			if( checkNormalState() ) // no context, but normal state? --> strange things happend
-				exception("Could not call function. ");
+				setException("Could not call function. ");
 			return NULL;
 		}
 		consCallStack.push(fctxt);
@@ -917,7 +920,7 @@ Object * Runtime::executeUserConstructor(const ObjPtr & _callingObject,const Par
 
 	}
 	if(baseObj.isNull()){
-		error( "No c++ base-contructor found.");
+		setException( "No c++ base-contructor found.");
 		return NULL;
 	}
 
@@ -959,19 +962,19 @@ bool Runtime::stateError(Object * obj){
 			return true;
 		}
 		case STATE_RETURNING:{
-			exception("No return here!"+(obj?" ["+obj->toString()+"]":""));
+			setException("No return here!"+(obj?" ["+obj->toString()+"]":""));
 			break;
 		}
 		case STATE_BREAKING:{
-			exception("No break here!"+(obj?" ["+obj->toString()+"]":""));
+			setException("No break here!"+(obj?" ["+obj->toString()+"]":""));
 			break;
 		}
 		case STATE_CONTINUING:{
-			exception("No continue here!"+(obj?" ["+obj->toString()+"]":""));
+			setException("No continue here!"+(obj?" ["+obj->toString()+"]":""));
 			break;
 		}
 		case STATE_YIELDING:{
-			exception("No yield here!"+(obj?" ["+obj->toString()+"]":""));
+			setException("No yield here!"+(obj?" ["+obj->toString()+"]":""));
 			break;
 		}
 		case STATE_EXITING:{
@@ -982,7 +985,7 @@ bool Runtime::stateError(Object * obj){
 			break;
 		}
 		default:
-			exception("Unknown runtime state");
+			setException("Unknown runtime state.");
 	}
 	return false;
 }
@@ -996,34 +999,33 @@ void Runtime::info(const std::string & s) {
 void Runtime::warn(const std::string & s) {
 	if(getErrorConfig()&ES_IGNORE_WARNINGS) return;
 	else if(getErrorConfig()&ES_TREAT_WARNINGS_AS_ERRORS) {
-		exception(s);
+		setException(s);
 		return;
 	}
 	std::cout << "\n WARNING: "<< s << std::endl;
 	if(getCurrentContext()->getCurrentRTB()!=NULL){
 		Block * b=getCurrentContext()->getCurrentRTB()->getStaticBlock();
 		if(b)
-			std::cout<<"\tFile:"<<b->getFilename()<<" near line "<<getCurrentLine()<<"\n";
+			std::cout<<"\tFile: '"<<b->getFilename()<<"' near line "<<getCurrentLine()<<"\n";
 //        std::cout << " *** "<<b->getFilename()<<":"<<b->toString();
 	}
 }
 
-void Runtime::exception(const std::string & s) {
+void Runtime::setException(const std::string & s) {
 	Exception * e = new Exception(s,getCurrentLine());
-	e->setStackInfo(getStackInfo());
 	e->setFilename(getCurrentFile());
+	setException(e);
+}
+
+void Runtime::setException(Exception * e){
+	e->setStackInfo(getStackInfo());
 	setExceptionState(e);
 }
 
-void Runtime::error(const std::string & s,Object * obj) {
+void Runtime::throwException(const std::string & s,Object * obj) {
 	std::ostringstream os;
 	os<<s;
 	if(obj) os<<"("<<obj->toString()<<")";
-	if(getCurrentContext()->getCurrentRTB()!=NULL){
-		Block * b=getCurrentContext()->getCurrentRTB()->getStaticBlock();
-		if(b)
-			 os<<"\tFile:"<<b->getFilename()<<" near line "<<getCurrentLine()<<"\n";
-	}
 	os<<getStackInfo();
 	Exception * e = new Exception(os.str(),getCurrentLine()); // \todo remove line
 	e->setFilename(getCurrentFile());

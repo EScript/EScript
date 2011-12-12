@@ -34,7 +34,7 @@ void IOLib::init(EScript::Namespace * o) {
 		try{
 			content = IO::loadFile(parameter[0].toString());
 		}catch(std::ios::failure e){
-			runtime.setExceptionState(new Exception(e.what()));
+			runtime.setException(e.what());
 			return NULL;
 		}
 		if (parameter.count()>1) {
@@ -42,7 +42,7 @@ void IOLib::init(EScript::Namespace * o) {
 				std::string contentS(StringUtils::UCS2LE_to_ANSII(content.str()));
 				return String::create(contentS);
 			} else {
-				runtime.setExceptionState(new Exception("Unknown format"));
+				runtime.setException("Unknown format");
 				return NULL;
 			}
 		}
@@ -54,7 +54,7 @@ void IOLib::init(EScript::Namespace * o) {
 		try{
 			IO::saveFile(parameter[0].toString(),parameter[1].toString());
 		}catch(std::ios::failure e){
-			runtime.setExceptionState(new Exception(e.what()));
+			runtime.setException(e.what());
 			return NULL;
 		}
 		return Void::get();
@@ -66,7 +66,8 @@ void IOLib::init(EScript::Namespace * o) {
 		try {
 			IO::getFilesInDir(parameter[0]->toString(),files,parameter[1].toInt(E_DIR_FILES));
 		} catch (std::string s) {
-			runtime.setExceptionState( new Exception(s));
+			runtime.setException(s);
+			return NULL;
 		}
 
 		Array * ar=Array::create();

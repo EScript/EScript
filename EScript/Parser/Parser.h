@@ -30,16 +30,16 @@ class Parser : public Object {
 		static Type* typeObject;
 		static void init(EScript::Namespace & globals);
 
-		/*! [Parser::Error] ---|> [Exception] ---|> [Object]    */
-		class Error:public Exception {
+		/*! [ParserException] ---|> [Exception] ---|> [Object]    */
+		class ParserException:public Exception {
+			ES_PROVIDES_TYPE_NAME(ParserException)
+			
 			public:
-				Error(const std::string  & _msg,Token * token=NULL):
-					Exception(
-						std::string("[Parser]")+_msg,  (token==NULL? -1 : token->getLine())) {
+				ParserException(const std::string  & _msg,Token * token=NULL):
+					Exception(_msg,  (token==NULL? -1 : token->getLine())) {
 				}
-				Error(const std::string  & _msg,const _CountedRef<Token> & token):
-					Exception(
-						std::string("[Parser]")+_msg,  (token.isNull() ? -1 : token->getLine())) {
+				ParserException(const std::string  & _msg,const _CountedRef<Token> & token):
+					Exception(_msg,  (token.isNull() ? -1 : token->getLine())) {
 				}
 		};
 		//-----------
@@ -47,8 +47,8 @@ class Parser : public Object {
 		Parser(Type * type=NULL);
 		virtual ~Parser();
 
-		Object * parse(Block * rootBlock,const StringData & code) throw (Exception *);
-		Object * parseFile(Block * rootBlock,const std::string & filename) throw (Exception *);
+		Object * parse(Block * rootBlock,const StringData & code);
+		Block * parseFile(const std::string & filename);
 
 		/// ---|> [Object]
 		virtual Object * clone()const;
@@ -68,23 +68,26 @@ class Parser : public Object {
 		std::string getCurrentFilename()const	{	return identifierIdToString(currentFilename);	}
 
 		Tokenizer tokenizer;
-		void pass_1(ParsingContext & ctxt)throw (Exception *);
-		void pass_2(ParsingContext & ctxt, Tokenizer::tokenList_t  & enrichedTokens)const throw (Exception *);
-		Statement getControl(ParsingContext & ctxt,int & cursor)const throw (Exception *);
-		Statement getStatement(ParsingContext & ctxt,int & cursor,int to=-1)const throw (Exception *);
-		Object * getExpression(ParsingContext & ctxt,int & cursor,int to=-1)const throw (Exception *);
-		Object * getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)const throw (Exception *);
-		Block * getBlock(ParsingContext & ctxt,int & cursor)const throw (Exception *) ;
-		Object * getMap(ParsingContext & ctxt,int & cursor)const throw (Exception *);
-		Object * getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const throw (Exception *);
-		UserFunction::parameterList_t * getFunctionParameters(ParsingContext & ctxt,int & cursor)const throw (Exception *);
-		void getExpressionsInBrackets(ParsingContext & ctxt,int & cursor,std::vector<ObjRef> & expressions)const throw (Exception *);
+		void pass_1(ParsingContext & ctxt);
+		void pass_2(ParsingContext & ctxt, Tokenizer::tokenList_t  & enrichedTokens)const;
+		Statement getControl(ParsingContext & ctxt,int & cursor)const;
+		Statement getStatement(ParsingContext & ctxt,int & cursor,int to=-1)const;
+		Object * getExpression(ParsingContext & ctxt,int & cursor,int to=-1)const;
+		Object * getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)const;
+		Block * getBlock(ParsingContext & ctxt,int & cursor)const ;
+		Object * getMap(ParsingContext & ctxt,int & cursor)const;
+		Object * getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const;
+		UserFunction::parameterList_t * getFunctionParameters(ParsingContext & ctxt,int & cursor)const;
+		void getExpressionsInBrackets(ParsingContext & ctxt,int & cursor,std::vector<ObjRef> & expressions)const;
 
 		Statement createStatement(Object * obj)const;
 
 		enum lValue_t { LVALUE_NONE, LVALUE_INDEX, LVALUE_MEMBER};
-		lValue_t getLValue(ParsingContext & ctxt,int from,int to,Object * & obj,identifierId & identifier,Object * &indexExpression)const throw (Exception *);
+		lValue_t getLValue(ParsingContext & ctxt,int from,int to,Object * & obj,identifierId & identifier,Object * &indexExpression)const;
 		int findExpression(ParsingContext & ctxt,int cursor)const;
+		
+		void throwError(const std::string & msg,Token * token=NULL)const;
+		void throwError(const std::string & msg,const _CountedRef<Token> & token)const	{	throwError(msg,token.get());	}
 };
 }
 

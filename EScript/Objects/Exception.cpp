@@ -68,15 +68,18 @@ Object *  Exception::clone()const {
 //! ---|> [Object]
 std::string Exception::toString()const {
 	std::ostringstream sprinter;
-	sprinter << "[#EXCEPTION \""<<msg<<"\"";
+	sprinter << "[#"<<getTypeName();
+	
+	sprinter << " \""<<msg<<"\"";
 	if(getLine()>=0 || getFilenameId()!=0){
-		sprinter<<" (near ";
+		sprinter<<" near ";
 		if(getFilenameId()!=0)
-			sprinter<<getFilename();
+			sprinter<<"'"<<getFilename()<<"'";
 		if(getLine()>=0)
 			sprinter<<":"<<getLine();
-		sprinter<<")";
+		sprinter<<"";
 	}
+
 	if( !stackInfo.empty() )
 		sprinter << "\n"<<stackInfo;
 	sprinter << "]";
