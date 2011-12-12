@@ -318,6 +318,7 @@ var FAILED="\t failed\n";
 
 	 );
 	 f3.staticVar=0; // reset staticVar for next testing loop.
+	 UserFunction.bindLastParams = void; // need to remove the UserFunction extension for memory debug mode
 }
 //---
 {	// User defined function (experimental!!!)
@@ -357,6 +358,7 @@ var FAILED="\t failed\n";
 		&& (1->(fn(a){return this+a; }).bindLastParams2(27)) () == 28 // 1+27
 		&& [1,2,3].map( (fn(key,value,sumA,sumB){return value+sumA+sumB;}).bindLastParams2(90,10) )  == [101,102,103]
 	);
+	UserFunction.bindLastParams2 = void; // need to remove the UserFunction extension for memory debug mode
 }
 //---
 {	// Function
