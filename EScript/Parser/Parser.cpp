@@ -68,7 +68,7 @@ void Parser::init(EScript::Namespace & globals) {
 	//!	[ESMF] Parser new Parser();
 	ESF_DECLARE(typeObject,"_constructor",0,0,new Parser())
 
-	//!	[ESMF] Block Parser.parse();
+	//!	[ESMF] Block Parser.parse(String)
 	ES_MFUNCTION_DECLARE(typeObject,Parser,"parse",1,1,{
 		ERef<Block> blockRef(new Block());
 		try {
@@ -80,7 +80,7 @@ void Parser::init(EScript::Namespace & globals) {
 		return blockRef.detachAndDecrease();
 	})
 
-	//!	[ESMF] Block Parser.parseFile();
+	//!	[ESMF] Block Parser.parseFile(String filename)
 	ES_MFUNCTION_DECLARE(typeObject,Parser,"parseFile",1,1, {
 		ERef<Block> blockRef=new Block();
 		blockRef->setFilename(stringToIdentifierId(parameter[0]->toString()));
@@ -120,7 +120,7 @@ Object *  Parser::parseFile(Block * rootBlock,const std::string & filename)throw
 	char * buffer=NULL;
 	buffer=FileUtils::loadFile(filename,size);
 	if (buffer==NULL)
-		throw new Error(string("Could not open file:")+filename);
+		throw new Error(string("Could not open file: '")+filename+"'");
 
 	tokenizer.defineToken("__FILE__",new TObject(String::create(filename)));
 	tokenizer.defineToken("__DIR__",new TObject(String::create(FileUtils::dirname(filename))));
@@ -132,7 +132,7 @@ Object *  Parser::parseFile(Block * rootBlock,const std::string & filename)throw
 	try {
 		s= parse(rootBlock,buffer);
 	} catch (Exception * e) {
-		e->setMessage(e->getMessage()+" in file \'"+filename+"\'");
+		e->setMessage(e->getMessage()+" in file '"+filename+"'");
 		delete [] buffer;
 		throw(e);
 	} catch (...) {

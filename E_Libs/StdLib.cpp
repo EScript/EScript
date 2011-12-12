@@ -112,19 +112,19 @@ static std::string findFile(Runtime & runtime, const std::string & filename){
 
 //! (static)
 Object * StdLib::load(Runtime & runtime,const std::string & filename){
-	ERef<Block> bRef(new Block());
+	ERef<Block> block;
 	try {
-		bRef=EScript::loadScriptFile(findFile(runtime,filename),bRef.get());
+		block=EScript::loadScriptFile(findFile(runtime,filename));
 	} catch (Exception * e) {
 		runtime.setExceptionState(e);
 	}
-	if (bRef.isNull())
+	if (block.isNull())
 		return NULL;
 
-	ObjRef resultRef(runtime.executeObj(bRef.get()));
+	ObjRef resultRef(runtime.executeObj(block.get()));
 	/* reset the Block at this point is important as it might hold a reference to the result, which may then
 		be destroyed when the function is left after the resultRef-reference has already been decreased. */
-	bRef = NULL; 
+	block = NULL; 
 	if(runtime.getState() == Runtime::STATE_RETURNING){
 			resultRef=runtime.getResult();
 			runtime.resetState();

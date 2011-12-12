@@ -132,10 +132,9 @@ void out(Object * obj) {
 }
 
 //! (static)
-Block * loadScriptFile(const std::string & filename, ERef<Block> block) throw (Exception *) {
-	if(block.isNull()) {
-		block = new Block;
-	}
+Block * loadScriptFile(const std::string & filename) throw (Exception *) {
+	ERef<Block> block = new Block;
+	block->setFilename(stringToIdentifierId(filename));
 	Parser parser;
 	try {
 		parser.parseFile(block.get(), filename);

@@ -1003,7 +1003,7 @@ void Runtime::warn(const std::string & s) {
 	if(getCurrentContext()->getCurrentRTB()!=NULL){
 		Block * b=getCurrentContext()->getCurrentRTB()->getStaticBlock();
 		if(b)
-			std::cout<<"\tFile:"<<b->getFilename()<<" near line "<<getCurrentLine()<<"\n";
+			std::cout<<"\tFile: '"<<b->getFilename()<<"' near line "<<getCurrentLine()<<"\n";
 //        std::cout << " *** "<<b->getFilename()<<":"<<b->toString();
 	}
 }
