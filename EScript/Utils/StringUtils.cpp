@@ -3,11 +3,12 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "StringUtils.h"
-#include <sstream>
-#include <iomanip>
 #include <cstdlib>
 #include <cstdio>
+#include <iomanip>
 #include <locale>
+#include <sstream>
+#include <stdint.h>
 
 using namespace EScript;
 using std::string;

@@ -7,11 +7,12 @@
 
 #include "../StringData.h"
 #include "IOBase.h"
+#include <cstddef>
 #include <ios>
 #include <list>
 #include <map>
+#include <stdint.h>
 #include <string>
-#include <cstddef>
 
 namespace EScript{
 namespace IO{

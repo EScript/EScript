@@ -5,6 +5,7 @@
 #ifndef IOBASE_H_INCLUDED
 #define IOBASE_H_INCLUDED
 #include <cstddef>
+#include <stdint.h>
 
 namespace EScript {
 namespace IO {
