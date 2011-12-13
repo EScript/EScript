@@ -467,6 +467,16 @@ var FAILED="\t failed\n";
 			&& a2 == ["foo",2]
 			&& a2a == 3
 			&& a2.size() == 2 // deprecated
+			&& [0,1,2,3].splice(1,2) == [0,3]
+			&& [0,1].splice(1,0,["a","b"]) == [0,"a","b",1]
+			&& [].splice(100,1,["a"]) == ["a"]
+			&& [ 'a','b','c','d' ].slice(1,2) == ['b','c'] // starting from #1, with length 2
+			&& [ 'a','b','c','d' ].slice(0,-2) == ['a','b'] // starting from #0, excluding the last 2 elements
+			&& [ 'a','b','c','d' ].slice(3) == ['d'] // starting from #3
+			&& [ 'a','b','c','d' ].slice(4) == [] // starting from #4
+			&& [ 'a','b','c','d' ].slice(-3) == ['b','c','d'] // starting 3 elements back from the end
+			&& [ 'a','b','c','d' ].slice(-10,1) == ['a'] // starting 10 elements back from the end (clamped to 0), with length 1
+			
 			,Array);
 
 }

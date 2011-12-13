@@ -60,7 +60,7 @@ inline void assertParamCount(Runtime & runtime, const ParameterValues & params, 
 }
 
 //! (internal) Non-inline part of @a assertType.
-void assertType_throwError(Runtime & runtime, const ObjPtr & obj);
+void assertType_throwError(Runtime & runtime, const ObjPtr & obj,const char * className);
 
 /*!
  * Try to cast the given object to the specified type.
@@ -69,7 +69,7 @@ void assertType_throwError(Runtime & runtime, const ObjPtr & obj);
 template<class T> static T * assertType(Runtime & runtime, const ObjPtr & obj) {
 	T * t = dynamic_cast<T *>(obj.get());
 	if (t == NULL) {
-		assertType_throwError(runtime, obj);
+		assertType_throwError(runtime, obj, T::getClassName());
 	}
 	return t;
 }

@@ -96,8 +96,8 @@ void assertParamCount_2(Runtime & runtime, int paramCount, int min, int max) {
 }
 
 //! (static, internal) Non-inline part of assertType(...)
-void assertType_throwError(Runtime & runtime, const ObjPtr & obj) {
-	runtime.throwException("Wrong Object Type.", obj.get());
+void assertType_throwError(Runtime & runtime, const ObjPtr & obj,const char * className) {
+	runtime.throwException("Wrong object type: "+ (obj.isNull() ? std::string("NULL") : obj->toDbgString() )+ " is not of type "+className+".");
 }
 
 //! (static)

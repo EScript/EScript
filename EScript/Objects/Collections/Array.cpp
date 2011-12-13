@@ -10,6 +10,7 @@
 #include <sstream>
 #include <string>
 #include <stack>
+#include <iostream>
 
 namespace EScript{
 
@@ -110,8 +111,15 @@ void Array::init(EScript::Namespace & globals) {
 	//! [ESMF] self Array.sort( [comparementFunction]);
 	ESMF_DECLARE(typeObject,Array,"sort",0,1,(self->rt_sort(runtime,parameter[0].get(),false),self))
 
+	//! [ESMF] self Array.splice( start,length [,Array replacement] );
+	ESMF_DECLARE(typeObject,Array,"splice",2,3,(self->splice(parameter[0].toInt(),parameter[1].toInt(),parameter.count()>2 ? assertType<Array>(runtime,parameter[2]) : NULL),self))
+
+	//! [ESMF] Array Array.slice( start,length );
+	ESMF_DECLARE(typeObject,Array,"slice",1,2,(self->slice(parameter[0].toInt(),parameter[1].toInt(0))))
+
 	//! [ESMF] self Array.swap( Array other );
 	ESMF_DECLARE(typeObject,Array,"swap",1,1,(self->swap(assertType<Array>(runtime,parameter[0])),self))
+
 
 	// todo: removeOnce removeAll -=
 }
@@ -413,6 +421,51 @@ void Array::resize(size_t newSize){
 
 void Array::reserve(size_t capacity){
 	data.reserve(capacity);
+}
+
+void Array::splice(int startIndex,int length,Array * replacement){
+	if(startIndex<0){
+		startIndex = std::max( static_cast<int>(data.size())+startIndex , 0);
+	}
+	if(length<0){
+		length = std::max( (static_cast<int>(data.size())+length) - startIndex ,0);
+	}
+	
+	// at the end?
+	if(startIndex>=static_cast<int>(data.size())){
+		if(replacement!=NULL)
+			append(replacement);
+		return;
+	}
+	
+	container_t tmp;
+	for(size_t i = 0;i<static_cast<size_t>(startIndex);++i){
+		tmp.push_back(data[i]);
+	}
+	if(replacement!=NULL){
+		for (const_iterator it=replacement->begin();it!=replacement->end();++it) {
+			tmp.push_back( (*it)->getRefOrCopy() );
+		}
+	}
+	
+	for(size_t i = startIndex+length; i<data.size(); ++i ){
+		tmp.push_back(data[i]);
+	}
+	data.swap(tmp);
+}
+
+
+Array * Array::slice(int startIndex,int length){
+	ERef<Array> result = Array::create();
+	if(startIndex<0)
+		startIndex = std::max( static_cast<int>(data.size())+startIndex, 0);
+	if(static_cast<size_t>(startIndex)<data.size()){
+		size_t endIndex = length>0 ? startIndex+length : data.size()+length;
+
+		for(size_t i = static_cast<size_t>(startIndex); i<endIndex; ++i)
+			result->pushBack( data[i]->getRefOrCopy() );
+	}
+	return result.detachAndDecrease();
 }
 
 // ------- ArrayIterator

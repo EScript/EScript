@@ -106,6 +106,8 @@ class Array : public Collection {
 		size_t rt_removeValue(Runtime & runtime,const ObjPtr value,const int limit=-1,const size_t begin=0);
 		void rt_sort(Runtime & runtime,Object * function=NULL,bool reverseOrder=false);
 		size_t size() const						{	return data.size();		}
+		Array * slice(int startIndex,int length);
+		void splice(int startIndex,int length,Array * replacement);
 		void swap(Array * other);
 	//	@}
 
