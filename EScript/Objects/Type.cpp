@@ -167,7 +167,7 @@ bool Type::setObjAttribute(const identifierId id,ObjPtr val){
 }
 
 //! ---|> Object
-bool Type::assignAttribute(Runtime & /*rt*/,const identifierId id,ObjPtr val){
+bool Type::assignAttribute(const identifierId id,ObjPtr val){
 	// try to assign to local attribute (object attribute or type attribute)
 	AttributeMap_t::iterator fIt=attr.find(id);
 	if( fIt != attr.end()){

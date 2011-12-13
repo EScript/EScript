@@ -108,8 +108,8 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 		inline  bool setObjAttribute(const char * key,ObjPtr val)		{	return setObjAttribute(EScript::stringToIdentifierId(key),val);	}
 
 		/// ---o
-		virtual bool assignAttribute(Runtime & rt,const identifierId id,ObjPtr val);
-		inline bool assignAttribute(Runtime & rt,const char * key,ObjPtr val)		{	return assignAttribute(rt,EScript::stringToIdentifierId(key),val);	}
+		virtual bool assignAttribute(const identifierId id,ObjPtr val);
+		inline bool assignAttribute(const char * key,ObjPtr val)		{	return assignAttribute(EScript::stringToIdentifierId(key),val);	}
 
 		/*! ---o
 			Collect all attributes in a map; used for debugging. */
