@@ -118,14 +118,14 @@ Block * Parser::parseFile(const std::string & filename) {
 	tokenizer.defineToken("__FILE__",new TObject(String::create(filename)));
 	tokenizer.defineToken("__DIR__",new TObject(String::create(IO::dirname(filename))));
 
-	
+
 	ERef<Block> rootBlock(new Block);
 	rootBlock->setFilename(stringToIdentifierId(filename));
 	try {
 		parse(rootBlock.get(),content);
 	} catch (Exception * e) {
 		throw e;
-	} 
+	}
 	return rootBlock.detachAndDecrease();
 }
 

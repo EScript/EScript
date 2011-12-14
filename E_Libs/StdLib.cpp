@@ -129,7 +129,7 @@ Object * StdLib::load(Runtime & runtime,const std::string & filename){
 	ObjRef resultRef(runtime.executeObj(block.get()));
 	/* reset the Block at this point is important as it might hold a reference to the result, which may then
 		be destroyed when the function is left after the resultRef-reference has already been decreased. */
-	block = NULL; 
+	block = NULL;
 	if(runtime.getState() == Runtime::STATE_RETURNING){
 			resultRef=runtime.getResult();
 			runtime.resetState();
@@ -210,7 +210,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	{
 	#if defined(_WIN32)
 	typedef LARGE_INTEGER timer_t;
-	static timer_t frequency; 
+	static timer_t frequency;
 	if(!QueryPerformanceFrequency(&frequency)) {
 		std::cout <<("QueryPerformanceFrequency failed, timer will not work properly!");
 	}
@@ -220,7 +220,7 @@ void StdLib::init(EScript::Namespace * globals) {
 		LARGE_INTEGER time = _getPerformanceCounter();
 		return Number::create( static_cast<double>(time.QuadPart-_clockStart.QuadPart) / static_cast<double>(frequency.QuadPart) );
 	})
-		
+
 	#else
 	//! [ESF]  number clock()
 	ESF_DECLARE(globals,"clock",0,0,Number::create( static_cast<double>(clock())/CLOCKS_PER_SEC))

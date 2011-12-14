@@ -69,7 +69,7 @@ Object *  Exception::clone()const {
 std::string Exception::toString()const {
 	std::ostringstream sprinter;
 	sprinter << "[#"<<getTypeName();
-	
+
 	sprinter << " \""<<msg<<"\"";
 	if(getLine()>=0 || getFilenameId()!=0){
 		sprinter<<" near ";

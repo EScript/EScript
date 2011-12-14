@@ -32,9 +32,9 @@ GLOBALS.test := fn(description,result,checkCoverageType=false){
 			}
 		}
 		out("\n");
-		
+
 	}
-		
+
 };
 
 var start=clock();
@@ -49,7 +49,7 @@ if(benchmark){
 		var i = (percent*20).floor();
 		SGLOBALS.out("\r","|"+"="*i+"|"+" "*(20-i)+"| "+percent.round(0.01)*100+"%    ");
 	};
-	
+
 	GLOBALS.out:=fn(values*){ ;};
 	var times = [];
 	var tries = 200;
@@ -57,7 +57,7 @@ if(benchmark){
 	var sum = 0;
 
 	progress(0);
-	
+
 	for(var i=0;i<tries;i++){
 		var startTime = clock();
 		for(var j=0;j<innerLoops;j++){
@@ -75,7 +75,7 @@ if(benchmark){
 	SGLOBALS.out("\nMin:",times.front(),"ms\tMed:",times[ (times.count()*0.5).floor() ],"ms\tMax:",times.back(),"ms\n" );
 	SGLOBALS.out("Avg:",sum/ (tries*innerLoops),"\n");
 }else{
-    t.execute();
+	t.execute();
 }
 
 load("Testcases_IOLib.escript");

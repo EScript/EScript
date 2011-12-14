@@ -321,7 +321,7 @@ std::string StringUtils::toLower(const std::string & s){
 	char * buffer = new char[length];
 	std::copy(s.c_str(),s.c_str()+length,buffer);
 	std::locale loc;
-	std::use_facet< std::ctype<char> >(loc).tolower( buffer, buffer+length );	
+	std::use_facet< std::ctype<char> >(loc).tolower( buffer, buffer+length );
 	const std::string output(buffer,length);
 	delete[]buffer;
 	return output;
@@ -335,7 +335,7 @@ std::string StringUtils::toUpper(const std::string & s){
 	char * buffer = new char[length];
 	std::copy(s.c_str(),s.c_str()+length,buffer);
 	std::locale loc;
-	std::use_facet< std::ctype<char> >(loc).toupper( buffer, buffer+length );	
+	std::use_facet< std::ctype<char> >(loc).toupper( buffer, buffer+length );
 	const std::string output(buffer,length);
 	delete[]buffer;
 	return output;

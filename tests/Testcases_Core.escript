@@ -50,7 +50,7 @@ var FAILED="\t failed\n";
 {	// Number
 	var n=1;
 	(fn(value){value++;})(n); // test call by value
-    var i=(9).sqrt();
+	var i=(9).sqrt();
 
 	var n2 = 7;
 	n2 &= 12; // 7 & 12 == 4
@@ -107,7 +107,7 @@ var FAILED="\t failed\n";
 	var mystring="bl\"#"+2;
 	(fn(value){value+="should do nothing";})(mystring); // test call by value
 
-    var s="foobar";
+	var s="foobar";
 	var spacy = "\t   bla  \n\r  ";
 
 	var s2 = "ab";
@@ -118,10 +118,10 @@ var FAILED="\t failed\n";
 		&& "foo".length()==3 && "\0\0".length()==2
 		&& "bar"[1] == "a" && void == "bar"[3]
 		&& mystring*3 == "bl\"#2bl\"#2bl\"#2" && !s.endsWith("\0")
-        && s.endsWith("bar")&&!s.endsWith("b")&&s.beginsWith("foo")&& s.beginsWith(s)&&  !s.beginsWith(s+s)
-        && s.contains("ob") && !s.contains("oc") && "f".getType()==String
+		&& s.endsWith("bar")&&!s.endsWith("b")&&s.beginsWith("foo")&& s.beginsWith(s)&&  !s.beginsWith(s+s)
+		&& s.contains("ob") && !s.contains("oc") && "f".getType()==String
 		&& "a,b,c".split(",",2) == ["a","b,c"] && "/".split("/") == ["",""]
-        && "bla".fillUp(10,'.') == "bla......."
+		&& "bla".fillUp(10,'.') == "bla......."
 		&& spacy.lTrim()== "bla  \n\r  " && spacy.rTrim()=="\t   bla" && spacy.trim()=="bla" && "".trim().empty()
 		&& s2=="ababab" && s2b == "ababab"
 		&& "abc" <= "bcd" && "A" < "a" && !("bcd" <= "abc") && !("a" < "A")
@@ -136,12 +136,12 @@ var FAILED="\t failed\n";
 }
 //---
 {
-    out("Void:\t\t");
-    var v=void;
-    if( void==v && v!=false && false==v && v!==false && v===void && void != 0 && 0==void && !((1)===void) && !(void===0)
-    // strange, but ok. (0).==(void.toNumber())
-    && 0 == void)
-        out(OK); else { errors+=1; out(FAILED); }
+	out("Void:\t\t");
+	var v=void;
+	if( void==v && v!=false && false==v && v!==false && v===void && void != 0 && 0==void && !((1)===void) && !(void===0)
+	// strange, but ok. (0).==(void.toNumber())
+	&& 0 == void)
+		out(OK); else { errors+=1; out(FAILED); }
 }
 
 //---
@@ -212,7 +212,7 @@ var FAILED="\t failed\n";
 		if(a<=0) return b;
 		return plusRec(a-1,b+1);
 	};
-    var plusRec2= fn(a,b){
+	var plusRec2= fn(a,b){
 		if(a<=0) return b;
 		return thisFn(a-1,b+1);
 	};
@@ -223,29 +223,29 @@ var FAILED="\t failed\n";
 	};
 
 	var increase=fn(a,b=1){
-        return a+b;
+		return a+b;
 	};
-    var repeat=fn(Number n,String s="-"){
-        return (s*n);
-    };
+	var repeat=fn(Number n,String s="-"){
+		return (s*n);
+	};
 	var typeException=false;
 	try{
-	    repeat(true);
-    }catch(e){
-        typeException=true;
+		repeat(true);
+	}catch(e){
+		typeException=true;
 	}
 
 	// multiParam
 	var mulSum=fn(factor,Number values*){
-	    var a=0;
-	    foreach(values as var v) a+=v;
-	    return factor * a;
+		var a=0;
+		foreach(values as var v) a+=v;
+		return factor * a;
 	};
 	var typeException2=false;
 	try{
-        out(mulSum(2,"foo"));
+		out(mulSum(2,"foo"));
 	}catch(e){
-        typeException2=true;
+		typeException2=true;
 	}
 
 	// multi possibilities
@@ -255,9 +255,9 @@ var FAILED="\t failed\n";
 	f("bla",3);
 	var typeException3=false;
 	try{
-        f("bla",3,4);
+		f("bla",3,4);
 	}catch(e){
-        typeException3=true;
+		typeException3=true;
 	}
 
 	// skipped parameter
@@ -301,13 +301,13 @@ var FAILED="\t failed\n";
 
 	test("UserFunction:",
 		plusRec(a,7)==17 && plusRec2(a,7)==17 && minusOne(a)==9 && (fn(a){return a*a;})(2)==4
-        && increase(3)==4 && increase(3,2)==5 && typeException==true && repeat(3,".")=="..."
-        && mulSum(2,1,2,3)==12 && typeException2 && typeException3
-        && f2(,,10)==13
-        && f3()==1 && f3()==2 // a static counter is increased each time f3 is called
-        && f3 ---|> UserFunction
-        && (fn(){/*bla*/}).getCode() == "fn(){/*bla*/}"
-        && f4(0) == 17 && f4b(0) ==27
+		&& increase(3)==4 && increase(3,2)==5 && typeException==true && repeat(3,".")=="..."
+		&& mulSum(2,1,2,3)==12 && typeException2 && typeException3
+		&& f2(,,10)==13
+		&& f3()==1 && f3()==2 // a static counter is increased each time f3 is called
+		&& f3 ---|> UserFunction
+		&& (fn(){/*bla*/}).getCode() == "fn(){/*bla*/}"
+		&& f4(0) == 17 && f4b(0) ==27
 		&& (1->(fn(a){return this+a; }).bindLastParams(27)) () == 28 // 1+27
 		&& [1,2,3].map( (fn(key,value,sumA,sumB){return value+sumA+sumB;}).bindLastParams(90,10) )  == [101,102,103]
 		&& plusRec.getFilename() == __FILE__
@@ -375,7 +375,7 @@ var FAILED="\t failed\n";
 	var a=new Array(17,27,1000);
 	a.pushBack("foo","bar");
 	a.pushBack("ding");
-    a.removeIndex(2); // remove 1000
+	a.removeIndex(2); // remove 1000
 
 	var accum="";
 
@@ -476,7 +476,7 @@ var FAILED="\t failed\n";
 			&& [ 'a','b','c','d' ].slice(4) == [] // starting from #4
 			&& [ 'a','b','c','d' ].slice(-3) == ['b','c','d'] // starting 3 elements back from the end
 			&& [ 'a','b','c','d' ].slice(-10,1) == ['a'] // starting 10 elements back from the end (clamped to 0), with length 1
-			
+
 			,Array);
 
 }
@@ -600,43 +600,43 @@ if(!benchmark)
    out("Get-/setAttribute:");
    var normalPlus=GLOBALS.Number.getAttribute("+");
    Number.setTypeAttribute("+",fn(i){
-        return this-i;
+		return this-i;
    });
    var a=1+2; // = 1-2;
    Number.setTypeAttribute("+",normalPlus);
    var b=1+2; // = 1+2//
  /// Fakultät
    Number.setTypeAttribute("!_post",fn(){
-       if(this<=1) return this;
-       return this* ((this-1)!);
+	   if(this<=1) return this;
+	   return this* ((this-1)!);
    });
    var c=7!; // 7*6*5*4*3*2*1
    if( a==-1 && b==3 && c==5040 && (1)."+"(2)==3 )
-        {out (OK);}else { errors+=1; out(FAILED); }
+		{out (OK);}else { errors+=1; out(FAILED); }
  /// Note: 2008-02-11 When setting Attributes of Type-Objects, Debug-Object-Counting
  /// does not work properly until deleting new Attributes: \todo !!!check this
-    Number.setTypeAttribute("!_post",void);
+	Number.setTypeAttribute("!_post",void);
 /// Todo:    Number.unsetAttribute("!_post");
 }
 
 //---
 {
-    out("Inheritance:\t");
-    var A=new Type(ExtObject);
-    A._constructor:=fn(){
+	out("Inheritance:\t");
+	var A=new Type(ExtObject);
+	A._constructor:=fn(){
 //        this.a:=getType().a;
 //        out("FOOO",this,"\n");
 		this.f:=1;
-    };
-    A.a:=1; /// object-member of A
-    A.b:=1; /// object-member of A
+	};
+	A.a:=1; /// object-member of A
+	A.b:=1; /// object-member of A
 //    A.setTypeAttribute("c",1); /// type-member of A \TODO????????????????????????
 	A.c::=1;
-    A.setObjAttribute("d",1); /// object-member of A
-    A.e::=1; /// type-member of A
-    A.setTypeAttribute($f,1); /// type-member of A
-    
-    A._printableName ::= "MyUserdefinedA"; /// change the type name used for toString.
+	A.setObjAttribute("d",1); /// object-member of A
+	A.e::=1; /// type-member of A
+	A.setTypeAttribute($f,1); /// type-member of A
+
+	A._printableName ::= "MyUserdefinedA"; /// change the type name used for toString.
 //    print_r(A._getAttributes());
 	var a=new A();
 //	print_r(a._getAttributes());
@@ -644,43 +644,43 @@ if(!benchmark)
 //	print_r(A.getObjAttributes());
 //	print_r(A.getTypeAttributes());
 
-    var B=new Type(A); ///
-    B._constructor::=fn(){
+	var B=new Type(A); ///
+	B._constructor::=fn(){
 		f++;
-    };
+	};
 //    print_r(B._getAttributes());
 //    out("\nA.a: ",A.a," A.b: ",A.b," A.c: ",A.c," A.d: ",A.d," B.a: ",B.a," B.b: ",B.b," B.c: ",B.c," B.d: ",B.d," \n");
-    B.a++;
-    B.b++;
-    B.c++;
-    B.d++;
-    B.e++;
-    B.f++;
+	B.a++;
+	B.b++;
+	B.c++;
+	B.d++;
+	B.e++;
+	B.f++;
 
 	var b=new B();
-	
+
 
 //    print_r(B._getAttributes());
 //    out("A.a: ",A.a," A.b: ",A.b," A.c: ",A.c," A.d: ",A.d," B.a: ",B.a," B.b: ",B.b," B.c: ",B.c," B.d: ",B.d," \n");
-    var C=new Type;
-    C.m1:=1;
-    C."==" :=  fn(b){
-        if(b---|>Number){
-            return this.m1==b;
-        }else return null;
-    };
+	var C=new Type;
+	C.m1:=1;
+	C."==" :=  fn(b){
+		if(b---|>Number){
+			return this.m1==b;
+		}else return null;
+	};
 
-    var c1=new C();
+	var c1=new C();
 //    out(c1==1);
 //    out(c1==2);
 //    out(c1!=2);
 
-    if( A.a==1 &&A.b==1 &&A.c==2 &&A.d==1 &&A.e==2  &&A.f==2 &&B.a==2 &&B.b==2 &&B.c==2 &&B.d==2&&B.e==2&&B.f==2
-    && B.getType()==Type && B.getBaseType()==A && (new B()).getType()==B && (new B()).getType().getBaseType()==A
-	&& (new B()).f==2 && c1==1 && !(c1==2) && c1!=2  
+	if( A.a==1 &&A.b==1 &&A.c==2 &&A.d==1 &&A.e==2  &&A.f==2 &&B.a==2 &&B.b==2 &&B.c==2 &&B.d==2&&B.e==2&&B.f==2
+	&& B.getType()==Type && B.getBaseType()==A && (new B()).getType()==B && (new B()).getType().getBaseType()==A
+	&& (new B()).f==2 && c1==1 && !(c1==2) && c1!=2
 	&& b.toString().contains("MyUserdefinedA")
 	)
-        {out (OK);}else { errors+=1; out(FAILED); }
+		{out (OK);}else { errors+=1; out(FAILED); }
 
 //    {
 //        var A=new Object();
@@ -694,8 +694,8 @@ if(!benchmark)
 }
 //---
 {
-    out("Superconstructor:");
- 	var A=new Type(ExtObject);
+	out("Superconstructor:");
+	 var A=new Type(ExtObject);
 	A._constructor::=fn(a,p*){
 		this.m1:=a;
 		foreach(p as var v){
@@ -713,29 +713,29 @@ if(!benchmark)
 	var c=new C(100,30,20);
 
 	if( a.m1==50 && b.m1==-150 && c.m1==-150)
-        {out (OK);}else { errors+=1; out(FAILED); }
+		{out (OK);}else { errors+=1; out(FAILED); }
 }
 //---
 {
-    out("Parser:\t\t");
-    var s=(new Parser()).parse("while(a<10)a++;");
-    var a=0;
-    s.execute();
-    //out(a);
-    if( a==10)
-        {out (OK);}else { errors+=1; out(FAILED); }
+	out("Parser:\t\t");
+	var s=(new Parser()).parse("while(a<10)a++;");
+	var a=0;
+	s.execute();
+	//out(a);
+	if( a==10)
+		{out (OK);}else { errors+=1; out(FAILED); }
 }
 //---
 {
-    out("getDate:\t");
+	out("getDate:\t");
 //    out(time().toHex(),"\n");
 //    out(time().toIntStr(),"\n");
 //    var d=getDate(time());
 //    out("year-mon-mday hours:minutes.seconds".replaceAll(d));
 //    print_r(d);
 
-    if( "year-mon-mday hours:minutes.seconds".replaceAll(getDate(0x47f10600)) == "2008-3-31 17:40.48")
-        {out (OK);}else { errors+=1; out(FAILED); }
+	if( "year-mon-mday hours:minutes.seconds".replaceAll(getDate(0x47f10600)) == "2008-3-31 17:40.48")
+		{out (OK);}else { errors+=1; out(FAILED); }
 }
 //---
 {
@@ -748,40 +748,40 @@ if(!benchmark)
 	if( t1==1 && a.foo==2 && a.isSet($foo) && a.isSet('foo') &&	!a.isSet('bar') && a.foo2==2
 		&& $a != "a" && $a !== "a" && "a" !== $a && "a" == $a
 		&& $a ---|> Identifier && $a == new Identifier("a") && $a!=$b )
-        {out (OK);}else { errors+=1; out(FAILED); }
+		{out (OK);}else { errors+=1; out(FAILED); }
 }
 //---
 {	// Delegate
-    var a=new ExtObject();
-    a.m1:=1;
-    a.f:=fn(Number p1){
-        return this.m1+p1;
-    };
-    var d=new Delegate(a,a.f);
+	var a=new ExtObject();
+	a.m1:=1;
+	a.f:=fn(Number p1){
+		return this.m1+p1;
+	};
+	var d=new Delegate(a,a.f);
 
-    var d2=a -> fn(){return this.m1;};
+	var d2=a -> fn(){return this.m1;};
 
 	// WARNING! Altough this can lead to perhaps unexpected behavior, Delegates allow a access to primitive types by reference!!!!!
 	// I strongly encourage you to use this feature with care!
 	var i=0;
 	(i -> fn(){	this++; })();
 
-    test( "Delegate:", true
-			&& d(3)==4 && d2()==1 && d2.getObject()==a && d.getFunction()==a.f 
+	test( "Delegate:", true
+			&& d(3)==4 && d2()==1 && d2.getObject()==a && d.getFunction()==a.f
 			&& i==1
 			,Delegate);
 }
 //---
 {
-    var list=[getDate(),{"foo":true,"bar":false,"dum":void},-1];
-    var jsonList=toJSON(list,false);
+	var list=[getDate(),{"foo":true,"bar":false,"dum":void},-1];
+	var jsonList=toJSON(list,false);
 //    out("\n",jsonList);
 //    print_r(list);
 //    print_r(parseJSON(jsonList));
 
 	var original = "foo\0	bar\0hubhub\n\n\n";
 
-    test("JSON:",true
+	test("JSON:",true
 		&& list==parseJSON(jsonList)
 		&& parseJSON('"a\\"test\\"b"') == 'a"test"b'
 		&& toJSON('a"test"b') == '"a\\"test\\"b"'
@@ -790,81 +790,81 @@ if(!benchmark)
 }
 // ---
 {
-    out("PrioQueueTest:\t");
+	out("PrioQueueTest:\t");
 
-    var PriorityQueue=new Type(Collection);
-    PriorityQueue._constructor:=fn(comparison='<',data=void){
-        this.comparison:=comparison;
-        this.a:=[];
-        if(data){
-            foreach(data as var v)
-                add(v);
-        }
-    };
-    PriorityQueue.compare:=fn(a,b){
-        return (a -> a.getAttribute(comparison)) (b);
-    };
-    PriorityQueue.add:=fn(e){
-        a.pushBack(e);
-        var i=count()-1;
-        while(i>0){
-            var p=( (i+1)/2).floor()-1;
-            if( compare(e,a[p])){
-                var t=a[p];
-                a[p]=e;
-                a[i]=t;
-            }else{
-                break;
-            }
-            i=p;
-        }
-    };
-    PriorityQueue."+=":=PriorityQueue.add;
-    PriorityQueue.count:=fn(){
-        return a.count();
-    };
-    PriorityQueue.clear:=fn(){
-        return a.clear();
-    };
-    PriorityQueue.swap:=fn(i,j){
-        var tmp=a[i];
-        a[i]=a[j];
-        a[j]=tmp;
-    };
-    PriorityQueue.extract:=fn(){
-        if(count()==0)
-            return void;
-        var min=a[0];
-        if(count()>1){
-            a[0]=a.popBack();
-            heapify(0);
-        }else a.popBack();
-        return min;
-    };
-    PriorityQueue.heapify:=fn(i){
-        var left=((i+1)*2)-1;
-        var right=left+1;
-        var minI=i;
-        if(left>=count())
-            return;
-        if( compare(a[left],a[minI]) )
-            minI=left;
-        if(right<count() && compare(a[right],a[minI]))
-            minI=right;
-        if(minI!=i){
-            swap(i,minI);
-            heapify(minI);
-        }
-    };
-    var a=[83,5,2,756,23,8,3,43,1,74,1,78,3,45,7,123,3];
-    var q=new PriorityQueue('<',a);
-    var a2=[];
-    while(var v=q.extract()){
-        a2+=v;
-    }
-    a.sort();
-    if(a==a2)
-        {out (OK);}else { errors+=1; out(FAILED); }
+	var PriorityQueue=new Type(Collection);
+	PriorityQueue._constructor:=fn(comparison='<',data=void){
+		this.comparison:=comparison;
+		this.a:=[];
+		if(data){
+			foreach(data as var v)
+				add(v);
+		}
+	};
+	PriorityQueue.compare:=fn(a,b){
+		return (a -> a.getAttribute(comparison)) (b);
+	};
+	PriorityQueue.add:=fn(e){
+		a.pushBack(e);
+		var i=count()-1;
+		while(i>0){
+			var p=( (i+1)/2).floor()-1;
+			if( compare(e,a[p])){
+				var t=a[p];
+				a[p]=e;
+				a[i]=t;
+			}else{
+				break;
+			}
+			i=p;
+		}
+	};
+	PriorityQueue."+=":=PriorityQueue.add;
+	PriorityQueue.count:=fn(){
+		return a.count();
+	};
+	PriorityQueue.clear:=fn(){
+		return a.clear();
+	};
+	PriorityQueue.swap:=fn(i,j){
+		var tmp=a[i];
+		a[i]=a[j];
+		a[j]=tmp;
+	};
+	PriorityQueue.extract:=fn(){
+		if(count()==0)
+			return void;
+		var min=a[0];
+		if(count()>1){
+			a[0]=a.popBack();
+			heapify(0);
+		}else a.popBack();
+		return min;
+	};
+	PriorityQueue.heapify:=fn(i){
+		var left=((i+1)*2)-1;
+		var right=left+1;
+		var minI=i;
+		if(left>=count())
+			return;
+		if( compare(a[left],a[minI]) )
+			minI=left;
+		if(right<count() && compare(a[right],a[minI]))
+			minI=right;
+		if(minI!=i){
+			swap(i,minI);
+			heapify(minI);
+		}
+	};
+	var a=[83,5,2,756,23,8,3,43,1,74,1,78,3,45,7,123,3];
+	var q=new PriorityQueue('<',a);
+	var a2=[];
+	while(var v=q.extract()){
+		a2+=v;
+	}
+	a.sort();
+	if(a==a2)
+		{out (OK);}else { errors+=1; out(FAILED); }
 
 
 //    for(var i=0;i<100;i++){
@@ -956,5 +956,3 @@ if(!benchmark)
 //
 //}
 //out("\n");
-
-

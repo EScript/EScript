@@ -430,14 +430,14 @@ void Array::splice(int startIndex,int length,Array * replacement){
 	if(length<0){
 		length = std::max( (static_cast<int>(data.size())+length) - startIndex ,0);
 	}
-	
+
 	// at the end?
 	if(startIndex>=static_cast<int>(data.size())){
 		if(replacement!=NULL)
 			append(replacement);
 		return;
 	}
-	
+
 	container_t tmp;
 	for(size_t i = 0;i<static_cast<size_t>(startIndex);++i){
 		tmp.push_back(data[i]);
@@ -447,7 +447,7 @@ void Array::splice(int startIndex,int length,Array * replacement){
 			tmp.push_back( (*it)->getRefOrCopy() );
 		}
 	}
-	
+
 	for(size_t i = startIndex+length; i<data.size(); ++i ){
 		tmp.push_back(data[i]);
 	}

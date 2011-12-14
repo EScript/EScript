@@ -118,7 +118,7 @@ class Runtime : public ExtObject  {
 			STATE_NORMAL,STATE_BREAKING,STATE_CONTINUING,STATE_RETURNING,STATE_YIELDING,STATE_EXITING,STATE_EXCEPTION
 		};
 		bool assertNormalState(Object * obj=NULL) 		{	return state==STATE_NORMAL ? true : stateError(obj);	}
-		
+
 		bool checkNormalState()const					{	return state==STATE_NORMAL;	}
 		state_t getState()const							{	return state;	}
 		void resetState() {
@@ -135,8 +135,8 @@ class Runtime : public ExtObject  {
 		/*! Creates an exception object including current stack info and
 			sets the state to STATE_EXCEPTION. Does NOT throw a C++ exception. */
 		void setException(const std::string & s);
-		
-		/*! Annotates the given Exception with the current stack info and set the state 
+
+		/*! Annotates the given Exception with the current stack info and set the state
 			to STATE_EXCEPTION. Does NOT throw a C++ exception. */
 		void setException(Exception * e);
 
@@ -144,7 +144,7 @@ class Runtime : public ExtObject  {
 		 * Throws a runtime exception (a C++ Exception, not an internal one!).
 		 * Should only be used inside of library-functions
 		 * (otherwise, they are not handled and the program is likely to crash).
-		 * In all other situations try to use setException(...) 
+		 * In all other situations try to use setException(...)
 		 */
 		void throwException(const std::string & s,Object * obj=NULL);
 
@@ -165,7 +165,7 @@ class Runtime : public ExtObject  {
 		void setExceptionState(const ObjRef & exceptionObj) {
 			returnRef=exceptionObj;
 			state=STATE_EXCEPTION;
-		}		
+		}
 		bool stateError(Object * obj);
 		state_t state;
 		ObjRef returnRef;

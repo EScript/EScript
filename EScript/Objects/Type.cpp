@@ -53,7 +53,7 @@ void Type::init(EScript::Namespace & globals) {
 		self->getTypeAttributes(attrs);
 		return Map::create(attrs);
 	})
-	
+
 	//! [ESMF] self Object.setTypeAttribute(key,value)
 	ESMF_DECLARE(typeObject,Type,"setTypeAttribute",2,2,
 				(self->setTypeAttribute(parameter[0]->hash(),parameter[1]),self))
@@ -95,7 +95,7 @@ Object * Type::clone() const{
 	return new Type(getBaseType(),getType());
 }
 
-static const char * typeAttrErrorHint = 
+static const char * typeAttrErrorHint =
 	"This may be a result of: Adding object attributes to a Type AFTER inheriting from that Type, "
 	"adding object attributes to a Type AFTER creating instances of that Type, "
 	"or adding object attributes to a Type whose instances can't store object attributes. ";
@@ -142,7 +142,7 @@ Object * Type::getAttribute(const identifierId id){
 	Object * result=this->getLocalAttribute(id);
 	if(result!=NULL)
 		return result;
-	
+
 	// try to find the attribute along the inheritated path...
 	if(getBaseType()!=NULL){
 		result = getBaseType()->findTypeAttribute(id);
@@ -174,7 +174,7 @@ bool Type::assignAttribute(const identifierId id,ObjPtr val){
 		(*fIt).second.assign(val.get());
 		return true;
 	}
-	
+
 	// try to assign value along the inheritated path... (as type attribute only)
 	if(getBaseType()!=NULL && getBaseType()->assignToTypeAttribute(id,val))
 		return true;

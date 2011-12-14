@@ -40,4 +40,3 @@ std::string SetAttribute::toString()const {
 	s+="("+valueExpr.toString()+") ";
 	return s;
 }
-			

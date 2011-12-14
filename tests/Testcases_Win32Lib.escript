@@ -9,7 +9,7 @@ var FAILED="\t failed\n";
 
 
 	if( Win32.getClipboard().endsWith("#1#2") )
-        out(OK); else { errors+=1; out(FAILED); }
+		out(OK); else { errors+=1; out(FAILED); }
 }
 
 return errors;
