@@ -1,5 +1,17 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.6.4)
 project(EScript CXX)
+
+set(ESCRIPT_VERSION_MAJOR 0)
+set(ESCRIPT_VERSION_MINOR 5)
+set(ESCRIPT_VERSION_PATCH 8)
+set(ESCRIPT_VERSION ${ESCRIPT_VERSION_MAJOR}.${ESCRIPT_VERSION_MINOR}.${ESCRIPT_VERSION_PATCH})
+
+# Set up install directories
+set(INCLUDE_INSTALL_DIR include)
+set(BIN_INSTALL_DIR bin)
+set(LIB_INSTALL_DIR lib)
+set(CMAKECONFIG_INSTALL_DIR ${LIB_INSTALL_DIR}/cmake/EScript)
+
 set(ESCRIPT_SOURCES
 	EScript/Consts.cpp
 	EScript/EScript.cpp
@@ -56,28 +68,49 @@ if(WIN32)
 endif()
 add_library(EScript SHARED ${ESCRIPT_SOURCES})
 
-install(TARGETS EScript
-	RUNTIME DESTINATION bin
-	LIBRARY DESTINATION lib
-	ARCHIVE DESTINATION lib
+# Set version of library
+set_target_properties(EScript PROPERTIES VERSION ${ESCRIPT_VERSION}
+                                         SOVERSION ${ESCRIPT_VERSION_MAJOR})
+
+# Install the header files
+file(GLOB ESCRIPT_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/E_Libs/ext/*.h")
+install(FILES ${ESCRIPT_HEADERS} DESTINATION ${INCLUDE_INSTALL_DIR}/E_Libs/ext)
+file(GLOB ESCRIPT_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/E_Libs/*.h")
+install(FILES ${ESCRIPT_HEADERS} DESTINATION ${INCLUDE_INSTALL_DIR}/E_Libs)
+file(GLOB ESCRIPT_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/EScript/Objects/Callables/*.h")
+install(FILES ${ESCRIPT_HEADERS} DESTINATION ${INCLUDE_INSTALL_DIR}/EScript/Objects/Callables)
+file(GLOB ESCRIPT_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/EScript/Objects/Collections/*.h")
+install(FILES ${ESCRIPT_HEADERS} DESTINATION ${INCLUDE_INSTALL_DIR}/EScript/Objects/Collections)
+file(GLOB ESCRIPT_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/EScript/Objects/Values/*.h")
+install(FILES ${ESCRIPT_HEADERS} DESTINATION ${INCLUDE_INSTALL_DIR}/EScript/Objects/Values)
+file(GLOB ESCRIPT_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/EScript/Objects/*.h")
+install(FILES ${ESCRIPT_HEADERS} DESTINATION ${INCLUDE_INSTALL_DIR}/EScript/Objects)
+file(GLOB ESCRIPT_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/EScript/Runtime/*.h")
+install(FILES ${ESCRIPT_HEADERS} DESTINATION ${INCLUDE_INSTALL_DIR}/EScript/Runtime)
+file(GLOB ESCRIPT_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/EScript/Utils/IO/*.h")
+install(FILES ${ESCRIPT_HEADERS} DESTINATION ${INCLUDE_INSTALL_DIR}/EScript/Utils/IO)
+file(GLOB ESCRIPT_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/EScript/Utils/*.h")
+install(FILES ${ESCRIPT_HEADERS} DESTINATION ${INCLUDE_INSTALL_DIR}/EScript/Utils)
+
+# Install the library
+install(TARGETS EScript EXPORT EScriptExport
+	RUNTIME DESTINATION ${BIN_INSTALL_DIR}
+	LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+	ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
 )
 
-install(DIRECTORY EScript
-	DESTINATION include
-	FILES_MATCHING PATTERN "*.h"
-	PATTERN ".svn" EXCLUDE
-)
+# Library export
+install(EXPORT EScriptExport DESTINATION ${CMAKECONFIG_INSTALL_DIR} FILE EScriptTargets.cmake)
 
-option(BUILD_ESCRIPT_TEST "Defines if the EScript test application is built.")
-if(BUILD_ESCRIPT_TEST)
-	add_executable(escript_test tests/test.cpp)
-	set_property(TARGET escript_test APPEND PROPERTY COMPILE_DEFINITIONS "ES_BUILD_TEST_APPLICATION")
-	target_link_libraries(escript_test EScript)
-	install(TARGETS escript_test
-		RUNTIME DESTINATION .
-	)
-	install(DIRECTORY tests
-		DESTINATION .
-		PATTERN ".svn" EXCLUDE
-	)
-endif()
+# Set relative path of EScriptConfig.cmake to the install directory. Used in EScriptConfig.cmake.
+file(RELATIVE_PATH relInstallDir ${CMAKE_INSTALL_PREFIX}/${CMAKECONFIG_INSTALL_DIR} ${CMAKE_INSTALL_PREFIX})
+
+# Create the configuration files
+configure_file(EScriptConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/EScriptConfig.cmake @ONLY)
+configure_file(EScriptConfigVersion.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/EScriptConfigVersion.cmake @ONLY)
+
+# Install the configuration files
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/EScriptConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/EScriptConfigVersion.cmake
+        DESTINATION ${CMAKECONFIG_INSTALL_DIR})
+
+add_subdirectory(tests)
