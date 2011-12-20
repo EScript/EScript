@@ -93,14 +93,14 @@ file(GLOB ESCRIPT_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/EScript/*.h")
 install(FILES ${ESCRIPT_HEADERS} DESTINATION ${INCLUDE_INSTALL_DIR}/EScript)
 
 # Install the library
-install(TARGETS EScript EXPORT EScriptExport
+install(TARGETS EScript EXPORT LibraryExport
 	RUNTIME DESTINATION ${BIN_INSTALL_DIR}
 	LIBRARY DESTINATION ${LIB_INSTALL_DIR}
 	ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
 )
 
 # Library export
-install(EXPORT EScriptExport DESTINATION ${CMAKECONFIG_INSTALL_DIR} FILE EScriptTargets.cmake)
+install(EXPORT LibraryExport DESTINATION ${CMAKECONFIG_INSTALL_DIR} FILE EScriptTargets.cmake)
 
 # Set relative path of EScriptConfig.cmake to the install directory. Used in EScriptConfig.cmake.
 file(RELATIVE_PATH relInstallDir ${CMAKE_INSTALL_PREFIX}/${CMAKECONFIG_INSTALL_DIR} ${CMAKE_INSTALL_PREFIX})
