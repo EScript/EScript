@@ -21,7 +21,7 @@ void Namespace::init(EScript::Namespace & globals) {
 	// [Namespace] ---|> [ExtObject] ---|> [Object]
 	Type * typeObject=getTypeObject();
 	declareConstant(&globals,getClassName(),typeObject);
-	
+
 	//! [ESMF] Namespace new Namespace()
 	ESF_DECLARE(typeObject,"_constructor",0,0, new Namespace())
 }

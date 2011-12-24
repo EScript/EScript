@@ -3,7 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "IO.h"
-#include "DefaultFileSystemhandler.h"
+#include "DefaultFileSystemHandler.h"
 #include "../StringUtils.h"
 
 #include <memory>

@@ -1,0 +1,24 @@
+# Configuration file for the EScript library
+# It defines the following variables:
+#  ESCRIPT_INCLUDES  - include directories for EScript
+#  ESCRIPT_LIBRARIES - libraries to link against EScript
+
+# Get the directory where this file is located
+get_filename_component(cmakeDir ${CMAKE_CURRENT_LIST_FILE} PATH)
+# Get the install directory relative to this directory
+get_filename_component(installDir ${cmakeDir}/@relInstallDir@ ABSOLUTE)
+
+# Set the version of EScript
+set(ESCRIPT_VERSION_MAJOR @ESCRIPT_VERSION_MAJOR@)
+set(ESCRIPT_VERSION_MINOR @ESCRIPT_VERSION_MINOR@)
+set(ESCRIPT_VERSION_PATCH @ESCRIPT_VERSION_PATCH@)
+set(ESCRIPT_VERSION ${ESCRIPT_VERSION_MAJOR}.${ESCRIPT_VERSION_MINOR}.${ESCRIPT_VERSION_PATCH})
+
+# Set the include directory
+set(ESCRIPT_INCLUDES "${installDir}/@INCLUDE_INSTALL_DIR@")
+
+# Import the exported targets
+include(${cmakeDir}/EScriptTargets.cmake)
+
+# Set the library variable
+set(ESCRIPT_LIBRARIES EScript)

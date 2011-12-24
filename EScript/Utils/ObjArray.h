@@ -29,7 +29,7 @@ public:
 private:
 	_T * params;
 	size_type paramCount;
-	
+
 	static std::vector<std::stack<_T*> > & getPool(){
 		static std::vector<std::stack<_T*> > pool;
 		return pool;
@@ -59,7 +59,7 @@ private:
 			}
 		}
 	}
-	
+
 	_ObjArray & operator=(const _ObjArray & other); //unimplemented
 public:
 	typedef _ObjArray<_T> self_t;
@@ -88,7 +88,7 @@ public:
 	~_ObjArray()                            {   releaseArray(params,paramCount); }
 	inline void set(size_type i,ObjPtr v)   {  	params[i]=v; }
 
-	inline void clear(){   
+	inline void clear(){
 		releaseArray(params,paramCount);
 		paramCount = 0;
 		params = NULL;

@@ -4,7 +4,7 @@
 	var r2 = r1.clone();
 	var r3 = new Math.RandomNumberGenerator();
 	r3.setSeed(r3.getSeed()+1);
-	
+
 	var a1=[];
 	var a2=[];
 	var failure=false;

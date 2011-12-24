@@ -33,7 +33,7 @@ class Parser : public Object {
 		/*! [ParserException] ---|> [Exception] ---|> [Object]    */
 		class ParserException:public Exception {
 			ES_PROVIDES_TYPE_NAME(ParserException)
-			
+
 			public:
 				ParserException(const std::string  & _msg,Token * token=NULL):
 					Exception(_msg,  (token==NULL? -1 : token->getLine())) {
@@ -85,7 +85,7 @@ class Parser : public Object {
 		enum lValue_t { LVALUE_NONE, LVALUE_INDEX, LVALUE_MEMBER};
 		lValue_t getLValue(ParsingContext & ctxt,int from,int to,Object * & obj,identifierId & identifier,Object * &indexExpression)const;
 		int findExpression(ParsingContext & ctxt,int cursor)const;
-		
+
 		void throwError(const std::string & msg,Token * token=NULL)const;
 		void throwError(const std::string & msg,const _CountedRef<Token> & token)const	{	throwError(msg,token.get());	}
 };

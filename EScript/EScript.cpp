@@ -5,7 +5,6 @@
 #include "EScript.h"
 #include "Objects/Identifier.h"
 #include "Objects/YieldIterator.h"
-#include "Objects/Streams/StreamBase.h"
 #include "Parser/Parser.h"
 
 #include "../E_Libs/StdLib.h"
@@ -41,7 +40,6 @@ void init() {
 	Function::init(*SGLOBALS);
 	UserFunction::init(*SGLOBALS);
 	YieldIterator::init(*SGLOBALS);
-	StreamBase::init(*SGLOBALS);
 
 	declareConstant(SGLOBALS,"VERSION",String::create(ES_VERSION));
 	declareConstant(SGLOBALS,"SGLOBALS",SGLOBALS);

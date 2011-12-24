@@ -126,7 +126,7 @@ Namespace * Runtime::getGlobals()const	{
 }
 
 Object * Runtime::getMemberAttribute(Object * obj,const identifierId id){
-	try{ 
+	try{
 		return obj->getAttribute(id);
 	}catch(Exception * e){
 		ERef<Exception> eHolder(e);
@@ -253,7 +253,7 @@ Object * Runtime::executeObj(Object * obj){
 			bool success = true;
 			// try to assign the value; this may produce an exception (\see Type::assignToTypeAttribute),
 			// which is caught and emitted as warning as this is normally no more critical than trying to assign to a nonexistent attribute.
-			try{ 
+			try{
 				success = obj2->assignAttribute(sa->attrId,value.get());
 			}catch(Exception * e){
 				ERef<Exception> eHolder(e);
@@ -622,7 +622,7 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 		warn("Can't use '"+Void::get()->toDbgString()+"' as a function.");
 		return NULL;
 	}
-		
+
 
 	// possibly endless recursion?
 	if(getStackSize() >= getStackSizeLimit()){
