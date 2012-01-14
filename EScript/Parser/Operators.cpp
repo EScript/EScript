@@ -16,6 +16,7 @@ const Operator * Operator::getOperator(identifierId id) {
 		int p=-1;
 		declareOperator(p   ,"UNKNOWN");
 		declareOperator(++p ,"_");
+		declareOperator(p ,"@",R);
 		declareOperator(++p ,".");
 		declareOperator(p   ,"[");
 		declareOperator(p   ,"]");

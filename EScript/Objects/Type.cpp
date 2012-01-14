@@ -110,7 +110,7 @@ bool Type::assignToTypeAttribute(const identifierId id,ObjPtr val){
 				message += identifierIdToString(id) + "')\n" + typeAttrErrorHint;
 				throw new Exception(message);
 			}
-			(*fIt).second.assign(val.get());
+			(*fIt).second.setValue(val.get());
 			return true;
 		}
 		t=t->getBaseType();
@@ -161,7 +161,7 @@ Object * Type::getLocalAttribute(const identifierId id)const{
 
 //! ---|> Object
 bool Type::setObjAttribute(const identifierId id,ObjPtr val){
-	attr[id] = Attribute(val.get(), Attribute::OBJECT);
+	attr[id].set(val.get(),0); // Attribute::OBJECT_ATTR (by default)
 	setFlag(FLAG_CONTAINS_OBJ_ATTRS,true);
 	return true;
 }
@@ -171,7 +171,7 @@ bool Type::assignAttribute(const identifierId id,ObjPtr val){
 	// try to assign to local attribute (object attribute or type attribute)
 	AttributeMap_t::iterator fIt=attr.find(id);
 	if( fIt != attr.end()){
-		(*fIt).second.assign(val.get());
+		(*fIt).second.setValue(val.get());
 		return true;
 	}
 
@@ -184,7 +184,7 @@ bool Type::assignAttribute(const identifierId id,ObjPtr val){
 }
 
 void Type::setTypeAttribute(const identifierId id,ObjPtr val){
-	attr[id] = Attribute(val.get(), Attribute::TYPE);
+	attr[id].set( val.get(), Attribute::TYPE_ATTR );
 }
 
 void Type::initInstanceObjAttributes(Object * instance){

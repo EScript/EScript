@@ -79,7 +79,7 @@ Object * ExtObject::getObjAttribute(const identifierId id)const{
 	if(objAttributes!=NULL){
 		attributeMap_t::const_iterator f=objAttributes->find(id);
 		if( f!=objAttributes->end() ){
-			return f->second.get();
+			return f->second.getValue();
 		}
 	}
 	return NULL;
@@ -90,7 +90,7 @@ Object * ExtObject::getAttribute(const identifierId id){
 	if(objAttributes!=NULL){
 		attributeMap_t::const_iterator f=objAttributes->find(id);
 		if( f!=objAttributes->end() )
-			return f->second.get();
+			return f->second.getValue();
 	}
 	return Object::getAttribute(id);
 }
@@ -99,7 +99,7 @@ Object * ExtObject::getAttribute(const identifierId id){
 bool ExtObject::setObjAttribute(const identifierId id,ObjPtr val){
 	if(objAttributes == NULL)
 		objAttributes = new attributeMap_t();
-	(*objAttributes)[id] = val;
+	(*objAttributes)[id].setValue(val.get());
 	return true;
 }
 
@@ -113,7 +113,7 @@ bool ExtObject::assignObjAttribute(const identifierId id,ObjPtr val){
 	if(objAttributes!=NULL){
 		attributeMap_t::iterator it=objAttributes->find(id);
 		if(it!=objAttributes->end()){
-			it->second=val;
+			it->second.setValue(val.get());
 			return true;
 		}
 	}
@@ -126,7 +126,7 @@ void ExtObject::cloneAttributesFrom(const ExtObject * obj) {
 		return;
 
 	for(attributeMap_t::iterator it=obj->objAttributes->begin() ; it!=obj->objAttributes->end() ; ++it){
-		ObjPtr attr=it->second;
+		ObjPtr attr=it->second.getValue();
 		setObjAttribute(it->first, attr->getRefOrCopy());
 	}
 }
@@ -135,7 +135,7 @@ void ExtObject::cloneAttributesFrom(const ExtObject * obj) {
 void ExtObject::getAttributes(std::map<identifierId,Object *> & attrs){
 	if(objAttributes!=NULL){
 		for(attributeMap_t::iterator it=objAttributes->begin() ; it!=objAttributes->end() ; ++it){
-			attrs[it->first] = it->second.get();
+			attrs[it->first] = it->second.getValue();
 		}
 	}
 }

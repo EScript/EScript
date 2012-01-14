@@ -811,6 +811,35 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 	} else if (op->getString()==":=") {
 		identifierId memberIdentifier;
 		Object * obj=NULL;
+
+
+		/// extract annotations:  Object.member @(annotation*) := value
+		///                       leftExpr      annotation        rightExpr
+		if( Token::isA<TEndBracket>(tokens[leftExprTo]) ){
+			int annotationStart = findCorrespondingBracket<TEndBracket,TStartBracket>(ctxt,leftExprTo,leftExprFrom,-1);
+			if(annotationStart>0){
+				std::cout << " ############ ";
+				for(int i=annotationStart-1 ;i<=leftExprTo;++i)
+					std::cout << tokens[i]->toString();
+				std::cout << "\n";
+				std::vector<ObjRef> expressions;
+				leftExprTo = annotationStart-2; //annotationStart is modified by the next command
+
+				getExpressionsInBrackets(ctxt,annotationStart,expressions);
+				for(std::vector<ObjRef>::iterator it=expressions.begin();it!=expressions.end();++it ){
+					std::cout << (*it)->toString()<<"\n";
+				}
+
+//					to = annotationStart-1;
+
+								for(int i=leftExprFrom ;i<=leftExprTo;++i)
+					std::cout << tokens[i]->toString();
+
+			}
+
+		}
+
+
 		Object * indexExp=NULL;
 		int lValueType=getLValue(ctxt,leftExprFrom,leftExprTo,obj,memberIdentifier,indexExp);
 
@@ -820,19 +849,12 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 
 		/// a:=2 => _.[a] := 2
 		if (lValueType== LVALUE_MEMBER) {
-		if(obj==NULL){
+			if(obj==NULL){
 				std::cout << "\n Warning: ':=' used for assigning to non member variable; use '=' instead! ("<<
 						getCurrentFilename()<<":"<<currentLine<<")\n";//<<tokens.at(cursor)->getLine()<<")";
-		}
+			}
 			return new SetAttribute(obj,memberIdentifier,rightExpression,SetAttribute::SET_OBJ_ATTRIBUTE,currentLine);
 		}
-//        // a[1]=2 =>  _.a._set(1, 2)
-//        else if (lValueType == LVALUE_INDEX) {
-//            std::vector<Object *> * paramExp=new  std::vector<Object *>();
-//            paramExp->push_back(indexExp);
-//            paramExp->push_back(rightExpression);
-//            return new FunctionCall(new GetAttribute(obj,Consts::IDENTIFIER_fn__set ),paramExp,false,currentLine);
-//        }
 		else {
 			std::cout << "\n Error = "<<cursor<<" - "<<to<<" :" << lValueType;
 			throwError("Syntax error before ':=' ",tokens[opPosition]);
@@ -1539,7 +1561,6 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 }
 
 /*!	getLValue
-	\todo change string -> identifierId
 */
 Parser::lValue_t Parser::getLValue(ParsingContext & ctxt,int from,int to,Object * & obj,
 								identifierId & identifier,Object * &indexExpression)const  {

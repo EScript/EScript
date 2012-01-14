@@ -6,6 +6,7 @@
 #define ES_Type_H
 
 #include "Object.h"
+#include "../Utils/Attribute.h"
 #include <stdint.h>
 
 namespace EScript {
@@ -82,27 +83,6 @@ class Type : public Object {
 		virtual void getAttributes(std::map<identifierId,Object *> & attrs);
 
 	private:
-		/*! Internal representation of an object's attribute */
-		class Attribute{
-			public:
-				enum attrType_t{ OBJECT, TYPE };
-			private:
-				ObjRef value;
-				attrType_t attrType;
-			public:
-				Attribute(attrType_t _attrType=TYPE):attrType(_attrType) {}
-				Attribute(Object * _value,attrType_t _attrType):value(_value),attrType(_attrType) {}
-				Attribute(const Attribute & e):value(e.value),attrType(e.attrType) {}
-				inline Object * getValue()const 	{	return value.get();	}
-				inline bool isObjAttribute()const 	{	return attrType==OBJECT;	}
-				inline bool isTypeAttribute()const 	{	return attrType==TYPE;	}
-				inline void assign(Object * v)		{	value=v;	}
-				inline Attribute & operator=(const Attribute & e){
-					value=e.value, attrType=e.attrType;
-					return *this;
-				}
-		};
-
 		typedef std::map<identifierId,Attribute> AttributeMap_t;
 		AttributeMap_t attr;
 	// @}

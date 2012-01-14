@@ -1,6 +1,85 @@
 // Testcases for HasEScript Scripting-Language 0.5
 out ("Testcases for ",VERSION,"\n","-"*79,"\n");
 
+var a = new ExtObject();
+//a.CONST (const) := $foo;
+//a.CONST @(const) := $foo;
+//a.CONST @(const) := $foo;
+//a.CONST [[const]] := $foo;
+//a.CONST (const,private) := $foo;
+//a.CONST @(const,private) := $foo;
+//a::CONST (const,private,type) =
+//a.CONST <...> --->
+//a.CONST (<...>)
+
+////a.CONST <const,private> := $FOO;
+//a.CONST @($const,$private) := $FOO;
+//a.m @(allowType(Number),$private) := $FOO;
+//var a = @(private);
+//// @(c0...cn) ... annotation
+//// fn()@(namespace(N)) { };
+//// fn()@(namespace(N),log,info("Implements something.")) { };
+//a @(lastParams(1,2,3)) ();
+//
+//a @(const,private) :=
+//a @(const private) :=
+//a @($const,$private) :=
+
+////////a._setAttribute( $CONST, EScript.ATTR_CONST|EScript.ATTR_PRIVATE );
+a.CONST @(const,private) := $CONST;
+//parser.getAnnotations ( positionOf@, end)
+//result:
+//Annotation*: name -> parameters*
+
+////////
+////////fn() @super( bla,blub), @log() {
+////////};
+////////
+////////fn() @super($s) {
+////////};
+//
+//fn() @debug  {
+//
+//}
+//fn() @initially( { thisFn.bla:=1; } ){
+//};
+//
+//once{
+//	thisFn.bla := 0;
+//};
+//thisFn.bla+=1;
+
+
+//a.CONST @attr(const,private,sameType) {
+//}
+//
+//a.CONST @(attr(const))  :=
+//
+//fn( ) @(super(foo), info("bla"), log("fnCalled")) {
+//};
+//
+//fn( ) @(super(1)) {
+//};
+//
+//a.p @attr(private)  :=
+
+//// ------
+
+
+
+//fn()
+//
+//fn(){
+//	runtime.getCallingAnnotations();
+//};
+//@once{
+//};
+//
+//@($noOptimizations){
+//
+//}
+//a @(log) += 2;
+
 //----
 // init
 GLOBALS.benchmark:=false;
