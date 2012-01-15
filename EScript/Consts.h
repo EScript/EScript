@@ -49,6 +49,16 @@ struct Consts{
 	static const identifierId IDENTIFIER_yield;
 
 	static const identifierId IDENTIFIER_LINE;
+
+	static const identifierId ANNOTATION_ATTR_const;
+	static const identifierId ANNOTATION_ATTR_init;
+	static const identifierId ANNOTATION_ATTR_member;
+	static const identifierId ANNOTATION_ATTR_private;
+	static const identifierId ANNOTATION_ATTR_public;
+	static const identifierId ANNOTATION_ATTR_required;
+	static const identifierId ANNOTATION_ATTR_type;
+
+	static const identifierId ANNOTATION_FN_super;
 };
 //	@}
 

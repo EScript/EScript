@@ -806,12 +806,12 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 			return new FunctionCall(new GetAttribute(obj,Consts::IDENTIFIER_fn_set),paramExp,false,currentFilename,currentLine);
 		} else {
 			std::cout << "\n Error = "<<cursor<<" - "<<to<<" :" << lValueType;
-			throwError("Syntax error before '=' ",tokens[opPosition]);
+			throwError("No valid LValue before '=' ",tokens[opPosition]);
 		}
-	} else if (op->getString()==":=") {
-		identifierId memberIdentifier;
-		Object * obj=NULL;
-
+	} else if (op->getString()==":=" || op->getString()=="::=") {
+		const SetAttribute::assignType_t assignmentFlags =
+			op->getString()=="::=" ? SetAttribute::SET_TYPE_ATTRIBUTE :
+				SetAttribute::SET_OBJ_ATTRIBUTE;
 
 		/// extract annotations:  Object.member @(annotation*) := value
 		///                       leftExpr      annotation        rightExpr
@@ -827,56 +827,57 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 
 				getExpressionsInBrackets(ctxt,annotationStart,expressions);
 				for(std::vector<ObjRef>::iterator it=expressions.begin();it!=expressions.end();++it ){
-					std::cout << (*it)->toString()<<"\n";
-				}
+					ERef<Identifier> annotation = (*it).toType<Identifier>();
+					if(annotation.isNull()){
+						std::cout << (*it)->getTypeName()<<"\n";
+						throwError("Invalid member anntotation  '"+(*it)->toString()+"' ",tokens[annotationStart]);
+					}
 
+					std::cout << annotation->toString()<<"\n";
+
+				}
 //					to = annotationStart-1;
 
-								for(int i=leftExprFrom ;i<=leftExprTo;++i)
+				for(int i=leftExprFrom ;i<=leftExprTo;++i)
 					std::cout << tokens[i]->toString();
 
 			}
 
 		}
-
+		identifierId memberIdentifier;
+		Object * obj=NULL;
 
 		Object * indexExp=NULL;
-		int lValueType=getLValue(ctxt,leftExprFrom,leftExprTo,obj,memberIdentifier,indexExp);
+		const int lValueType=getLValue(ctxt,leftExprFrom,leftExprTo,obj,memberIdentifier,indexExp);
 
 		Object * rightExpression=getExpression(ctxt,rightExprFrom,to);
 		cursor=rightExprFrom;
 
 
 		/// a:=2 => _.[a] := 2
-		if (lValueType== LVALUE_MEMBER) {
-			if(obj==NULL){
-				std::cout << "\n Warning: ':=' used for assigning to non member variable; use '=' instead! ("<<
-						getCurrentFilename()<<":"<<currentLine<<")\n";//<<tokens.at(cursor)->getLine()<<")";
-			}
-			return new SetAttribute(obj,memberIdentifier,rightExpression,SetAttribute::SET_OBJ_ATTRIBUTE,currentLine);
+		if (lValueType != LVALUE_MEMBER) {
+			throwError("No valid member-LValue before '"+op->getString()+"' ",tokens[opPosition]);
 		}
-		else {
-			std::cout << "\n Error = "<<cursor<<" - "<<to<<" :" << lValueType;
-			throwError("Syntax error before ':=' ",tokens[opPosition]);
-		}
-	} else if (op->getString()=="::=") {
-		identifierId memberIdentifier;
-		Object * obj=NULL;
-		Object * indexExp=NULL;
-		int lValueType=getLValue(ctxt,leftExprFrom,leftExprTo,obj,memberIdentifier,indexExp);
-
-		Object * rightExpression=getExpression(ctxt,rightExprFrom,to);
-		cursor=rightExprFrom;
-
-		/// a::=2 => _.[a] ::= 2
-		if (lValueType== LVALUE_MEMBER) {
-			return new SetAttribute(obj,memberIdentifier,rightExpression,SetAttribute::SET_TYPE_ATTRIBUTE,currentLine);
-		}
-		else {
-			std::cout << "\n Error = "<<cursor<<" - "<<to<<" :" << lValueType;
-			throwError("Syntax error before '::=' ",tokens[opPosition]);
-		}
+		return new SetAttribute(obj,memberIdentifier,rightExpression,assignmentFlags,currentLine);
 	}
+//		else if (op->getString()=="::=") {
+//		identifierId memberIdentifier;
+//		Object * obj=NULL;
+//		Object * indexExp=NULL;
+//		int lValueType=getLValue(ctxt,leftExprFrom,leftExprTo,obj,memberIdentifier,indexExp);
+//
+//		Object * rightExpression=getExpression(ctxt,rightExprFrom,to);
+//		cursor=rightExprFrom;
+//
+//		/// a::=2 => _.[a] ::= 2
+//		if (lValueType== LVALUE_MEMBER) {
+//			return new SetAttribute(obj,memberIdentifier,rightExpression,SetAttribute::SET_TYPE_ATTRIBUTE,currentLine);
+//		}
+//		else {
+//			std::cout << "\n Error = "<<cursor<<" - "<<to<<" :" << lValueType;
+//			throwError("Syntax error before '::=' ",tokens[opPosition]);
+//		}
+//	}
 
 	/// get left expression
 	Object * leftExpression=getExpression(ctxt,leftExprFrom,leftExprTo);
