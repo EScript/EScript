@@ -14,9 +14,12 @@ namespace EScript {
 class Attribute{
 	public:
 		typedef uint8_t flag_t;
-		static const flag_t CONST = 1; // else VARIABLE
-		static const flag_t PRIVATE = 2; // else PUBLIC
-		static const flag_t TYPE_ATTR = 4; // else OBJ_ATTR
+		static const flag_t CONST_BIT = (1<<0); 	// 0...normal 	1...const
+		static const flag_t PRIVATE_BIT = (1<<1); 	// 0...public	1...private
+		static const flag_t TYPE_ATTR_BIT = (1<<2);	// 0...objAttr	1...typeAttr
+		static const flag_t INIT_BIT = (1<<3);		// 0...normal	1...init
+		static const flag_t REQUIRED_BIT = (1<<4);	// 0...normal	1...required
+
 	private:
 		ObjRef value;
 		flag_t flags;
@@ -29,8 +32,8 @@ class Attribute{
 		flag_t getFlags()const				{	return flags;	}
 
 		Object * getValue()const 			{	return value.get();	}
-		bool isObjAttribute()const 			{	return !getFlag(TYPE_ATTR);	}
-		bool isTypeAttribute()const 		{	return getFlag(TYPE_ATTR);	}
+		bool isObjAttribute()const 			{	return !getFlag(TYPE_ATTR_BIT);	}
+		bool isTypeAttribute()const 		{	return getFlag(TYPE_ATTR_BIT);	}
 		void setValue(Object * v)			{	value=v;	}
 		void set(Object * v,flag_t f)		{	value=v, flags=f;	}
 		Attribute & operator=(const Attribute & e){

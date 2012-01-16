@@ -26,7 +26,7 @@ var a = new ExtObject();
 //a @($const,$private) :=
 
 ////////a._setAttribute( $CONST, EScript.ATTR_CONST|EScript.ATTR_PRIVATE );
-a.CONST @(const,private) := $CONST;
+a.CONST @(const,private,foo) := $CONST;
 //parser.getAnnotations ( positionOf@, end)
 //result:
 //Annotation*: name -> parameters*

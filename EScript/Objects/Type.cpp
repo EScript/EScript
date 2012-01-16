@@ -184,7 +184,7 @@ bool Type::assignAttribute(const identifierId id,ObjPtr val){
 }
 
 void Type::setTypeAttribute(const identifierId id,ObjPtr val){
-	attr[id].set( val.get(), Attribute::TYPE_ATTR );
+	attr[id].set( val.get(), Attribute::TYPE_ATTR_BIT );
 }
 
 void Type::initInstanceObjAttributes(Object * instance){

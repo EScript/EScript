@@ -480,7 +480,6 @@ void Parser::pass_2(ParsingContext & ctxt,
 	}
 }
 
-
 /**
  *
  * Object * getExpression(...)
@@ -817,30 +816,28 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 		///                       leftExpr      annotation        rightExpr
 		if( Token::isA<TEndBracket>(tokens[leftExprTo]) ){
 			int annotationStart = findCorrespondingBracket<TEndBracket,TStartBracket>(ctxt,leftExprTo,leftExprFrom,-1);
-			if(annotationStart>0){
-				std::cout << " ############ ";
-				for(int i=annotationStart-1 ;i<=leftExprTo;++i)
-					std::cout << tokens[i]->toString();
-				std::cout << "\n";
-				std::vector<ObjRef> expressions;
-				leftExprTo = annotationStart-2; //annotationStart is modified by the next command
-
-				getExpressionsInBrackets(ctxt,annotationStart,expressions);
-				for(std::vector<ObjRef>::iterator it=expressions.begin();it!=expressions.end();++it ){
-					ERef<Identifier> annotation = (*it).toType<Identifier>();
-					if(annotation.isNull()){
-						std::cout << (*it)->getTypeName()<<"\n";
-						throwError("Invalid member anntotation  '"+(*it)->toString()+"' ",tokens[annotationStart]);
+			TOperator * atOp = Token::cast<TOperator>(tokens.at(annotationStart-1));
+			if(annotationStart>0 && atOp!=NULL && atOp->toString()=="@"){
+				annotations_t annotations;
+				getAnnotations(ctxt,annotationStart+1,leftExprTo-1,annotations);
+				leftExprTo = annotationStart-2;
+				
+				for(annotations_t::const_iterator it=annotations.begin();it!=annotations.end();++it ){
+					const identifierId name = it->first;
+					const int pos = it->second;
+					std::cout << "\n" << identifierIdToString(name)<< " : "<<pos<<"\n";
+			
+					if(name == Consts::ANNOTATION_ATTR_const){
+					}else if(name == Consts::ANNOTATION_ATTR_init){
+					}else if(name == Consts::ANNOTATION_ATTR_member){
+					}else if(name == Consts::ANNOTATION_ATTR_private){
+					}else if(name == Consts::ANNOTATION_ATTR_public){
+					}else if(name == Consts::ANNOTATION_ATTR_required){
+					}else if(name == Consts::ANNOTATION_ATTR_type){
+					}else {
+						throwError("Invalid annotation: '"+identifierIdToString(name)+"'",atOp);
 					}
-
-					std::cout << annotation->toString()<<"\n";
-
 				}
-//					to = annotationStart-1;
-
-				for(int i=leftExprFrom ;i<=leftExprTo;++i)
-					std::cout << tokens[i]->toString();
-
 			}
 
 		}
@@ -1860,6 +1857,36 @@ void Parser::getExpressionsInBrackets(ParsingContext & ctxt,int & cursor,std::ve
 		}
 	}
 }
+
+/**
+ * A.m @(const,private,somthingWithOptions("foo")) := ...
+ *       ^from                            ^p    ^to
+ * ---> [ ($const,-1),($private,-1),($somthingWithOptions,p) ]
+ */
+void Parser::getAnnotations(ParsingContext & ctxt,int from,int to,annotations_t & annotations)const{
+	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
+	for(int cursor = from;cursor<=to;++cursor){
+		Token * t = tokens.at(cursor).get();
+		const TIdentifier * tid = Token::cast<TIdentifier>(t);
+		if( tid==NULL )
+			throwError("Identifier expected in annotation",t);
+			
+		int optionPos = -1;
+		++cursor;
+		if( Token::isA<TStartBracket>(tokens.at(cursor)) && cursor < to ){ // annotation has options 'annotation(exp1,exp2)'
+			optionPos = cursor;
+			cursor = findCorrespondingBracket<TStartBracket,TEndBracket>(ctxt,cursor,to); // skip expressions in brackets
+			if(cursor<0)
+				throwError("Unclosed option list in annotation",tokens.at(cursor));
+			++cursor; // skip ')'
+		}
+		if(cursor<=to && !Token::isA<TDelimiter>(tokens.at(cursor))){ // expect a delimiter or the end.
+			throwError("Syntax error in annotation",tokens.at(cursor));
+		}
+		annotations.push_back( std::make_pair(tid->getId(),optionPos) );
+	}
+}
+
 
 void Parser::throwError(const std::string & msg,Token * token)const{
 	ParserException * e = new ParserException(msg,token);
