@@ -249,7 +249,7 @@ Object * Runtime::executeObj(Object * obj){
 
 		if(obj2.isNull())
 			obj2=Void::get();
-		if(sa->assignType == SetAttribute::ASSIGN){
+		if(sa->assign){
 			bool success = true;
 			// try to assign the value; this may produce an exception (\see Type::assignToTypeAttribute),
 			// which is caught and emitted as warning as this is normally no more critical than trying to assign to a nonexistent attribute.
@@ -267,11 +267,7 @@ Object * Runtime::executeObj(Object * obj){
 							(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+"."+sa->getAttrName()+"="+(value.isNull()?"":value->toDbgString())+")");
 				}
 			}
-		}else if(sa->assignType == SetAttribute::SET_OBJ_ATTRIBUTE){
-			if(!obj2->setObjAttribute(sa->attrId,value.get()))
-				warn(std::string("Can't set object attribute '")+sa->getAttrName()+"' ("+
-						(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+"."+sa->getAttrName()+"="+(value.isNull()?"":value->toDbgString())+")");
-		}else if(sa->assignType == SetAttribute::SET_TYPE_ATTRIBUTE){
+		}else if(sa->getAttributeFlags()&Attribute::TYPE_ATTR_BIT){
 			Type * t=obj2.toType<Type>();
 			if(t){
 				t->setTypeAttribute(sa->attrId,value.get());
@@ -284,6 +280,11 @@ Object * Runtime::executeObj(Object * obj){
 							(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+"."+sa->getAttrName()+"="+(value.isNull()?"":value->toDbgString())+")");
 				}
 			}
+		}else { // obj attribute
+			if(!obj2->setObjAttribute(sa->attrId,value.get()))
+				warn(std::string("Can't set object attribute '")+sa->getAttrName()+"' ("+
+						(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+"."+sa->getAttrName()+"="+(value.isNull()?"":value->toDbgString())+")");
+			
 		}
 		return value.detachAndDecrease();
 	}

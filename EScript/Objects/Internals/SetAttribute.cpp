@@ -6,9 +6,16 @@
 
 using namespace EScript;
 
+//! static
+SetAttribute * SetAttribute::createAssignment(Object * obj,identifierId attrId,Object * valueExp,int _line){
+	SetAttribute * sa  = new SetAttribute(obj,attrId,valueExp,0,_line) ;
+	sa->assign = true;
+	return sa;
+}
+
 //! (ctor)
-SetAttribute::SetAttribute(Object * obj,identifierId _attrId,Object * _valueExp,assignType_t _assignType,int _line):
-		objExpr(obj),valueExpr(_valueExp),attrId(_attrId),assignType(_assignType),line(_line) {
+SetAttribute::SetAttribute(Object * obj,identifierId _attrId,Object * _valueExp,Attribute::flag_t _attrFlags,int _line):
+		objExpr(obj),valueExpr(_valueExp),attrId(_attrId),attrFlags(_attrFlags),line(_line),assign(false) {
 	//ctor
 }
 
@@ -24,18 +31,21 @@ std::string SetAttribute::toString()const {
 		s+=objExpr.toString();
 	} else s+="_";
 	s+="."+getAttrName();
-	switch(assignType){
-		case ASSIGN:
-			s+="=";
-			break;
-		case SET_OBJ_ATTRIBUTE:
-			s+=":=";
-			break;
-		case SET_TYPE_ATTRIBUTE:
+	if(assign){
+		s+="=";
+	}else{
+		if(attrFlags & (Attribute::CONST_BIT | Attribute::PRIVATE_BIT | Attribute::INIT_BIT | Attribute::REQUIRED_BIT )){
+			s+="@(";
+			if( attrFlags & Attribute::CONST_BIT)		s+="const,";
+			if( attrFlags & Attribute::PRIVATE_BIT)		s+="private,";
+			if( attrFlags & Attribute::INIT_BIT)		s+="init,";
+			if( attrFlags & Attribute::REQUIRED_BIT)	s+="required,";
+			s+=")";		
+		}
+		if( attrFlags & Attribute::TYPE_ATTR_BIT)		
 			s+="::=";
-			break;
-		default:
-			s+="?=";
+		else 
+			s+=":=";
 	}
 	s+="("+valueExpr.toString()+") ";
 	return s;

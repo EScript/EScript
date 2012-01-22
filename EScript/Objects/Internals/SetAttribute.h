@@ -6,6 +6,7 @@
 #define SETATTRIBUTE_H
 
 #include "../Object.h"
+#include "../../Utils/Attribute.h"
 #include <string>
 
 namespace EScript {
@@ -14,20 +15,18 @@ namespace EScript {
 class SetAttribute : public Object {
 		ES_PROVIDES_TYPE_NAME(SetAttribute)
 	public:
-		enum assignType_t{
-			ASSIGN = 0, SET_OBJ_ATTRIBUTE = 1,SET_TYPE_ATTRIBUTE = 2
-		};
-
-		SetAttribute(Object * obj,identifierId attrId,Object * valueExp,assignType_t _assignType,int _line=-1);
+		static SetAttribute * createAssignment(Object * obj,identifierId attrId,Object * valueExp,int _line=-1);
+		
+		SetAttribute(Object * obj,identifierId attrId,Object * valueExp,Attribute::flag_t _attrFlags,int _line=-1);
 		virtual ~SetAttribute();
 
-		identifierId getAttrId()const   {   return attrId;  }
-		Object * getObjectExpression()  {   return objExpr.get();    }
-		assignType_t getAssignType()  	{   return assignType;    }
-		Object * getValueExpression()  	{   return valueExpr.get();    }
-		std::string getAttrName()const	{   return identifierIdToString(attrId);    }
+		identifierId getAttrId()const   	{   return attrId;  }
+		Object * getObjectExpression()  	{   return objExpr.get();    }
+		Attribute::flag_t getAttributeFlags()  	{   return attrFlags;    }
+		Object * getValueExpression()  		{   return valueExpr.get();    }
+		std::string getAttrName()const		{   return identifierIdToString(attrId);    }
 
-		int getLine()const				{	return line;	}
+		int getLine()const					{	return line;	}
 
 		/// ---|> [Object]
 		virtual std::string toString()const;
@@ -38,8 +37,9 @@ class SetAttribute : public Object {
 		ObjRef objExpr;
 		ObjRef valueExpr;
 		identifierId attrId;
-		assignType_t assignType;
+		Attribute::flag_t attrFlags;
 		int line;
+		bool assign;
 };
 }
 

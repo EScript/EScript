@@ -34,6 +34,10 @@ class Attribute{
 		Object * getValue()const 			{	return value.get();	}
 		bool isObjAttribute()const 			{	return !getFlag(TYPE_ATTR_BIT);	}
 		bool isTypeAttribute()const 		{	return getFlag(TYPE_ATTR_BIT);	}
+		bool isConsts()const				{	return flags&CONST_BIT;	}
+		bool isPrivate()const				{	return flags&PRIVATE_BIT;	}
+		bool isRequired()const				{	return flags&REQUIRED_BIT;	}
+		
 		void setValue(Object * v)			{	value=v;	}
 		void set(Object * v,flag_t f)		{	value=v, flags=f;	}
 		Attribute & operator=(const Attribute & e){

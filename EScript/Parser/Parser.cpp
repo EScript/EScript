@@ -795,7 +795,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 
 		/// a=2 => _.[a] = 2
 		if (lValueType== LVALUE_MEMBER) {
-			return new SetAttribute(obj,memberIdentifier,rightExpression,SetAttribute::ASSIGN,currentLine);
+			return SetAttribute::createAssignment(obj,memberIdentifier,rightExpression,currentLine);
 		}
 		/// a[1]=2 =>  _.a._set(1, 2)
 		else if (lValueType == LVALUE_INDEX) {
@@ -808,9 +808,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 			throwError("No valid LValue before '=' ",tokens[opPosition]);
 		}
 	} else if (op->getString()==":=" || op->getString()=="::=") {
-		const SetAttribute::assignType_t assignmentFlags =
-			op->getString()=="::=" ? SetAttribute::SET_TYPE_ATTRIBUTE :
-				SetAttribute::SET_OBJ_ATTRIBUTE;
+		Attribute::flag_t flags = op->getString()=="::=" ? Attribute::TYPE_ATTR_BIT : 0;
 
 		/// extract annotations:  Object.member @(annotation*) := value
 		///                       leftExpr      annotation        rightExpr
@@ -828,12 +826,17 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 					std::cout << "\n" << identifierIdToString(name)<< " : "<<pos<<"\n";
 			
 					if(name == Consts::ANNOTATION_ATTR_const){
+						flags |= Attribute::CONST_BIT;
 					}else if(name == Consts::ANNOTATION_ATTR_init){
+						flags |= Attribute::INIT_BIT;
 					}else if(name == Consts::ANNOTATION_ATTR_member){
 					}else if(name == Consts::ANNOTATION_ATTR_private){
+						flags |= Attribute::PRIVATE_BIT;
 					}else if(name == Consts::ANNOTATION_ATTR_public){
 					}else if(name == Consts::ANNOTATION_ATTR_required){
+						flags |= Attribute::REQUIRED_BIT;
 					}else if(name == Consts::ANNOTATION_ATTR_type){
+						flags |= Attribute::TYPE_ATTR_BIT;
 					}else {
 						throwError("Invalid annotation: '"+identifierIdToString(name)+"'",atOp);
 					}
@@ -855,7 +858,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 		if (lValueType != LVALUE_MEMBER) {
 			throwError("No valid member-LValue before '"+op->getString()+"' ",tokens[opPosition]);
 		}
-		return new SetAttribute(obj,memberIdentifier,rightExpression,assignmentFlags,currentLine);
+		return new SetAttribute(obj,memberIdentifier,rightExpression,flags,currentLine);
 	}
 //		else if (op->getString()=="::=") {
 //		identifierId memberIdentifier;
@@ -1510,9 +1513,11 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 				}
 			};
 			catchBlock->addStatement( Statement( Statement::TYPE_EXPRESSION,
-					new SetAttribute(NULL,varName,
-						new FunctionCall( new Function(fnWrapper::extractExceptionValue),
-							paramExp,false,currentFilename,tStartCatchBlock->getLine()),SetAttribute::ASSIGN)));
+					SetAttribute::createAssignment(NULL,varName,
+						new FunctionCall( 
+							new Function(fnWrapper::extractExceptionValue),
+							paramExp,false,currentFilename,tStartCatchBlock->getLine()),
+						tStartCatchBlock->getLine())));
 
 		}
 		getExpression(ctxt,cursor); // fill rest of catch block
