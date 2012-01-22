@@ -75,12 +75,12 @@ void RuntimeBlock::init(RuntimeContext * _ctxt,const Block * _staticBlock,Runtim
 
 
 /*!	changed due to BUG[20090424] */
-bool RuntimeBlock::assignToVariable(const identifierId id,Object * val) {
+bool RuntimeBlock::assignToVariable(Runtime & rt,const identifierId id,Object * val) {
 	// look for local variable
 	if (localVariables.findAndUpdate(id,val)){
 		return true;
 	} else if (ctxt->getCaller()!=NULL ) {
-		return ctxt->getCaller()->assignAttribute(id,val);
+		return ctxt->getCaller()->assignAttribute(rt, id,val);
 	} else {
 		return false;
 	}

@@ -104,16 +104,21 @@ bool ExtObject::setObjAttribute(const identifierId id,ObjPtr val){
 }
 
 //! ---|> [Object]
-bool ExtObject::assignAttribute(const identifierId id,ObjPtr val){
-	return assignObjAttribute(id,val) ? true :  Object::assignAttribute(id,val);
+bool ExtObject::assignAttribute(Runtime & rt,const identifierId id,ObjPtr val){
+	return assignObjAttribute(rt,id,val) ? true :  Object::assignAttribute(rt,id,val);
 }
 
 
-bool ExtObject::assignObjAttribute(const identifierId id,ObjPtr val){
+bool ExtObject::assignObjAttribute(Runtime & rt,const identifierId id,ObjPtr val){
 	if(objAttributes!=NULL){
 		attributeMap_t::iterator it=objAttributes->find(id);
 		if(it!=objAttributes->end()){
-			it->second.setValue(val.get());
+			Attribute & attr = it->second;
+			std::cout << ":"<<identifierIdToString(id)<<" = "<< val.toString()<<"("+(int)attr.getFlags()<<")\n";
+			if(attr.isConst()){
+				throw new Exception("trying to assign to a const attribute.");
+			}
+			attr.setValue(val.get());
 			return true;
 		}
 	}

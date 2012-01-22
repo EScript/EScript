@@ -91,7 +91,7 @@ void Object::init(EScript::Namespace & globals) {
 	ESF_DECLARE(typeObject,"setObjAttribute",2,2,Bool::create(caller->setObjAttribute(parameter[0]->hash(),parameter[1])))
 
 	//! [ESMF] Bool Object.assignAttribute(key,value)
-	ESF_DECLARE(typeObject,"assignAttribute",2,2,Bool::create(caller->assignAttribute(parameter[0]->hash(),parameter[1])))
+	ESF_DECLARE(typeObject,"assignAttribute",2,2,Bool::create(caller->assignAttribute(runtime,parameter[0]->hash(),parameter[1])))
 
 	typedef std::map<identifierId,Object *> attrMap_t; // has to be defined here, due to compiler (gcc) bug.
 	//! Map Object._getAttributes()
@@ -276,7 +276,7 @@ bool Object::setObjAttribute(const identifierId /*id*/,ObjPtr /*val*/){
 }
 
 //! ---o
-bool Object::assignAttribute(const identifierId id,ObjPtr val){
+bool Object::assignAttribute(Runtime & rt,const identifierId id,ObjPtr val){
 	return getType()==NULL ? false : getType()->assignToTypeAttribute(id,val);
 }
 

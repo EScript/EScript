@@ -53,7 +53,7 @@ class ExtObject : public Object {
 		virtual bool setObjAttribute(const identifierId id,ObjPtr val);
 
 		/// ---|> [Object]
-		virtual bool assignAttribute(const identifierId id,ObjPtr val);
+		virtual bool assignAttribute(Runtime & rt,const identifierId id,ObjPtr val);
 
 		/// ---|> [Object]
 		virtual void getAttributes(std::map<identifierId,Object *> & attrs);
@@ -68,7 +68,7 @@ class ExtObject : public Object {
 		inline Object * getObjAttribute(const char * key)const		{	return getObjAttribute(EScript::stringToIdentifierId(key));	}
 
 		/*! Assign to an attribute that is directly stored in this Type-Object (NOT in an inherited Type) */
-		bool assignObjAttribute(const identifierId id,ObjPtr val);
+		bool assignObjAttribute(Runtime & rt,const identifierId id,ObjPtr val);
 
 	private:
 		attributeMap_t * objAttributes;
