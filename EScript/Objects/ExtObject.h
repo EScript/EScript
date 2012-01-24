@@ -42,18 +42,18 @@ class ExtObject : public Object {
 	public:
 		typedef std::map<identifierId,Attribute> attributeMap_t;
 
-		using Object::getAttribute;
-		using Object::setObjAttribute;
-		using Object::assignAttribute;
+		using Object::_accessLocalAttribute;
+		using Object::setAttribute;
+//		using Object::assignAttribute;
 
 		/// ---|> [Object]
-		virtual Object * getAttribute(const identifierId id);
+		virtual Attribute * _accessLocalAttribute(const identifierId id);
 
 		/// ---|> [Object]
-		virtual bool setObjAttribute(const identifierId id,ObjPtr val);
+		virtual bool setAttribute(const identifierId id,const Attribute & attr);
 
-		/// ---|> [Object]
-		virtual bool assignAttribute(Runtime & rt,const identifierId id,ObjPtr val);
+//		/// ---|> [Object]
+//		virtual bool assignAttribute(Runtime & rt,const identifierId id,ObjPtr val);
 
 		/// ---|> [Object]
 		virtual void getAttributes(std::map<identifierId,Object *> & attrs);

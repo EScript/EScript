@@ -47,8 +47,8 @@ class Type : public Object {
 	*/
 	// @{
 	public:
-		inline void setTypeAttribute(const char * key,ObjPtr val)		{	return setTypeAttribute(EScript::stringToIdentifierId(key),val);	}
-		void setTypeAttribute(const identifierId id,ObjPtr val);
+//		inline void setTypeAttribute(const char * key,ObjPtr val)		{	return setTypeAttribute(EScript::stringToIdentifierId(key),val);	}
+//		void setTypeAttribute(const identifierId id,ObjPtr val);
 
 		/*! Get only the typeAttributes. */
 		void getTypeAttributes(std::map<identifierId,Object *> & attrs)const;
@@ -59,32 +59,32 @@ class Type : public Object {
 
 		/*! Get an attribute that is directly stored in this Type-Object (NOT in an inherited Type) */
 		Object * getLocalAttribute(const identifierId id)const;
-		inline Object * getLocalAttribute(const char * key)const		{	return getLocalAttribute(EScript::stringToIdentifierId(key));	}
+		Object * getLocalAttribute(const char * key)const		{	return getLocalAttribute(EScript::stringToIdentifierId(key));	}
 
 		/*! Used by instances of this type to assign a value to an inherited typeAttribute. */
 		bool assignToTypeAttribute(const identifierId id,ObjPtr val);
 		/*! Used by instances of this type get the value of an inherited typeAttribute. */
-		Object * findTypeAttribute(const identifierId id)const;
+		Attribute * findTypeAttribute(const identifierId id);
 
-		using Object::getAttribute;
-		using Object::setObjAttribute;
-		using Object::assignAttribute;
-
-		/// ---|> [Object]
-		virtual Object * getAttribute(const identifierId id);
+		using Object::_accessLocalAttribute;
+		using Object::setAttribute;
+//		using Object::assignAttribute;
 
 		/// ---|> [Object]
-		virtual bool setObjAttribute(const identifierId id,ObjPtr val);
+		virtual Attribute * _accessLocalAttribute(const identifierId id);
 
 		/// ---|> [Object]
-		virtual bool assignAttribute(Runtime & rt,const identifierId id,ObjPtr val);
+		virtual bool setAttribute(const identifierId id,const Attribute & attr);
+
+//		/// ---|> [Object]
+//		virtual bool assignAttribute(Runtime & rt,const identifierId id,ObjPtr val);
 
 		/// ---|> [Object]
 		virtual void getAttributes(std::map<identifierId,Object *> & attrs);
 
 	private:
 		typedef std::map<identifierId,Attribute> AttributeMap_t;
-		AttributeMap_t attr;
+		AttributeMap_t attributes;
 	// @}
 
 	// -------------------------------------------------------------

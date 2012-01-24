@@ -40,8 +40,8 @@ void Runtime::init(EScript::Namespace & globals) {
 	typeObject=new Type(ExtObject::getTypeObject());
 	declareConstant(&globals,getClassName(),typeObject);
 
-	typeObject->setTypeAttribute("IGNORE_WARNINGS",Number::create(Runtime::ES_IGNORE_WARNINGS));
-	typeObject->setTypeAttribute("TREAT_WARNINGS_AS_ERRORS",Number::create(Runtime::ES_TREAT_WARNINGS_AS_ERRORS));
+	declareConstant(typeObject,"IGNORE_WARNINGS",Number::create(Runtime::ES_IGNORE_WARNINGS));
+	declareConstant(typeObject,"TREAT_WARNINGS_AS_ERRORS",Number::create(Runtime::ES_TREAT_WARNINGS_AS_ERRORS));
 
 
 	//!	[ESMF] Number Runtime._getErrorConfig();
@@ -101,8 +101,8 @@ Runtime::Runtime() :
 		state(STATE_NORMAL),errorConfig(0){ //,currentLine(0) {
 
 	globals=EScript::getSGlobals()->clone();
-	globals->setObjAttribute(stringToIdentifierId( "GLOBALS"),globals.get());
-	globals->setObjAttribute(stringToIdentifierId( "SGLOBALS"),EScript::getSGlobals());
+	declareConstant(globals.get(),"GLOBALS",globals.get());
+	declareConstant(globals.get(),"SGLOBALS",EScript::getSGlobals());
 
 	pushContext(RuntimeContext::create());
 
@@ -111,7 +111,7 @@ Runtime::Runtime() :
 
 //! (dtor)
 Runtime::~Runtime() {
-	globals->setObjAttribute(stringToIdentifierId( "GLOBALS"),NULL);
+	declareConstant(globals.get(), "GLOBALS",NULL);
 	while(!contextStack.empty())
 		popContext();
 
@@ -127,7 +127,7 @@ Namespace * Runtime::getGlobals()const	{
 
 Object * Runtime::getMemberAttribute(Object * obj,const identifierId id){
 	try{
-		return obj->getAttribute(id);
+		return obj->getAttribute(id).getValue();
 	}catch(Exception * e){
 		ERef<Exception> eHolder(e);
 		warn(eHolder->getMessage());
@@ -155,13 +155,13 @@ Object * Runtime::getVariable(const identifierId id) {
 		}
 	}
 	// search for global var (GLOBALS.bla)
-	return globals->getObjAttribute(id);
+	return globals->getAttribute(id).getValue();
 }
 
 Object * Runtime::getGlobalVariable(const identifierId id) {
 	// \note getObjAttribute is used to skip the members of Type
 	// 	which are otherwise found as false global variables  [BUG20100618]
-	return globals->getObjAttribute(id);
+	return globals->getAttribute(id).getValue();
 }
 
 //! redesign because of BUG[20090424]
@@ -171,7 +171,7 @@ void Runtime::assignToVariable(const identifierId id,Object * value) {
 	if (rtb && rtb->assignToVariable(*this,id,value)) {
 		// assigned to local variable
 		return;
-	} else if(  globals->assignAttribute(*this,id,value)) {
+	} else if(  assignToAttribute( globals.get(),id,value)) {
 		// assigned to global variable
 		return;
 	}else{
@@ -179,6 +179,20 @@ void Runtime::assignToVariable(const identifierId id,Object * value) {
 		if(rtb)
 			rtb->initLocalVariable(id,value);
 	}
+}
+
+
+bool Runtime::assignToAttribute(ObjPtr obj,identifierId attrId,ObjPtr value){
+	Attribute * attr = obj->_accessLocalAttribute(attrId);
+	if(attr == NULL){
+		if(obj->getType()==NULL)
+			return false;
+		attr = getType()->findTypeAttribute(attrId);
+		if(attr == NULL)
+			return false;
+	}
+	attr->setValue(value.get());
+	return true;
 }
 
 // ----------------------------------------------------------------------
@@ -254,7 +268,7 @@ Object * Runtime::executeObj(Object * obj){
 			// try to assign the value; this may produce an exception (\see Type::assignToTypeAttribute),
 			// which is caught and emitted as warning as this is normally no more critical than trying to assign to a nonexistent attribute.
 			try{
-				success = obj2->assignAttribute(*this,sa->attrId,value.get());
+				success = assignToAttribute(obj2,sa->attrId,value);
 			}catch(Exception * e){
 				ERef<Exception> eHolder(e);
 				warn(eHolder->getMessage());
@@ -262,7 +276,7 @@ Object * Runtime::executeObj(Object * obj){
 			if(!success){
 				warn(std::string("Unkown attribute '")+sa->getAttrName()+"' ("+
 						(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+"."+sa->getAttrName()+"="+(value.isNull()?"":value->toDbgString())+")");
-				if(!obj2->setObjAttribute(sa->attrId,value.get())){
+				if(!obj2->setAttribute(sa->attrId,value.get())){ // fallback: set obj attribute
 					warn(std::string("Can't set object attribute '")+sa->getAttrName()+"' ("+
 							(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+"."+sa->getAttrName()+"="+(value.isNull()?"":value->toDbgString())+")");
 				}
@@ -270,18 +284,18 @@ Object * Runtime::executeObj(Object * obj){
 		}else if(sa->getAttributeFlags()&Attribute::TYPE_ATTR_BIT){
 			Type * t=obj2.toType<Type>();
 			if(t){
-				t->setTypeAttribute(sa->attrId,value.get());
+				t->setAttribute(sa->attrId,Attribute(value,sa->getAttributeFlags()));
 			}else{
 				warn(std::string("Can not set typeAttr to non-Type-Object: '")+sa->getAttrName()+"' ("+
 						(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+"."+sa->getAttrName()+"="+(value.isNull()?"":value->toDbgString())+")"
 						+"Setting objAttr instead.");
-				if(!obj2->setObjAttribute(sa->attrId,value.get())){
+				if(!obj2->setAttribute(sa->attrId,Attribute(value,sa->getAttributeFlags() & ~(Attribute::TYPE_ATTR_BIT)))){ // fallback: set obj attribute
 					warn(std::string("Can't set object attribute '")+sa->getAttrName()+"' ("+
 							(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+"."+sa->getAttrName()+"="+(value.isNull()?"":value->toDbgString())+")");
 				}
 			}
 		}else { // obj attribute
-			if(!obj2->setObjAttribute(sa->attrId,value.get()))
+			if(!obj2->setAttribute(sa->attrId,Attribute(value,sa->getAttributeFlags())))
 				warn(std::string("Can't set object attribute '")+sa->getAttrName()+"' ("+
 						(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+"."+sa->getAttrName()+"="+(value.isNull()?"":value->toDbgString())+")");
 			

@@ -56,7 +56,7 @@ void Type::init(EScript::Namespace & globals) {
 
 	//! [ESMF] self Object.setTypeAttribute(key,value)
 	ESMF_DECLARE(typeObject,Type,"setTypeAttribute",2,2,
-				(self->setTypeAttribute(parameter[0]->hash(),parameter[1]),self))
+				(self->setAttribute(parameter[0]->hash(),Attribute(parameter[1],Attribute::TYPE_ATTR_BIT)),self))
 }
 
 //---
@@ -99,36 +99,36 @@ static const char * typeAttrErrorHint =
 	"This may be a result of: Adding object attributes to a Type AFTER inheriting from that Type, "
 	"adding object attributes to a Type AFTER creating instances of that Type, "
 	"or adding object attributes to a Type whose instances can't store object attributes. ";
+//
+//bool Type::assignToTypeAttribute(const identifierId id,ObjPtr val){
+//	Type * t=this;
+//	do{
+//		AttributeMap_t::iterator fIt=t->attributes.find(id);
+//		if( fIt != t->attributes.end()){
+//			if( fIt->second.isObjAttribute() ){
+//				std::string message = "(assignToTypeAttribute) type-attribute expected but object-attribute found. ('";
+//				message += identifierIdToString(id) + "')\n" + typeAttrErrorHint;
+//				throw new Exception(message);
+//			}
+//			(*fIt).second.setValue(val.get());
+//			return true;
+//		}
+//		t=t->getBaseType();
+//	}while(t!=NULL);
+//	return false;
+//}
 
-bool Type::assignToTypeAttribute(const identifierId id,ObjPtr val){
+Attribute * Type::findTypeAttribute(const identifierId id){
 	Type * t=this;
 	do{
-		AttributeMap_t::iterator fIt=t->attr.find(id);
-		if( fIt != t->attr.end()){
-			if( fIt->second.isObjAttribute() ){
-				std::string message = "(assignToTypeAttribute) type-attribute expected but object-attribute found. ('";
-				message += identifierIdToString(id) + "')\n" + typeAttrErrorHint;
-				throw new Exception(message);
-			}
-			(*fIt).second.setValue(val.get());
-			return true;
-		}
-		t=t->getBaseType();
-	}while(t!=NULL);
-	return false;
-}
-
-Object * Type::findTypeAttribute(const identifierId id)const{
-	const Type * t=this;
-	do{
-		const AttributeMap_t::const_iterator fIt=t->attr.find(id);
-		if( fIt != t->attr.end() ){
+		AttributeMap_t::iterator fIt=t->attributes.find(id);
+		if( fIt != t->attributes.end() ){
 			if( fIt->second.isObjAttribute() ){
 				std::string message = "(findTypeAttribute) type-attribute expected but object-attribute found. ('";
 				message += identifierIdToString(id) + "')\n" + typeAttrErrorHint;
 				throw new Exception(message);
 			}
-			return fIt->second.getValue();
+			return &(fIt->second);
 		}
 		t=t->getBaseType();
 	}while(t!=NULL);
@@ -137,81 +137,82 @@ Object * Type::findTypeAttribute(const identifierId id)const{
 
 
 //! ---|> Object
-Object * Type::getAttribute(const identifierId id){
+Attribute * Type::_accessLocalAttribute(const identifierId id){
 	// is local attribute?
-	Object * result=this->getLocalAttribute(id);
-	if(result!=NULL)
-		return result;
+	AttributeMap_t::iterator fIt=attributes.find(id);
+	if(fIt!=attributes.end())
+		return &(fIt->second);
 
 	// try to find the attribute along the inheritated path...
 	if(getBaseType()!=NULL){
-		result = getBaseType()->findTypeAttribute(id);
+		Attribute * result = getBaseType()->findTypeAttribute(id);
 		if(result!=NULL)
 			return result;
 	}
-
-	// try to find the attribute from this type's type.
-	return getType()!=NULL ? getType()->findTypeAttribute(id) : NULL;
+	return NULL;
+//	// try to find the attribute from this type's type.
+//	return getType()!=NULL ? getType()->findTypeAttribute(id) : NULL;
 }
 
 Object * Type::getLocalAttribute(const identifierId id)const{
-	const AttributeMap_t::const_iterator fIt=attr.find(id);
-	return  fIt!=attr.end() ? fIt->second.getValue() : NULL ;
+	const AttributeMap_t::const_iterator fIt=attributes.find(id);
+	return  fIt!=attributes.end() ? fIt->second.getValue() : NULL ;
 }
 
 //! ---|> Object
-bool Type::setObjAttribute(const identifierId id,ObjPtr val){
-	attr[id].set(val.get(),0); // Attribute::OBJECT_ATTR (by default)
-	setFlag(FLAG_CONTAINS_OBJ_ATTRS,true);
+bool Type::setAttribute(const identifierId id,const Attribute & attr){
+	attributes[id]=attr; //(val.get(),0); // Attribute::OBJECT_ATTR (by default)
+	if(attr.isObjAttribute())
+		setFlag(FLAG_CONTAINS_OBJ_ATTRS,true);
 	return true;
 }
-
-//! ---|> Object
-bool Type::assignAttribute(Runtime & rt,const identifierId id,ObjPtr val){
-	// try to assign to local attribute (object attribute or type attribute)
-	AttributeMap_t::iterator fIt=attr.find(id);
-	if( fIt != attr.end()){
-		(*fIt).second.setValue(val.get());
-		return true;
-	}
-
-	// try to assign value along the inheritated path... (as type attribute only)
-	if(getBaseType()!=NULL && getBaseType()->assignToTypeAttribute(id,val))
-		return true;
-
-	// try to assign the attribute to this type's type (if this is not the type of itself)
-	return (getType()!=NULL  && getType()!=this) ? getType()->assignToTypeAttribute(id,val) : false;
-}
-
-void Type::setTypeAttribute(const identifierId id,ObjPtr val){
-	attr[id].set( val.get(), Attribute::TYPE_ATTR_BIT );
-}
+//
+////! ---|> Object
+//bool Type::assignAttribute(Runtime & rt,const identifierId id,ObjPtr val){
+//	// try to assign to local attribute (object attribute or type attribute)
+//	AttributeMap_t::iterator fIt=attr.find(id);
+//	if( fIt != attributes.end()){
+//		(*fIt).second.setValue(val.get());
+//		return true;
+//	}
+//
+//	// try to assign value along the inheritated path... (as type attribute only)
+//	if(getBaseType()!=NULL && getBaseType()->assignToTypeAttribute(id,val))
+//		return true;
+//
+//	// try to assign the attribute to this type's type (if this is not the type of itself)
+//	return (getType()!=NULL  && getType()!=this) ? getType()->assignToTypeAttribute(id,val) : false;
+//}
+//
+//void Type::setTypeAttribute(const identifierId id,ObjPtr val){
+//	attributes[id].set( val.get(), Attribute::TYPE_ATTR_BIT );
+//}
 
 void Type::initInstanceObjAttributes(Object * instance){
 	// init member vars of type
 	if(getFlag(FLAG_CONTAINS_OBJ_ATTRS)){
-		for(AttributeMap_t::iterator it=attr.begin() ; it!=attr.end() ; ++it){
-			Attribute & a=it->second;
+		for(AttributeMap_t::iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
+			const Attribute & a=it->second;
 			if( a.isTypeAttribute() )
 				continue;
-			Object * value=a.getValue();
-			if( value==NULL )
+//			Object * value=a.getValue();
+			if( a.isNull() )
 				continue;
-			value=value->getRefOrCopy();
-			instance->setObjAttribute( it->first, value);
+//			value = value->getRefOrCopy();
+			instance->setAttribute( it->first, Attribute(a.getValue()->getRefOrCopy(),a.getFlags()));
 		}
 	}
 }
 
 void Type::getTypeAttributes(std::map<identifierId,Object *> & attrs)const{
-	for(AttributeMap_t::const_iterator it=attr.begin() ; it!=attr.end() ; ++it){
+	for(AttributeMap_t::const_iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
 		if(it->second.isTypeAttribute())
 			attrs[it->first] = it->second.getValue();
 	}
 }
 
 void Type::getObjAttributes(std::map<identifierId,Object *> & attrs)const{
-	for(AttributeMap_t::const_iterator it=attr.begin() ; it!=attr.end() ; ++it){
+	for(AttributeMap_t::const_iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
 		if(it->second.isObjAttribute())
 			attrs[it->first] = it->second.getValue();
 	}
@@ -219,7 +220,7 @@ void Type::getObjAttributes(std::map<identifierId,Object *> & attrs)const{
 
 //! ---|> Object
 void Type::getAttributes(std::map<identifierId,Object *> & attrs){
-	for(AttributeMap_t::iterator it=attr.begin() ; it!=attr.end() ; ++it){
+	for(AttributeMap_t::iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
 		attrs[it->first] = it->second.getValue();
 	}
 }

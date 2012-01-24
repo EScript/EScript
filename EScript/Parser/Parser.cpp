@@ -722,12 +722,9 @@ Object * Parser::getMap(ParsingContext & ctxt,int & cursor)const  {
 		} else
 			throwError("Map Syntax Error",tokens.at(cursor));
 	}
-//    FunctionCall * funcCall = new FunctionCall(
-//					new GetAttribute(new GetAttribute(0,stringToIdentifierId("Map"),true),Consts::IDENTIFIER_fn_constructor),
-//					paramExp,false,currentFilename,currentLine);
 
 	FunctionCall * funcCall = new FunctionCall(
-					Map::typeObject->getAttribute(Consts::IDENTIFIER_fn_constructor),
+					Map::typeObject->getAttribute(Consts::IDENTIFIER_fn_constructor).getValue(),
 					paramExp,false,currentFilename,currentLine);
 	return funcCall;
 }
@@ -944,9 +941,8 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 				}
 			}
 			cursor=to;
-//            FunctionCall * funcCall = new FunctionCall(new GetAttribute(new GetAttribute(NULL,"Array",true),Consts::IDENTIFIER_fn_constructor),
-//													paramExp,false,currentFilename,currentLine);
-			FunctionCall * funcCall = new FunctionCall( Array::typeObject->getAttribute(Consts::IDENTIFIER_fn_constructor),
+
+			FunctionCall * funcCall = new FunctionCall( Array::typeObject->getAttribute(Consts::IDENTIFIER_fn_constructor).getValue(),
 													paramExp,false,currentFilename,currentLine);
 			return funcCall;
 		}

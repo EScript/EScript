@@ -54,6 +54,7 @@ class Runtime : public ExtObject  {
 		void assignToVariable(const std::string & name,Object * value) {
 			assignToVariable(EScript::stringToIdentifierId(name),value);
 		}
+		bool assignToAttribute(ObjPtr obj,identifierId attrId,ObjPtr value);
 	public:
 		ERef<Namespace> globals;
 	// 	@}

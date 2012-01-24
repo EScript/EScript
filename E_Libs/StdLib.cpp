@@ -100,7 +100,7 @@ static std::string findFile(Runtime & runtime, const std::string & filename){
 
 	std::string file(IO::condensePath(filename));
 	if( IO::getEntryType(file)!=IO::TYPE_FILE ){
-		if(Array * searchPaths = dynamic_cast<Array*>(runtime.getAttribute(seachPathsId))){
+		if(Array * searchPaths = dynamic_cast<Array*>(runtime.getAttribute(seachPathsId).getValue())){
 			for(ERef<Iterator> itRef=searchPaths->getIterator();!itRef->end();itRef->next()){
 				ObjRef valueRef = itRef->value();
 				std::string s(IO::condensePath(valueRef.toString()+"/"+filename));
@@ -143,10 +143,10 @@ Object * StdLib::loadOnce(Runtime & runtime,const std::string & filename){
 	static const identifierId mapId=stringToIdentifierId("__loadOnce_loadedFiles");
 
 	std::string condensedFilename( IO::condensePath(findFile(runtime,filename)) );
-	Map * m=dynamic_cast<Map*>(runtime.getAttribute(mapId));
+	Map * m=dynamic_cast<Map*>(runtime.getAttribute(mapId).getValue());
 	if(m==NULL){
 		m=Map::create();
-		runtime.setObjAttribute(mapId,m);
+		runtime.setAttribute(mapId,m);
 	}
 	ObjRef obj=m->getValue(condensedFilename);
 	if(obj.toBool()){ // already loaded?
@@ -172,7 +172,6 @@ LARGE_INTEGER _getPerformanceCounter(){
 #endif
 
 // -------------------------------------------------------------
-
 //! init  (globals)
 void StdLib::init(EScript::Namespace * globals) {
 
@@ -180,10 +179,10 @@ void StdLib::init(EScript::Namespace * globals) {
 		Adds a search path which is used for load(...) and loadOnce(...)	*/
 	ES_FUNCTION_DECLARE(globals,"addSearchPath",1,1,{
 		static const identifierId seachPathsId=stringToIdentifierId("__searchPaths");
-		Array * searchPaths = dynamic_cast<Array*>(runtime.getAttribute(seachPathsId));
+		Array * searchPaths = dynamic_cast<Array*>(runtime.getAttribute(seachPathsId).getValue());
 		if(searchPaths == NULL){
 			searchPaths = Array::create();
-			runtime.setObjAttribute(seachPathsId,searchPaths);
+			runtime.setAttribute(seachPathsId,searchPaths);
 		}
 		searchPaths->pushBack(String::create(parameter[0].toString()));
 		return Void::get();

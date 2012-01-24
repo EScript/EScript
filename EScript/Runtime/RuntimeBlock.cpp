@@ -7,6 +7,7 @@
 #include "../Objects/Object.h"
 #include "../Objects/Values/Void.h"
 #include "RuntimeContext.h"
+#include "Runtime.h"
 
 using namespace EScript;
 
@@ -80,7 +81,7 @@ bool RuntimeBlock::assignToVariable(Runtime & rt,const identifierId id,Object * 
 	if (localVariables.findAndUpdate(id,val)){
 		return true;
 	} else if (ctxt->getCaller()!=NULL ) {
-		return ctxt->getCaller()->assignAttribute(rt, id,val);
+		return rt.assignToAttribute(ctxt->getCaller(),id,val);
 	} else {
 		return false;
 	}

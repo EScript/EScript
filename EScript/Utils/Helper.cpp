@@ -16,7 +16,7 @@ namespace EScript {
 
 //! (static)
 void declareFunction(Type * type, identifierId nameId, Function::functionPtr fn) {
-	type->setTypeAttribute(nameId, new Function(nameId, 0, -1, fn));
+	type->setAttribute(nameId, Attribute(new Function(nameId, 0, -1, fn),Attribute::TYPE_ATTR_BIT));
 }
 
 //! (static)
@@ -26,7 +26,7 @@ void declareFunction(Type * type, const char * name, Function::functionPtr fn) {
 
 //! (static)
 void declareFunction(Type * type, identifierId nameId, int minParamCount, int maxParamCount, Function::functionPtr fn) {
-	type->setTypeAttribute(nameId, new Function(nameId, minParamCount, maxParamCount, fn));
+	type->setAttribute(nameId, Attribute(new Function(nameId, minParamCount, maxParamCount, fn),Attribute::TYPE_ATTR_BIT));
 }
 
 //! (static)
@@ -41,12 +41,12 @@ void declareConstant(Type * type, const char * name, Object * value) {
 
 //! (static)
 void declareConstant(Type * type, identifierId nameId, Object * value) {
-	type->setTypeAttribute(nameId, value);
+	type->setAttribute(nameId, Attribute(value,Attribute::TYPE_ATTR_BIT|Attribute::CONST_BIT));
 }
 
 //! (static)
 void declareFunction(Namespace * nameSpace, identifierId nameId, Function::functionPtr fn) {
-	nameSpace->setObjAttribute(nameId, new Function(nameId, 0, -1, fn));
+	nameSpace->setAttribute(nameId, new Function(nameId, 0, -1, fn));
 }
 
 //! (static)
@@ -56,7 +56,7 @@ void declareFunction(Namespace * nameSpace, const char * name, Function::functio
 
 //! (static)
 void declareFunction(Namespace * nameSpace, identifierId nameId, int minParamCount, int maxParamCount, Function::functionPtr fn) {
-	nameSpace->setObjAttribute(nameId, new Function(nameId, minParamCount, maxParamCount, fn));
+	nameSpace->setAttribute(nameId, new Function(nameId, minParamCount, maxParamCount, fn));
 }
 
 //! (static)
@@ -71,7 +71,7 @@ void declareConstant(Namespace * nameSpace, const char * name, Object * value) {
 
 //! (static)
 void declareConstant(Namespace * nameSpace, identifierId nameId, Object * value) {
-	nameSpace->setObjAttribute(nameId, value);
+	nameSpace->setAttribute(nameId, Attribute(value,Attribute::CONST_BIT));
 }
 
 //! (static, internal)
@@ -105,7 +105,7 @@ Object * callMemberFunction(Runtime & rt, ObjPtr obj, identifierId fnNameId, con
 	if (obj.isNull()) {
 		return NULL;
 	}
-	return rt.executeFunction(obj->getAttribute(fnNameId), obj.get(), params);
+	return rt.executeFunction(obj->getAttribute(fnNameId).getValue(), obj.get(), params);
 }
 
 //! (static)

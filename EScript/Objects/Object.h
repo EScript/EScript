@@ -4,6 +4,7 @@
 // ------------------------------------------------------
 #ifndef OBJECT_H
 #define OBJECT_H
+#include "../Utils/Attribute.h"
 #include "../Utils/TypeNameMacro.h"
 #include "../Utils/ObjRef.h"
 #include "../Utils/Hashing.h"
@@ -76,6 +77,10 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 		//! ---o
 		//! For internal use only.
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_UNKNOWN; }
+		
+		
+		//! ---o
+		virtual void _assignValue(ObjPtr value);
 	//	@}
 
 	// -------------------------
@@ -95,21 +100,25 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 
 	/*! @name Attributes */
 	public:
+		
+		//! ---o
+		virtual Attribute * _accessLocalAttribute(const identifierId id);
+		
+		
 		/*! Get the value of an attribute with the given name or id, if it is defined in this
-			object or in a type-Object; NULL otherwise.
-			---o	*/
-		virtual Object * getAttribute(const identifierId id);
-		inline Object * getAttribute(const char * key)					{	return getAttribute(EScript::stringToIdentifierId(key));	}
+			object or in a type-Object; NULL otherwise.	*/
+		const Attribute & getAttribute(const identifierId id);
+		const Attribute & getAttribute(const char * key)						{	return getAttribute(EScript::stringToIdentifierId(key));	}
 
 		/*!	Try to set the value of an object attribute.
 			Returns false if the attribute can not be set.
 			---o */
-		virtual bool setObjAttribute(const identifierId id,ObjPtr val);
-		inline  bool setObjAttribute(const char * key,ObjPtr val)		{	return setObjAttribute(EScript::stringToIdentifierId(key),val);	}
-
-		/// ---o
-		virtual bool assignAttribute(Runtime & rt,const identifierId id,ObjPtr val);
-		inline bool assignAttribute(Runtime & rt,const char * key,ObjPtr val)		{	return assignAttribute(rt,EScript::stringToIdentifierId(key),val);	}
+		virtual bool setAttribute(const identifierId id,const Attribute & attr);
+		inline  bool setAttribute(const char * key,const Attribute & attr)		{	return setAttribute(EScript::stringToIdentifierId(key),attr);	}
+//
+//		/// ---o
+//		virtual bool assignAttribute(Runtime & rt,const identifierId id,ObjPtr val);
+//		inline bool assignAttribute(Runtime & rt,const char * key,ObjPtr val)		{	return assignAttribute(rt,EScript::stringToIdentifierId(key),val);	}
 
 		/*! ---o
 			Collect all attributes in a map; used for debugging. */

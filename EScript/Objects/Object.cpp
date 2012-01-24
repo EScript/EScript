@@ -82,16 +82,16 @@ void Object::init(EScript::Namespace & globals) {
 	ESF_DECLARE(typeObject,"hash",0,0,Number::create(caller->hash()))
 
 	//! [ESMF] Object Object.getAttribute(key)
-	ESF_DECLARE(typeObject,"getAttribute",1,1,caller->getAttribute(parameter[0]->hash()))
+	ESF_DECLARE(typeObject,"getAttribute",1,1,caller->getAttribute(parameter[0]->hash()).getValue())
 
 	//! [ESMF] Bool Object.isSet(key)
-	ESF_DECLARE(typeObject,"isSet",1,1,Bool::create(caller->getAttribute(parameter[0]->hash())!=NULL))
+	ESF_DECLARE(typeObject,"isSet",1,1,Bool::create(!caller->getAttribute(parameter[0]->hash()).isNull()))
 
-	//! [ESMF] Bool Object.setObjAttribute(key,value)
-	ESF_DECLARE(typeObject,"setObjAttribute",2,2,Bool::create(caller->setObjAttribute(parameter[0]->hash(),parameter[1])))
+	//! [ESMF] Bool Object.setObjAttribute(key,value) \deprecated
+	ESF_DECLARE(typeObject,"setObjAttribute",2,2,Bool::create(caller->setAttribute(parameter[0]->hash(),Attribute(parameter[1],Attribute::NORMAL_ATTRIBUTE))))
 
 	//! [ESMF] Bool Object.assignAttribute(key,value)
-	ESF_DECLARE(typeObject,"assignAttribute",2,2,Bool::create(caller->assignAttribute(runtime,parameter[0]->hash(),parameter[1])))
+	ESF_DECLARE(typeObject,"assignAttribute",2,2,Bool::create(runtime.assignToAttribute(caller,parameter[0]->hash(),parameter[1])))
 
 	typedef std::map<identifierId,Object *> attrMap_t; // has to be defined here, due to compiler (gcc) bug.
 	//! Map Object._getAttributes()
@@ -162,6 +162,10 @@ Object::~Object() {
 	Debug::unRegisterObj(this);
 #endif
 }
+//! ---o
+void Object::_assignValue(ObjPtr){
+	throw new Exception("Cannot assign value.");
+}
 
 //! ---o
 Object * Object::clone() const {
@@ -184,7 +188,7 @@ bool Object::isA(Type * type) const {
 std::string Object::toString()const {
 
 	//! \todo fixme! Remove the const_cast! Why is getAttribute(...) not const?????
-	const Object * printableName = const_cast<Object*>(this)->getAttribute(Consts::IDENTIFIER_attr_printableName);
+	const Object * printableName = const_cast<Object*>(this)->getAttribute(Consts::IDENTIFIER_attr_printableName).getValue();
 
 	// #TYPENAME:0x42342
 	// #PRINTABLENAME:TYPENAME:0x42342
@@ -265,20 +269,34 @@ bool Object::isIdentical(Runtime & rt,const ObjPtr o) {
 // attributes
 
 //! ---o
-Object * Object::getAttribute(const identifierId id){
-	return getType()!=NULL ? getType()->findTypeAttribute(id) : NULL ;
+Attribute * Object::_accessLocalAttribute(const identifierId){
+	return NULL;
+}
+
+const Attribute & Object::getAttribute(const identifierId id){
+	static const Attribute noAttribute;
+
+	const Attribute * attr = _accessLocalAttribute(id);
+	if(attr != NULL){
+		return *attr;
+	}else if(getType() == NULL){
+		return noAttribute;
+	}else{
+		attr = getType()->findTypeAttribute(id);
+		return attr == NULL ? noAttribute : *attr;
+	}
 }
 
 //! ---o
-bool Object::setObjAttribute(const identifierId /*id*/,ObjPtr /*val*/){
+bool Object::setAttribute(const identifierId /*id*/,const Attribute & /*val*/){
 	std::cout << "Could not set member.\n";
 	return false;
 }
-
-//! ---o
-bool Object::assignAttribute(Runtime & rt,const identifierId id,ObjPtr val){
-	return getType()==NULL ? false : getType()->assignToTypeAttribute(id,val);
-}
+//
+////! ---o
+//bool Object::assignAttribute(Runtime & rt,const identifierId id,ObjPtr val){
+//	return getType()==NULL ? false : getType()->assignToTypeAttribute(id,val);
+//}
 
 // -----------------------------------------------------------------------------------------------
 
