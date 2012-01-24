@@ -125,9 +125,16 @@ Namespace * Runtime::getGlobals()const	{
 	return globals.get();
 }
 
-Object * Runtime::getMemberAttribute(Object * obj,const identifierId id){
+Object * Runtime::readMemberAttribute(Object * obj,const identifierId id){
 	try{
-		return obj->getAttribute(id).getValue();
+		Attribute * attr = obj->_accessAttribute(id,false);
+		if(attr==NULL){
+			return NULL;
+		}else if(attr->isPrivate() && obj!=getCurrentContext()->getCaller()) {
+			warn("Can't read private attribute.");
+			return NULL;
+		}
+		return attr->getValue();
 	}catch(Exception * e){
 		ERef<Exception> eHolder(e);
 		warn(eHolder->getMessage());
@@ -148,7 +155,7 @@ Object * Runtime::getVariable(const identifierId id) {
 		// search for member variable (this.bla)
 		Object * caller = getCurrentContext()->getCaller();
 		if (caller!=NULL){
-			if((result=getMemberAttribute(caller,id))){
+			if((result=readMemberAttribute(caller,id))){
 				setCallingObject(caller);
 				return result;
 			}
@@ -185,11 +192,24 @@ void Runtime::assignToVariable(const identifierId id,Object * value) {
 bool Runtime::assignToAttribute(ObjPtr obj,identifierId attrId,ObjPtr value){
 	Attribute * attr = obj->_accessAttribute(attrId,false);
 	if(attr == NULL){
-//		if(obj->getType()==NULL)
-//			return false;
-//		attr = getType()->findTypeAttribute(attrId);
-//		if(attr == NULL)
-			return false;
+		return false;
+	}
+	if(attr->getFlags()&Attribute::ASSIGNMENT_RELEVANT_BITS){
+		if(attr->isConst()){
+			throwException("Can't assign to const attribute."); // \todo Change to setException?
+		}else if(attr->isPrivate()){
+			if( obj!=getCurrentContext()->getCaller() ){
+				throwException("Can't assign to private attribute."); // \todo Change to setException?
+			}
+		}
+		
+		// the attribute is a reference -> do not set the new value object but assign the new value.
+		if(attr->isReference()){
+			attr->getValue()->_assignValue(value);
+			return true;
+		}
+		
+		
 	}
 	attr->setValue(value.get());
 	return true;
@@ -229,7 +249,7 @@ Object * Runtime::executeObj(Object * obj){
 				obj2Ref = Void::get();
 
 			setCallingObject(obj2Ref.get());
-			resultRef = getMemberAttribute( obj2Ref.get(),ga->getAttrId() );
+			resultRef = readMemberAttribute( obj2Ref.get(),ga->getAttrId() );
 			if (resultRef.isNull()) {
 				warn("Member not set '"+ga->toString()+"'");
 			}
@@ -741,7 +761,7 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 		Delegate * d=static_cast<Delegate*>(fun.get());
 		return executeFunction(d->getFunction(),d->getObject(),params,isConstructorCall);
 	} else { // function-object has a user defined "_call"-member?
-		ObjPtr otherFun = getMemberAttribute(fun.get(),Consts::IDENTIFIER_fn_call);
+		ObjPtr otherFun = readMemberAttribute(fun.get(),Consts::IDENTIFIER_fn_call);
 		if(otherFun.isNotNull()){
 			// fun._call( callingObj , param0 , param1 , ... )
 			ParameterValues params2(params.count()+1);

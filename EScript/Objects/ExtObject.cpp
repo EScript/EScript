@@ -53,7 +53,7 @@ ExtObject::ExtObject(Type * parentType):
 	if (typeRef.isNull())
 		return;
 
-	typeRef->initInstanceObjAttributes(this);
+	typeRef->copyObjAttributesTo(this);
 	//ctor
 }
 
@@ -84,26 +84,6 @@ Attribute * ExtObject::_accessAttribute(const identifierId id,bool localOnly){
 	}
 	return (localOnly||getType()==NULL) ? NULL : getType()->findTypeAttribute(id);
 }
-//
-//Object * ExtObject::getObjAttribute(const identifierId id)const{
-//	if(objAttributes!=NULL){
-//		attributeMap_t::const_iterator f=objAttributes->find(id);
-//		if( f!=objAttributes->end() ){
-//			return f->second.getValue();
-//		}
-//	}
-//	return NULL;
-//}
-//
-////! ---|> [Object]
-//Object * ExtObject::getAttribute(const identifierId id){
-//	if(objAttributes!=NULL){
-//		attributeMap_t::const_iterator f=objAttributes->find(id);
-//		if( f!=objAttributes->end() )
-//			return f->second.getValue();
-//	}
-//	return Object::getAttribute(id);
-//}
 
 //! ---|> [Object]
 bool ExtObject::setAttribute(const identifierId id,const Attribute & attr){
@@ -112,29 +92,6 @@ bool ExtObject::setAttribute(const identifierId id,const Attribute & attr){
 	(*objAttributes)[id] = attr;
 	return true;
 }
-
-////! ---|> [Object]
-//bool ExtObject::assignAttribute(Runtime & rt,const identifierId id,ObjPtr val){
-//	return assignObjAttribute(rt,id,val) ? true :  Object::assignAttribute(rt,id,val);
-//}
-//
-//
-//bool ExtObject::assignObjAttribute(Runtime & rt,const identifierId id,ObjPtr val){
-//	if(objAttributes!=NULL){
-//		attributeMap_t::iterator it=objAttributes->find(id);
-//		if(it!=objAttributes->end()){
-//			Attribute & attr = it->second;
-//			std::cout << ":"<<identifierIdToString(id)<<" = "<< val.toString()<<"("+(int)attr.getFlags()<<")\n";
-//			if(attr.isConst()){
-//				throw new Exception("trying to assign to a const attribute.");
-//			}
-//			attr.setValue(val.get());
-//			return true;
-//		}
-//	}
-//	return false;
-//}
-
 
 void ExtObject::cloneAttributesFrom(const ExtObject * obj) {
 	if(obj->objAttributes==NULL)

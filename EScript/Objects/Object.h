@@ -104,11 +104,21 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 		//! ---o
 		virtual Attribute * _accessAttribute(const identifierId id,bool localOnly);
 		
+		/*! Get the locally stored attribute with the given id.
+			If the attribute is not found, the resulting attribute references NULL.
+			\code 
+				const Attribute & attr = obj->getLocalAttribute("attrName");
+				if(attr.isNull()) ...
+		*/
 		const Attribute & getLocalAttribute(const identifierId id)const;
 		const Attribute & getLocalAttribute(const char * key)const				{	return getLocalAttribute(EScript::stringToIdentifierId(key));	}
 		
-		/*! Get the value of an attribute with the given name or id, if it is defined in this
-			object or in a type-Object; NULL otherwise.	*/
+		/*! Get the attribute with the given id. The attribute can be stored locally or be accesible by the object's type.
+			If the attribute is not found, the resulting attribute references NULL.
+			\code 
+				const Attribute & attr = obj->getAttribute("doesNotExist");
+				if(attr.isNull()) ...
+		*/
 		const Attribute & getAttribute(const identifierId id)const;
 		const Attribute & getAttribute(const char * key)const					{	return getAttribute(EScript::stringToIdentifierId(key));	}
 
@@ -117,10 +127,6 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 			---o */
 		virtual bool setAttribute(const identifierId id,const Attribute & attr);
 		inline  bool setAttribute(const char * key,const Attribute & attr)		{	return setAttribute(EScript::stringToIdentifierId(key),attr);	}
-//
-//		/// ---o
-//		virtual bool assignAttribute(Runtime & rt,const identifierId id,ObjPtr val);
-//		inline bool assignAttribute(Runtime & rt,const char * key,ObjPtr val)		{	return assignAttribute(rt,EScript::stringToIdentifierId(key),val);	}
 
 		/*! ---o
 			Collect all attributes in a map; used for debugging. */

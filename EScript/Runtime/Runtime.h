@@ -43,9 +43,6 @@ class Runtime : public ExtObject  {
 	/// @name Variables
 	// 	@{
 	public:
-		/*! returns the object's attribute with the given id. If the attribute can not be found, NULL is returned.
-			If the attribute can be found but not accessed, a warning is emitted and NULL is returned. */
-		Object * getMemberAttribute(Object * obj,const identifierId id);
 		Object * getVariable(const identifierId id);
 		Object * getGlobalVariable(const identifierId id);
 		Namespace * getGlobals()const;
@@ -56,6 +53,10 @@ class Runtime : public ExtObject  {
 		}
 		bool assignToAttribute(ObjPtr obj,identifierId attrId,ObjPtr value);
 	public:
+		/*! returns the object's attribute with the given id. If the attribute can not be found, NULL is returned.
+			If the attribute can be found but not accessed, a warning is emitted and NULL is returned. */
+		Object * readMemberAttribute(Object * obj,const identifierId id);
+
 		ERef<Namespace> globals;
 	// 	@}
 

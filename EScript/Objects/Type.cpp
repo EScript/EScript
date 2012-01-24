@@ -72,7 +72,7 @@ Type::Type(Type * _baseType):
 		Object(Type::getTypeObject()),flags(0),baseType(_baseType) {
 
 	if(getBaseType()!=NULL)
-		getBaseType()->initInstanceObjAttributes(this);
+		getBaseType()->copyObjAttributesTo(this);
 	//ctor
 }
 
@@ -81,7 +81,7 @@ Type::Type(Type * _baseType,Type * typeOfType):
 		Object(typeOfType),flags(0),baseType(_baseType) {
 
 	if(getBaseType()!=NULL)
-		getBaseType()->initInstanceObjAttributes(this);
+		getBaseType()->copyObjAttributesTo(this);
 	//ctor
 }
 
@@ -152,15 +152,9 @@ Attribute * Type::_accessAttribute(const identifierId id,bool localOnly){
 		if(result!=NULL)
 			return result;
 	}
-//	return NULL;
 	// try to find the attribute from this type's type.
 	return getType()!=NULL ? getType()->findTypeAttribute(id) : NULL;
 }
-
-//Object * Type::getLocalAttribute(const identifierId id)const{
-//	const AttributeMap_t::const_iterator fIt=attributes.find(id);
-//	return  fIt!=attributes.end() ? fIt->second.getValue() : NULL ;
-//}
 
 //! ---|> Object
 bool Type::setAttribute(const identifierId id,const Attribute & attr){
@@ -169,29 +163,8 @@ bool Type::setAttribute(const identifierId id,const Attribute & attr){
 		setFlag(FLAG_CONTAINS_OBJ_ATTRS,true);
 	return true;
 }
-//
-////! ---|> Object
-//bool Type::assignAttribute(Runtime & rt,const identifierId id,ObjPtr val){
-//	// try to assign to local attribute (object attribute or type attribute)
-//	AttributeMap_t::iterator fIt=attr.find(id);
-//	if( fIt != attributes.end()){
-//		(*fIt).second.setValue(val.get());
-//		return true;
-//	}
-//
-//	// try to assign value along the inheritated path... (as type attribute only)
-//	if(getBaseType()!=NULL && getBaseType()->assignToTypeAttribute(id,val))
-//		return true;
-//
-//	// try to assign the attribute to this type's type (if this is not the type of itself)
-//	return (getType()!=NULL  && getType()!=this) ? getType()->assignToTypeAttribute(id,val) : false;
-//}
-//
-//void Type::setTypeAttribute(const identifierId id,ObjPtr val){
-//	attributes[id].set( val.get(), Attribute::TYPE_ATTR_BIT );
-//}
 
-void Type::initInstanceObjAttributes(Object * instance){
+void Type::copyObjAttributesTo(Object * instance){
 	// init member vars of type
 	if(getFlag(FLAG_CONTAINS_OBJ_ATTRS)){
 		for(AttributeMap_t::iterator it=attributes.begin() ; it!=attributes.end() ; ++it){

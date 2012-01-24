@@ -173,8 +173,8 @@ class EPtr{
 
 		inline bool operator==(const EPtr<_T> & other)const {   return obj==other.obj;  }
 		inline bool operator==(const _T * o2)const          {   return obj==o2; }
-		inline bool operator!=(const EPtr<_T> & other)const {   return obj==other.obj;  }
-		inline bool operator!=(const _T * o2)const          {   return obj==o2; }
+		inline bool operator!=(const EPtr<_T> & other)const {   return obj!=other.obj;  }
+		inline bool operator!=(const _T * o2)const          {   return obj!=o2; }
 	// @}
 
 	/*! @name Conversion */

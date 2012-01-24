@@ -107,6 +107,11 @@ double NumberRef::getValue()const {
 	}
 }
 
+//! ---o
+void NumberRef::_assignValue(ObjPtr newValue){
+	setValue(newValue.toDouble());
+}
+
 //! ---|> Number
 void NumberRef::setValue(double _value) {
 
