@@ -137,11 +137,14 @@ Attribute * Type::findTypeAttribute(const identifierId id){
 
 
 //! ---|> Object
-Attribute * Type::_accessLocalAttribute(const identifierId id){
+Attribute * Type::_accessAttribute(const identifierId id,bool localOnly){
 	// is local attribute?
 	AttributeMap_t::iterator fIt=attributes.find(id);
 	if(fIt!=attributes.end())
 		return &(fIt->second);
+
+	if(localOnly)
+		return NULL;
 
 	// try to find the attribute along the inheritated path...
 	if(getBaseType()!=NULL){
@@ -149,15 +152,15 @@ Attribute * Type::_accessLocalAttribute(const identifierId id){
 		if(result!=NULL)
 			return result;
 	}
-	return NULL;
-//	// try to find the attribute from this type's type.
-//	return getType()!=NULL ? getType()->findTypeAttribute(id) : NULL;
+//	return NULL;
+	// try to find the attribute from this type's type.
+	return getType()!=NULL ? getType()->findTypeAttribute(id) : NULL;
 }
 
-Object * Type::getLocalAttribute(const identifierId id)const{
-	const AttributeMap_t::const_iterator fIt=attributes.find(id);
-	return  fIt!=attributes.end() ? fIt->second.getValue() : NULL ;
-}
+//Object * Type::getLocalAttribute(const identifierId id)const{
+//	const AttributeMap_t::const_iterator fIt=attributes.find(id);
+//	return  fIt!=attributes.end() ? fIt->second.getValue() : NULL ;
+//}
 
 //! ---|> Object
 bool Type::setAttribute(const identifierId id,const Attribute & attr){
@@ -219,7 +222,7 @@ void Type::getObjAttributes(std::map<identifierId,Object *> & attrs)const{
 }
 
 //! ---|> Object
-void Type::getAttributes(std::map<identifierId,Object *> & attrs){
+void Type::getLocalAttributes(std::map<identifierId,Object *> & attrs){
 	for(AttributeMap_t::iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
 		attrs[it->first] = it->second.getValue();
 	}

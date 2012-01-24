@@ -102,13 +102,15 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 	public:
 		
 		//! ---o
-		virtual Attribute * _accessLocalAttribute(const identifierId id);
+		virtual Attribute * _accessAttribute(const identifierId id,bool localOnly);
 		
+		const Attribute & getLocalAttribute(const identifierId id)const;
+		const Attribute & getLocalAttribute(const char * key)const				{	return getLocalAttribute(EScript::stringToIdentifierId(key));	}
 		
 		/*! Get the value of an attribute with the given name or id, if it is defined in this
 			object or in a type-Object; NULL otherwise.	*/
-		const Attribute & getAttribute(const identifierId id);
-		const Attribute & getAttribute(const char * key)						{	return getAttribute(EScript::stringToIdentifierId(key));	}
+		const Attribute & getAttribute(const identifierId id)const;
+		const Attribute & getAttribute(const char * key)const					{	return getAttribute(EScript::stringToIdentifierId(key));	}
 
 		/*!	Try to set the value of an object attribute.
 			Returns false if the attribute can not be set.
@@ -122,7 +124,7 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 
 		/*! ---o
 			Collect all attributes in a map; used for debugging. */
-		virtual void getAttributes(std::map<identifierId,Object *> & )	{	}
+		virtual void getLocalAttributes(std::map<identifierId,Object *> & )	{	}
 	// @}
 
 	// -------------------------

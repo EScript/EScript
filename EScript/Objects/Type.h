@@ -57,21 +57,21 @@ class Type : public Object {
 
 		void initInstanceObjAttributes(Object * instance);
 
-		/*! Get an attribute that is directly stored in this Type-Object (NOT in an inherited Type) */
-		Object * getLocalAttribute(const identifierId id)const;
-		Object * getLocalAttribute(const char * key)const		{	return getLocalAttribute(EScript::stringToIdentifierId(key));	}
+//		/*! Get an attribute that is directly stored in this Type-Object (NOT in an inherited Type) */
+//		Object * getLocalAttribute(const identifierId id)const;
+//		Object * getLocalAttribute(const char * key)const		{	return getLocalAttribute(EScript::stringToIdentifierId(key));	}
 
 		/*! Used by instances of this type to assign a value to an inherited typeAttribute. */
 		bool assignToTypeAttribute(const identifierId id,ObjPtr val);
 		/*! Used by instances of this type get the value of an inherited typeAttribute. */
 		Attribute * findTypeAttribute(const identifierId id);
 
-		using Object::_accessLocalAttribute;
+		using Object::_accessAttribute;
 		using Object::setAttribute;
 //		using Object::assignAttribute;
 
 		/// ---|> [Object]
-		virtual Attribute * _accessLocalAttribute(const identifierId id);
+		virtual Attribute * _accessAttribute(const identifierId id,bool localOnly);
 
 		/// ---|> [Object]
 		virtual bool setAttribute(const identifierId id,const Attribute & attr);
@@ -80,7 +80,7 @@ class Type : public Object {
 //		virtual bool assignAttribute(Runtime & rt,const identifierId id,ObjPtr val);
 
 		/// ---|> [Object]
-		virtual void getAttributes(std::map<identifierId,Object *> & attrs);
+		virtual void getLocalAttributes(std::map<identifierId,Object *> & attrs);
 
 	private:
 		typedef std::map<identifierId,Attribute> AttributeMap_t;

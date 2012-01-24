@@ -75,14 +75,14 @@ Object * ExtObject::clone() const{
 // attributes
 
 //! ---o
-Attribute * ExtObject::_accessLocalAttribute(const identifierId id){
+Attribute * ExtObject::_accessAttribute(const identifierId id,bool localOnly){
 	if(objAttributes!=NULL){
 		attributeMap_t::iterator f=objAttributes->find(id);
 		if( f!=objAttributes->end() ){
 			return &f->second;
 		}
 	}
-	return NULL;
+	return (localOnly||getType()==NULL) ? NULL : getType()->findTypeAttribute(id);
 }
 //
 //Object * ExtObject::getObjAttribute(const identifierId id)const{
@@ -146,7 +146,7 @@ void ExtObject::cloneAttributesFrom(const ExtObject * obj) {
 }
 
 //! ---|> Object
-void ExtObject::getAttributes(std::map<identifierId,Object *> & attrs){
+void ExtObject::getLocalAttributes(std::map<identifierId,Object *> & attrs){
 	if(objAttributes!=NULL){
 		for(attributeMap_t::iterator it=objAttributes->begin() ; it!=objAttributes->end() ; ++it){
 			attrs[it->first] = it->second.getValue();

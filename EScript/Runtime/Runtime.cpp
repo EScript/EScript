@@ -155,13 +155,13 @@ Object * Runtime::getVariable(const identifierId id) {
 		}
 	}
 	// search for global var (GLOBALS.bla)
-	return globals->getAttribute(id).getValue();
+	return globals->getLocalAttribute(id).getValue();
 }
 
 Object * Runtime::getGlobalVariable(const identifierId id) {
-	// \note getObjAttribute is used to skip the members of Type
+	// \note getLocalAttribute is used to skip the members of Type
 	// 	which are otherwise found as false global variables  [BUG20100618]
-	return globals->getAttribute(id).getValue();
+	return globals->getLocalAttribute(id).getValue();
 }
 
 //! redesign because of BUG[20090424]
@@ -183,12 +183,12 @@ void Runtime::assignToVariable(const identifierId id,Object * value) {
 
 
 bool Runtime::assignToAttribute(ObjPtr obj,identifierId attrId,ObjPtr value){
-	Attribute * attr = obj->_accessLocalAttribute(attrId);
+	Attribute * attr = obj->_accessAttribute(attrId,false);
 	if(attr == NULL){
-		if(obj->getType()==NULL)
-			return false;
-		attr = getType()->findTypeAttribute(attrId);
-		if(attr == NULL)
+//		if(obj->getType()==NULL)
+//			return false;
+//		attr = getType()->findTypeAttribute(attrId);
+//		if(attr == NULL)
 			return false;
 	}
 	attr->setValue(value.get());
@@ -875,7 +875,7 @@ Object * Runtime::executeUserConstructor(const ObjPtr & _callingObject,const Par
 	ParameterValues currentParams = params;
 	std::list<ObjRef> tmpRefHolderList;
 	for(Type * t= type; t!=NULL ; t = t->getBaseType()){
-		Object * currentCons = t->getLocalAttribute(Consts::IDENTIFIER_fn_constructor);
+		Object * currentCons = t->getLocalAttribute(Consts::IDENTIFIER_fn_constructor).getValue();
 		// type has no local constructor function -> skip this level
 		if(!currentCons)
 			continue;

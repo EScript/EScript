@@ -97,7 +97,7 @@ void Object::init(EScript::Namespace & globals) {
 	//! Map Object._getAttributes()
 	ES_FUNCTION_DECLARE(typeObject,"_getAttributes",0,0,{
 		attrMap_t attrs;
-		caller->getAttributes(attrs);
+		caller->getLocalAttributes(attrs);
 		return Map::create(attrs);
 	})
 
@@ -269,22 +269,22 @@ bool Object::isIdentical(Runtime & rt,const ObjPtr o) {
 // attributes
 
 //! ---o
-Attribute * Object::_accessLocalAttribute(const identifierId){
-	return NULL;
+Attribute * Object::_accessAttribute(const identifierId id,bool localOnly){
+	return (localOnly||getType()==NULL) ? NULL : getType()->findTypeAttribute(id);
 }
 
-const Attribute & Object::getAttribute(const identifierId id){
+const Attribute & Object::getLocalAttribute(const identifierId id)const{
 	static const Attribute noAttribute;
+	Object * nonConstThis = const_cast<Object*>(this);
+	const Attribute * attr = nonConstThis->_accessAttribute(id,true);
+	return attr == NULL ? noAttribute : *attr;
+}
 
-	const Attribute * attr = _accessLocalAttribute(id);
-	if(attr != NULL){
-		return *attr;
-	}else if(getType() == NULL){
-		return noAttribute;
-	}else{
-		attr = getType()->findTypeAttribute(id);
-		return attr == NULL ? noAttribute : *attr;
-	}
+const Attribute & Object::getAttribute(const identifierId id)const{
+	static const Attribute noAttribute;
+	Object * nonConstThis = const_cast<Object*>(this);
+	const Attribute * attr = nonConstThis->_accessAttribute(id,false);
+	return attr == NULL ? noAttribute : *attr;
 }
 
 //! ---o
