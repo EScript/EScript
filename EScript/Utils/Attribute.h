@@ -39,13 +39,14 @@ class Attribute{
 		flag_t getFlags()const				{	return flags;	}
 
 		Object * getValue()const 			{	return value.get();	}
+		bool isConst()const					{	return flags&CONST_BIT;	}
+		bool isInitializable()const 		{	return flags&INIT_BIT;	}
 		bool isNull()const 					{	return value.isNull();	}
 		bool isObjAttribute()const 			{	return !getFlag(TYPE_ATTR_BIT);	}
 		bool isTypeAttribute()const 		{	return getFlag(TYPE_ATTR_BIT);	}
-		bool isConst()const					{	return flags&CONST_BIT;	}
 		bool isPrivate()const				{	return flags&PRIVATE_BIT;	}
-		bool isRequired()const				{	return flags&REQUIRED_BIT;	}
 		bool isReference()const				{	return flags&REFERENCE_BIT;	}
+		bool isRequired()const				{	return flags&REQUIRED_BIT;	}
 		
 		void setValue(Object * v)			{	value=v;	}
 		void set(Object * v,flag_t f)		{	value=v, flags=f;	}

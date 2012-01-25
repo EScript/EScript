@@ -33,6 +33,9 @@ class ExtObject : public Object {
 
 		/// ---|> [Object]
 		virtual Object * clone() const;
+		
+		/// ---|> [Object]
+		virtual void _init(Runtime & rt);
 	//	@}
 
 	// -----

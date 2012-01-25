@@ -93,7 +93,6 @@ class Runtime : public ExtObject  {
 	public:
 		Object * executeFunctionCall(FunctionCall * fCall);
 		Object * executeFunction(const ObjPtr & fun,const ObjPtr & callingObject,const ParameterValues & params,bool isConstructor=false);
-
 	private:
 		RuntimeContext * createAndPushFunctionCallContext(const ObjPtr & callingObject,UserFunction * ufun,const ParameterValues & paramValues);
 		Object * executeUserConstructor(const ObjPtr & _callingObject,const ParameterValues & paramValues);

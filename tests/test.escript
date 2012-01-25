@@ -26,7 +26,36 @@ var a = new ExtObject();
 //a @($const,$private) :=
 
 ////////a._setAttribute( $CONST, EScript.ATTR_CONST|EScript.ATTR_PRIVATE );
-a.CONST @(const,private) := $CONST;
+a.m1 @(const) := $CONST;
+//a.m1 = 2;
+
+a.m2 @(private) := 1;
+//a.m2 = 2;
+
+a.m2;
+a.m3 @(init) := Array;
+
+a.f := fn(){
+	return m2;
+};
+
+
+
+out(a.f());
+out(a.m3);
+
+{
+var T = new Type();
+T.m1 @(init) := Array;
+T.m2 @(init) := fn(){	return "foo";	};
+
+var t=new T();
+out(t.m1,"\n");
+out(t.m2,"\n");
+	
+}
+
+
 //parser.getAnnotations ( positionOf@, end)
 //result:
 //Annotation*: name -> parameters*

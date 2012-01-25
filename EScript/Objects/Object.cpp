@@ -168,6 +168,9 @@ void Object::_assignValue(ObjPtr){
 }
 
 //! ---o
+void Object::_init(Runtime &){}
+
+//! ---o
 Object * Object::clone() const {
 	return new Object(getType());
 }

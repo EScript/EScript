@@ -694,7 +694,19 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 		libfun->increaseCallCounter();
 
 		try {
-			return (*libfun->getFnPtr())(*this,_callingObject.get(),params);
+			if(isConstructorCall){
+				// store reference to the new object, so that it is automatically removed if the _init-call fails with an exception.
+				ObjRef newObj = (*libfun->getFnPtr())(*this,_callingObject.get(),params);
+				if(newObj.isNull()){
+					setException(std::string("Constructor didn't return an object."));
+					return NULL;
+				}
+				// init attribute, etc...
+				newObj->_init(*this);
+				return newObj.detachAndDecrease();
+			}else{
+				return (*libfun->getFnPtr())(*this,_callingObject.get(),params);
+			}
 		} catch (Exception * e) {
 			setExceptionState(e);
 			return NULL;
@@ -720,7 +732,7 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 		}  catch (...){
 			setException("C++ exception");
 			return NULL;
-		}
+		}			
 	} // is UserFunction?
 	else if (type==_TypeIds::TYPE_USER_FUNCTION){
 		if (isConstructorCall) {
@@ -907,6 +919,9 @@ Object * Runtime::executeUserConstructor(const ObjPtr & _callingObject,const Par
 			Function * baseCons=static_cast<Function*>(currentCons);
 			// create real object with baseCons( currentPrams)
 			baseObj = executeFunction(baseCons,type,currentParams,true);
+			
+			// init the object
+			baseObj->_init(*this);
 			break;
 		}else if(funType!=_TypeIds::TYPE_USER_FUNCTION ){
 			setException("Constructor needs to be a function");

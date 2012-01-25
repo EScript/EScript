@@ -79,8 +79,17 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_UNKNOWN; }
 		
 		
-		//! ---o
+		/*! If this object is the value of an attribute marked as reference, and a new value is assigned to this attribute, 
+			this function is called instead of setting the new object as value for the attribute.
+			This makes only sense for reference objects like NumberRef.
+			---o	*/
 		virtual void _assignValue(ObjPtr value);
+		
+		/*! This function is called by the runtime after a new Object has been created in the script using "new". The 
+			execution takes place after the Object itself has been created, but before the first scripted constructor is executed.			
+			Extended attribute initializations can be performed here.
+			---o */
+		virtual void _init(Runtime & rt);
 	//	@}
 
 	// -------------------------

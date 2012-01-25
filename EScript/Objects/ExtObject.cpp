@@ -74,7 +74,27 @@ Object * ExtObject::clone() const{
 // -----------------------------------------------------------------------------------------------
 // attributes
 
-//! ---o
+//! ---|> [Object]
+void ExtObject::_init(Runtime & rt){
+	if(objAttributes!=NULL){
+		// \todo check if the type contains initializable attributes
+		for(attributeMap_t::iterator it=objAttributes->begin() ; it!=objAttributes->end() ; ++it){
+			Attribute & attr = it->second;
+			if(attr.isInitializable()){
+				Type * t = dynamic_cast<Type*>(attr.getValue());
+				if(t!=NULL){
+					attr.setValue( rt.executeFunction(t->getAttribute(Consts::IDENTIFIER_fn_constructor).getValue(), NULL, ParameterValues()));
+				}else{
+					attr.setValue( rt.executeFunction(attr.getValue(),NULL,ParameterValues()));
+				}
+				
+			}
+		}
+	}
+}
+
+
+//! ---|> [Object]
 Attribute * ExtObject::_accessAttribute(const identifierId id,bool localOnly){
 	if(objAttributes!=NULL){
 		attributeMap_t::iterator f=objAttributes->find(id);
