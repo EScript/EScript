@@ -27,7 +27,7 @@ class Statement;
 class Parser : public Object {
 		ES_PROVIDES_TYPE_NAME(Parser)
 	public:
-		static Type* typeObject;
+		static Type * getTypeObject();
 		static void init(EScript::Namespace & globals);
 
 		/*! [ParserException] ---|> [Exception] ---|> [Object]    */

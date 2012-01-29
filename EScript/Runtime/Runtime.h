@@ -25,7 +25,7 @@ class FunctionCall;
 class Runtime : public ExtObject  {
 		ES_PROVIDES_TYPE_NAME(Runtime)
 	public:
-		static Type* typeObject;
+		static Type * getTypeObject();
 		static void init(EScript::Namespace & globals);
 
 	// ------------------------------------------------

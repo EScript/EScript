@@ -10,12 +10,16 @@
 
 using namespace EScript;
 
-Type* Iterator::typeObject=NULL;
+//! (static)
+Type * Iterator::getTypeObject(){
+	// [Iterator] ---|> [Object]
+	static Type * typeObject=new Type(Object::getTypeObject());
+	return typeObject;
+}
 
 //! initMembers
 void Iterator::init(EScript::Namespace & globals) {
-	// Iterator ---|> [Object]
-	typeObject=new Type(Object::getTypeObject());
+	Type * typeObject = getTypeObject();
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! Bool Iterator.end()
@@ -37,7 +41,7 @@ void Iterator::init(EScript::Namespace & globals) {
 //---
 
 //! (ctor)
-Iterator::Iterator(Type * type):Object(type?type:typeObject) {
+Iterator::Iterator(Type * type):Object(type?type:getTypeObject()) {
 	//ctor
 }
 

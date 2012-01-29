@@ -13,7 +13,7 @@ namespace EScript {
 class Exception : public ExtObject {
 		ES_PROVIDES_TYPE_NAME(Exception)
 	public:
-		static Type* typeObject;
+		static Type * getTypeObject();
 		static void init(EScript::Namespace & globals);
 		// ----
 

@@ -29,15 +29,17 @@ using namespace EScript;
 
 // ----------------------------------------------------------------------
 // ---- Initialization
-
-Type* Runtime::typeObject=NULL;
-
+//! (static)
+Type * Runtime::getTypeObject(){
+	// [Runtime] ---|> [ExtObject]
+	static Type * typeObject=new Type(ExtObject::getTypeObject());
+	return typeObject;
+}
 /**
  * initMembers
  */
 void Runtime::init(EScript::Namespace & globals) {
-	// [Runtime] ---|> [ExtObject]
-	typeObject=new Type(ExtObject::getTypeObject());
+	Type * typeObject = getTypeObject();
 	declareConstant(&globals,getClassName(),typeObject);
 
 	declareConstant(typeObject,"IGNORE_WARNINGS",Number::create(Runtime::ES_IGNORE_WARNINGS));
@@ -97,7 +99,7 @@ void Runtime::init(EScript::Namespace & globals) {
 
 //! (ctor)
 Runtime::Runtime() :
-		ExtObject(Runtime::typeObject), stackSizeLimit(512),
+		ExtObject(Runtime::getTypeObject()), stackSizeLimit(512),
 		state(STATE_NORMAL),errorConfig(0){ //,currentLine(0) {
 
 	globals=EScript::getSGlobals()->clone();

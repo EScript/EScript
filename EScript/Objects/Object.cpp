@@ -112,24 +112,24 @@ void ObjectReleaseHandler::release(Object * o) {
 		std::cout << "\n !"<<o<<":"<<o->countReferences();
 		return;
 	}
-	if (o->getType()==Number::typeObject) {
+	if (o->getType()==Number::getTypeObject()) {
 		// the real c++ type can be somthing else than Number, but the typeId does not lie.
 		if(o->_getInternalTypeId() == _TypeIds::TYPE_NUMBER){
 			Number * n=static_cast<Number *>(o);
 			Number::release(n);
 			return;
 		}
-	}else if (o->getType()==Bool::typeObject) {
+	}else if (o->getType()==Bool::getTypeObject()) {
 		if(o->_getInternalTypeId() == _TypeIds::TYPE_BOOL){
 			Bool::release(static_cast<Bool*>(o));
 			return;
 		}
-	}else if (o->getType()==String::typeObject) {
+	}else if (o->getType()==String::getTypeObject()) {
 		if(o->_getInternalTypeId() == _TypeIds::TYPE_STRING){
 			String::release(static_cast<String*>(o));
 			return;
 		}
-	}else if (o->getType()==Array::typeObject) {
+	}else if (o->getType()==Array::getTypeObject()) {
 		if(o->_getInternalTypeId() == _TypeIds::TYPE_ARRAY){
 			Array::release(static_cast<Array*>(o));
 			return;

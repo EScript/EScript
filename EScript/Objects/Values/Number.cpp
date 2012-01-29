@@ -17,15 +17,17 @@ using namespace EScript;
 
 std::stack<Number *> Number::numberPool;
 
-Type* Number::typeObject=NULL;
+//! (static)
+Type * Number::getTypeObject(){
+	// [Number] ---|> [Object]
+	static Type * typeObject=new Type(Object::getTypeObject());
+	return typeObject;
+}
 
 //! initMembers
 void Number::init(EScript::Namespace & globals) {
-//
-	// Number ---|> [Object]
-	typeObject=new Type(Object::getTypeObject());
+	Type * typeObject = getTypeObject();
 	typeObject->setFlag(Type::FLAG_CALL_BY_VALUE,true);
-
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! [ESMF] new Numbern([Number])
@@ -285,7 +287,7 @@ Number * Number::create(double value,Type * type){
 	return new Number(value,type);
 	#endif
 
-	if(type==Number::typeObject)
+	if(type==Number::getTypeObject())
 		return create(value);
 	else
 		return new Number(value,type);
@@ -297,7 +299,7 @@ void Number::release(Number * n){
 	delete n;
 	return;
 	#endif
-	if(n->getType()!=typeObject){
+	if(n->getType()!=getTypeObject()){
 		delete n;
 		std::cout << "Found diff NumberType\n";
 	}else{
@@ -308,7 +310,7 @@ void Number::release(Number * n){
 
 //! (ctor)
 Number::Number(double _value,Type * type,bool isReference):
-	Object(type?type:typeObject),valuePtr(NULL){
+	Object(type?type:getTypeObject()),valuePtr(NULL){
 	if(!isReference)
 		doubleValue=_value;
 	//ctor

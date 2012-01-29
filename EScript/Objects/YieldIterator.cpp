@@ -8,13 +8,16 @@
 
 using namespace EScript;
 //---
-
-Type* YieldIterator::typeObject=NULL;
+//! (static)
+Type * YieldIterator::getTypeObject(){
+	// [Iterator] ---|> [Object]
+	static Type * typeObject=new Type(Object::getTypeObject());
+	return typeObject;
+}
 
 //! initMembers
 void YieldIterator::init(EScript::Namespace & globals) {
-	// YieldIterator ---|> [Object]
-	typeObject=new Type(Object::getTypeObject());
+	Type * typeObject = getTypeObject();
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! Object YieldIterator.key()
@@ -34,7 +37,7 @@ void YieldIterator::init(EScript::Namespace & globals) {
 
 //! (ctor)
 YieldIterator::YieldIterator():
-		Object(typeObject),counter(0),active(true) {
+		Object(getTypeObject()),counter(0),active(true) {
 	//ctor
 }
 

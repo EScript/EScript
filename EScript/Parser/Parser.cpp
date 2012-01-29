@@ -55,14 +55,17 @@ int findCorrespondingBracket(const Parser::ParsingContext & ctxt,int from,int to
 }
 
 // -------------------------------------------------------------------------------------------------------------------
-Type* Parser::typeObject=NULL;
+//! (static)
+Type * Parser::getTypeObject(){
+	// [Parser] ---|> [Object]
+	static Type * typeObject=new Type(Object::getTypeObject());
+	return typeObject;
+}
 
 
 //! (static) initMembers
 void Parser::init(EScript::Namespace & globals) {
-//
-	// Parser ---|> [Object]
-	typeObject=new Type(Object::getTypeObject());
+	Type * typeObject = getTypeObject();
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//!	[ESMF] Parser new Parser();
@@ -89,7 +92,7 @@ void Parser::init(EScript::Namespace & globals) {
 // -------------------------------------------------------------------------------------------------------------------
 
 //!	(ctor)
-Parser::Parser(Type * type):Object(type?type:typeObject) {
+Parser::Parser(Type * type):Object(type?type:getTypeObject()) {
 	//ctor
 }
 
@@ -724,7 +727,7 @@ Object * Parser::getMap(ParsingContext & ctxt,int & cursor)const  {
 	}
 
 	FunctionCall * funcCall = new FunctionCall(
-					Map::typeObject->getAttribute(Consts::IDENTIFIER_fn_constructor).getValue(),
+					Map::getTypeObject()->getAttribute(Consts::IDENTIFIER_fn_constructor).getValue(),
 					paramExp,false,currentFilename,currentLine);
 	return funcCall;
 }
@@ -942,7 +945,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 			}
 			cursor=to;
 
-			FunctionCall * funcCall = new FunctionCall( Array::typeObject->getAttribute(Consts::IDENTIFIER_fn_constructor).getValue(),
+			FunctionCall * funcCall = new FunctionCall( Array::getTypeObject()->getAttribute(Consts::IDENTIFIER_fn_constructor).getValue(),
 													paramExp,false,currentFilename,currentLine);
 			return funcCall;
 		}

@@ -9,7 +9,7 @@ namespace EScript{
 
 //! (static)
 Type * Identifier::getTypeObject(){
-	// [ExtObject] ---|> [Object]
+	// [Identifier] ---|> [Object]
 	static Type * typeObject=new Type(Object::getTypeObject());
 	return typeObject;
 }

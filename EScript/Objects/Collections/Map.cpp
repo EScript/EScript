@@ -13,13 +13,17 @@ using namespace EScript;
 using std::map;
 
 //---
-Type* Map::typeObject=NULL;
+
+//! (static)
+Type * Map::getTypeObject(){
+	// [Map] ---|> [Collection]
+	static Type * typeObject=new Type(Collection::getTypeObject());
+	return typeObject;
+}
 
 //! initMembers
 void Map::init(EScript::Namespace & globals) {
-//
-	// [Map] ---|> [Collection] ---|> [Object]
-	typeObject=new Type(Collection::getTypeObject());
+	Type * typeObject = getTypeObject();
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! [ESMF] Map new Map( [key,value]* )
@@ -75,7 +79,7 @@ Map * Map::create(const std::map<identifierId,Object *> & attr){
 //---
 
 //! (ctor)
-Map::Map(Type * type):Collection(type?type:typeObject) {
+Map::Map(Type * type):Collection(type?type:getTypeObject()) {
 	//ctor
 }
 

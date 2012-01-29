@@ -9,12 +9,16 @@
 using namespace EScript;
 //---
 
-Type* Delegate::typeObject=NULL;
+//! (static)
+Type * Delegate::getTypeObject(){
+	// [Delegate] ---|> [Object]
+	static Type * typeObject=new Type(Object::getTypeObject());
+	return typeObject;
+}
 
 //! initMembers
 void Delegate::init(EScript::Namespace & globals) {
-	// Delegate ---|> [Object]
-	typeObject=new Type(Object::getTypeObject());
+	Type * typeObject = getTypeObject();
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//!	[ESMF] Delegate new Delegate(object,function)
@@ -31,7 +35,7 @@ void Delegate::init(EScript::Namespace & globals) {
 
 //! (ctor)
 Delegate::Delegate(ObjPtr object,ObjPtr function):
-		Object(typeObject),myObjectRef(object.get()),functionRef(function.get()) {
+		Object(getTypeObject()),myObjectRef(object.get()),functionRef(function.get()) {
 	//ctor
 }
 

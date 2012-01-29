@@ -9,12 +9,16 @@
 #include <sstream>
 using namespace EScript;
 
-Type* Exception::typeObject=NULL;
+//! (static)
+Type * Exception::getTypeObject(){
+	// [Exception] ---|> [Object]
+	static Type * typeObject=new Type(ExtObject::getTypeObject());
+	return typeObject;
+}
 
 //! initMembers
 void Exception::init(EScript::Namespace & globals) {
-	// Exception ---|> [ExtObject] ---|> [Object]
-	typeObject=new Type(ExtObject::getTypeObject());
+	Type * typeObject = getTypeObject();
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//!	[ESMF] new Exception([String message])
@@ -48,7 +52,7 @@ void Exception::init(EScript::Namespace & globals) {
 
 //! (ctor)
 Exception::Exception(const std::string & _msg,int _line,Type * type):
-		ExtObject(type?type:typeObject),msg(_msg),line(_line),filenameId(0) {
+		ExtObject(type?type:getTypeObject()),msg(_msg),line(_line),filenameId(0) {
 	//ctor
 }
 

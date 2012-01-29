@@ -14,7 +14,7 @@ namespace EScript {
 class YieldIterator : public Object {
 		ES_PROVIDES_TYPE_NAME(YieldIterator)
 	public:
-		static Type* typeObject;
+		static Type * getTypeObject();
 		static void init(EScript::Namespace & globals);
 		// ----
 

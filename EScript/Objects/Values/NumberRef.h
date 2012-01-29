@@ -13,7 +13,7 @@ namespace EScript {
 class NumberRef : public Number {
 		ES_PROVIDES_TYPE_NAME(NumberRef)
 	public:
-		static Type* typeObject;
+		static Type * getTypeObject();
 		static void init(EScript::Namespace & globals);
 
 		// ---

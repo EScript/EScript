@@ -24,7 +24,7 @@ class String : public Object {
 		static StringData objToStringData(Object * obj);
 
 	public:
-		static Type* typeObject;
+		static Type * getTypeObject();
 		static void init(EScript::Namespace & globals);
 
 		static String * create(const std::string & s)				{	return create(StringData(s));	}

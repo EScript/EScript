@@ -64,7 +64,7 @@ class Array : public Collection {
 	//! @name TypeObject
 	// @{
 	public:
-		static Type* typeObject;
+		static Type * getTypeObject();
 		static void init(EScript::Namespace & globals);
 	//	@}
 

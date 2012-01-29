@@ -11,13 +11,16 @@
 
 namespace EScript{
 
-Type* Bool::typeObject=NULL;
+//! (static)
+Type * Bool::getTypeObject(){
+	// [Bool] ---|> [Object]
+	static Type * typeObject=new Type(Object::getTypeObject());
+	return typeObject;
+}
 
 //! initMembers
 void Bool::init(EScript::Namespace & globals) {
-
-	// Bool ---|> [Object]
-	typeObject=new Type(Object::getTypeObject());
+	Type * typeObject = getTypeObject();
 	typeObject->setFlag(Type::FLAG_CALL_BY_VALUE,true);
 	declareConstant(&globals,getClassName(),typeObject);
 
@@ -88,7 +91,7 @@ void Bool::release(Bool * o){
 	delete o;
 	return;
 	#endif
-	if(o->getType()!=typeObject){
+	if(o->getType()!=getTypeObject()){
 		delete o;
 		std::cout << "Found diff BoolType\n";
 	}else{
@@ -99,7 +102,7 @@ void Bool::release(Bool * o){
 //---
 
 Bool::Bool(bool _value,Type * type):
-		Object(type?type:typeObject),value(_value) {
+		Object(type?type:getTypeObject()),value(_value) {
 	//ctor
 }
 

@@ -9,13 +9,17 @@ using namespace EScript;
 //---
 
 //---
-Type* NumberRef::typeObject=NULL;
+//! (static)
+Type * NumberRef::getTypeObject(){
+	// [NumberRef] ---|> [Number]
+	static Type * typeObject=new Type(Number::getTypeObject());
+	return typeObject;
+}
 
 //! initMembers
 void NumberRef::init(EScript::Namespace & globals) {
-//
-	// NumberRef ---|> Number
-	typeObject=new Type(Number::typeObject);
+	Type * typeObject = getTypeObject();
+	declareConstant(&globals,getClassName(),typeObject);
 	typeObject->setFlag(Type::FLAG_CALL_BY_VALUE,true);
 
 	declareConstant(&globals,getClassName(),typeObject);
@@ -25,49 +29,49 @@ void NumberRef::init(EScript::Namespace & globals) {
 
 //! (ctor)
 NumberRef::NumberRef(double & _valueRef,Type * type):
-		Number(0,type?type:typeObject,true),valueType(VT_DOUBLE) {
+		Number(0,type?type:getTypeObject(),true),valueType(VT_DOUBLE) {
 	valuePtr= &_valueRef;
 	//ctor
 }
 
 //! (ctor)
 NumberRef::NumberRef(float & _valueRef,Type * type):
-		Number(0,type?type:typeObject,true),valueType(VT_FLOAT) {
+		Number(0,type?type:getTypeObject(),true),valueType(VT_FLOAT) {
 	valuePtr= &_valueRef;
 	//ctor
 }
 
 //! (ctor)
 NumberRef::NumberRef(int & _valueRef,Type * type):
-		Number(0,type?type:typeObject,true),valueType(VT_INT) {
+		Number(0,type?type:getTypeObject(),true),valueType(VT_INT) {
 	valuePtr= &_valueRef;
 	//ctor
 }
 
 //! (ctor)
 NumberRef::NumberRef(unsigned int & _valueRef,Type * type):
-		Number(0,type?type:typeObject,true),valueType(VT_UINT) {
+		Number(0,type?type:getTypeObject(),true),valueType(VT_UINT) {
 	valuePtr= &_valueRef;
 	//ctor
 }
 
 //! (ctor)
 NumberRef::NumberRef(char & _valueRef,Type * type):
-		Number(0,type?type:typeObject,true),valueType(VT_CHAR) {
+		Number(0,type?type:getTypeObject(),true),valueType(VT_CHAR) {
 	valuePtr= &_valueRef;
 	//ctor
 }
 
 //! (ctor)
 NumberRef::NumberRef(unsigned char & _valueRef,Type * type):
-		Number(0,type?type:typeObject,true),valueType(VT_UCHAR) {
+		Number(0,type?type:getTypeObject(),true),valueType(VT_UCHAR) {
 	valuePtr= &_valueRef;
 	//ctor
 }
 
 //! (ctor)
 NumberRef::NumberRef(long & _valueRef,Type * type):
-		Number(0,type?type:typeObject,true),valueType(VT_LONG) {
+		Number(0,type?type:getTypeObject(),true),valueType(VT_LONG) {
 	valuePtr= &_valueRef;
 	//ctor
 }

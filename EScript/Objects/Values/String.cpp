@@ -24,15 +24,17 @@ StringData String::objToStringData(Object * obj){
 
 //---
 
-Type* String::typeObject=NULL;
+//! (static)
+Type * String::getTypeObject(){
+	// [String] ---|> [Object]
+	static Type * typeObject=new Type(Object::getTypeObject());
+	return typeObject;
+}
 
 //! initMembers
 void String::init(EScript::Namespace & globals) {
-//
-	// String ---|> [Object]
-	typeObject=new Type(Object::getTypeObject());
+	Type * typeObject = getTypeObject();
 	typeObject->setFlag(Type::FLAG_CALL_BY_VALUE,true);
-
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! [ESMF] String new String((String)Obj)
@@ -270,7 +272,7 @@ String * String::create(const StringData & sData,Type * type){
 	#ifdef ES_DEBUG_MEMORY
 	return new String(sData,type);
 	#endif
-	if(type==typeObject){
+	if(type==getTypeObject()){
 		return create(sData);
 	}else{
 		return new String(sData,type);
@@ -281,7 +283,7 @@ void String::release(String * o){
 	delete o;
 	return;
 	#endif
-	if(o->getType()!=typeObject){
+	if(o->getType()!=getTypeObject()){
 		delete o;
 		std::cout << "Found diff StringType\n";
 	}else{
@@ -292,7 +294,7 @@ void String::release(String * o){
 
 //! (ctor)
 String::String(const StringData & _sData,Type * type):
-		Object(type?type:typeObject),sData(_sData) {
+		Object(type?type:getTypeObject()),sData(_sData) {
 	//ctor
 }
 

@@ -16,14 +16,16 @@ namespace EScript{
 
 using std::vector;
 
-Type* Array::typeObject=NULL;
-
+//! (static)
+Type * Array::getTypeObject(){
+	// [Array] ---|> [Collection]
+	static Type * typeObject=new Type(Collection::getTypeObject());
+	return typeObject;
+}
 
 //! initMembers
 void Array::init(EScript::Namespace & globals) {
-//
-	// Array ---|> Collection
-	typeObject=new Type(Collection::getTypeObject());
+	Type * typeObject = getTypeObject();
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! [ESMF] Array new Array([Obj*]);*/
@@ -132,7 +134,7 @@ std::stack<Array *> Array::pool;
 //! (static)
 Array * Array::create(Type * type){
 	Array * a=NULL;
-	if( !(type==NULL || type==Array::typeObject) || pool.empty()){
+	if( !(type==NULL || type==Array::getTypeObject()) || pool.empty()){
 		a=new Array();
 	}else{
 		a=pool.top();
@@ -168,7 +170,7 @@ void Array::release(Array * a){
 	delete a;
 	return;
 	#endif
-	if(pool.size()<100 && a->getType()==Array::typeObject){
+	if(pool.size()<100 && a->getType()==Array::getTypeObject()){
 		a->clear();
 		pool.push(a);
 	}else{
@@ -183,7 +185,7 @@ void Array::release(Array * a){
 
 // -----------------------------------------------------------------------
 //! (ctor)
-Array::Array(Type * type):Collection(type?type:typeObject) {
+Array::Array(Type * type):Collection(type?type:getTypeObject()) {
 	//ctor
 }
 

@@ -14,7 +14,7 @@ namespace EScript {
 class Bool : public Object {
 		ES_PROVIDES_TYPE_NAME(Bool)
 	public:
-		static Type* typeObject;
+		static Type * getTypeObject();
 
 		static void init(EScript::Namespace & globals);
 		static Bool * create(bool value);
