@@ -204,14 +204,11 @@ bool Runtime::assignToAttribute(ObjPtr obj,identifierId attrId,ObjPtr value){
 				throwException("Can't assign to private attribute."); // \todo Change to setException?
 			}
 		}
-		
 		// the attribute is a reference -> do not set the new value object but assign the new value.
 		if(attr->isReference()){
 			attr->getValue()->_assignValue(value);
 			return true;
 		}
-		
-		
 	}
 	attr->setValue(value.get());
 	return true;

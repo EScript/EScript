@@ -135,11 +135,11 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 			Returns false if the attribute can not be set.
 			---o */
 		virtual bool setAttribute(const identifierId id,const Attribute & attr);
-		inline  bool setAttribute(const char * key,const Attribute & attr)		{	return setAttribute(EScript::stringToIdentifierId(key),attr);	}
+		bool setAttribute(const char * key,const Attribute & attr)				{	return setAttribute(EScript::stringToIdentifierId(key),attr);	}
 
 		/*! ---o
 			Collect all attributes in a map; used for debugging. */
-		virtual void getLocalAttributes(std::map<identifierId,Object *> & )	{	}
+		virtual void getLocalAttributes(std::map<identifierId,Object *> & )		{	}
 	// @}
 
 	// -------------------------

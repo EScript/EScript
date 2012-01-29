@@ -99,24 +99,7 @@ static const char * typeAttrErrorHint =
 	"This may be a result of: Adding object attributes to a Type AFTER inheriting from that Type, "
 	"adding object attributes to a Type AFTER creating instances of that Type, "
 	"or adding object attributes to a Type whose instances can't store object attributes. ";
-//
-//bool Type::assignToTypeAttribute(const identifierId id,ObjPtr val){
-//	Type * t=this;
-//	do{
-//		AttributeMap_t::iterator fIt=t->attributes.find(id);
-//		if( fIt != t->attributes.end()){
-//			if( fIt->second.isObjAttribute() ){
-//				std::string message = "(assignToTypeAttribute) type-attribute expected but object-attribute found. ('";
-//				message += identifierIdToString(id) + "')\n" + typeAttrErrorHint;
-//				throw new Exception(message);
-//			}
-//			(*fIt).second.setValue(val.get());
-//			return true;
-//		}
-//		t=t->getBaseType();
-//	}while(t!=NULL);
-//	return false;
-//}
+
 
 Attribute * Type::findTypeAttribute(const identifierId id){
 	Type * t=this;
@@ -171,10 +154,6 @@ void Type::copyObjAttributesTo(Object * instance){
 			const Attribute & a=it->second;
 			if( a.isTypeAttribute() )
 				continue;
-//			Object * value=a.getValue();
-			if( a.isNull() )
-				continue;
-//			value = value->getRefOrCopy();
 			instance->setAttribute( it->first, Attribute(a.getValue()->getRefOrCopy(),a.getFlags()));
 		}
 	}
@@ -201,7 +180,7 @@ void Type::getLocalAttributes(std::map<identifierId,Object *> & attrs){
 	}
 }
 
-/*!	---|> Object*/
+//! ---|> Object
 bool Type::isA(Type * type) const {
 	if (type == NULL)
 		return false;

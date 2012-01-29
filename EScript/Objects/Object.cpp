@@ -106,34 +106,45 @@ void Object::init(EScript::Namespace & globals) {
 
 }
 
+
 //! (static)
 void ObjectReleaseHandler::release(Object * o) {
 	if (o->countReferences()!=0) {
 		std::cout << "\n !"<<o<<":"<<o->countReferences();
 		return;
 	}
-	if (o->getType()==Number::getTypeObject()) {
-		// the real c++ type can be somthing else than Number, but the typeId does not lie.
-		if(o->_getInternalTypeId() == _TypeIds::TYPE_NUMBER){
-			Number * n=static_cast<Number *>(o);
-			Number::release(n);
-			return;
+	switch(o->_getInternalTypeId()){
+		case _TypeIds::TYPE_NUMBER:{
+			// the real c++ type can be somthing else than Number, but the typeId does not lie.
+			if (o->getType()==Number::getTypeObject()) {
+				Number * n=static_cast<Number *>(o);
+				Number::release(n);
+				return;
+			}
+			break;
 		}
-	}else if (o->getType()==Bool::getTypeObject()) {
-		if(o->_getInternalTypeId() == _TypeIds::TYPE_BOOL){
-			Bool::release(static_cast<Bool*>(o));
-			return;
+		case _TypeIds::TYPE_BOOL:{
+			if (o->getType()==Bool::getTypeObject()) {
+				Bool::release(static_cast<Bool*>(o));
+				return;
+			}
+			break;
 		}
-	}else if (o->getType()==String::getTypeObject()) {
-		if(o->_getInternalTypeId() == _TypeIds::TYPE_STRING){
-			String::release(static_cast<String*>(o));
-			return;
+		case _TypeIds::TYPE_STRING:{
+			if (o->getType()==String::getTypeObject()) {
+				String::release(static_cast<String*>(o));
+				return;
+			}
+			break;
 		}
-	}else if (o->getType()==Array::getTypeObject()) {
-		if(o->_getInternalTypeId() == _TypeIds::TYPE_ARRAY){
-			Array::release(static_cast<Array*>(o));
-			return;
+		case _TypeIds::TYPE_ARRAY:{
+			if (o->getType()==Array::getTypeObject()) {
+				Array::release(static_cast<Array*>(o));
+				return;
+			}
+			break;
 		}
+		default:{}
 	}
 	delete o;
 }
@@ -239,11 +250,6 @@ identifierId Object::hash()const {
 	return EScript::stringToIdentifierId(this->toString());
 }
 
-////! ---o
-//Object * Object::execute(Runtime & /*rt*/) {
-//	return getRefOrCopy();
-//}
-
 //! ---o
 bool Object::rt_isEqual(Runtime &,const ObjPtr other){
 	return other == this ;
@@ -295,11 +301,6 @@ bool Object::setAttribute(const identifierId /*id*/,const Attribute & /*val*/){
 	std::cout << "Could not set member.\n";
 	return false;
 }
-//
-////! ---o
-//bool Object::assignAttribute(Runtime & rt,const identifierId id,ObjPtr val){
-//	return getType()==NULL ? false : getType()->assignToTypeAttribute(id,val);
-//}
 
 // -----------------------------------------------------------------------------------------------
 

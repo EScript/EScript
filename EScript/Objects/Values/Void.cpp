@@ -38,3 +38,8 @@ Object * Void::clone()const{
 bool Void::toBool()const{
 	return false;
 }
+
+//! ---|> [Object]
+std::string Void::toString()const{
+	return "void";
+}

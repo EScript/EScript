@@ -19,7 +19,8 @@ class Void : public Type {
 		virtual Object * clone()const;
 		virtual bool toBool()const;
 		virtual bool rt_isEqual(Runtime & rt,const ObjPtr o);
-
+		virtual std::string toString()const;
+		
 	protected:
 		virtual ~Void();
 		Void();
