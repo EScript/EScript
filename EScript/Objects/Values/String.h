@@ -18,7 +18,7 @@ class String : public Object {
 	private:
 		static std::stack<String *> stringPool;
 
-		String(const StringData & sData,Type * type=NULL);
+		explicit String(const StringData & sData,Type * type=NULL);
 
 		//! internal helper
 		static StringData objToStringData(Object * obj);

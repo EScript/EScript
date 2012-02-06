@@ -128,7 +128,7 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_
 			if ( prog[cursor] =='/' && prog[cursor-1] =='*') {
 				cursor++;
 				return NULL;
-				//return new TEndCommand(); // Shure of this?
+				//return new TEndCommand(); // Sure of this?
 			}
 
 			if (prog[cursor]=='\0')

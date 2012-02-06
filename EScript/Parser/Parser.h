@@ -35,10 +35,10 @@ class Parser : public Object {
 			ES_PROVIDES_TYPE_NAME(ParserException)
 
 			public:
-				ParserException(const std::string  & _msg,Token * token=NULL):
+				explicit ParserException(const std::string  & _msg,Token * token=NULL):
 					Exception(_msg,  (token==NULL? -1 : token->getLine())) {
 				}
-				ParserException(const std::string  & _msg,const _CountedRef<Token> & token):
+				explicit ParserException(const std::string  & _msg,const _CountedRef<Token> & token):
 					Exception(_msg,  (token.isNull() ? -1 : token->getLine())) {
 				}
 		};

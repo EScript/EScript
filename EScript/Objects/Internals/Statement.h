@@ -42,7 +42,7 @@ class Statement {
 		void setLine(int newLine)		{	line=newLine;	}
 
 		bool isValid()const				{	return type!=TYPE_UNDEFINED;	}
-		bool operator==(const Statement & other){
+		bool operator==(const Statement & other) const {
 			return type==other.type && expression==other.expression && line==other.line;
 		}
 		Statement & operator=(const Statement & other){

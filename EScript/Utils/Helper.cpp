@@ -97,7 +97,7 @@ void assertParamCount_2(Runtime & runtime, int paramCount, int min, int max) {
 
 //! (static, internal) Non-inline part of assertType(...)
 void assertType_throwError(Runtime & runtime, const ObjPtr & obj,const char * className) {
-	runtime.throwException("Wrong object type: "+ (obj.isNull() ? std::string("NULL") : obj->toDbgString() )+ " is not of type "+className+".");
+	runtime.throwException("Wrong object type: "+ (obj.isNull() ? std::string("NULL") : obj->toDbgString() )+ " is not of type "+className+'.');
 }
 
 //! (static)
@@ -143,7 +143,7 @@ std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & fi
 	try {
 		script = loadScriptFile(filename);
 	} catch (Exception * error) {
-		std::cerr << "\nError occured while loading file '" << filename << "':\n" << error->toString() << std::endl;
+		std::cerr << "\nError occurred while loading file '" << filename << "':\n" << error->toString() << std::endl;
 		return std::make_pair(false, error);
 	}
 	bool success = true;

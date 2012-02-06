@@ -364,7 +364,7 @@ void Parser::pass_2(ParsingContext & ctxt,
 					enrichedTokens.push_back(token);
 					++cursor;
 					Block * loopConditionBlock=new Block(tc->getLine());
-					loopConditionBlock->setFilename(currentFilename); /// debugging informations:
+					loopConditionBlock->setFilename(currentFilename); /// debugging information:
 					blockStack.push(loopConditionBlock);
 
 					TStartBlock * sb=new TStartBlock(loopConditionBlock);
@@ -386,7 +386,7 @@ void Parser::pass_2(ParsingContext & ctxt,
 				TStartBlock * sb=Token::cast<TStartBlock>(token);
 				Block * currentBlock=new Block(sb->getLine());//currentBlock);
 
-				/// debugging informations:
+				/// debugging information:
 				currentBlock->setFilename(currentFilename);
 
 				blockStack.push(currentBlock);
@@ -1365,7 +1365,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 				if(it!=NULL){
 					runtime.assignToVariable(itId,it);
 				}else{
-					runtime.setException("Could not get iterator from '" + parameter[0]->toDbgString() + "'");
+					runtime.setException("Could not get iterator from '" + parameter[0]->toDbgString() + '\'');
 					return NULL;
 				}
 				return NULL;

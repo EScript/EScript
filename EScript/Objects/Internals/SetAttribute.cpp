@@ -19,14 +19,14 @@ SetAttribute::~SetAttribute() {
 
 //! ---|> [Object]
 std::string SetAttribute::toString()const {
-	std::string s="";
+	std::string s;
 	if (!objExpr.isNull()) {
 		s+=objExpr.toString();
-	} else s+="_";
-	s+="."+getAttrName();
+	} else s+='_';
+	s+='.'+getAttrName();
 	switch(assignType){
 		case ASSIGN:
-			s+="=";
+			s+='=';
 			break;
 		case SET_OBJ_ATTRIBUTE:
 			s+=":=";
@@ -37,6 +37,6 @@ std::string SetAttribute::toString()const {
 		default:
 			s+="?=";
 	}
-	s+="("+valueExpr.toString()+") ";
+	s+='('+valueExpr.toString()+") ";
 	return s;
 }

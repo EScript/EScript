@@ -25,9 +25,9 @@ GetAttribute::~GetAttribute() {
 
 /*!	---|> [Object]	*/
 std::string GetAttribute::toString()const {
-	std::string s="";
+	std::string s;
 	if (!objRef.isNull()) {
-		s+=objRef.toString()+".";
+		s+=objRef.toString()+'.';
 	}
 	s+=identifierIdToString(attrId);
 	return s;

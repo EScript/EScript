@@ -2,8 +2,8 @@
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
-#ifndef ES_RUNTIMESTATE_H
-#define ES_RUNTIMESTATE_H
+#ifndef ES_RUNTIMECONTEXT_H
+#define ES_RUNTIMECONTEXT_H
 
 #include "RuntimeBlock.h"
 
@@ -47,4 +47,4 @@ class RuntimeContext:public EReferenceCounter<RuntimeContext,RuntimeContext> {
 
 }
 
-#endif // ES_RUNTIMESTATE_H
+#endif // ES_RUNTIMECONTEXT_H

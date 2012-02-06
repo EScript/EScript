@@ -103,7 +103,7 @@ static std::string findFile(Runtime & runtime, const std::string & filename){
 		if(Array * searchPaths = dynamic_cast<Array*>(runtime.getAttribute(seachPathsId))){
 			for(ERef<Iterator> itRef=searchPaths->getIterator();!itRef->end();itRef->next()){
 				ObjRef valueRef = itRef->value();
-				std::string s(IO::condensePath(valueRef.toString()+"/"+filename));
+				std::string s(IO::condensePath(valueRef.toString()+'/'+filename));
 				if( IO::getEntryType(s)==IO::TYPE_FILE ){
 					file = s;
 					break;

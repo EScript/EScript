@@ -32,7 +32,7 @@ class Tokenizer {
 		 */
 		class Error:public Exception {
 			public:
-				Error(std::string s,int _line=-1):Exception(std::string("Tokenizer:")+s) {
+				explicit Error(std::string s,int _line=-1):Exception(std::string("Tokenizer:")+s) {
 					setLine(_line);
 				}
 		};

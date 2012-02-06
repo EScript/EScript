@@ -22,7 +22,7 @@ std::string replaceAll(const std::string & subject,const std::string & find,cons
 //! Escape quotes, newlines and backslashes.
 std::string escape(const std::string & s);
 
-//! Replace all occurances of the rules.first with the corresponding rules.second
+//! Replace all occurrences of the rules.first with the corresponding rules.second
 std::string replaceMultiple(const std::string & subject,const std::vector<std::pair<std::string,std::string> > & rules,int max=-1);
 
 //! \note this is only a hack!
@@ -32,7 +32,7 @@ bool beginsWith(const char * subject,const char * find);
 bool stepWhitespaces(const char * subject,int & cursor);
 bool stepText(const char * subject,int & cursor,const char * search);
 
-//! Split the subject at the occurence of delimiter into at most max parts.
+//! Split the subject at the occurrence of delimiter into at most max parts.
 void split(const std::string & subject,const std::string & delimiter, std::vector<std::string> & result,int max=-1);
 
 //! Convert uppercase letter to lowercase

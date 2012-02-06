@@ -39,7 +39,7 @@ class UserFunction : public ExtObject {
 				ObjRef typeRef;
 				bool multiParam;
 			public:
-				Parameter(identifierId  name,Object * defaultValueExpression=NULL,Object * type=NULL);
+				explicit Parameter(identifierId  name,Object * defaultValueExpression=NULL,Object * type=NULL);
 				~Parameter();
 				std::string toString()const;
 

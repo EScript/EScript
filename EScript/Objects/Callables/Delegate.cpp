@@ -53,5 +53,5 @@ bool Delegate::rt_isEqual(Runtime &,const ObjPtr o){
 
 //! ---|> [Object]
 std::string Delegate::toDbgString()const {
-	return std::string("("+myObjectRef.toString("?")+"->"+(functionRef.isNull() ? "?" : functionRef->toDbgString())+")");
+	return std::string('('+myObjectRef.toString("?")+"->"+(functionRef.isNull() ? "?" : functionRef->toDbgString())+')');
 }
