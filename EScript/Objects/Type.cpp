@@ -152,7 +152,7 @@ void Type::copyObjAttributesTo(Object * instance){
 	if(getFlag(FLAG_CONTAINS_OBJ_ATTRS)){
 		for(AttributeMap_t::iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
 			const Attribute & a=it->second;
-			if( a.isTypeAttribute() )
+			if( a.isNull() || a.isTypeAttribute() )
 				continue;
 			instance->setAttribute( it->first, Attribute(a.getValue()->getRefOrCopy(),a.getFlags()));
 		}

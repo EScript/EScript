@@ -14,6 +14,8 @@
 #include <iostream>
 #include <map>
 
+#define ESCRIPT_USE_OBJ_ACCESS_ATTR
+
 namespace EScript {
 
 class Runtime;
