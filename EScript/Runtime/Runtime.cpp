@@ -194,9 +194,17 @@ void Runtime::assignToVariable(const identifierId id,Object * value) {
 
 
 bool Runtime::assignToAttribute(ObjPtr obj,identifierId attrId,ObjPtr value){
-	Attribute * attr = obj->_accessAttribute(attrId,false);
+	Attribute * attr = obj->_accessAttribute(attrId,true);
 	if(attr == NULL){
-		return false;
+		if(obj->getType()==NULL)
+			return false;
+		attr = obj->getType()->findTypeAttribute(attrId);
+		if(attr == NULL)
+			return false;
+		warn("Assigning to a type's attribute by using an instance of that type: '"+
+			obj->toDbgString()+"."+identifierIdToString(attrId)+" = "+(value.isNotNull() ? value->toDbgString():"void") +"'."
+			"\nThis is discouraged as it can be a sign for a common bug."
+			 );
 	}
 	if(attr->getFlags()&Attribute::ASSIGNMENT_RELEVANT_BITS){
 		if(attr->isConst()){

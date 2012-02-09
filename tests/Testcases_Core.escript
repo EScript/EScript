@@ -929,6 +929,11 @@ if(!benchmark)
 //	Runtime._setErrorConfig(Runtime.TREAT_WARNINGS_AS_ERRORS);
 //
 //	Runtime._setErrorConfig(0);
+
+	var A = new Type();
+	A.m ::= 1;
+	var a = new A();
+	a.m = 2;
 }
 //
 //}
