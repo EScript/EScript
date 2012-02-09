@@ -10,6 +10,7 @@
 #include "../Objects/Type.h"
 #include "../Parser/Parser.h"
 #include "../Runtime/Runtime.h"
+#include "../Consts.h"
 #include <sstream>
 
 namespace EScript {
@@ -73,6 +74,12 @@ void declareConstant(Namespace * nameSpace, const char * name, Object * value) {
 void declareConstant(Namespace * nameSpace, identifierId nameId, Object * value) {
 	nameSpace->setAttribute(nameId, Attribute(value,Attribute::CONST_BIT));
 }
+
+//! (static)
+void initPrintableName(Type * type, const std::string & printableName){
+	declareConstant(type, Consts::IDENTIFIER_attr_printableName,String::create(printableName));
+}
+
 
 //! (static, internal)
 void assertParamCount_2(Runtime & runtime, int paramCount, int min, int max) {

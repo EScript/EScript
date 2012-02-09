@@ -27,9 +27,16 @@ void Type::init(EScript::Namespace & globals) {
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! [ESMF] Type new Type( [BaseType=ExtObject] )
-	ESF_DECLARE(typeObject,"_constructor",0,1,parameter.count() == 0 ?
-			new Type(ExtObject::getTypeObject()) :
-			new Type(assertType<Type>(runtime,parameter[0])))
+	ES_FUNCTION_DECLARE(typeObject,"_constructor",0,1,{
+		Type * baseType = parameter.count() == 0 ? ExtObject::getTypeObject() : assertType<Type>(runtime,parameter[0]);
+		if(!baseType->allowsUserInheritance()){
+			runtime.setException("Basetype '"+baseType->toString()+"' does not allow user inheritance.");
+			return NULL;
+		}
+		Type * newType = new Type(baseType);
+		newType->allowUserInheritance(true); // user defined Types allow user inheritance per default.
+		return newType;
+	})
 
 
 	//! [ESMF] Type Type.getBaseType()

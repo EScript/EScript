@@ -697,7 +697,9 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 				// store reference to the new object, so that it is automatically removed if the _init-call fails with an exception.
 				ObjRef newObj = (*libfun->getFnPtr())(*this,_callingObject.get(),params);
 				if(newObj.isNull()){
-					setException(std::string("Constructor didn't return an object."));
+					if(state!=STATE_EXCEPTION){ // the constructor call itself did not set the exception state, but did not return an object.
+						setException(std::string("Constructor didn't return an object."));
+					}
 					return NULL;
 				}
 				// init attribute, etc...

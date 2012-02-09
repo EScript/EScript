@@ -86,6 +86,7 @@ class Type : public Object {
 
 		static const flag_t FLAG_CALL_BY_VALUE = 1<<0;
 		static const flag_t FLAG_CONTAINS_OBJ_ATTRS = 1<<1;
+		static const flag_t FLAG_ALLOWS_USER_INHERITANCE = 1<<2;
 
 		inline bool getFlag(flag_t f)const 			{	return (flags&f) >0;	}
 		inline void setFlag(flag_t f,bool b=true) 	{	b? flags|=f : flags-=(flags&f);	}
@@ -99,7 +100,10 @@ class Type : public Object {
 	/*! @name Inheritance */
 	//	@{
 	public:
-		inline Type * getBaseType()const	{	return baseType.get();	}
+		void allowUserInheritance(bool b)			{	setFlag(FLAG_ALLOWS_USER_INHERITANCE,b);	}
+		bool allowsUserInheritance()const			{	return getFlag(FLAG_ALLOWS_USER_INHERITANCE);	}
+
+		inline Type * getBaseType()const			{	return baseType.get();	}
 
 		/// ---|> Object
 		virtual bool isA(Type * type)const;

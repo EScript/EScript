@@ -21,6 +21,7 @@ Type * Iterator::getTypeObject(){
 void Iterator::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();
 	declareConstant(&globals,getClassName(),typeObject);
+	typeObject->allowUserInheritance(true);
 
 	//! Bool Iterator.end()
 	ESMF_DECLARE(typeObject,Iterator,"end",0,0,Bool::create(self->end()))

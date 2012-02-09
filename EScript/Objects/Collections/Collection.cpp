@@ -23,7 +23,9 @@ void Collection::init(EScript::Namespace & globals) {
 	// Collection ---|> [ExtObject]
 	Type * typeObject=getTypeObject();
 	declareConstant(&globals,getClassName(),typeObject);
-
+	initPrintableName(typeObject,getClassName());
+	typeObject->allowUserInheritance(true);
+	
 	//! [ESMF] Object Collection[key]
 	ESMF_DECLARE(typeObject,Collection,"_get",1,1,self->getValue(parameter[0]))
 

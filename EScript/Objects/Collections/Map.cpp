@@ -29,7 +29,7 @@ void Map::init(EScript::Namespace & globals) {
 	//! [ESMF] Map new Map( [key,value]* )
 	ES_FUNCTION_DECLARE(typeObject,"_constructor",0,-1, {
 		if ( (parameter.count()%2)==1 ) runtime.warn("Map: Last parameter ignored!");
-		Map * a=new Map(dynamic_cast<Type*>(caller));
+		Map * a=new Map();
 		for (ParameterValues::size_type i=0;i<parameter.count();i+=2)
 			a->setValue(parameter[i],parameter[i+1]);
 		return a;

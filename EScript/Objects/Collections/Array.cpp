@@ -30,7 +30,7 @@ void Array::init(EScript::Namespace & globals) {
 
 	//! [ESMF] Array new Array([Obj*]);*/
 	ESF_DECLARE(typeObject, "_constructor", 0,-1,
-		Array::create(parameter,dynamic_cast<Type*>(caller)))
+		Array::create(parameter))
 
 	//! [ESMF] Array+=Obj;
 	ESMF_DECLARE(typeObject,Array,"+=",1,1,(self->pushBack(parameter[0]),self))

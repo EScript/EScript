@@ -20,9 +20,11 @@ Type * Exception::getTypeObject(){
 void Exception::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();
 	declareConstant(&globals,getClassName(),typeObject);
-
+	initPrintableName(typeObject,getClassName());
+	typeObject->allowUserInheritance(true);
+	
 	//!	[ESMF] new Exception([String message])
-	ESF_DECLARE(typeObject,"_constructor",0,1, new Exception(parameter[0].toString(""),0,dynamic_cast<Type*>(caller)))
+	ESMF_DECLARE(typeObject,Type,"_constructor",0,1, new Exception(parameter[0].toString(""),0,self))
 
 	//!	[ESMF] String Exception.getFilename()
 	ESMF_DECLARE(typeObject,Exception,"getFilename",0,0, String::create(self->getFilename()))

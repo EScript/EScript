@@ -28,10 +28,12 @@ Type * Object::getTypeObject(){
 //! initMembers
 void Object::init(EScript::Namespace & globals) {
 	Type * typeObject=getTypeObject();
+	typeObject->allowUserInheritance(true);
+
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! [ESMF] Object new Object()
-	ESF_DECLARE(typeObject,"_constructor",0,0,new Object(dynamic_cast<Type*>(caller)))
+	ESMF_DECLARE(typeObject,Type,"_constructor",0,0,new Object(self))
 
 	//! [ESMF] Object Object.clone()
 	ESF_DECLARE(typeObject,"clone",0,0,caller->clone())

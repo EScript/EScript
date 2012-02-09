@@ -916,7 +916,20 @@ if(!benchmark)
 	);
 }
 
-
+// >=0.5.9 features
+{
+	var exceptionCaught = false;
+	try{
+		var Number2 = new Type(Number);
+		
+	}catch(e){
+		exceptionCaught = true;
+	}
+	test("Inheritance restrictions:",exceptionCaught);
+//	Runtime._setErrorConfig(Runtime.TREAT_WARNINGS_AS_ERRORS);
+//
+//	Runtime._setErrorConfig(0);
+}
 //
 //}
 //{

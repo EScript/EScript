@@ -39,6 +39,8 @@ void declareFunction(Namespace * nameSpace, identifierId nameId, int minParamCou
 void declareFunction(Namespace * nameSpace, const char * name, int minParamCount, int maxParamCount, Function::functionPtr fn);
 void declareConstant(Namespace * nameSpace, identifierId nameId, Object * value);
 void declareConstant(Namespace * nameSpace, const char * name, Object * value);
+
+void initPrintableName(Type * type, const std::string & printableName);
 //@}
 
 //! @name Runtime helper
