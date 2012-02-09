@@ -34,7 +34,7 @@ template<class BracketStart,class BracketEnd>
 int findCorrespondingBracket(const Parser::ParsingContext & ctxt,int from,int to=-1,int direction=1){
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	if (!Token::isA<BracketStart>(tokens.at(from))){
-		std::cout << __FILE__<<":"<<__LINE__<<" should not happen!";
+		std::cerr << "Unkwown error in brackets (should not happen!)\n";
 		return -1;
 	}
 	int cursor=from;
@@ -92,7 +92,7 @@ void Parser::init(EScript::Namespace & globals) {
 // -------------------------------------------------------------------------------------------------------------------
 
 //!	(ctor)
-Parser::Parser(Type * type):Object(type?type:getTypeObject()) {
+Parser::Parser(Type * type):Object(type?type:getTypeObject()),warningLevel(DEBUG_INFO) {
 	//ctor
 }
 
@@ -106,6 +106,14 @@ Object * Parser::clone()const {
 	return new Parser();
 }
 
+void Parser::info(warningLevel_t messageLevel, const std::string & msg,const _CountedRef<Token> & token)const{
+	if(messageLevel>=warningLevel){
+		std::cerr << "(Parser) "<< msg << " ("<< getCurrentFilename();
+		if(token!=NULL) 
+			std::cerr <<':'<< token->getLine();
+		std::cerr << ")\n";
+	}
+}
 
 /**
  *  Loads and parses a File.
@@ -348,7 +356,7 @@ void Parser::pass_2(ParsingContext & ctxt,
 				if (tc->getId()==Consts::IDENTIFIER_var) {
 					if (TIdentifier * ti=Token::cast<TIdentifier>(ctxt.tokens.at(cursor+1))) {
 						if(!blockStack.top()->declareVar(ti->getId())){
-							std::cout << "\n Warning: Duplicate local variable '"<<ti->toString()<<"' ("<<getCurrentFilename()<<":"<<ti->getLine()<<")\n";
+							info(DEFAULT_WARNING, "Warning: Duplicate local variable '"+ti->toString()+"'",ti);
 						}
 //						Token::removeReference(token);
 						continue;
@@ -497,7 +505,7 @@ Object * Parser::getExpression(ParsingContext & ctxt,int & cursor,int to)const  
 		return NULL;
 	}/// Commands: if(...){}
 	else if (Token::isA<TControl>(tokens.at(cursor))) {
-		std::cout << "No control here!";
+		info(DEFAULT_WARNING, "Warning: No control statement here!",tokens.at(cursor));
 		return NULL;
 	} /// Block: {...}
 	else if (Token::isA<TStartBlock>(tokens.at(cursor))) {
@@ -542,7 +550,6 @@ Object * Parser::getExpression(ParsingContext & ctxt,int & cursor,int to)const  
 		}
 			return new GetAttribute(NULL,ident->getId());  // ID
 		}
-		std::cout << t->getLine()<<"\n";
 		throwError("Unknown (or unimplemented) Token",t);
 	}
 
@@ -587,11 +594,6 @@ Object * Parser::getExpression(ParsingContext & ctxt,int & cursor,int to)const  
 	///    Syntax Error
 	/// --------------------
 	else {
-		std::cout << "\n Error "<<cursor<<" - "<<to<<" :";
-		for (;cursor<=to;++cursor) {
-			std::cout << tokens.at(cursor)->toString();
-			// TODO:LINE!!!
-		}
 		throwError("Syntax error",tokens.at(cursor).get());
 		return NULL;
 	}
@@ -658,7 +660,7 @@ Block * Parser::getBlock(ParsingContext & ctxt,int & cursor)const {
 
 		/// Commands have to end on ";" or "}".
 		if (!(Token::isA<TEndCommand>(tokens.at(cursor)) || Token::isA<TEndBlock>(tokens.at(cursor)))) {
-			std::cout << tokens.at(cursor)->toString();
+			info(DEBUG_INFO, tokens.at(cursor)->toString(),tokens.at(cursor));
 			throwError("Syntax Error in Block.",tokens.at(cursor));
 		}
 		++cursor;
@@ -701,7 +703,7 @@ Object * Parser::getMap(ParsingContext & ctxt,int & cursor)const  {
 
 		/// ii) read ":"
 		if (!Token::isA<TMapDelimiter>(tokens.at(cursor))) {
-			std::cout << tokens.at(cursor)->toString();
+			info(DEBUG_INFO, tokens.at(cursor)->toString(),tokens.at(cursor));
 			throwError("Map: Expected : ",tokens.at(cursor));
 		}
 		++cursor;
@@ -804,11 +806,12 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 			paramExp.push_back(rightExpression);
 			return new FunctionCall(new GetAttribute(obj,Consts::IDENTIFIER_fn_set),paramExp,false,currentFilename,currentLine);
 		} else {
-			std::cout << "\n Error = "<<cursor<<" - "<<to<<" :" << lValueType;
+//			std::cout << "\n Error = "<<cursor<<" - "<<to<<" :" << lValueType;
 			throwError("No valid LValue before '=' ",tokens[opPosition]);
 		}
 	} else if (op->getString()==":=" || op->getString()=="::=") {
 		Attribute::flag_t flags = op->getString()=="::=" ? Attribute::TYPE_ATTR_BIT : 0;
+		Attribute::flag_t inverseFlags = 0;
 
 		/// extract annotations:  Object.member @(annotation*) := value
 		///                       leftExpr      annotation        rightExpr
@@ -822,27 +825,44 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 				
 				for(annotations_t::const_iterator it=annotations.begin();it!=annotations.end();++it ){
 					const identifierId name = it->first;
-					const int pos = it->second;
-					std::cout << "\n" << identifierIdToString(name)<< " : "<<pos<<"\n";
-			
+					info(DEBUG_INFO,"Info: Annotation:"+identifierIdToString(name),atOp );
+//					const int pos = it->second;
 					if(name == Consts::ANNOTATION_ATTR_const){
 						flags |= Attribute::CONST_BIT;
 					}else if(name == Consts::ANNOTATION_ATTR_init){
 						flags |= Attribute::INIT_BIT;
 					}else if(name == Consts::ANNOTATION_ATTR_member){
+						if(flags&Attribute::TYPE_ATTR_BIT){
+							info(DEFAULT_WARNING,"Warning: '@(member)' is used in combination with @(type) or '::=' and is ignored.",atOp);
+						}else{
+							inverseFlags |= Attribute::TYPE_ATTR_BIT;
+						}
 					}else if(name == Consts::ANNOTATION_ATTR_private){
-						flags |= Attribute::PRIVATE_BIT;
+						if(inverseFlags&Attribute::PRIVATE_BIT){
+							info(DEFAULT_WARNING,"Warning: '@(private)' is used in combination with @(public) and is ignored.",atOp);
+						}else{
+							flags |= Attribute::PRIVATE_BIT;
+						}						
 					}else if(name == Consts::ANNOTATION_ATTR_public){
+						if(flags&Attribute::PRIVATE_BIT){
+							info(DEFAULT_WARNING,"Warning: '@(public)' is used in combination with @(private) and is ignored.",atOp);
+						}else{
+							inverseFlags |= Attribute::PRIVATE_BIT;
+						}
 					}else if(name == Consts::ANNOTATION_ATTR_required){
-						flags |= Attribute::REQUIRED_BIT;
+						flags |= Attribute::REQUIRED_BIT; // \todo remove!
 					}else if(name == Consts::ANNOTATION_ATTR_type){
-						flags |= Attribute::TYPE_ATTR_BIT;
+						if(inverseFlags&Attribute::TYPE_ATTR_BIT){
+							info(DEFAULT_WARNING,"Warning: '@(member)' is used in combination with @(type) or '::=' and is ignored.",atOp);
+						}else{
+							flags |= Attribute::TYPE_ATTR_BIT;
+						}						
 					}else {
 						throwError("Invalid annotation: '"+identifierIdToString(name)+"'",atOp);
 					}
 				}
 			}
-
+			
 		}
 		identifierId memberIdentifier;
 		Object * obj=NULL;
@@ -885,7 +905,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 	/// "a.b.c"
 	if (op->getString()==".") {
 		if (rightExprFrom>to) {
-			std::cout << "\n Error .1 "<<cursor<<" - "<<to<<" :";
+			info(DEBUG_INFO, "Error .1 ",tokens[opPosition]);
 			throwError("Syntax error after '.'",tokens[opPosition]);
 		}
 		cursor=to;
@@ -908,7 +928,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 				return new GetAttribute(leftExpression,i->getId());
 			}
 		}
-		std::cout << "\n Error .2 "<<cursor<<" - "<<to<<" :";
+		info(DEBUG_INFO, "Error .2 ",tokens[opPosition]);
 		throwError("Syntax error after '.'",tokens[opPosition]);
 	}
 	///  Function Call
@@ -939,7 +959,6 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 				if (Token::isA<TDelimiter>(tokens.at(cursor)))
 					++cursor;
 				else if (!Token::isA<TEndIndex>(tokens.at(cursor))){
-					std::cout << tokens.at(cursor)->toString();
 					throwError("Expected ]",tokens[opPosition]);
 				}
 			}
@@ -965,8 +984,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 		Object * alt1=getExpression(ctxt,cursor);
 		++cursor;
 		if (!Token::isA<TColon>(tokens.at(cursor))) {
-			std::cout <<  tokens.at(cursor)->toString();
-			throwError("Expected :",tokens.at(cursor));
+			throwError("Expected ':'",tokens.at(cursor));
 		}
 		++cursor;
 		Object * alt2=getExpression(ctxt,cursor);
@@ -1118,7 +1136,6 @@ Object * Parser::getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const
 	ctxt.blocks.push_back(NULL); // mark beginning of new local namespace
 	Block * block=dynamic_cast<Block*>(getExpression(ctxt,cursor));
 	if (block==NULL) {
-		std::cout << tokens.at(cursor)->toString();
 //
 //		out(tokens.at(cursor));
 		throwError("[fn] Expects Block of statements.",tokens.at(cursor));
@@ -1201,8 +1218,6 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		++cursor;
 		Statement initExp=createStatement(getExpression(ctxt,cursor));
 		if (!Token::isA<TEndCommand>(tokens.at(cursor))) {
-			std::cout << tokens.at(cursor)->toString();
-//			out(tokens.at(cursor));
 			throwError("[for] expects ;",tokens.at(cursor));
 		}
 		++cursor;
@@ -1215,8 +1230,6 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		if (incr.isValid())
 			++cursor;
 		if (!Token::isA<TEndBlock>(tokens.at(cursor))) {
-			std::cout << tokens.at(cursor)->toString();
-//			out(tokens.at(cursor));
 			throwError("[for] expects )",tokens.at(cursor));
 		}
 		++cursor;
@@ -1684,9 +1697,6 @@ int Parser::findExpression(ParsingContext & ctxt,int cursor)const {
 				if (level==1)
 					return to;
 
-				std::cout << "\n!";//<<tokens.at(cursor)->toString();
-				for(int i=cursor;i<to;++i)
-					std::cout << " "<<tokens[i]->toString();
 				throwError("Unexpected Ending.",tokens.at(cursor));
 			}
 //
@@ -1841,7 +1851,6 @@ void Parser::getExpressionsInBrackets(ParsingContext & ctxt,int & cursor,std::ve
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	Token * t=tokens.at(cursor).get();
 	if(t->toString()!="(") {
-		std::cout << " #"<<t->toString();
 		throwError("Expression list error.",t);
 	}
 	++cursor;

@@ -62,7 +62,18 @@ class Parser : public Object {
 			ParsingContext(Tokenizer::tokenList_t & _tokens,const EPtr<String> & _code ) : tokens(_tokens),rootBlock(NULL),code(_code){}
 		};
 
+		enum warningLevel_t{
+			NO_WARNINGS = 100,
+			DEFAULT_WARNING = 10,
+			PEDANTIC_WARNING = 5,
+			DEBUG_INFO = 0
+		};
+
 	private:
+		void info(warningLevel_t messageLevel, const std::string & msg,const _CountedRef<Token> & token=NULL)const;
+		
+		warningLevel_t warningLevel;
+		
 		// only for debugging
 		identifierId currentFilename;
 		std::string getCurrentFilename()const	{	return identifierIdToString(currentFilename);	}
