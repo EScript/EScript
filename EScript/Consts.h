@@ -55,7 +55,6 @@ struct Consts{
 	static const identifierId ANNOTATION_ATTR_member;
 	static const identifierId ANNOTATION_ATTR_private;
 	static const identifierId ANNOTATION_ATTR_public;
-	static const identifierId ANNOTATION_ATTR_required;
 	static const identifierId ANNOTATION_ATTR_type;
 
 	static const identifierId ANNOTATION_FN_super;

@@ -48,7 +48,6 @@ const identifierId Consts::ANNOTATION_ATTR_init=stringToIdentifierId("init");
 const identifierId Consts::ANNOTATION_ATTR_member=stringToIdentifierId("member");
 const identifierId Consts::ANNOTATION_ATTR_private=stringToIdentifierId("private");
 const identifierId Consts::ANNOTATION_ATTR_public=stringToIdentifierId("public");
-const identifierId Consts::ANNOTATION_ATTR_required=stringToIdentifierId("required");
 const identifierId Consts::ANNOTATION_ATTR_type=stringToIdentifierId("type");
 const identifierId Consts::ANNOTATION_FN_super=stringToIdentifierId("super");
 

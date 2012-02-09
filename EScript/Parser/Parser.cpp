@@ -849,8 +849,6 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 						}else{
 							inverseFlags |= Attribute::PRIVATE_BIT;
 						}
-					}else if(name == Consts::ANNOTATION_ATTR_required){
-						flags |= Attribute::REQUIRED_BIT; // \todo remove!
 					}else if(name == Consts::ANNOTATION_ATTR_type){
 						if(inverseFlags&Attribute::TYPE_ATTR_BIT){
 							info(DEFAULT_WARNING,"Warning: '@(member)' is used in combination with @(type) or '::=' and is ignored.",atOp);
@@ -880,24 +878,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 		}
 		return new SetAttribute(obj,memberIdentifier,rightExpression,flags,currentLine);
 	}
-//		else if (op->getString()=="::=") {
-//		identifierId memberIdentifier;
-//		Object * obj=NULL;
-//		Object * indexExp=NULL;
-//		int lValueType=getLValue(ctxt,leftExprFrom,leftExprTo,obj,memberIdentifier,indexExp);
-//
-//		Object * rightExpression=getExpression(ctxt,rightExprFrom,to);
-//		cursor=rightExprFrom;
-//
-//		/// a::=2 => _.[a] ::= 2
-//		if (lValueType== LVALUE_MEMBER) {
-//			return new SetAttribute(obj,memberIdentifier,rightExpression,SetAttribute::SET_TYPE_ATTRIBUTE,currentLine);
-//		}
-//		else {
-//			std::cout << "\n Error = "<<cursor<<" - "<<to<<" :" << lValueType;
-//			throwError("Syntax error before '::=' ",tokens[opPosition]);
-//		}
-//	}
+
 
 	/// get left expression
 	Object * leftExpression=getExpression(ctxt,leftExprFrom,leftExprTo);

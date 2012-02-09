@@ -34,12 +34,11 @@ std::string SetAttribute::toString()const {
 	if(assign){
 		s+="=";
 	}else{
-		if(attrFlags & (Attribute::CONST_BIT | Attribute::PRIVATE_BIT | Attribute::INIT_BIT | Attribute::REQUIRED_BIT )){
+		if(attrFlags & (Attribute::CONST_BIT | Attribute::PRIVATE_BIT | Attribute::INIT_BIT)){
 			s+="@(";
 			if( attrFlags & Attribute::CONST_BIT)		s+="const,";
 			if( attrFlags & Attribute::PRIVATE_BIT)		s+="private,";
 			if( attrFlags & Attribute::INIT_BIT)		s+="init,";
-			if( attrFlags & Attribute::REQUIRED_BIT)	s+="required,";
 			s+=")";		
 		}
 		if( attrFlags & Attribute::TYPE_ATTR_BIT)		

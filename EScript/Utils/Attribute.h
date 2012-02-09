@@ -19,8 +19,7 @@ class Attribute{
 		static const flag_t PRIVATE_BIT = (1<<1); 	// 0...public	1...private
 		static const flag_t TYPE_ATTR_BIT = (1<<2);	// 0...objAttr	1...typeAttr
 		static const flag_t INIT_BIT = (1<<3);		// 0...normal	1...init
-		static const flag_t REQUIRED_BIT = (1<<4);	// 0...normal	1...required
-		static const flag_t REFERENCE_BIT = (1<<5);	// 0...normal	1...reference
+		static const flag_t REFERENCE_BIT = (1<<4);	// 0...normal	1...reference
 		
 		
 		static const flag_t ASSIGNMENT_RELEVANT_BITS = CONST_BIT|PRIVATE_BIT|REFERENCE_BIT;
@@ -46,7 +45,6 @@ class Attribute{
 		bool isTypeAttribute()const 		{	return getFlag(TYPE_ATTR_BIT);	}
 		bool isPrivate()const				{	return flags&PRIVATE_BIT;	}
 		bool isReference()const				{	return flags&REFERENCE_BIT;	}
-		bool isRequired()const				{	return flags&REQUIRED_BIT;	}
 		
 		void setValue(Object * v)			{	value=v;	}
 		void set(Object * v,flag_t f)		{	value=v, flags=f;	}
