@@ -35,6 +35,8 @@ Type * String::getTypeObject(){
 void String::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();
 	typeObject->setFlag(Type::FLAG_CALL_BY_VALUE,true);
+	initPrintableName(typeObject,getClassName());
+	
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! [ESMF] String new String((String)Obj)

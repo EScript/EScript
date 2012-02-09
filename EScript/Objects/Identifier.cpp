@@ -17,6 +17,8 @@ Type * Identifier::getTypeObject(){
 //! (static) initMembers
 void Identifier::init(EScript::Namespace & globals) {
 	Type * typeObject=getTypeObject();
+	initPrintableName(typeObject,getClassName());
+	
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//!	[ESMF] Identifier new Identifier( string )

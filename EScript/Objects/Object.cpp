@@ -29,6 +29,7 @@ Type * Object::getTypeObject(){
 void Object::init(EScript::Namespace & globals) {
 	Type * typeObject=getTypeObject();
 	typeObject->allowUserInheritance(true);
+	initPrintableName(typeObject,getClassName());
 
 	declareConstant(&globals,getClassName(),typeObject);
 

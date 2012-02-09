@@ -24,6 +24,8 @@ Type * Type::getTypeObject(){
 void Type::init(EScript::Namespace & globals) {
 	// [Type] ---|> [Object]
 	Type * typeObject=getTypeObject();
+	initPrintableName(typeObject,getClassName());
+	
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! [ESMF] Type new Type( [BaseType=ExtObject] )

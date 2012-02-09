@@ -66,6 +66,8 @@ Type * Parser::getTypeObject(){
 //! (static) initMembers
 void Parser::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();
+	initPrintableName(typeObject,getClassName());
+	
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//!	[ESMF] Parser new Parser();

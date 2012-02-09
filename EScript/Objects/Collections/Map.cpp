@@ -24,6 +24,8 @@ Type * Map::getTypeObject(){
 //! initMembers
 void Map::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();
+	initPrintableName(typeObject,getClassName());
+	
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! [ESMF] Map new Map( [key,value]* )

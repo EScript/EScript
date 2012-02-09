@@ -18,10 +18,10 @@ Type * ExtObject::getTypeObject(){
 //! (static) initMembers
 void ExtObject::init(EScript::Namespace & globals) {
 	Type * typeObject=getTypeObject();
-	declareConstant(&globals,getClassName(),typeObject);
-	initPrintableName(typeObject,getClassName());
 	typeObject->allowUserInheritance(true);
-
+	initPrintableName(typeObject,getClassName());
+	
+	declareConstant(&globals,getClassName(),typeObject);
 
 	//!	[ESF] ExtObject new ExtObject( [Map objAttributes] )
 	ES_MFUNCTION_DECLARE(typeObject,Type,"_constructor",0,1,{

@@ -20,8 +20,10 @@ Type * Iterator::getTypeObject(){
 //! initMembers
 void Iterator::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();
-	declareConstant(&globals,getClassName(),typeObject);
 	typeObject->allowUserInheritance(true);
+	initPrintableName(typeObject,getClassName());
+	
+	declareConstant(&globals,getClassName(),typeObject);
 
 	//! Bool Iterator.end()
 	ESMF_DECLARE(typeObject,Iterator,"end",0,0,Bool::create(self->end()))

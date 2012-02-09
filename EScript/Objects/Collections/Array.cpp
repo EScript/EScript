@@ -26,6 +26,8 @@ Type * Array::getTypeObject(){
 //! initMembers
 void Array::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();
+	initPrintableName(typeObject,getClassName());
+	
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! [ESMF] Array new Array([Obj*]);*/

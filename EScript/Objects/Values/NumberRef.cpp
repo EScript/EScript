@@ -20,6 +20,7 @@ Type * NumberRef::getTypeObject(){
 void NumberRef::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();
 	declareConstant(&globals,getClassName(),typeObject);
+	initPrintableName(typeObject,getClassName());
 	typeObject->setFlag(Type::FLAG_CALL_BY_VALUE,true);
 
 	declareConstant(&globals,getClassName(),typeObject);

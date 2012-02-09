@@ -40,6 +40,8 @@ Type * Runtime::getTypeObject(){
  */
 void Runtime::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();
+	initPrintableName(typeObject,getClassName());
+	
 	declareConstant(&globals,getClassName(),typeObject);
 
 	declareConstant(typeObject,"IGNORE_WARNINGS",Number::create(Runtime::ES_IGNORE_WARNINGS));

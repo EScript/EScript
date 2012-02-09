@@ -27,7 +27,9 @@ Type * Number::getTypeObject(){
 //! initMembers
 void Number::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();
+	initPrintableName(typeObject,getClassName());
 	typeObject->setFlag(Type::FLAG_CALL_BY_VALUE,true);
+	
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! [ESMF] new Numbern([Number])
