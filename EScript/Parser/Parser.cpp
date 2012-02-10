@@ -146,13 +146,10 @@ Block * Parser::parseFile(const std::string & filename) {
  *  Parse a CString.
  */
 Object *  Parser::parse(Block * rootBlock,const StringData & c) {
-
-	currentFilename = stringToIdentifierId(rootBlock->getFilename());
-
 	Tokenizer::tokenList_t tokens;
 	ParsingContext ctxt(tokens,String::create(c));
 	ctxt.rootBlock=rootBlock;
-	currentFilename = stringToIdentifierId( rootBlock->getFilename() );
+	currentFilename = stringToIdentifierId(rootBlock->getFilename());
 
 	/// 1. Tokenize
 	try {
