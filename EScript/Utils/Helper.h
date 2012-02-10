@@ -8,15 +8,15 @@
 #include "Hashing.h"
 #include "ObjArray.h"
 #include "ObjRef.h"
-#include "../Objects/Exception.h"
 #include "../Objects/Callables/Function.h"
-#include "../Objects/Internals/Block.h"
 #include <cstddef>
+#include <iosfwd>
 #include <string>
 #include <utility>
 
 namespace EScript {
 // Forward declarations.
+class Block;
 class Namespace;
 class Object;
 class Runtime;
