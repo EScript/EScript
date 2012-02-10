@@ -6,32 +6,31 @@
 #include <cstdlib>
 #include <iostream>
 #include <string>
+#include <utility>
 
 #include "../EScript/EScript.h"
 
-using namespace EScript;
-
-int main(int argc,char * argv[]) {
-
-	if(argc<2){
-		std::cout << ES_VERSION<<"\nNo filename given.\n";
-		return EXIT_SUCCESS;
-	}
-
+int main(int argc, char * argv[]) {
 	EScript::init();
-	ERef<Runtime> rt(new Runtime());
+	EScript::ERef<EScript::Runtime> rt(new EScript::Runtime());
 
 	// --- Set program parameters
-	declareConstant(rt->getGlobals(),"args",Array::create(argc,argv));
+	declareConstant(rt->getGlobals(), "args", EScript::Array::create(argc, argv));
 
 	// --- Load and execute script
-	std::pair<bool,ObjRef> result = EScript::loadAndExecute(*rt.get(),argv[1]);
+	std::pair<bool, EScript::ObjRef> result;
+	if(argc == 1) {
+		result = EScript::executeStream(*rt.get(), std::cin);
+	} else {
+		result = EScript::loadAndExecute(*rt.get(), argv[1]);
+	}
 
 	// --- output result
-	if (!result.second.isNull()) {
-		std::cout << "\n\n --- "<<"\nResult: " << result.second.toString()<<"\n";
+	if(!result.second.isNull()) {
+		std::cout << "\n\n --- " << "\nResult: " << result.second.toString() << "\n";
 	}
 
 	return result.first ? EXIT_SUCCESS : EXIT_FAILURE;
 }
+
 #endif // ES_BUILD_APPLICATION
