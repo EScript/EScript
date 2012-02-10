@@ -145,18 +145,11 @@ Block * loadScriptFile(const std::string & filename){
 }
 
 //! (static)
-std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & filename) {
-	ObjRef script;
-	try {
-		script = loadScriptFile(filename);
-	} catch (Exception * error) {
-		std::cerr << "\nError occured while loading file '" << filename << "':\n" << error->toString() << std::endl;
-		return std::make_pair(false, error);
-	}
+std::pair<bool, ObjRef> execute(Runtime & runtime, Block * block) {
 	bool success = true;
 	ObjRef result;
 	try {
-		runtime.executeObj(script.get());
+		runtime.executeObj(block);
 		result = runtime.getResult();
 		if(runtime.getState() == Runtime::STATE_EXCEPTION) {
 			std::cout << "\nException caught (1):\n" << result.toString() << std::endl;
@@ -171,6 +164,36 @@ std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & fi
 		success = false;
 	}
 	return std::make_pair(success, result);
+}
+
+//! (static)
+std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & filename) {
+	ERef<Block> script;
+	try {
+		script = loadScriptFile(filename);
+	} catch (Exception * error) {
+		std::cerr << "\nError occured while loading file '" << filename << "':\n" << error->toString() << std::endl;
+		return std::make_pair(false, error);
+	}
+	return execute(runtime, script.get());
+}
+
+//! (static)
+std::pair<bool, ObjRef> executeStream(Runtime & runtime, std::istream & stream) {
+	ERef<Block> rootBlock = new Block;
+	rootBlock->setFilename(EScript::stringToIdentifierId("stdin"));
+	
+	std::string streamData;
+	while(stream.good()) {
+		char buffer[256];
+		stream.read(buffer, 256);
+		streamData.append(buffer, stream.gcount());
+	}
+	
+	Parser parser;
+	parser.parse(rootBlock.get(), StringData(streamData));
+	
+	return execute(runtime, rootBlock.get());
 }
 
 }

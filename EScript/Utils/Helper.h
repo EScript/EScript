@@ -85,7 +85,13 @@ void out(Object * obj);
 Block * loadScriptFile(const std::string & filename);
 
 //! @return (success, result)
+std::pair<bool, ObjRef> execute(Runtime & runtime, Block * block);
+
+//! @return (success, result)
 std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & filename);
+
+//! @return (success, result)
+std::pair<bool, ObjRef> executeStream(Runtime & runtime, std::istream & stream);
 
 //@}
 
