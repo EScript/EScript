@@ -128,24 +128,19 @@ Block * Parser::parseFile(const std::string & filename) {
 		throwError(e.what());
 	}
 
-	tokenizer.defineToken("__FILE__",new TObject(String::create(filename)));
-	tokenizer.defineToken("__DIR__",new TObject(String::create(IO::dirname(filename))));
-
-
 	ERef<Block> rootBlock(new Block);
 	rootBlock->setFilename(stringToIdentifierId(filename));
-	try {
-		parse(rootBlock.get(),content);
-	} catch (Exception * e) {
-		throw e;
-	}
+	parse(rootBlock.get(),content);
 	return rootBlock.detachAndDecrease();
 }
 
 /**
  *  Parse a CString.
  */
-Object *  Parser::parse(Block * rootBlock,const StringData & c) {
+Object * Parser::parse(Block * rootBlock,const StringData & c) {
+	tokenizer.defineToken("__FILE__",new TObject(String::create(rootBlock->getFilename())));
+	tokenizer.defineToken("__DIR__",new TObject(String::create(IO::dirname(rootBlock->getFilename()))));
+	
 	Tokenizer::tokenList_t tokens;
 	ParsingContext ctxt(tokens,String::create(c));
 	ctxt.rootBlock=rootBlock;
