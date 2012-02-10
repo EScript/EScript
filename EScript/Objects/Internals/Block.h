@@ -15,7 +15,7 @@ namespace EScript {
 
 /*! [Block]  ---|> [Object] */
 class Block : public Object {
-		ES_PROVIDES_TYPE_NAME(BlockStatement)
+		ES_PROVIDES_TYPE_NAME(Block)
 	public:
 		typedef std::deque<Statement > statementList;
 		typedef statementList::iterator statementCursor;
