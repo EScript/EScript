@@ -190,8 +190,12 @@ std::pair<bool, ObjRef> executeStream(Runtime & runtime, std::istream & stream) 
 		streamData.append(buffer, stream.gcount());
 	}
 	
-	Parser parser;
-	parser.parse(rootBlock.get(), StringData(streamData));
+	try {
+		Parser parser;
+		parser.parse(rootBlock.get(), StringData(streamData));
+	} catch (Exception * error) {
+		return std::make_pair(false, error);
+	}
 	
 	return execute(runtime, rootBlock.get());
 }
