@@ -115,4 +115,5 @@ configure_file(EScriptConfigVersion.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/EScript
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/EScriptConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/EScriptConfigVersion.cmake
         DESTINATION ${CMAKECONFIG_INSTALL_DIR})
 
+add_subdirectory(EScript)
 add_subdirectory(tests)
