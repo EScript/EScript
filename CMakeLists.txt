@@ -51,6 +51,7 @@ set(ESCRIPT_SOURCES
 	EScript/Runtime/Runtime.cpp
 	EScript/Runtime/RuntimeBlock.cpp
 	EScript/Runtime/RuntimeContext.cpp
+	EScript/Utils/AttributeContainer.cpp
 	EScript/Utils/Debug.cpp
 	EScript/Utils/Hashing.cpp
 	EScript/Utils/Helper.cpp

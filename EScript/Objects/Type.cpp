@@ -113,14 +113,14 @@ static const char * typeAttrErrorHint =
 Attribute * Type::findTypeAttribute(const identifierId id){
 	Type * t=this;
 	do{
-		AttributeMap_t::iterator fIt=t->attributes.find(id);
-		if( fIt != t->attributes.end() ){
-			if( fIt->second.isObjAttribute() ){
+		Attribute * attr = t->attributes.accessAttribute(id);
+		if( attr != NULL ){
+			if( attr->isObjAttribute() ){
 				std::string message = "(findTypeAttribute) type-attribute expected but object-attribute found. ('";
 				message += identifierIdToString(id) + "')\n" + typeAttrErrorHint;
 				throw new Exception(message);
 			}
-			return &(fIt->second);
+			return attr;
 		}
 		t=t->getBaseType();
 	}while(t!=NULL);
@@ -131,12 +131,9 @@ Attribute * Type::findTypeAttribute(const identifierId id){
 //! ---|> Object
 Attribute * Type::_accessAttribute(const identifierId id,bool localOnly){
 	// is local attribute?
-	AttributeMap_t::iterator fIt=attributes.find(id);
-	if(fIt!=attributes.end())
-		return &(fIt->second);
-
-	if(localOnly)
-		return NULL;
+	Attribute * attr = attributes.accessAttribute(id);
+	if(attr!=NULL || localOnly)
+		return attr;
 
 	// try to find the attribute along the inheritated path...
 	if(getBaseType()!=NULL){
@@ -150,7 +147,7 @@ Attribute * Type::_accessAttribute(const identifierId id,bool localOnly){
 
 //! ---|> Object
 bool Type::setAttribute(const identifierId id,const Attribute & attr){
-	attributes[id]=attr; //(val.get(),0); // Attribute::OBJECT_ATTR (by default)
+	attributes.setAttribute(id,attr);
 	if(attr.isObjAttribute())
 		setFlag(FLAG_CONTAINS_OBJ_ATTRS,true);
 	return true;
@@ -159,7 +156,7 @@ bool Type::setAttribute(const identifierId id,const Attribute & attr){
 void Type::copyObjAttributesTo(Object * instance){
 	// init member vars of type
 	if(getFlag(FLAG_CONTAINS_OBJ_ATTRS)){
-		for(AttributeMap_t::iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
+		for(AttributeContainer::iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
 			const Attribute & a=it->second;
 			if( a.isNull() || a.isTypeAttribute() )
 				continue;
@@ -169,14 +166,14 @@ void Type::copyObjAttributesTo(Object * instance){
 }
 
 void Type::getTypeAttributes(std::map<identifierId,Object *> & attrs)const{
-	for(AttributeMap_t::const_iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
+	for(AttributeContainer::const_iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
 		if(it->second.isTypeAttribute())
 			attrs[it->first] = it->second.getValue();
 	}
 }
 
 void Type::getObjAttributes(std::map<identifierId,Object *> & attrs)const{
-	for(AttributeMap_t::const_iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
+	for(AttributeContainer::const_iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
 		if(it->second.isObjAttribute())
 			attrs[it->first] = it->second.getValue();
 	}
@@ -184,7 +181,7 @@ void Type::getObjAttributes(std::map<identifierId,Object *> & attrs)const{
 
 //! ---|> Object
 void Type::getLocalAttributes(std::map<identifierId,Object *> & attrs){
-	for(AttributeMap_t::iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
+	for(AttributeContainer::iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
 		attrs[it->first] = it->second.getValue();
 	}
 }

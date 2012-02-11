@@ -6,7 +6,7 @@
 #define ES_ExtObject_H
 
 #include "Object.h"
-#include "../Utils/Attribute.h"
+#include "../Utils/AttributeContainer.h"
 
 namespace EScript {
 
@@ -28,7 +28,7 @@ class ExtObject : public Object {
 	public:
 		static ExtObject * create();
 		ExtObject();
-		ExtObject(Type * parentExtObject);
+		ExtObject(Type * type);
 		virtual ~ExtObject();
 
 		/// ---|> [Object]
@@ -43,7 +43,6 @@ class ExtObject : public Object {
 	/*! @name Attributes */
 	//	@{
 	public:
-		typedef std::map<identifierId,Attribute> attributeMap_t;
 
 		using Object::_accessAttribute;
 		using Object::setAttribute;
@@ -57,20 +56,10 @@ class ExtObject : public Object {
 		/// ---|> [Object]
 		virtual void getLocalAttributes(std::map<identifierId,Object *> & attrs);
 
+	protected:
 		void cloneAttributesFrom(const ExtObject * obj);
-
-		inline attributeMap_t * getObjAttributes()const				{	return objAttributes;	}
-
-
-		/*! Get an attribute that is directly stored in this Type-Object (NOT in an inherited Type) */
-		Object * getObjAttribute(const identifierId id)const;
-		inline Object * getObjAttribute(const char * key)const		{	return getObjAttribute(EScript::stringToIdentifierId(key));	}
-
-		/*! Assign to an attribute that is directly stored in this Type-Object (NOT in an inherited Type) */
-		bool assignObjAttribute(Runtime & rt,const identifierId id,ObjPtr val);
-
 	private:
-		attributeMap_t * objAttributes;
+		AttributeContainer objAttributes;
 	// @}
 };
 

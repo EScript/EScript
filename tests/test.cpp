@@ -79,6 +79,7 @@ public:
 // ----------------------------------------------------------------------------
 
 int main(int argc,char * argv[]) {
+//	std::cout << std::map<
 
 	EScript::init();
 

@@ -6,7 +6,7 @@
 #define ES_Type_H
 
 #include "Object.h"
-#include "../Utils/Attribute.h"
+#include "../Utils/AttributeContainer.h"
 #include <stdint.h>
 
 namespace EScript {
@@ -73,8 +73,7 @@ class Type : public Object {
 		virtual void getLocalAttributes(std::map<identifierId,Object *> & attrs);
 
 	private:
-		typedef std::map<identifierId,Attribute> AttributeMap_t;
-		AttributeMap_t attributes;
+		AttributeContainer attributes;
 	// @}
 
 	// -------------------------------------------------------------
