@@ -78,7 +78,7 @@ Object * ExtObject::clone() const{
 // attributes
 
 //! ---|> [Object]
-void ExtObject::_init(Runtime & rt){
+void ExtObject::_initAttributes(Runtime & rt){
 	if(objAttributes!=NULL){
 		// \todo check if the type contains initializable attributes
 		for(attributeMap_t::iterator it=objAttributes->begin() ; it!=objAttributes->end() ; ++it){

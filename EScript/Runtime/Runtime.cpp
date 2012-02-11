@@ -704,7 +704,7 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 
 		try {
 			if(isConstructorCall){
-				// store reference to the new object, so that it is automatically removed if the _init-call fails with an exception.
+				// store reference to the new object, so that it is automatically removed if the _initAttributes-call fails with an exception.
 				ObjRef newObj = (*libfun->getFnPtr())(*this,_callingObject.get(),params);
 				if(newObj.isNull()){
 					if(state!=STATE_EXCEPTION){ // the constructor call itself did not set the exception state, but did not return an object.
@@ -713,7 +713,7 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 					return NULL;
 				}
 				// init attribute, etc...
-				newObj->_init(*this);
+				newObj->_initAttributes(*this);
 				return newObj.detachAndDecrease();
 			}else{
 				return (*libfun->getFnPtr())(*this,_callingObject.get(),params);
@@ -932,7 +932,7 @@ Object * Runtime::executeUserConstructor(const ObjPtr & _callingObject,const Par
 			baseObj = executeFunction(baseCons,type,currentParams,true);
 			
 			// init the object
-			baseObj->_init(*this);
+			baseObj->_initAttributes(*this);
 			break;
 		}else if(funType!=_TypeIds::TYPE_USER_FUNCTION ){
 			setException("Constructor needs to be a function");

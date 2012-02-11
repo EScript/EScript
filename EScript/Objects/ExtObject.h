@@ -35,7 +35,7 @@ class ExtObject : public Object {
 		virtual Object * clone() const;
 		
 		/// ---|> [Object]
-		virtual void _init(Runtime & rt);
+		virtual void _initAttributes(Runtime & rt);
 	//	@}
 
 	// -----
@@ -47,16 +47,12 @@ class ExtObject : public Object {
 
 		using Object::_accessAttribute;
 		using Object::setAttribute;
-//		using Object::assignAttribute;
 
 		/// ---|> [Object]
 		virtual Attribute * _accessAttribute(const identifierId id,bool localOnly);
 
 		/// ---|> [Object]
 		virtual bool setAttribute(const identifierId id,const Attribute & attr);
-
-//		/// ---|> [Object]
-//		virtual bool assignAttribute(Runtime & rt,const identifierId id,ObjPtr val);
 
 		/// ---|> [Object]
 		virtual void getLocalAttributes(std::map<identifierId,Object *> & attrs);

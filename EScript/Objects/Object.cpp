@@ -182,7 +182,7 @@ void Object::_assignValue(ObjPtr){
 }
 
 //! ---o
-void Object::_init(Runtime &){}
+void Object::_initAttributes(Runtime &){}
 
 //! ---o
 Object * Object::clone() const {

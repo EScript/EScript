@@ -86,12 +86,7 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 			This makes only sense for reference objects like NumberRef.
 			---o	*/
 		virtual void _assignValue(ObjPtr value);
-		
-		/*! This function is called by the runtime after a new Object has been created in the script using "new". The 
-			execution takes place after the Object itself has been created, but before the first scripted constructor is executed.			
-			Extended attribute initializations can be performed here.
-			---o */
-		virtual void _init(Runtime & rt);
+
 	//	@}
 
 	// -------------------------
@@ -114,6 +109,12 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 		
 		//! ---o
 		virtual Attribute * _accessAttribute(const identifierId id,bool localOnly);
+				
+		/*! This function is called by the runtime after a new Object has been created in the script using "new". The 
+			execution takes place after the Object itself has been created, but before the first scripted constructor is executed.			
+			Extended attribute initializations can be performed here.
+			---o */
+		virtual void _initAttributes(Runtime & rt);
 		
 		/*! Get the locally stored attribute with the given id.
 			If the attribute is not found, the resulting attribute references NULL.
