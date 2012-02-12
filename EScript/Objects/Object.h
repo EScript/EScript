@@ -107,13 +107,20 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 	/*! @name Attributes */
 	public:
 		
-		//! ---o
+
+		
+		/*! ---o (internal)
+			Get access to an Attribute stored at this Object.
+			\note Should not be called directly. Use get(Local)Attribute(...) instead.
+			\note Has to be overridden if an Object type should support user defined attributes.
+		*/
 		virtual Attribute * _accessAttribute(const identifierId id,bool localOnly);
 				
-		/*! This function is called by the runtime after a new Object has been created in the script using "new". The 
+		/*! ---o (internal)
+		This function is called by the runtime after a new Object has been created in the script using "new". The 
 			execution takes place after the Object itself has been created, but before the first scripted constructor is executed.			
 			Extended attribute initializations can be performed here.
-			---o */
+			\note Has to be overridden if an Object type should support user defined attributes. */
 		virtual void _initAttributes(Runtime & rt);
 		
 		/*! Get the locally stored attribute with the given id.
@@ -134,9 +141,10 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 		const Attribute & getAttribute(const identifierId id)const;
 		const Attribute & getAttribute(const char * key)const					{	return getAttribute(EScript::stringToIdentifierId(key));	}
 
-		/*!	Try to set the value of an object attribute.
+		/*!	---o 
+			Try to set the value of an object attribute.
 			Returns false if the attribute can not be set.
-			---o */
+			\note Has to be overridden if an Object type should support user defined attributes. */
 		virtual bool setAttribute(const identifierId id,const Attribute & attr);
 		bool setAttribute(const char * key,const Attribute & attr)				{	return setAttribute(EScript::stringToIdentifierId(key),attr);	}
 

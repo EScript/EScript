@@ -85,11 +85,10 @@ void ExtObject::_initAttributes(Runtime & rt){
 Attribute * ExtObject::_accessAttribute(const identifierId id,bool localOnly){
 	Attribute * attr = objAttributes.accessAttribute(id);
 	
-	return (attr != NULL) ? 
-				attr :
-				(localOnly||getType()==NULL) ? 
-					NULL : 
-					getType()->findTypeAttribute(id);
+	if( attr==NULL && !localOnly && getType()!=NULL){
+		attr = getType()->findTypeAttribute(id);
+	}
+	return attr;
 }
 
 //! ---|> [Object]

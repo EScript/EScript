@@ -27,7 +27,6 @@ class AttributeContainer {
 
 		AttributeContainer(){}
 		~AttributeContainer(){}
-		
 
 		Attribute * accessAttribute(const identifierId id){
 			const attributeMap_t::iterator f=attributes.find(id);

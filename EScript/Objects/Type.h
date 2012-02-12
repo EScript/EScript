@@ -55,8 +55,6 @@ class Type : public Object {
 
 		void copyObjAttributesTo(Object * instance);
 
-		/*! Used by instances of this type to assign a value to an inherited typeAttribute. */
-		bool assignToTypeAttribute(const identifierId id,ObjPtr val);
 		/*! Used by instances of this type get the value of an inherited typeAttribute. */
 		Attribute * findTypeAttribute(const identifierId id);
 
