@@ -27,8 +27,7 @@ struct TestObject{
 	bool operator==(const TestObject&other)const {	return m1==other.m1 && m2==other.m2;}
 };
 
-static const identifierId ID_m1 = stringToIdentifierId("m1");
-static const identifierId ID_m2 = stringToIdentifierId("m2");
+
 
 //! A EScript-container for the simple test class
 struct E_TestObject : public ReferenceObject<TestObject>{
@@ -50,6 +49,9 @@ public:
 
 	//! ---|> Object
 	virtual Attribute * _accessAttribute(const identifierId id,bool localOnly){
+		static const identifierId ID_m1 = stringToIdentifierId("m1");
+		static const identifierId ID_m2 = stringToIdentifierId("m2");
+
 		if(id==ID_m1){
 			return &m1;
 		}else if(id==ID_m2){

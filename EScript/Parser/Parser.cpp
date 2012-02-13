@@ -350,7 +350,7 @@ void Parser::pass_2(ParsingContext & ctxt,
 				if (tc->getId()==Consts::IDENTIFIER_var) {
 					if (TIdentifier * ti=Token::cast<TIdentifier>(ctxt.tokens.at(cursor+1))) {
 						if(!blockStack.top()->declareVar(ti->getId())){
-							info(DEFAULT_WARNING, "Warning: Duplicate local variable '"+ti->toString()+"'",ti);
+							info(DEFAULT_WARNING, "Warning: Duplicate local variable '"+ti->toString()+'\'',ti);
 						}
 //						Token::removeReference(token);
 						continue;
@@ -369,7 +369,7 @@ void Parser::pass_2(ParsingContext & ctxt,
 					enrichedTokens.push_back(token);
 					++cursor;
 					Block * loopConditionBlock=new Block(tc->getLine());
-					loopConditionBlock->setFilename(currentFilename); /// debugging informations:
+					loopConditionBlock->setFilename(currentFilename); /// debugging information:
 					blockStack.push(loopConditionBlock);
 
 					TStartBlock * sb=new TStartBlock(loopConditionBlock);
@@ -391,7 +391,7 @@ void Parser::pass_2(ParsingContext & ctxt,
 				TStartBlock * sb=Token::cast<TStartBlock>(token);
 				Block * currentBlock=new Block(sb->getLine());//currentBlock);
 
-				/// debugging informations:
+				/// debugging information:
 				currentBlock->setFilename(currentFilename);
 
 				blockStack.push(currentBlock);
@@ -850,7 +850,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 							flags |= Attribute::TYPE_ATTR_BIT;
 						}						
 					}else {
-						throwError("Invalid annotation: '"+identifierIdToString(name)+"'",atOp);
+						throwError("Invalid annotation: '"+identifierIdToString(name)+'\'',atOp);
 					}
 				}
 			}
@@ -1375,7 +1375,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 				if(it!=NULL){
 					runtime.assignToVariable(itId,it);
 				}else{
-					runtime.setException("Could not get iterator from '" + parameter[0]->toDbgString() + "'");
+					runtime.setException("Could not get iterator from '" + parameter[0]->toDbgString() + '\'');
 					return NULL;
 				}
 				return NULL;
@@ -1686,7 +1686,7 @@ int Parser::findExpression(ParsingContext & ctxt,int cursor)const {
 					to--;
 					return to;
 				}
-				throwError("Expressions can't contain control statements.",t);
+				throwError("Expressions cannot contain control statements.",t);
 			}
 			case TEndCommand::TYPE_ID:{
 				return to;

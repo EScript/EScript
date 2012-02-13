@@ -135,7 +135,7 @@ Object * Runtime::readMemberAttribute(Object * obj,const identifierId id){
 		if(attr==NULL){
 			return NULL;
 		}else if(attr->isPrivate() && obj!=getCurrentContext()->getCaller()) {
-			warn("Can't read private attribute.");
+			warn("Cannot read private attribute.");
 			return NULL;
 		}
 		return attr->getValue();
@@ -202,16 +202,16 @@ bool Runtime::assignToAttribute(ObjPtr obj,identifierId attrId,ObjPtr value){
 		if(attr == NULL)
 			return false;
 		warn("Assigning to a type's attribute by using an instance of that type: '"+
-			obj->toDbgString()+"."+identifierIdToString(attrId)+" = "+(value.isNotNull() ? value->toDbgString():"void") +"'."
+			obj->toDbgString()+'.'+identifierIdToString(attrId)+" = "+(value.isNotNull() ? value->toDbgString():"void") +"'."
 			"\nThis is discouraged as it can be a sign for a common bug."
 			 );
 	}
 	if(attr->getFlags()&Attribute::ASSIGNMENT_RELEVANT_BITS){
 		if(attr->isConst()){
-			throwException("Can't assign to const attribute."); // \todo Change to setException?
+			throwException("Cannot assign to const attribute."); // \todo Change to setException?
 		}else if(attr->isPrivate()){
 			if( obj!=getCurrentContext()->getCaller() ){
-				throwException("Can't assign to private attribute."); // \todo Change to setException?
+				throwException("Cannot assign to private attribute."); // \todo Change to setException?
 			}
 		}
 		// the attribute is a reference -> do not set the new value object but assign the new value.
@@ -260,7 +260,7 @@ Object * Runtime::executeObj(Object * obj){
 			setCallingObject(obj2Ref.get());
 			resultRef = readMemberAttribute( obj2Ref.get(),ga->getAttrId() );
 			if (resultRef.isNull()) {
-				warn("Member not set '"+ga->toString()+"'");
+				warn("Member not set '"+ga->toString()+'\'');
 			}
 		}
 		return resultRef.detachAndDecrease();
@@ -303,11 +303,11 @@ Object * Runtime::executeObj(Object * obj){
 				warn(eHolder->getMessage());
 			}
 			if(!success){
-				warn(std::string("Unkown attribute '")+sa->getAttrName()+"' ("+
-						(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+"."+sa->getAttrName()+"="+(value.isNull()?"":value->toDbgString())+")");
-				if(!obj2->setAttribute(sa->attrId,value.get())){ // fallback: set obj attribute
-					warn(std::string("Can't set object attribute '")+sa->getAttrName()+"' ("+
-							(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+"."+sa->getAttrName()+"="+(value.isNull()?"":value->toDbgString())+")");
+				warn(std::string("Unknown attribute '")+sa->getAttrName()+"' ("+
+						(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+'.'+sa->getAttrName()+'='+(value.isNull()?"":value->toDbgString())+')');
+				if(!obj2->setAttribute(sa->attrId, Attribute(value.get()))){ // fallback: set obj attribute
+					warn(std::string("Cannot set object attribute '")+sa->getAttrName()+"' ("+
+							(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+'.'+sa->getAttrName()+'='+(value.isNull()?"":value->toDbgString())+')');
 				}
 			}
 		}else if(sa->getAttributeFlags()&Attribute::TYPE_ATTR_BIT){
@@ -316,17 +316,17 @@ Object * Runtime::executeObj(Object * obj){
 				t->setAttribute(sa->attrId,Attribute(value,sa->getAttributeFlags()));
 			}else{
 				warn(std::string("Can not set typeAttr to non-Type-Object: '")+sa->getAttrName()+"' ("+
-						(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+"."+sa->getAttrName()+"="+(value.isNull()?"":value->toDbgString())+")"
+						(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+'.'+sa->getAttrName()+'='+(value.isNull()?"":value->toDbgString())+')'
 						+"Setting objAttr instead.");
 				if(!obj2->setAttribute(sa->attrId,Attribute(value,sa->getAttributeFlags() & ~(Attribute::TYPE_ATTR_BIT)))){ // fallback: set obj attribute
-					warn(std::string("Can't set object attribute '")+sa->getAttrName()+"' ("+
-							(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+"."+sa->getAttrName()+"="+(value.isNull()?"":value->toDbgString())+")");
+					warn(std::string("Cannot set object attribute '")+sa->getAttrName()+"' ("+
+							(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+'.'+sa->getAttrName()+'='+(value.isNull()?"":value->toDbgString())+')');
 				}
 			}
 		}else { // obj attribute
 			if(!obj2->setAttribute(sa->attrId,Attribute(value,sa->getAttributeFlags())))
-				warn(std::string("Can't set object attribute '")+sa->getAttrName()+"' ("+
-						(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+"."+sa->getAttrName()+"="+(value.isNull()?"":value->toDbgString())+")");
+				warn(std::string("Cannot set object attribute '")+sa->getAttrName()+"' ("+
+						(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+'.'+sa->getAttrName()+'='+(value.isNull()?"":value->toDbgString())+')');
 			
 		}
 		return value.detachAndDecrease();
@@ -545,7 +545,7 @@ Object * Runtime::executeCurrentContext(bool markEntry) {
 				}
 				rtb->gotoStatement(rtb->getStaticBlock()->getExceptionPos());
 				stmt = rtb->nextStatement();
-				state = STATE_NORMAL; //! \note the state value is not resetted, as it may be needed in a catch block
+				state = STATE_NORMAL; //! \note the state value is not reset, as it may be needed in a catch block
 				break;
 			}
 			case STATE_NORMAL:
@@ -653,7 +653,7 @@ Object * Runtime::executeFunctionCall(FunctionCall * fCall){
 }
 
 /*! Dispatch according to type of fun:
-	- Funtion: return result of function
+	- Function: return result of function
 	- UserFunction constructor:
 		- return executeUserConstructor(...)
 	- UserFunction:
@@ -663,7 +663,7 @@ Object * Runtime::executeFunctionCall(FunctionCall * fCall){
 */
 Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObject,const ParameterValues & params,bool isConstructorCall/*=false*/){
 	if(fun.isNull()){
-		warn("Can't use '"+Void::get()->toDbgString()+"' as a function.");
+		warn("Cannot use '"+Void::get()->toDbgString()+"' as a function.");
 		return NULL;
 	}
 
@@ -689,13 +689,13 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 			const int max = libfun->getMaxParamCount();
 			if( (min>0 && static_cast<int>(params.count())<min)){
 				std::ostringstream sprinter;
-				sprinter<<"Too few parameters: Expected " <<min<<", got "<<params.count()<<".";
+				sprinter<<"Too few parameters: Expected " <<min<<", got "<<params.count()<<'.';
 				//! \todo improve message
 				setException(sprinter.str());
 				return NULL;
 			} else  if (max>=0 && static_cast<int>(params.count())>max) {
 				std::ostringstream sprinter;
-				sprinter<<"Too many parameters: Expected " <<max<<", got "<<params.count()<<".";
+				sprinter<<"Too many parameters: Expected " <<max<<", got "<<params.count()<<'.';
 				//! \todo improve message
 				warn(sprinter.str());
 			}
@@ -708,7 +708,7 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 				ObjRef newObj = (*libfun->getFnPtr())(*this,_callingObject.get(),params);
 				if(newObj.isNull()){
 					if(state!=STATE_EXCEPTION){ // the constructor call itself did not set the exception state, but did not return an object.
-						setException(std::string("Constructor didn't return an object."));
+						setException(std::string("Constructor did not return an object."));
 					}
 					return NULL;
 				}
@@ -752,7 +752,7 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 			UserFunction * ufun=static_cast<UserFunction*>(fun.get());
 			RuntimeContext * fctxt=createAndPushFunctionCallContext(_callingObject,ufun,params);
 
-			// error occured
+			// error occurred
 			if(fctxt==NULL) {
 				if( checkNormalState() ) // no context, but normal state? --> strange things happend
 					setException("Could not call function. ");
@@ -794,7 +794,7 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 			return executeFunction(otherFun,fun,params2,isConstructorCall);
 		}
 
-		warn("Can't use '"+fun->toDbgString()+"' as a function.");
+		warn("Cannot use '"+fun->toDbgString()+"' as a function.");
 	}
 	return NULL;
 }
@@ -903,7 +903,7 @@ bool Runtime::checkType(const identifierId & name, Object * obj,Object *typeExpr
 	 C ---|> B ---|> A
 	 step along, create runtimeBlocks, calculate parameters, assign parameters
 	 execute last c++ constructor to get Object
-	 execute other funcitons for initialization using the given blocks.
+	 execute other functions for initialization using the given blocks.
 
 */
 Object * Runtime::executeUserConstructor(const ObjPtr & _callingObject,const ParameterValues & params){
@@ -1023,19 +1023,19 @@ bool Runtime::stateError(Object * obj){
 			return true;
 		}
 		case STATE_RETURNING:{
-			setException("No return here!"+(obj?" ["+obj->toString()+"]":""));
+			setException("No return here!"+(obj?" ["+obj->toString()+']':""));
 			break;
 		}
 		case STATE_BREAKING:{
-			setException("No break here!"+(obj?" ["+obj->toString()+"]":""));
+			setException("No break here!"+(obj?" ["+obj->toString()+']':""));
 			break;
 		}
 		case STATE_CONTINUING:{
-			setException("No continue here!"+(obj?" ["+obj->toString()+"]":""));
+			setException("No continue here!"+(obj?" ["+obj->toString()+']':""));
 			break;
 		}
 		case STATE_YIELDING:{
-			setException("No yield here!"+(obj?" ["+obj->toString()+"]":""));
+			setException("No yield here!"+(obj?" ["+obj->toString()+']':""));
 			break;
 		}
 		case STATE_EXITING:{
@@ -1086,7 +1086,7 @@ void Runtime::setException(Exception * e){
 void Runtime::throwException(const std::string & s,Object * obj) {
 	std::ostringstream os;
 	os<<s;
-	if(obj) os<<"("<<obj->toString()<<")";
+	if(obj) os<<"("<<obj->toString()<<')';
 	os<<getStackInfo();
 	Exception * e = new Exception(os.str(),getCurrentLine()); // \todo remove line
 	e->setFilename(getCurrentFile());
@@ -1128,7 +1128,7 @@ std::string Runtime::getStackInfo(){
 			os<<"\n\n ... \n";
 		if( nr>=skipStart && nr<skipEnd)
 			continue;
-		os<<"\n\n"<<nr<<".";
+		os<<"\n\n"<<nr<<'.';
 		FunctionCallInfo & i=*it;
 		if(i.funCall!=NULL)
 			os<< "\t"<< i.funCall->toDbgString();

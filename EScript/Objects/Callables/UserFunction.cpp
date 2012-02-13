@@ -19,11 +19,11 @@ UserFunction::Parameter::~Parameter(){
 }
 
 std::string UserFunction::Parameter::toString()const{
-	std::string s=typeRef.toString()+" "+EScript::identifierIdToString(name);
+	std::string s=typeRef.toString()+' '+EScript::identifierIdToString(name);
 	if(!defaultValueExpressionRef.isNull())
-		s+="="+defaultValueExpressionRef->toDbgString();
+		s+='='+defaultValueExpressionRef->toDbgString();
 	if(multiParam)
-		s+="*";
+		s+='*';
 	return s;
 }
 UserFunction::Parameter * UserFunction::Parameter::clone()const{
@@ -112,10 +112,10 @@ std::string UserFunction::toDbgString()const {
 	sprinter << "fn(";
 	int nr=0;
 	for (parameterList_t::const_iterator it=params->begin();it!=params->end();++it) {
-		if (nr++>0) sprinter<< ",";
+		if (nr++>0) sprinter<< ',';
 		if ( (*it) ) sprinter<<(*it)->toString();
 	}
-	sprinter << "){...} "<<"["+getFilename()<<":"<<getLine()<<"]";
+	sprinter << "){...} "<<'['+getFilename()<<':'<<getLine()<<']';
 	return sprinter.str();
 }
 

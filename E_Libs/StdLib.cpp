@@ -103,7 +103,7 @@ static std::string findFile(Runtime & runtime, const std::string & filename){
 		if(Array * searchPaths = dynamic_cast<Array*>(runtime.getAttribute(seachPathsId).getValue())){
 			for(ERef<Iterator> itRef=searchPaths->getIterator();!itRef->end();itRef->next()){
 				ObjRef valueRef = itRef->value();
-				std::string s(IO::condensePath(valueRef.toString()+"/"+filename));
+				std::string s(IO::condensePath(valueRef.toString()+'/'+filename));
 				if( IO::getEntryType(s)==IO::TYPE_FILE ){
 					file = s;
 					break;
@@ -146,7 +146,7 @@ Object * StdLib::loadOnce(Runtime & runtime,const std::string & filename){
 	Map * m=dynamic_cast<Map*>(runtime.getAttribute(mapId).getValue());
 	if(m==NULL){
 		m=Map::create();
-		runtime.setAttribute(mapId,m);
+		runtime.setAttribute(mapId, Attribute(m));
 	}
 	ObjRef obj=m->getValue(condensedFilename);
 	if(obj.toBool()){ // already loaded?
@@ -182,7 +182,7 @@ void StdLib::init(EScript::Namespace * globals) {
 		Array * searchPaths = dynamic_cast<Array*>(runtime.getAttribute(seachPathsId).getValue());
 		if(searchPaths == NULL){
 			searchPaths = Array::create();
-			runtime.setAttribute(seachPathsId,searchPaths);
+			runtime.setAttribute(seachPathsId, Attribute(searchPaths));
 		}
 		searchPaths->pushBack(String::create(parameter[0].toString()));
 		return Void::get();

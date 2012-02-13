@@ -26,26 +26,26 @@ SetAttribute::~SetAttribute() {
 
 //! ---|> [Object]
 std::string SetAttribute::toString()const {
-	std::string s="";
+	std::string s;
 	if (!objExpr.isNull()) {
 		s+=objExpr.toString();
-	} else s+="_";
-	s+="."+getAttrName();
+	} else s+='_';
+	s+='.'+getAttrName();
 	if(assign){
-		s+="=";
+		s+='=';
 	}else{
 		if(attrFlags & (Attribute::CONST_BIT | Attribute::PRIVATE_BIT | Attribute::INIT_BIT)){
 			s+="@(";
 			if( attrFlags & Attribute::CONST_BIT)		s+="const,";
 			if( attrFlags & Attribute::PRIVATE_BIT)		s+="private,";
 			if( attrFlags & Attribute::INIT_BIT)		s+="init,";
-			s+=")";		
+			s+=')';
 		}
 		if( attrFlags & Attribute::TYPE_ATTR_BIT)		
 			s+="::=";
 		else 
 			s+=":=";
 	}
-	s+="("+valueExpr.toString()+") ";
+	s+='('+valueExpr.toString()+") ";
 	return s;
 }

@@ -107,7 +107,7 @@ Object * Type::clone() const{
 static const char * typeAttrErrorHint =
 	"This may be a result of: Adding object attributes to a Type AFTER inheriting from that Type, "
 	"adding object attributes to a Type AFTER creating instances of that Type, "
-	"or adding object attributes to a Type whose instances can't store object attributes. ";
+	"or adding object attributes to a Type whose instances cannot store object attributes. ";
 
 
 Attribute * Type::findTypeAttribute(const identifierId id){

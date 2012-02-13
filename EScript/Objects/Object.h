@@ -132,7 +132,7 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 		const Attribute & getLocalAttribute(const identifierId id)const;
 		const Attribute & getLocalAttribute(const char * key)const				{	return getLocalAttribute(EScript::stringToIdentifierId(key));	}
 		
-		/*! Get the attribute with the given id. The attribute can be stored locally or be accesible by the object's type.
+		/*! Get the attribute with the given id. The attribute can be stored locally or be accessible by the object's type.
 			If the attribute is not found, the resulting attribute references NULL.
 			\code 
 				const Attribute & attr = obj->getAttribute("doesNotExist");

@@ -72,15 +72,15 @@ std::string IO::condensePath(const std::string & inputPath){
 	std::string output;
 	for(std::deque<std::string>::const_iterator it=parts2.begin();it!=parts2.end();++it){
 		if(it!=parts2.begin())
-			output+="/";
+			output+='/';
 		output += *it;
 	}
 	// finalize
 	if(!parts.empty()){
 		if(parts.front().empty() && (output.empty() || output.at(0)!='/' ) )// add '/' add the beginning
-			output = "/"+output;
+			output = '/'+output;
 		if(parts.back().empty() && (output.empty() || output.at(output.length()-1) !='/') ) // add '/' add the end
-			output += "/";
+			output += '/';
 	}
 	return output;
 }

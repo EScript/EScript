@@ -20,13 +20,13 @@ void DefaultFileSystemHandler::dir(const std::string & dirname,std::list<std::st
 
 	DIR *directoryHandle = opendir (dirname.c_str ());
 	if (!directoryHandle)
-		throw std::ios_base::failure( std::string("Could not open dir: '"+dirname+"'"));
+		throw std::ios_base::failure( std::string("Could not open dir: '"+dirname+'\''));
 
 	for( dirent * entry=readdir(directoryHandle) ; entry!=NULL ; entry=readdir(directoryHandle)){
 		if(entry->d_name[0] == '.')
 			continue;
 
-		const std::string entryName( dirname+"/"+entry->d_name );
+		const std::string entryName( dirname+'/'+entry->d_name );
 		const entryType_t type = getEntryType(entryName);
 
 		if( (type==IO::TYPE_DIRECTORY && (flags & 2)) ||
@@ -48,7 +48,7 @@ StringData DefaultFileSystemHandler::loadFile(const std::string & filename){
 
 	std::ifstream inputFile( filename.c_str(), std::ios::in | std::ios::binary);
 	if ( inputFile.fail())
-		throw std::ios_base::failure(std::string("Could not open file for reading: '"+filename+"'"));
+		throw std::ios_base::failure(std::string("Could not open file for reading: '"+filename+'\''));
 
 	inputFile.seekg( 0, std::ios::end );
 	const size_t size = static_cast<size_t>(inputFile.tellg());
@@ -69,10 +69,10 @@ StringData DefaultFileSystemHandler::loadFile(const std::string & filename){
 //! ---|> AbstractFileSystemHandler
 void DefaultFileSystemHandler::saveFile(const std::string & filename, const std::string & content, bool overwrite){
 	if(!overwrite && getEntryType(filename)==TYPE_FILE)
-		throw std::ios_base::failure(std::string("File already exists: '"+filename+"'"));
+		throw std::ios_base::failure(std::string("File already exists: '"+filename+'\''));
 	std::ofstream outputFile( filename.c_str(), std::ios::out | std::ios::binary);
 	if ( outputFile.fail())
-		throw std::ios_base::failure(std::string("Could not open file for writing: '"+filename+"'"));
+		throw std::ios_base::failure(std::string("Could not open file for writing: '"+filename+'\''));
 
 	outputFile.write( content.data(), content.length() );
 	outputFile.close();

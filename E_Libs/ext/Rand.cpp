@@ -9,18 +9,13 @@
  *  Based on the library "rvgs.c" by Steve Park & Dave Geyer
  *  Reference: http://www.cs.wm.edu/~va/software/park/
  */
-#include <math.h>
-#include <time.h>
-
-
-#define MODULUS    2147483647 /* DON'T CHANGE THIS VALUE                  */
-#define MULTIPLIER 48271      /* DON'T CHANGE THIS VALUE                  */
-#define CHECK      399268537  /* DON'T CHANGE THIS VALUE                  */
-#define STREAMS    256        /* # of streams, DON'T CHANGE THIS VALUE    */
-#define A256       22925      /* jump multiplier, DON'T CHANGE THIS VALUE */
-#define DEFAULT    123456789  /* initial seed, use 0 < DEFAULT < MODULUS  */
+#include <cmath>
+#include <ctime>
 
 namespace EScript {
+
+static const Rand::intType MODULUS = 2147483647; /* DON'T CHANGE THIS VALUE                  */
+static const Rand::intType MULTIPLIER = 48271;   /* DON'T CHANGE THIS VALUE                  */
 
 //! (ctor)
 Rand::Rand(intType initialSeed/*=0*/) {

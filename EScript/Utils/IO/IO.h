@@ -2,8 +2,8 @@
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef UTILS_IO_H
+#define UTILS_IO_H
 
 #include "../StringData.h"
 #include "IOBase.h"
@@ -60,4 +60,4 @@ std::string condensePath(const std::string & inputPath);
 }
 }
 
-#endif // UTILS_H
+#endif // UTILS_IO_H

@@ -81,13 +81,13 @@ string StringUtils::trim(const string & s) {
 	if(s.empty())
 		return std::string();
 	unsigned int start,end;
-	for (start=0;start<s.length();start++) {
+	for (start=0;start<s.length();++start) {
 		char c=s[start];
 		if (c==' '||c=='\t'||c=='\n'||c=='\r'||c=='\0'||c==11)
 			continue;
 		break;
 	}
-	for (end=s.length()-1;end>=start;end--) {
+	for (end=s.length()-1;end>=start;--end) {
 		char c=s[end];
 		if (c==' '||c=='\t'||c=='\n'||c=='\r'||c=='\0'||c==11)
 			continue;

@@ -47,7 +47,7 @@ void declareConstant(Type * type, identifierId nameId, Object * value) {
 
 //! (static)
 void declareFunction(Namespace * nameSpace, identifierId nameId, Function::functionPtr fn) {
-	nameSpace->setAttribute(nameId, new Function(nameId, 0, -1, fn));
+	nameSpace->setAttribute(nameId, Attribute(new Function(nameId, 0, -1, fn)));
 }
 
 //! (static)
@@ -57,7 +57,7 @@ void declareFunction(Namespace * nameSpace, const char * name, Function::functio
 
 //! (static)
 void declareFunction(Namespace * nameSpace, identifierId nameId, int minParamCount, int maxParamCount, Function::functionPtr fn) {
-	nameSpace->setAttribute(nameId, new Function(nameId, minParamCount, maxParamCount, fn));
+	nameSpace->setAttribute(nameId, Attribute(new Function(nameId, minParamCount, maxParamCount, fn)));
 }
 
 //! (static)
@@ -104,7 +104,7 @@ void assertParamCount_2(Runtime & runtime, int paramCount, int min, int max) {
 
 //! (static, internal) Non-inline part of assertType(...)
 void assertType_throwError(Runtime & runtime, const ObjPtr & obj,const char * className) {
-	runtime.throwException("Wrong object type: "+ (obj.isNull() ? std::string("NULL") : obj->toDbgString() )+ " is not of type "+className+".");
+	runtime.throwException("Wrong object type: "+ (obj.isNull() ? std::string("NULL") : obj->toDbgString() )+ " is not of type "+className+'.');
 }
 
 //! (static)
@@ -172,7 +172,7 @@ std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & fi
 	try {
 		script = loadScriptFile(filename);
 	} catch (Exception * error) {
-		std::cerr << "\nError occured while loading file '" << filename << "':\n" << error->toString() << std::endl;
+		std::cerr << "\nError occurred while loading file '" << filename << "':\n" << error->toString() << std::endl;
 		return std::make_pair(false, error);
 	}
 	return execute(runtime, script.get());

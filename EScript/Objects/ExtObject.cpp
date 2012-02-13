@@ -29,7 +29,7 @@ void ExtObject::init(EScript::Namespace & globals) {
 		if(parameter.count()>0){
 			Map * m=assertType<Map>(runtime,parameter[0]);
 			for(Map::const_iterator it=m->begin();it!=m->end();++it)
-				result->setAttribute( it->first.c_str(), it->second.value );
+				result->setAttribute(it->first.c_str(), Attribute(it->second.value));
 		}
 		return result.detachAndDecrease();
 	})

@@ -14,7 +14,7 @@ namespace EScript {
 class ConditionalExpr : public Object {
 		ES_PROVIDES_TYPE_NAME(ConditionalExpr)
 	public:
-		ConditionalExpr( ObjPtr _condition=NULL, ObjPtr _action=NULL,ObjPtr _elseAction=NULL);
+		explicit ConditionalExpr( ObjPtr _condition=NULL, ObjPtr _action=NULL,ObjPtr _elseAction=NULL);
 		virtual ~ConditionalExpr();
 
 		Object * getCondition()const	{	return condition.get();	}
