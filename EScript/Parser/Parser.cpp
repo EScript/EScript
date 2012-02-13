@@ -1021,8 +1021,8 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 			// @optimization
 			if (Number* num=dynamic_cast<Number*>(rightExpression)) {
 				Number * newNum=Number::create(-num->toDouble());
-				delete num;
-				return newNum ;
+				Number::release(num);
+				return newNum;
 			}
 //            if (Number* num=dynamic_cast<Number*>(rightExpression)) {
 //                Number * newNum=Number::create(-num->toDouble());
