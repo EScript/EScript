@@ -56,7 +56,6 @@ class ExtObject : public Object {
 		/// ---|> [Object]
 		virtual void getLocalAttributes(std::map<identifierId,Object *> & attrs);
 
-	protected:
 		void cloneAttributesFrom(const ExtObject * obj);
 	private:
 		AttributeContainer objAttributes;
