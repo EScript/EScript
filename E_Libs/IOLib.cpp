@@ -33,7 +33,7 @@ void IOLib::init(EScript::Namespace * o) {
 		StringData content;
 		try{
 			content = IO::loadFile(parameter[0].toString());
-		}catch(std::ios::failure e){
+		}catch(const std::ios::failure & e){
 			runtime.setException(e.what());
 			return NULL;
 		}
@@ -53,7 +53,7 @@ void IOLib::init(EScript::Namespace * o) {
 	ES_FUNCTION_DECLARE(lib,"filePutContents",2,2,{
 		try{
 			IO::saveFile(parameter[0].toString(),parameter[1].toString());
-		}catch(std::ios::failure e){
+		}catch(const std::ios::failure & e){
 			runtime.setException(e.what());
 			return NULL;
 		}
@@ -65,7 +65,7 @@ void IOLib::init(EScript::Namespace * o) {
 		std::list<std::string> files;
 		try {
 			IO::getFilesInDir(parameter[0]->toString(),files,parameter[1].toInt(E_DIR_FILES));
-		} catch (std::string s) {
+		} catch (const std::string & s) {
 			runtime.setException(s);
 			return NULL;
 		}

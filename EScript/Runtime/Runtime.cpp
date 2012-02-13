@@ -952,7 +952,7 @@ Object * Runtime::executeUserConstructor(const ObjPtr & _callingObject,const Par
 
 		/// create new set of params according to super constructor parameters
 		std::vector<ObjRef> & sConstrExpressions=uCons->getSConstructorExpressions();
-		if(sConstrExpressions.size()>0){
+		if(!sConstrExpressions.empty()){
 			ParameterValues superConstrParams(sConstrExpressions.size());
 			size_t i=0;
 			for(std::vector<ObjRef>::iterator it=sConstrExpressions.begin();it!=sConstrExpressions.end();++it){

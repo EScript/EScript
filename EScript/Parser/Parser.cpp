@@ -124,7 +124,7 @@ Block * Parser::parseFile(const std::string & filename) {
 	StringData content;
 	try{
 		content = IO::loadFile(filename);
-	}catch(std::ios::failure e){
+	}catch(const std::ios::failure & e){
 		throwError(e.what());
 	}
 
@@ -153,7 +153,7 @@ Object * Parser::parse(Block * rootBlock,const StringData & c) {
 	} catch (Exception * e) {
 
 		//std::cerr << e->toString() << std::endl;
-		throw e;
+		throw;
 	}
 	/// 2. Parse definitions
 	{
