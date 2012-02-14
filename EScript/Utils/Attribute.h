@@ -29,10 +29,9 @@ class Attribute{
 		flag_t flags;
 	public:
 		explicit Attribute(flag_t _flags = NORMAL_ATTRIBUTE):flags(_flags) {}
-		Attribute(const ObjPtr & _value,flag_t  _flags = NORMAL_ATTRIBUTE):value(_value.get()),flags(_flags) {}
-		Attribute(const ObjRef & _value,flag_t  _flags = NORMAL_ATTRIBUTE):value(_value.get()),flags(_flags) {}
-		Attribute(Object * _value,flag_t  _flags = NORMAL_ATTRIBUTE):value(_value),flags(_flags) {}
-		Attribute(const Attribute & e):value(e.value),flags(e.flags) {}
+		/*implicit*/ Attribute(const ObjPtr & _value,flag_t  _flags = NORMAL_ATTRIBUTE):value(_value.get()),flags(_flags) {}
+		/*implicit*/ Attribute(Object * _value,flag_t  _flags = NORMAL_ATTRIBUTE):value(_value),flags(_flags) {}
+		/*implicit*/ Attribute(const Attribute & e):value(e.value),flags(e.flags) {}
 
 		bool getFlag(flag_t f)const			{	return (flags&f)>0;	}
 		flag_t getFlags()const				{	return flags;	}
