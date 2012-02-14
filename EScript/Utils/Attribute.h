@@ -30,6 +30,7 @@ class Attribute{
 	public:
 		explicit Attribute(flag_t _flags = NORMAL_ATTRIBUTE):flags(_flags) {}
 		/*implicit*/ Attribute(const ObjPtr & _value,flag_t  _flags = NORMAL_ATTRIBUTE):value(_value.get()),flags(_flags) {}
+		/*implicit*/ Attribute(const ObjRef & _value,flag_t  _flags = NORMAL_ATTRIBUTE):value(_value.get()),flags(_flags) {}
 		/*implicit*/ Attribute(Object * _value,flag_t  _flags = NORMAL_ATTRIBUTE):value(_value),flags(_flags) {}
 		/*implicit*/ Attribute(const Attribute & e):value(e.value),flags(e.flags) {}
 
