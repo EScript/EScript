@@ -20,8 +20,8 @@ class Attribute{
 		static const flag_t TYPE_ATTR_BIT = (1<<2);	// 0...objAttr	1...typeAttr
 		static const flag_t INIT_BIT = (1<<3);		// 0...normal	1...init
 		static const flag_t REFERENCE_BIT = (1<<4);	// 0...normal	1...reference
-		
-		
+
+
 		static const flag_t ASSIGNMENT_RELEVANT_BITS = CONST_BIT|PRIVATE_BIT|REFERENCE_BIT;
 
 	private:
@@ -32,7 +32,7 @@ class Attribute{
 		Attribute(const ObjPtr & _value,flag_t  _flags = NORMAL_ATTRIBUTE):value(_value.get()),flags(_flags) {}
 		Attribute(const ObjRef & _value,flag_t  _flags = NORMAL_ATTRIBUTE):value(_value.get()),flags(_flags) {}
 		Attribute(Object * _value,flag_t  _flags = NORMAL_ATTRIBUTE):value(_value),flags(_flags) {}
-		explicit Attribute(const Attribute & e):value(e.value),flags(e.flags) {}
+		Attribute(const Attribute & e):value(e.value),flags(e.flags) {}
 
 		bool getFlag(flag_t f)const			{	return (flags&f)>0;	}
 		flag_t getFlags()const				{	return flags;	}
@@ -45,7 +45,7 @@ class Attribute{
 		bool isTypeAttribute()const 		{	return getFlag(TYPE_ATTR_BIT);	}
 		bool isPrivate()const				{	return flags&PRIVATE_BIT;	}
 		bool isReference()const				{	return flags&REFERENCE_BIT;	}
-		
+
 		void setValue(Object * v)			{	value=v;	}
 		void set(Object * v,flag_t f)		{	value=v, flags=f;	}
 		Attribute & operator=(const Attribute & e){

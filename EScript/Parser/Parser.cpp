@@ -67,7 +67,7 @@ Type * Parser::getTypeObject(){
 void Parser::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();
 	initPrintableName(typeObject,getClassName());
-	
+
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//!	[ESMF] Parser new Parser();
@@ -111,7 +111,7 @@ Object * Parser::clone()const {
 void Parser::info(warningLevel_t messageLevel, const std::string & msg,const _CountedRef<Token> & token)const{
 	if(messageLevel>=warningLevel){
 		std::cerr << "(Parser) "<< msg << " ("<< getCurrentFilename();
-		if(token!=NULL) 
+		if(token!=NULL)
 			std::cerr <<':'<< token->getLine();
 		std::cerr << ")\n";
 	}
@@ -140,7 +140,7 @@ Block * Parser::parseFile(const std::string & filename) {
 Object * Parser::parse(Block * rootBlock,const StringData & c) {
 	tokenizer.defineToken("__FILE__",new TObject(String::create(rootBlock->getFilename())));
 	tokenizer.defineToken("__DIR__",new TObject(String::create(IO::dirname(rootBlock->getFilename()))));
-	
+
 	Tokenizer::tokenList_t tokens;
 	ParsingContext ctxt(tokens,String::create(c));
 	ctxt.rootBlock=rootBlock;
@@ -345,8 +345,8 @@ void Parser::pass_2(ParsingContext & ctxt,
 
 		switch(token->getType()){
 			case TControl::TYPE_ID:{
-				/// Variable Declaration
 				TControl * tc=Token::cast<TControl>(token);
+				/// Variable Declaration
 				if (tc->getId()==Consts::IDENTIFIER_var) {
 					if (TIdentifier * ti=Token::cast<TIdentifier>(ctxt.tokens.at(cursor+1))) {
 						if(!blockStack.top()->declareVar(ti->getId())){
@@ -634,6 +634,24 @@ Block * Parser::getBlock(ParsingContext & ctxt,int & cursor)const {
 	if (b==NULL)
 		throwError("No Block!",tokens.at(cursor));
 
+	/// Check for shadowed local variables
+	if(!ctxt.blocks.empty()){
+		const Block::declaredVariableMap_t * vars = b->getVars();
+		if(vars!=NULL){
+			for(int i = ctxt.blocks.size()-1; i>=0 && ctxt.blocks[i]!=NULL; --i ){
+				const Block::declaredVariableMap_t * vars2 = ctxt.blocks[i]->getVars();
+				if(vars2==NULL)
+					continue;
+				for(Block::declaredVariableMap_t::const_iterator it=vars->begin();it!=vars->end();++it){
+					if(vars2->count(*it)>0){
+						info(PEDANTIC_WARNING,"Shadowed local variable  '"+identifierIdToString(*it)+"' in block.",tokens.at(cursor));
+					}
+
+				}
+			}
+		}
+	}
+
 	ctxt.blocks.push_back(b);
 
 	++cursor;
@@ -816,7 +834,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 				annotations_t annotations;
 				getAnnotations(ctxt,annotationStart+1,leftExprTo-1,annotations);
 				leftExprTo = annotationStart-2;
-				
+
 				for(annotations_t::const_iterator it=annotations.begin();it!=annotations.end();++it ){
 					const identifierId name = it->first;
 					info(DEBUG_INFO,"Info: Annotation:"+identifierIdToString(name),atOp );
@@ -836,7 +854,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 							info(DEFAULT_WARNING,"Warning: '@(private)' is used in combination with @(public) and is ignored.",atOp);
 						}else{
 							flags |= Attribute::PRIVATE_BIT;
-						}						
+						}
 					}else if(name == Consts::ANNOTATION_ATTR_public){
 						if(flags&Attribute::PRIVATE_BIT){
 							info(DEFAULT_WARNING,"Warning: '@(public)' is used in combination with @(private) and is ignored.",atOp);
@@ -848,13 +866,13 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 							info(DEFAULT_WARNING,"Warning: '@(member)' is used in combination with @(type) or '::=' and is ignored.",atOp);
 						}else{
 							flags |= Attribute::TYPE_ATTR_BIT;
-						}						
+						}
 					}else {
 						throwError("Invalid annotation: '"+identifierIdToString(name)+'\'',atOp);
 					}
 				}
 			}
-			
+
 		}
 		identifierId memberIdentifier;
 		Object * obj=NULL;
@@ -1077,6 +1095,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 	\note after pass_2(...) a function looks like this:
 			fn( (params*) {...} )  OR
 			fn( (params*).(constrExpr) {...} )
+			fn( (params*)@(super()) {...} )
 	*/
 Object * Parser::getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const{
 //	bool lambda=false;
@@ -1099,14 +1118,41 @@ Object * Parser::getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const
 	UserFunction::parameterList_t * params=getFunctionParameters(ctxt,cursor);
 	TOperator * superOp=Token::cast<TOperator>(tokens.at(cursor));
 
-	/// fn(a).(a+1,2){}
+	/// fn(a).(a+1,2){} \deprecated
 	std::vector<ObjRef> superConCallExpressions;
 	if(superOp!=NULL && superOp->toString()=="."){
 		++cursor;
 		getExpressionsInBrackets(ctxt,cursor,superConCallExpressions);
 		++cursor; // step over ')'
 //		std::cout << " #### ";
+	} /// fn(a)@(super(a+1,2)) {}
+	else if(superOp!=NULL && superOp->toString()=="@"){
+		++cursor;
+		if(!Token::isA<TStartBracket>(tokens.at(cursor))){
+			throwError("Annotation expects brackets.",superOp);
+		}
+		const int annotationTo = findCorrespondingBracket<TStartBracket,TEndBracket>(ctxt,cursor);
+
+		annotations_t annotations;
+		getAnnotations(ctxt,cursor+1,annotationTo-1,annotations);
+		for(annotations_t::const_iterator it=annotations.begin();it!=annotations.end();++it ){
+			const identifierId name = it->first;
+			int parameterPos = it->second;
+			info(DEBUG_INFO,"Info: Annotation:"+identifierIdToString(name),superOp );
+//					const int pos = it->second;
+			if(name == Consts::ANNOTATION_FN_super){
+				if(parameterPos<0){
+					throwError("Super attribute needs parameter list.",superOp);
+				}
+				getExpressionsInBrackets(ctxt,parameterPos,superConCallExpressions);
+			}else{
+				info(DEFAULT_WARNING,"Anntoation is invalid for functions: '"+identifierIdToString(name)+"'",superOp);
+			}
+		}
+		cursor = annotationTo+1;
+
 	}
+
 
 	ctxt.blocks.push_back(NULL); // mark beginning of new local namespace
 	Block * block=dynamic_cast<Block*>(getExpression(ctxt,cursor));
@@ -1501,7 +1547,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 			};
 			catchBlock->addStatement( Statement( Statement::TYPE_EXPRESSION,
 					SetAttribute::createAssignment(NULL,varName,
-						new FunctionCall( 
+						new FunctionCall(
 							new Function(fnWrapper::extractExceptionValue),
 							paramExp,false,currentFilename,tStartCatchBlock->getLine()),
 						tStartCatchBlock->getLine())));
@@ -1858,7 +1904,7 @@ void Parser::getAnnotations(ParsingContext & ctxt,int from,int to,annotations_t 
 		const TIdentifier * tid = Token::cast<TIdentifier>(t);
 		if( tid==NULL )
 			throwError("Identifier expected in annotation",t);
-			
+
 		int optionPos = -1;
 		++cursor;
 		if( Token::isA<TStartBracket>(tokens.at(cursor)) && cursor < to ){ // annotation has options 'annotation(exp1,exp2)'
