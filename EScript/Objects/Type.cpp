@@ -135,11 +135,11 @@ Attribute * Type::_accessAttribute(const identifierId id,bool localOnly){
 	if(attr!=NULL || localOnly)
 		return attr;
 
-	// try to find the attribute along the inheritated path...
+	// try to find the attribute along the inherited path...
 	if(getBaseType()!=NULL){
-		Attribute * result = getBaseType()->findTypeAttribute(id);
-		if(result!=NULL)
-			return result;
+		attr = getBaseType()->findTypeAttribute(id);
+		if(attr!=NULL)
+			return attr;
 	}
 	// try to find the attribute from this type's type.
 	return getType()!=NULL ? getType()->findTypeAttribute(id) : NULL;

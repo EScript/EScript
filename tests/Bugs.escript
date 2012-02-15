@@ -519,3 +519,25 @@
 	Runtime._setErrorConfig(0);
 	test( "BUG[20110918]", exceptionCounter == 6 );
 }
+
+
+{	// assignment to inherited static attributes does not work.
+	Runtime._setErrorConfig(Runtime.TREAT_WARNINGS_AS_ERRORS);
+	var errorFound=false;
+	try{
+		var A := new Type();
+		A.staticAttribute ::= 0;
+
+		var B := new Type(A);
+		B.assignStaticAttribute ::= fn(){
+			staticAttribute = 1;
+		};	
+
+		B.assignStaticAttribute();
+	}catch(e){
+		errorFound = true;
+	}
+	Runtime._setErrorConfig(0);
+	test( "BUG[20120215]", !errorFound );
+
+}
