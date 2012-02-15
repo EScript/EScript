@@ -11,7 +11,7 @@
 namespace EScript {
 
 //! (internal) Collection of comparators used for comparing ReferenceObjects.
-struct _RefObjEqComparators{
+namespace _RefObjEqComparators{ //! \todo --> Policies_RefObjEqComparators
 	struct EqualContent{
 		template <typename ReferenceObject_t>
 		static inline bool isEqual(ReferenceObject_t * a,const ObjPtr b)	{
@@ -23,7 +23,7 @@ struct _RefObjEqComparators{
 	struct SameEObjects{
 		static inline bool isEqual( Object * a,const ObjPtr b)	{	return a==b.get();	}
 	};
-};
+}
 
 /*! [ReferenceObject] ---|> [Object]
 	A ReferenceObject can be used as wrapper for user defined C++ objects. The encapsulated

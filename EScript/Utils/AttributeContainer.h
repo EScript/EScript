@@ -15,7 +15,6 @@ class Runtime;
 
 /*! [AttributeContainer]   */
 class AttributeContainer {
-	explicit AttributeContainer(const AttributeContainer & other);
 	void operator=(const AttributeContainer & other);
 	
 	public:
@@ -25,7 +24,8 @@ class AttributeContainer {
 		typedef attributeMap_t::size_type size_type;
 		typedef attributeMap_t::value_type value_type;
 
-		AttributeContainer(){}
+		explicit AttributeContainer(const AttributeContainer & other);
+		explicit AttributeContainer(){}
 		~AttributeContainer(){}
 
 		Attribute * accessAttribute(const identifierId id){
