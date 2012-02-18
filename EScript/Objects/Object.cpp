@@ -100,7 +100,7 @@ void Object::init(EScript::Namespace & globals) {
 	//! Map Object._getAttributes()
 	ES_FUNCTION_DECLARE(typeObject,"_getAttributes",0,0,{
 		attrMap_t attrs;
-		caller->getLocalAttributes(attrs);
+		caller->collectLocalAttributes(attrs);
 		return Map::create(attrs);
 	})
 

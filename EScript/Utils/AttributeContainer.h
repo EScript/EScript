@@ -15,7 +15,6 @@ class Runtime;
 
 /*! [AttributeContainer]   */
 class AttributeContainer {
-	explicit AttributeContainer(const AttributeContainer & other);
 	void operator=(const AttributeContainer & other);
 	
 	public:
@@ -25,7 +24,8 @@ class AttributeContainer {
 		typedef attributeMap_t::size_type size_type;
 		typedef attributeMap_t::value_type value_type;
 
-		AttributeContainer(){}
+		explicit AttributeContainer(const AttributeContainer & other);
+		explicit AttributeContainer(){}
 		~AttributeContainer(){}
 
 		Attribute * accessAttribute(const StringId id){
@@ -39,7 +39,7 @@ class AttributeContainer {
 		void clear()													{	attributes.clear();	}
 		void cloneAttributesFrom(const AttributeContainer & other);
 		const attributeMap_t & getAttributes()const						{	return attributes;	}
-		void getAttributes(std::map<StringId,Object *> & attrs);
+		void collectAttributes(std::map<StringId,Object *> & attrs);
 		void initAttributes(Runtime & rt);
 		void setAttribute(const StringId id,const Attribute & attr) 	{	attributes[id] = attr;	}
 		size_t size()const 												{	return attributes.size();	}

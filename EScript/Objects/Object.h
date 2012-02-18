@@ -106,9 +106,6 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 
 	/*! @name Attributes */
 	public:
-		
-
-		
 		/*! ---o (internal)
 			Get access to an Attribute stored at this Object.
 			\note Should not be called directly. Use get(Local)Attribute(...) instead.
@@ -130,7 +127,6 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 				if(attr.isNull()) ...
 		*/
 		const Attribute & getLocalAttribute(const StringId id)const;
-//		const Attribute & getLocalAttribute(const char * key)const				{	return getLocalAttribute(EScript::stringToIdentifierId(key));	}
 		
 		/*! Get the attribute with the given id. The attribute can be stored locally or be accessible by the object's type.
 			If the attribute is not found, the resulting attribute references NULL.
@@ -139,18 +135,16 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 				if(attr.isNull()) ...
 		*/
 		const Attribute & getAttribute(const StringId id)const;
-//		const Attribute & getAttribute(const char * key)const					{	return getAttribute(EScript::stringToIdentifierId(key));	}
 
 		/*!	---o 
 			Try to set the value of an object attribute.
 			Returns false if the attribute can not be set.
 			\note Has to be overridden if an Object type should support user defined attributes. */
 		virtual bool setAttribute(const StringId id,const Attribute & attr);
-//		bool setAttribute(const char * key,const Attribute & attr)				{	return setAttribute(EScript::stringToIdentifierId(key),attr);	}
 
 		/*! ---o
 			Collect all attributes in a map; used for debugging. */
-		virtual void getLocalAttributes(std::map<StringId,Object *> & )		{	}
+		virtual void collectLocalAttributes(std::map<StringId,Object *> & )		{	}
 	// @}
 
 	// -------------------------

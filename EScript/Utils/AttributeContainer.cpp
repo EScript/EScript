@@ -8,6 +8,12 @@
 
 using namespace EScript;
 
+
+//! (ctor)
+AttributeContainer::AttributeContainer(const AttributeContainer & other){
+	cloneAttributesFrom(other);
+}
+
 void AttributeContainer::initAttributes(Runtime & rt){
 	for(attributeMap_t::iterator it = attributes.begin() ; it!=attributes.end() ; ++it){
 		Attribute & attr = it->second;
@@ -29,7 +35,8 @@ void AttributeContainer::cloneAttributesFrom(const AttributeContainer & other) {
 		
 }
 
-void AttributeContainer::getAttributes(std::map<StringId,Object *> & attrs){
+void AttributeContainer::collectAttributes(std::map<StringId,Object *> & attrs){
 	for(attributeMap_t::iterator it = attributes.begin() ; it!=attributes.end() ; ++it)
 		attrs[it->first] = it->second.getValue();
 }
+

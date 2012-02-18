@@ -52,14 +52,14 @@ void Type::init(EScript::Namespace & globals) {
 	//! [ESMF] Map Type.getObjAttributes()
 	ES_MFUNCTION_DECLARE(typeObject,const Type,"getObjAttributes",0,0,{
 		attrMap_t attrs;
-		self->getObjAttributes(attrs);
+		self->collectObjAttributes(attrs);
 		return Map::create(attrs);
 	})
 
 	//! [ESMF] Map Type.getTypeAttributes()
 	ES_MFUNCTION_DECLARE(typeObject,const Type,"getTypeAttributes",0,0,{
 		attrMap_t attrs;
-		self->getTypeAttributes(attrs);
+		self->collectTypeAttributes(attrs);
 		return Map::create(attrs);
 	})
 
@@ -165,14 +165,14 @@ void Type::copyObjAttributesTo(Object * instance){
 	}
 }
 
-void Type::getTypeAttributes(std::map<StringId,Object *> & attrs)const{
+void Type::collectTypeAttributes(std::map<StringId,Object *> & attrs)const{
 	for(AttributeContainer::const_iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
 		if(it->second.isTypeAttribute())
 			attrs[it->first] = it->second.getValue();
 	}
 }
 
-void Type::getObjAttributes(std::map<StringId,Object *> & attrs)const{
+void Type::collectObjAttributes(std::map<StringId,Object *> & attrs)const{
 	for(AttributeContainer::const_iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
 		if(it->second.isObjAttribute())
 			attrs[it->first] = it->second.getValue();
@@ -180,7 +180,7 @@ void Type::getObjAttributes(std::map<StringId,Object *> & attrs)const{
 }
 
 //! ---|> Object
-void Type::getLocalAttributes(std::map<StringId,Object *> & attrs){
+void Type::collectLocalAttributes(std::map<StringId,Object *> & attrs){
 	for(AttributeContainer::iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
 		attrs[it->first] = it->second.getValue();
 	}
