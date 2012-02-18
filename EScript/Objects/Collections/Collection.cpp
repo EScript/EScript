@@ -11,18 +11,16 @@ namespace EScript{
 
 //! (static)
 Type * Collection::getTypeObject()	{
-	// \todo this should be Object::getTypeObject(), but then user defined Collections can't have data members... perhaps this can
-	//  be fixed using interfaces some day.
-	static Type * typeObject=new Type(ExtObject::getTypeObject());
+
+	// Collection ---|> [Object]
+	static Type * typeObject=new Type(Object::getTypeObject());
 	return typeObject;
 }
 
 //! initMembers
 void Collection::init(EScript::Namespace & globals) {
 
-	// Collection ---|> [ExtObject]
 	Type * typeObject=getTypeObject();
-	typeObject->allowUserInheritance(true);
 	initPrintableName(typeObject,getClassName());
 	
 	declareConstant(&globals,getClassName(),typeObject);
@@ -100,7 +98,7 @@ void Collection::init(EScript::Namespace & globals) {
 //---
 
 //! (ctor)
-Collection::Collection(Type * type):ExtObject(type?type:getTypeObject()) {
+Collection::Collection(Type * type):Object(type?type:getTypeObject()) {
 	//ctor
 }
 

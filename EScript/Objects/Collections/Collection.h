@@ -5,14 +5,14 @@
 #ifndef COLLECTION_H
 #define COLLECTION_H
 
-#include "../ExtObject.h"
+#include "../Object.h"
 #include "../../Utils/ObjArray.h"
 
 namespace EScript {
 class Iterator;
 
-/*! (abstract) [Collection] ---|> [ExtObject] ---|> [Object]  */
-class Collection : public ExtObject {
+/*! (abstract) [Collection] ---|>  Object]  */
+class Collection : public Object {
 		ES_PROVIDES_TYPE_NAME(Collection)
 	public:
 		static Type * getTypeObject();

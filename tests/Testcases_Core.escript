@@ -792,7 +792,7 @@ if(!benchmark)
 {
 	out("PrioQueueTest:\t");
 
-	var PriorityQueue=new Type(Collection);
+	var PriorityQueue=new Type(ExtObject);
 	PriorityQueue._constructor:=fn(comparison='<',data=void){
 		this.comparison:=comparison;
 		this.a:=[];
