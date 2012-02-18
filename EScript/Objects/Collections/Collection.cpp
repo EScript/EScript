@@ -234,7 +234,7 @@ Object * Collection::rt_map(Runtime & runtime,ObjPtr function, const ParameterVa
 }
 
 //! ---o ???
-Object * Collection::rt_extract(Runtime & runtime,identifierId functionId,bool decision/*=true*/){
+Object * Collection::rt_extract(Runtime & runtime,StringId functionId,bool decision/*=true*/){
 	ERef<Iterator> it=getIterator();
 
 	ObjRef currentValue=NULL;

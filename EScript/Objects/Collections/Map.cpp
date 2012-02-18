@@ -71,10 +71,10 @@ Map * Map::create(){
 }
 
 //! (static) Factory
-Map * Map::create(const std::map<identifierId,Object *> & attr){
+Map * Map::create(const std::map<StringId,Object *> & attr){
 	Map * m=create();
-	for(std::map<identifierId,Object *>::const_iterator it=attr.begin();it!=attr.end();++it)
-		m->setValue(String::create( identifierIdToString(it->first) ), it->second->getRefOrCopy());
+	for(std::map<StringId,Object *>::const_iterator it=attr.begin();it!=attr.end();++it)
+		m->setValue(String::create( (it->first).toString() ), it->second->getRefOrCopy());
 	return m;
 }
 

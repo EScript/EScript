@@ -29,7 +29,7 @@ void ExtObject::init(EScript::Namespace & globals) {
 		if(parameter.count()>0){
 			Map * m=assertType<Map>(runtime,parameter[0]);
 			for(Map::const_iterator it=m->begin();it!=m->end();++it)
-				result->setAttribute(it->first.c_str(), Attribute(it->second.value));
+				result->setAttribute(it->first, Attribute(it->second.value));
 		}
 		return result.detachAndDecrease();
 	})
@@ -82,7 +82,7 @@ void ExtObject::_initAttributes(Runtime & rt){
 
 
 //! ---|> [Object]
-Attribute * ExtObject::_accessAttribute(const identifierId id,bool localOnly){
+Attribute * ExtObject::_accessAttribute(const StringId id,bool localOnly){
 	Attribute * attr = objAttributes.accessAttribute(id);
 	
 	if( attr==NULL && !localOnly && getType()!=NULL){
@@ -92,7 +92,7 @@ Attribute * ExtObject::_accessAttribute(const identifierId id,bool localOnly){
 }
 
 //! ---|> [Object]
-bool ExtObject::setAttribute(const identifierId id,const Attribute & attr){
+bool ExtObject::setAttribute(const StringId id,const Attribute & attr){
 	objAttributes.setAttribute(id,attr);
 	return true;
 }
@@ -102,6 +102,6 @@ void ExtObject::cloneAttributesFrom(const ExtObject * obj) {
 }
 
 //! ---|> Object
-void ExtObject::getLocalAttributes(std::map<identifierId,Object *> & attrs){
+void ExtObject::getLocalAttributes(std::map<StringId,Object *> & attrs){
 	objAttributes.getAttributes(attrs);
 }

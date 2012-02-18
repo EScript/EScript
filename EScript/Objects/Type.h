@@ -49,26 +49,26 @@ class Type : public Object {
 	public:
 
 		/*! Get only the typeAttributes. */
-		void getTypeAttributes(std::map<identifierId,Object *> & attrs)const;
+		void getTypeAttributes(std::map<StringId,Object *> & attrs)const;
 		/*! Get only the objectAttributes. */
-		void getObjAttributes(std::map<identifierId,Object *> & attrs)const;
+		void getObjAttributes(std::map<StringId,Object *> & attrs)const;
 
 		void copyObjAttributesTo(Object * instance);
 
 		/*! Used by instances of this type get the value of an inherited typeAttribute. */
-		Attribute * findTypeAttribute(const identifierId id);
+		Attribute * findTypeAttribute(const StringId id);
 
 		using Object::_accessAttribute;
 		using Object::setAttribute;
 
 		/// ---|> [Object]
-		virtual Attribute * _accessAttribute(const identifierId id,bool localOnly);
+		virtual Attribute * _accessAttribute(const StringId id,bool localOnly);
 
 		/// ---|> [Object]
-		virtual bool setAttribute(const identifierId id,const Attribute & attr);
+		virtual bool setAttribute(const StringId id,const Attribute & attr);
 
 		/// ---|> [Object]
-		virtual void getLocalAttributes(std::map<identifierId,Object *> & attrs);
+		virtual void getLocalAttributes(std::map<StringId,Object *> & attrs);
 
 	private:
 		AttributeContainer attributes;

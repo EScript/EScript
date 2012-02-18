@@ -75,8 +75,8 @@ class Parser : public Object {
 		warningLevel_t warningLevel;
 		
 		// only for debugging
-		identifierId currentFilename;
-		std::string getCurrentFilename()const	{	return identifierIdToString(currentFilename);	}
+		StringId currentFilename;
+		std::string getCurrentFilename()const	{	return currentFilename.toString();	}
 
 		Tokenizer tokenizer;
 		void pass_1(ParsingContext & ctxt);
@@ -91,13 +91,13 @@ class Parser : public Object {
 		UserFunction::parameterList_t * getFunctionParameters(ParsingContext & ctxt,int & cursor)const;
 		void getExpressionsInBrackets(ParsingContext & ctxt,int & cursor,std::vector<ObjRef> & expressions)const;
 	
-		typedef std::vector<std::pair<identifierId,int> > annotations_t; //  (annotation's id, position of option bracket or -1)*
+		typedef std::vector<std::pair<StringId,int> > annotations_t; //  (annotation's id, position of option bracket or -1)*
 		void getAnnotations(ParsingContext & ctxt,int from,int to,annotations_t & annotations)const;
 
 		Statement createStatement(Object * obj)const;
 
 		enum lValue_t { LVALUE_NONE, LVALUE_INDEX, LVALUE_MEMBER};
-		lValue_t getLValue(ParsingContext & ctxt,int from,int to,Object * & obj,identifierId & identifier,Object * &indexExpression)const;
+		lValue_t getLValue(ParsingContext & ctxt,int from,int to,Object * & obj,StringId & identifier,Object * &indexExpression)const;
 		int findExpression(ParsingContext & ctxt,int cursor)const;
 
 		void throwError(const std::string & msg,Token * token=NULL)const;

@@ -82,21 +82,21 @@ void Object::init(EScript::Namespace & globals) {
 	ESF_DECLARE(typeObject,"getType",0,0,caller->getType())
 
 	//! [ESMF] int Object.hash()
-	ESF_DECLARE(typeObject,"hash",0,0,Number::create(caller->hash()))
+	ESF_DECLARE(typeObject,"hash",0,0,Number::create(caller->hash().getValue()))
 
 	//! [ESMF] Object Object.getAttribute(key)
-	ESF_DECLARE(typeObject,"getAttribute",1,1,caller->getAttribute(parameter[0]->hash()).getValue())
+	ESF_DECLARE(typeObject,"getAttribute",1,1,caller->getAttribute(parameter[0].toString()).getValue())
 
 	//! [ESMF] Bool Object.isSet(key)
-	ESF_DECLARE(typeObject,"isSet",1,1,Bool::create(!caller->getAttribute(parameter[0]->hash()).isNull()))
+	ESF_DECLARE(typeObject,"isSet",1,1,Bool::create(!caller->getAttribute(parameter[0].toString()).isNull()))
 
 	//! [ESMF] Bool Object.setObjAttribute(key,value) \deprecated
-	ESF_DECLARE(typeObject,"setObjAttribute",2,2,Bool::create(caller->setAttribute(parameter[0]->hash(),Attribute(parameter[1],Attribute::NORMAL_ATTRIBUTE))))
+	ESF_DECLARE(typeObject,"setObjAttribute",2,2,Bool::create(caller->setAttribute(parameter[0].toString(),Attribute(parameter[1],Attribute::NORMAL_ATTRIBUTE))))
 
 	//! [ESMF] Bool Object.assignAttribute(key,value)
-	ESF_DECLARE(typeObject,"assignAttribute",2,2,Bool::create(runtime.assignToAttribute(caller,parameter[0]->hash(),parameter[1])))
+	ESF_DECLARE(typeObject,"assignAttribute",2,2,Bool::create(runtime.assignToAttribute(caller,parameter[0].toString(),parameter[1])))
 
-	typedef std::map<identifierId,Object *> attrMap_t; // has to be defined here, due to compiler (gcc) bug.
+	typedef std::map<StringId,Object *> attrMap_t; // has to be defined here, due to compiler (gcc) bug.
 	//! Map Object._getAttributes()
 	ES_FUNCTION_DECLARE(typeObject,"_getAttributes",0,0,{
 		attrMap_t attrs;
@@ -249,8 +249,8 @@ std::string Object::toDbgString()const{
 }
 
 //! ---o
-identifierId Object::hash()const {
-	return EScript::stringToIdentifierId(this->toString());
+StringId Object::hash()const {
+	return StringId(this->toString());
 }
 
 //! ---o
@@ -281,18 +281,18 @@ bool Object::isIdentical(Runtime & rt,const ObjPtr o) {
 // attributes
 
 //! ---o
-Attribute * Object::_accessAttribute(const identifierId id,bool localOnly){
+Attribute * Object::_accessAttribute(const StringId id,bool localOnly){
 	return (localOnly||getType()==NULL) ? NULL : getType()->findTypeAttribute(id);
 }
 
-const Attribute & Object::getLocalAttribute(const identifierId id)const{
+const Attribute & Object::getLocalAttribute(const StringId id)const{
 	static const Attribute noAttribute;
 	Object * nonConstThis = const_cast<Object*>(this);
 	const Attribute * attr = nonConstThis->_accessAttribute(id,true);
 	return attr == NULL ? noAttribute : *attr;
 }
 
-const Attribute & Object::getAttribute(const identifierId id)const{
+const Attribute & Object::getAttribute(const StringId id)const{
 	static const Attribute noAttribute;
 	Object * nonConstThis = const_cast<Object*>(this);
 	const Attribute * attr = nonConstThis->_accessAttribute(id,false);
@@ -300,7 +300,7 @@ const Attribute & Object::getAttribute(const identifierId id)const{
 }
 
 //! ---o
-bool Object::setAttribute(const identifierId /*id*/,const Attribute & /*val*/){
+bool Object::setAttribute(const StringId /*id*/,const Attribute & /*val*/){
 	std::cout << "Could not set member.\n";
 	return false;
 }

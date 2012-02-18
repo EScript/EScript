@@ -76,7 +76,7 @@ void Parser::init(EScript::Namespace & globals) {
 	//!	[ESMF] Block Parser.parse(String)
 	ES_MFUNCTION_DECLARE(typeObject,Parser,"parse",1,1,{
 		ERef<Block> block(new Block());
-		static const identifierId inline_id = stringToIdentifierId("[inline]");
+		static const StringId inline_id("[inline]");
 		block->setFilename(inline_id);
 		try {
 			self->parse(block.get(),StringData(parameter[0]->toString()));
@@ -129,7 +129,7 @@ Block * Parser::parseFile(const std::string & filename) {
 	}
 
 	ERef<Block> rootBlock(new Block);
-	rootBlock->setFilename(stringToIdentifierId(filename));
+	rootBlock->setFilename(filename);
 	parse(rootBlock.get(),content);
 	return rootBlock.detachAndDecrease();
 }
@@ -144,7 +144,7 @@ Object * Parser::parse(Block * rootBlock,const StringData & c) {
 	Tokenizer::tokenList_t tokens;
 	ParsingContext ctxt(tokens,String::create(c));
 	ctxt.rootBlock=rootBlock;
-	currentFilename = stringToIdentifierId(rootBlock->getFilename());
+	currentFilename = rootBlock->getFilename();
 
 	/// 1. Tokenize
 	try {
@@ -644,7 +644,7 @@ Block * Parser::getBlock(ParsingContext & ctxt,int & cursor)const {
 					continue;
 				for(Block::declaredVariableMap_t::const_iterator it=vars->begin();it!=vars->end();++it){
 					if(vars2->count(*it)>0){
-						info(PEDANTIC_WARNING,"Shadowed local variable  '"+identifierIdToString(*it)+"' in block.",tokens.at(cursor));
+						info(PEDANTIC_WARNING,"Shadowed local variable  '"+(*it).toString()+"' in block.",tokens.at(cursor));
 					}
 
 				}
@@ -798,7 +798,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 	/// ASSIGNMENTS ( "="  ":=" )
 	/// -----------
 	if (op->getString()=="=") {
-		identifierId memberIdentifier;
+		StringId memberIdentifier;
 		Object * obj=NULL;
 		Object * indexExp=NULL;
 		int lValueType=getLValue(ctxt,leftExprFrom,leftExprTo,obj,memberIdentifier,indexExp);
@@ -836,8 +836,8 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 				leftExprTo = annotationStart-2;
 
 				for(annotations_t::const_iterator it=annotations.begin();it!=annotations.end();++it ){
-					const identifierId name = it->first;
-					info(DEBUG_INFO,"Info: Annotation:"+identifierIdToString(name),atOp );
+					const StringId name = it->first;
+					info(DEBUG_INFO,"Info: Annotation:"+name.toString(),atOp );
 //					const int pos = it->second;
 					if(name == Consts::ANNOTATION_ATTR_const){
 						flags |= Attribute::CONST_BIT;
@@ -868,13 +868,13 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 							flags |= Attribute::TYPE_ATTR_BIT;
 						}
 					}else {
-						throwError("Invalid annotation: '"+identifierIdToString(name)+'\'',atOp);
+						throwError("Invalid annotation: '"+name.toString()+'\'',atOp);
 					}
 				}
 			}
 
 		}
-		identifierId memberIdentifier;
+		StringId memberIdentifier;
 		Object * obj=NULL;
 
 		Object * indexExp=NULL;
@@ -1136,9 +1136,9 @@ Object * Parser::getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const
 		annotations_t annotations;
 		getAnnotations(ctxt,cursor+1,annotationTo-1,annotations);
 		for(annotations_t::const_iterator it=annotations.begin();it!=annotations.end();++it ){
-			const identifierId name = it->first;
+			const StringId name = it->first;
 			int parameterPos = it->second;
-			info(DEBUG_INFO,"Info: Annotation:"+identifierIdToString(name),superOp );
+			info(DEBUG_INFO,"Info: Annotation:"+name.toString(),superOp );
 //					const int pos = it->second;
 			if(name == Consts::ANNOTATION_FN_super){
 				if(parameterPos<0){
@@ -1146,7 +1146,7 @@ Object * Parser::getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const
 				}
 				getExpressionsInBrackets(ctxt,parameterPos,superConCallExpressions);
 			}else{
-				info(DEFAULT_WARNING,"Anntoation is invalid for functions: '"+identifierIdToString(name)+"'",superOp);
+				info(DEFAULT_WARNING,"Anntoation is invalid for functions: '"+name.toString()+"'",superOp);
 			}
 		}
 		cursor = annotationTo+1;
@@ -1190,7 +1190,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 	if (!tc) return Statement(Statement::TYPE_UNDEFINED);
 	++cursor;
 
-	identifierId cId=tc->getId();
+	StringId cId=tc->getId();
 	/// if-Control
 	if(cId==Consts::IDENTIFIER_if){
 		if (!Token::isA<TStartBracket>(tokens.at(cursor)))
@@ -1399,10 +1399,10 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		++cursor;
 		Statement action=getStatement(ctxt,cursor);
 
-		static const identifierId itId(stringToIdentifierId("__id"));
-		static const identifierId getIteratorId(stringToIdentifierId("getIterator"));
-		static const identifierId keyFnId(stringToIdentifierId("key"));
-		static const identifierId valueFnId(stringToIdentifierId("value"));
+		static const StringId itId("__id");
+		static const StringId getIteratorId("getIterator");
+		static const StringId keyFnId("key");
+		static const StringId valueFnId("value");
 
 		// var __it;
 		loopWrappingBlock->declareVar(itId);
@@ -1457,7 +1457,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 
 		loopWrappingBlock->setJumpPosA( loopWrappingBlock->getNextPos() );
 		// if( __it.end() )	break;
-		static const identifierId endId(stringToIdentifierId("end"));
+		static const StringId endId("end");
 		Object * condition = new FunctionCall(
 								new GetAttribute(new GetAttribute(NULL,itId),endId ),std::vector<ObjRef>());
 		loopWrappingBlock->addStatement( Statement(
@@ -1477,7 +1477,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		// :continue
 		loopWrappingBlock->setContinuePos( loopWrappingBlock->getNextPos() );
 		// __it.next();
-		static const identifierId nextFnId(stringToIdentifierId("next"));
+		static const StringId nextFnId("next");
 		loopWrappingBlock->addStatement( createStatement(
 						new FunctionCall(
 							new GetAttribute(new GetAttribute(NULL,itId),nextFnId ),std::vector<ObjRef>())));
@@ -1515,7 +1515,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		++cursor;
 		TIdentifier * tIdent=NULL;
 
-		identifierId varName=0;
+		StringId varName;
 		bool hasVarName=false;
 		if ((tIdent=Token::cast<TIdentifier>(tokens.at(cursor)))) {
 			++cursor;
@@ -1599,7 +1599,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 /*!	getLValue
 */
 Parser::lValue_t Parser::getLValue(ParsingContext & ctxt,int from,int to,Object * & obj,
-								identifierId & identifier,Object * &indexExpression)const  {
+								StringId & identifier,Object * &indexExpression)const  {
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	/// Single Element: "a"
 	if (to==from) {
@@ -1633,7 +1633,7 @@ Parser::lValue_t Parser::getLValue(ParsingContext & ctxt,int from,int to,Object 
 
 			if (top && top->getOperator()->getString()==".") {
 				obj=getExpression(ctxt,from,to-2);
-				identifier=stringToIdentifierId(s->toString());
+				identifier = s->toString();
 				return LVALUE_MEMBER;
 			}
 		}
@@ -1785,7 +1785,7 @@ UserFunction::parameterList_t * Parser::getFunctionParameters(ParsingContext & c
 
 		// find identifierName, its position, the default expression and identify a multiParam
 		int idPos=-1;
-		identifierId name=0;
+		StringId name;
 		Object * defaultExpression=NULL;
 		bool multiParam=false;
 		while(true){

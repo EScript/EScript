@@ -96,7 +96,7 @@ void StdLib::print_r(Object * o,int maxLevel,int level) {
 /*! Tries to locate the given __filename__ with the current searchPath set in the runtime.
 	@return the path to the file or the original __filename__ if the file could not be found.	*/
 static std::string findFile(Runtime & runtime, const std::string & filename){
-	static const identifierId seachPathsId=stringToIdentifierId("__searchPaths");
+	static const StringId seachPathsId("__searchPaths");
 
 	std::string file(IO::condensePath(filename));
 	if( IO::getEntryType(file)!=IO::TYPE_FILE ){
@@ -140,7 +140,7 @@ Object * StdLib::load(Runtime & runtime,const std::string & filename){
 
 //! (static)
 Object * StdLib::loadOnce(Runtime & runtime,const std::string & filename){
-	static const identifierId mapId=stringToIdentifierId("__loadOnce_loadedFiles");
+	static const StringId mapId("__loadOnce_loadedFiles");
 
 	std::string condensedFilename( IO::condensePath(findFile(runtime,filename)) );
 	Map * m=dynamic_cast<Map*>(runtime.getAttribute(mapId).getValue());
@@ -178,7 +178,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	/*!	[ESF] void addSearchPath(path)
 		Adds a search path which is used for load(...) and loadOnce(...)	*/
 	ES_FUNCTION_DECLARE(globals,"addSearchPath",1,1,{
-		static const identifierId seachPathsId=stringToIdentifierId("__searchPaths");
+		static const StringId seachPathsId("__searchPaths");
 		Array * searchPaths = dynamic_cast<Array*>(runtime.getAttribute(seachPathsId).getValue());
 		if(searchPaths == NULL){
 			searchPaths = Array::create();
@@ -268,7 +268,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	ES_FUNCTION_DECLARE(globals,"parse",1,1, {
 		assertParamCount(runtime,parameter.count(),1,1);
 		ERef<Block> block(new Block());
-		static const identifierId inline_id = stringToIdentifierId("[inline]");
+		static const StringId inline_id("[inline]");
 		block->setFilename(inline_id);
 		try{
 			Parser p;

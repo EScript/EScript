@@ -48,9 +48,9 @@ public:
 
 
 	//! ---|> Object
-	virtual Attribute * _accessAttribute(const identifierId id,bool localOnly){
-		static const identifierId ID_m1 = stringToIdentifierId("m1");
-		static const identifierId ID_m2 = stringToIdentifierId("m2");
+	virtual Attribute * _accessAttribute(const StringId id,bool localOnly){
+		static const StringId ID_m1("m1");
+		static const StringId ID_m2("m2");
 
 		if(id==ID_m1){
 			return &m1;
@@ -81,8 +81,6 @@ public:
 // ----------------------------------------------------------------------------
 
 int main(int argc,char * argv[]) {
-//	std::cout << std::map<
-
 	EScript::init();
 
 	// --- Init the TestObejct-Type

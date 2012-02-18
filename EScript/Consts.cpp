@@ -6,51 +6,51 @@
 
 namespace EScript{
 
-const identifierId Consts::IDENTIFIER_attr_printableName=stringToIdentifierId("_printableName");
-const identifierId Consts::IDENTIFIER_this=stringToIdentifierId("this");
-//const identifierId Indentifier::IDENTIFIER_parent=stringToIdentifierId("_parent");
-const identifierId Consts::IDENTIFIER_thisFn=stringToIdentifierId("thisFn");
-const identifierId Consts::IDENTIFIER_fn_call=stringToIdentifierId("_call");
-const identifierId Consts::IDENTIFIER_fn_constructor=stringToIdentifierId("_constructor");
-const identifierId Consts::IDENTIFIER_fn_less=stringToIdentifierId("<");
-const identifierId Consts::IDENTIFIER_fn_greater=stringToIdentifierId(">");
-const identifierId Consts::IDENTIFIER_fn_equal=stringToIdentifierId("==");
-const identifierId Consts::IDENTIFIER_fn_identical=stringToIdentifierId("===");
-const identifierId Consts::IDENTIFIER_fn_getIterator=stringToIdentifierId("getIterator");
-const identifierId Consts::IDENTIFIER_fn_get=stringToIdentifierId("_get");
-const identifierId Consts::IDENTIFIER_fn_set=stringToIdentifierId("_set");
+const StringId Consts::IDENTIFIER_attr_printableName("_printableName");
+const StringId Consts::IDENTIFIER_this("this");
+//const StringId Indentifier::IDENTIFIER_parent("_parent");
+const StringId Consts::IDENTIFIER_thisFn("thisFn");
+const StringId Consts::IDENTIFIER_fn_call("_call");
+const StringId Consts::IDENTIFIER_fn_constructor("_constructor");
+const StringId Consts::IDENTIFIER_fn_less("<");
+const StringId Consts::IDENTIFIER_fn_greater(">");
+const StringId Consts::IDENTIFIER_fn_equal("==");
+const StringId Consts::IDENTIFIER_fn_identical("===");
+const StringId Consts::IDENTIFIER_fn_getIterator("getIterator");
+const StringId Consts::IDENTIFIER_fn_get("_get");
+const StringId Consts::IDENTIFIER_fn_set("_set");
 
-const identifierId Consts::IDENTIFIER_true=stringToIdentifierId("true");
-const identifierId Consts::IDENTIFIER_false=stringToIdentifierId("false");
-const identifierId Consts::IDENTIFIER_void=stringToIdentifierId("void");
-const identifierId Consts::IDENTIFIER_null=stringToIdentifierId("null");
+const StringId Consts::IDENTIFIER_true("true");
+const StringId Consts::IDENTIFIER_false("false");
+const StringId Consts::IDENTIFIER_void("void");
+const StringId Consts::IDENTIFIER_null("null");
 
-const identifierId Consts::IDENTIFIER_as=stringToIdentifierId("as");
-const identifierId Consts::IDENTIFIER_break=stringToIdentifierId("break");
-const identifierId Consts::IDENTIFIER_catch=stringToIdentifierId("catch");
-const identifierId Consts::IDENTIFIER_continue=stringToIdentifierId("continue");
-const identifierId Consts::IDENTIFIER_do=stringToIdentifierId("do");
-const identifierId Consts::IDENTIFIER_else=stringToIdentifierId("else");
-const identifierId Consts::IDENTIFIER_exit=stringToIdentifierId("exit");
-const identifierId Consts::IDENTIFIER_for=stringToIdentifierId("for");
-const identifierId Consts::IDENTIFIER_foreach=stringToIdentifierId("foreach");
-const identifierId Consts::IDENTIFIER_if=stringToIdentifierId("if");
-const identifierId Consts::IDENTIFIER_namespace=stringToIdentifierId("namespace");
-const identifierId Consts::IDENTIFIER_return=stringToIdentifierId("return");
-const identifierId Consts::IDENTIFIER_throw=stringToIdentifierId("throw");
-const identifierId Consts::IDENTIFIER_try=stringToIdentifierId("try");
-const identifierId Consts::IDENTIFIER_var=stringToIdentifierId("var");
-const identifierId Consts::IDENTIFIER_while=stringToIdentifierId("while");
-const identifierId Consts::IDENTIFIER_yield=stringToIdentifierId("yield");
+const StringId Consts::IDENTIFIER_as("as");
+const StringId Consts::IDENTIFIER_break("break");
+const StringId Consts::IDENTIFIER_catch("catch");
+const StringId Consts::IDENTIFIER_continue("continue");
+const StringId Consts::IDENTIFIER_do("do");
+const StringId Consts::IDENTIFIER_else("else");
+const StringId Consts::IDENTIFIER_exit("exit");
+const StringId Consts::IDENTIFIER_for("for");
+const StringId Consts::IDENTIFIER_foreach("foreach");
+const StringId Consts::IDENTIFIER_if("if");
+const StringId Consts::IDENTIFIER_namespace("namespace");
+const StringId Consts::IDENTIFIER_return("return");
+const StringId Consts::IDENTIFIER_throw("throw");
+const StringId Consts::IDENTIFIER_try("try");
+const StringId Consts::IDENTIFIER_var("var");
+const StringId Consts::IDENTIFIER_while("while");
+const StringId Consts::IDENTIFIER_yield("yield");
 
-const identifierId Consts::ANNOTATION_ATTR_const=stringToIdentifierId("const");
-const identifierId Consts::ANNOTATION_ATTR_init=stringToIdentifierId("init");
-const identifierId Consts::ANNOTATION_ATTR_member=stringToIdentifierId("member");
-const identifierId Consts::ANNOTATION_ATTR_private=stringToIdentifierId("private");
-const identifierId Consts::ANNOTATION_ATTR_public=stringToIdentifierId("public");
-const identifierId Consts::ANNOTATION_ATTR_type=stringToIdentifierId("type");
-const identifierId Consts::ANNOTATION_FN_super=stringToIdentifierId("super");
+const StringId Consts::ANNOTATION_ATTR_const("const");
+const StringId Consts::ANNOTATION_ATTR_init("init");
+const StringId Consts::ANNOTATION_ATTR_member("member");
+const StringId Consts::ANNOTATION_ATTR_private("private");
+const StringId Consts::ANNOTATION_ATTR_public("public");
+const StringId Consts::ANNOTATION_ATTR_type("type");
+const StringId Consts::ANNOTATION_FN_super("super");
 
-const identifierId Consts::IDENTIFIER_LINE=stringToIdentifierId("__LINE__");
+const StringId Consts::IDENTIFIER_LINE("__LINE__");
 
 }

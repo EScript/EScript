@@ -9,7 +9,7 @@
 
 namespace EScript{
 
-/*! Wrapper object for an identifierId
+/*! Wrapper object for an StringId
 	[Identifier]  ---|> [Object]  */
 class Identifier:public Object{
 	ES_PROVIDES_TYPE_NAME(Identifier)
@@ -24,26 +24,26 @@ class Identifier:public Object{
 	// -----
 
 		/*! (static) Factory */
-		static Identifier * create( identifierId id);
+		static Identifier * create( StringId id);
 
 		/*! (static) Factory */
 		static Identifier * create( const std::string & s);
 
 	private:
-		Identifier(const identifierId &_id);
+		Identifier(const StringId &_id);
 	public:
 		virtual ~Identifier();
 
 	private:
-		identifierId id;
+		StringId id;
 	public:
-		identifierId getId()const {	return id;	}
+		StringId getId()const {	return id;	}
 
 		/// ---|> [Object]
 		virtual Identifier * clone()const;
 		virtual bool rt_isEqual(Runtime & rt,const ObjPtr o);
 		virtual std::string toString()const;
-		virtual identifierId hash()const	{	return id;	}
+		virtual StringId hash()const	{	return id;	}
 };
 //	@}
 

@@ -28,9 +28,9 @@ class RuntimeBlock:public EReferenceCounter<RuntimeBlock,RuntimeBlock> {
 
 		Block * getStaticBlock()const		{   return staticBlock; }
 
-		bool assignToVariable(Runtime & rt,const identifierId id,Object * val);
-		void initLocalVariable(const identifierId id,Object * val)		{	localVariables.declare(id,val);	}
-		Object * getLocalVariable(const identifierId id)				{	return localVariables.find(id);	}
+		bool assignToVariable(Runtime & rt,const StringId id,Object * val);
+		void initLocalVariable(const StringId id,Object * val)		{	localVariables.declare(id,val);	}
+		Object * getLocalVariable(const StringId id)				{	return localVariables.find(id);	}
 
 		void resetStatementCursor()	{	currentStatement=staticBlock->getStatements().begin();	}
 		Statement * nextStatement()	{

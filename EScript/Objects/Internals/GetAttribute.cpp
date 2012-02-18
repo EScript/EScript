@@ -7,14 +7,14 @@
 using namespace EScript;
 
 //! (ctor)
-GetAttribute::GetAttribute(Object * obj,identifierId _attrId):
+GetAttribute::GetAttribute(Object * obj,StringId _attrId):
 		objRef(obj),attrId(_attrId) {
 	//ctor
 }
 
 //! (ctor)
 GetAttribute::GetAttribute(Object * obj,const std::string & attrName):
-		objRef(obj),attrId(stringToIdentifierId(attrName)) {
+		objRef(obj),attrId(StringId(attrName)) {
 	//ctor
 }
 
@@ -29,6 +29,6 @@ std::string GetAttribute::toString()const {
 	if (!objRef.isNull()) {
 		s+=objRef.toString()+'.';
 	}
-	s+=identifierIdToString(attrId);
+	s += attrId.toString();
 	return s;
 }

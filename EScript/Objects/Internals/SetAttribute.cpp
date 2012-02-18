@@ -7,14 +7,14 @@
 using namespace EScript;
 
 //! static
-SetAttribute * SetAttribute::createAssignment(Object * obj,identifierId attrId,Object * valueExp,int _line){
+SetAttribute * SetAttribute::createAssignment(Object * obj,StringId attrId,Object * valueExp,int _line){
 	SetAttribute * sa  = new SetAttribute(obj,attrId,valueExp,0,_line) ;
 	sa->assign = true;
 	return sa;
 }
 
 //! (ctor)
-SetAttribute::SetAttribute(Object * obj,identifierId _attrId,Object * _valueExp,Attribute::flag_t _attrFlags,int _line):
+SetAttribute::SetAttribute(Object * obj,StringId _attrId,Object * _valueExp,Attribute::flag_t _attrFlags,int _line):
 		objExpr(obj),valueExpr(_valueExp),attrId(_attrId),attrFlags(_attrFlags),line(_line),assign(false) {
 	//ctor
 }

@@ -16,62 +16,62 @@
 namespace EScript {
 
 //! (static)
-void declareFunction(Type * type, identifierId nameId, Function::functionPtr fn) {
+void declareFunction(Type * type, StringId nameId, Function::functionPtr fn) {
 	type->setAttribute(nameId, Attribute(new Function(nameId, 0, -1, fn),Attribute::TYPE_ATTR_BIT));
 }
 
 //! (static)
 void declareFunction(Type * type, const char * name, Function::functionPtr fn) {
-	declareFunction(type, stringToIdentifierId(name), fn);
+	declareFunction(type, StringId(name), fn);
 }
 
 //! (static)
-void declareFunction(Type * type, identifierId nameId, int minParamCount, int maxParamCount, Function::functionPtr fn) {
+void declareFunction(Type * type, StringId nameId, int minParamCount, int maxParamCount, Function::functionPtr fn) {
 	type->setAttribute(nameId, Attribute(new Function(nameId, minParamCount, maxParamCount, fn),Attribute::TYPE_ATTR_BIT));
 }
 
 //! (static)
 void declareFunction(Type * type, const char * name, int minParamCount, int maxParamCount, Function::functionPtr fn) {
-	declareFunction(type, stringToIdentifierId(name), minParamCount, maxParamCount, fn);
+	declareFunction(type, StringId(name), minParamCount, maxParamCount, fn);
 }
 
 //! (static)
 void declareConstant(Type * type, const char * name, Object * value) {
-	declareConstant(type, stringToIdentifierId(name), value);
+	declareConstant(type, StringId(name), value);
 }
 
 //! (static)
-void declareConstant(Type * type, identifierId nameId, Object * value) {
+void declareConstant(Type * type, StringId nameId, Object * value) {
 	type->setAttribute(nameId, Attribute(value,Attribute::TYPE_ATTR_BIT|Attribute::CONST_BIT));
 }
 
 //! (static)
-void declareFunction(Namespace * nameSpace, identifierId nameId, Function::functionPtr fn) {
+void declareFunction(Namespace * nameSpace, StringId nameId, Function::functionPtr fn) {
 	nameSpace->setAttribute(nameId, Attribute(new Function(nameId, 0, -1, fn)));
 }
 
 //! (static)
 void declareFunction(Namespace * nameSpace, const char * name, Function::functionPtr fn) {
-	declareFunction(nameSpace, stringToIdentifierId(name), fn);
+	declareFunction(nameSpace, StringId(name), fn);
 }
 
 //! (static)
-void declareFunction(Namespace * nameSpace, identifierId nameId, int minParamCount, int maxParamCount, Function::functionPtr fn) {
+void declareFunction(Namespace * nameSpace, StringId nameId, int minParamCount, int maxParamCount, Function::functionPtr fn) {
 	nameSpace->setAttribute(nameId, Attribute(new Function(nameId, minParamCount, maxParamCount, fn)));
 }
 
 //! (static)
 void declareFunction(Namespace * nameSpace, const char * name, int minParamCount, int maxParamCount, Function::functionPtr fn) {
-	declareFunction(nameSpace, stringToIdentifierId(name), minParamCount, maxParamCount, fn);
+	declareFunction(nameSpace, StringId(name), minParamCount, maxParamCount, fn);
 }
 
 //! (static)
 void declareConstant(Namespace * nameSpace, const char * name, Object * value) {
-	declareConstant(nameSpace, stringToIdentifierId(name), value);
+	declareConstant(nameSpace, StringId(name), value);
 }
 
 //! (static)
-void declareConstant(Namespace * nameSpace, identifierId nameId, Object * value) {
+void declareConstant(Namespace * nameSpace, StringId nameId, Object * value) {
 	nameSpace->setAttribute(nameId, Attribute(value,Attribute::CONST_BIT));
 }
 
@@ -108,7 +108,7 @@ void assertType_throwError(Runtime & runtime, const ObjPtr & obj,const char * cl
 }
 
 //! (static)
-Object * callMemberFunction(Runtime & rt, ObjPtr obj, identifierId fnNameId, const ParameterValues & params) {
+Object * callMemberFunction(Runtime & rt, ObjPtr obj, StringId fnNameId, const ParameterValues & params) {
 	if (obj.isNull()) {
 		return NULL;
 	}
@@ -117,7 +117,7 @@ Object * callMemberFunction(Runtime & rt, ObjPtr obj, identifierId fnNameId, con
 
 //! (static)
 Object * callMemberFunction(Runtime & rt, ObjPtr obj, const std::string & fnName, const ParameterValues & params) {
-	return callMemberFunction(rt, obj, stringToIdentifierId(fnName), params);
+	return callMemberFunction(rt, obj, StringId(fnName), params);
 }
 
 //! (static)
@@ -181,7 +181,7 @@ std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & fi
 //! (static)
 std::pair<bool, ObjRef> executeStream(Runtime & runtime, std::istream & stream) {
 	ERef<Block> rootBlock = new Block;
-	rootBlock->setFilename(EScript::stringToIdentifierId("stdin"));
+	rootBlock->setFilename(StringId("stdin"));
 	
 	std::string streamData;
 	while(stream.good()) {

@@ -59,7 +59,7 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 		//! ---o
 		virtual Object * clone()const;
 		//! ---o
-		virtual identifierId hash()const;
+		virtual StringId hash()const;
 
 		/*! ---o
 			\note For camparing objects, never use this function directly but use isEqual(...) instead.
@@ -114,7 +114,7 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 			\note Should not be called directly. Use get(Local)Attribute(...) instead.
 			\note Has to be overridden if an Object type should support user defined attributes.
 		*/
-		virtual Attribute * _accessAttribute(const identifierId id,bool localOnly);
+		virtual Attribute * _accessAttribute(const StringId id,bool localOnly);
 				
 		/*! ---o (internal)
 		This function is called by the runtime after a new Object has been created in the script using "new". The 
@@ -129,8 +129,8 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 				const Attribute & attr = obj->getLocalAttribute("attrName");
 				if(attr.isNull()) ...
 		*/
-		const Attribute & getLocalAttribute(const identifierId id)const;
-		const Attribute & getLocalAttribute(const char * key)const				{	return getLocalAttribute(EScript::stringToIdentifierId(key));	}
+		const Attribute & getLocalAttribute(const StringId id)const;
+//		const Attribute & getLocalAttribute(const char * key)const				{	return getLocalAttribute(EScript::stringToIdentifierId(key));	}
 		
 		/*! Get the attribute with the given id. The attribute can be stored locally or be accessible by the object's type.
 			If the attribute is not found, the resulting attribute references NULL.
@@ -138,19 +138,19 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 				const Attribute & attr = obj->getAttribute("doesNotExist");
 				if(attr.isNull()) ...
 		*/
-		const Attribute & getAttribute(const identifierId id)const;
-		const Attribute & getAttribute(const char * key)const					{	return getAttribute(EScript::stringToIdentifierId(key));	}
+		const Attribute & getAttribute(const StringId id)const;
+//		const Attribute & getAttribute(const char * key)const					{	return getAttribute(EScript::stringToIdentifierId(key));	}
 
 		/*!	---o 
 			Try to set the value of an object attribute.
 			Returns false if the attribute can not be set.
 			\note Has to be overridden if an Object type should support user defined attributes. */
-		virtual bool setAttribute(const identifierId id,const Attribute & attr);
-		bool setAttribute(const char * key,const Attribute & attr)				{	return setAttribute(EScript::stringToIdentifierId(key),attr);	}
+		virtual bool setAttribute(const StringId id,const Attribute & attr);
+//		bool setAttribute(const char * key,const Attribute & attr)				{	return setAttribute(EScript::stringToIdentifierId(key),attr);	}
 
 		/*! ---o
 			Collect all attributes in a map; used for debugging. */
-		virtual void getLocalAttributes(std::map<identifierId,Object *> & )		{	}
+		virtual void getLocalAttributes(std::map<StringId,Object *> & )		{	}
 	// @}
 
 	// -------------------------

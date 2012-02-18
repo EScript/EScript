@@ -15,16 +15,16 @@ namespace EScript {
 class SetAttribute : public Object {
 		ES_PROVIDES_TYPE_NAME(SetAttribute)
 	public:
-		static SetAttribute * createAssignment(Object * obj,identifierId attrId,Object * valueExp,int _line=-1);
+		static SetAttribute * createAssignment(Object * obj,StringId attrId,Object * valueExp,int _line=-1);
 		
-		SetAttribute(Object * obj,identifierId attrId,Object * valueExp,Attribute::flag_t _attrFlags,int _line=-1);
+		SetAttribute(Object * obj,StringId attrId,Object * valueExp,Attribute::flag_t _attrFlags,int _line=-1);
 		virtual ~SetAttribute();
 
-		identifierId getAttrId()const   	{   return attrId;  }
+		StringId getAttrId()const   	{   return attrId;  }
 		Object * getObjectExpression()  	{   return objExpr.get();    }
 		Attribute::flag_t getAttributeFlags()  	{   return attrFlags;    }
 		Object * getValueExpression()  		{   return valueExpr.get();    }
-		std::string getAttrName()const		{   return identifierIdToString(attrId);    }
+		std::string getAttrName()const		{   return attrId.toString();    }
 
 		int getLine()const					{	return line;	}
 
@@ -36,7 +36,7 @@ class SetAttribute : public Object {
 		friend class Runtime;
 		ObjRef objExpr;
 		ObjRef valueExpr;
-		identifierId attrId;
+		StringId attrId;
 		Attribute::flag_t attrFlags;
 		int line;
 		bool assign;

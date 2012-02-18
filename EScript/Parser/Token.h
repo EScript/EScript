@@ -70,15 +70,15 @@ class Token:public EReferenceCounter<Token> {
 // -----
 class TIdentifier :  public Token {
 	private:
-		identifierId id;
+		StringId id;
 	public:
 		static const uint32_t TYPE_ID=0x01 << 0;
 		static uint32_t getTypeId()			{	return TYPE_ID;	}
 
-		TIdentifier(identifierId _id) : Token(getTypeId()),id(_id)	{	 }
-		virtual std::string toString()const      {  	return identifierIdToString(id);	}
+		TIdentifier(StringId _id) : Token(getTypeId()),id(_id)	{	 }
+		virtual std::string toString()const	{  	return id.toString();	}
 
-		identifierId getId()const          	{   return id;     }
+		StringId getId()const          		{   return id;     }
 		virtual Token * clone()const		{   return new TIdentifier(id);   }
 
 };
@@ -87,23 +87,23 @@ class TIdentifier :  public Token {
 class TControl :  public Token {
 	public:
 		static const uint32_t TYPE_ID=0x01 << 1;
-		static uint32_t getTypeId()			{	return TYPE_ID;	}
+		static uint32_t getTypeId()				{	return TYPE_ID;	}
 		TControl(const char * _name) : id(stringToIdentifierId(_name)) {   }
-		TControl(identifierId _id) : Token(getTypeId()),id(_id) {   }
-		virtual std::string toString()const  	{   return identifierIdToString(id);    }
-		identifierId getId()const           {   return id;    }
-		virtual Token * clone()const		{   return new TControl(id);  }
+		TControl(StringId _id) : Token(getTypeId()),id(_id) {   }
+		virtual std::string toString()const  	{   return id.toString();    }
+		StringId getId()const           		{   return id;    }
+		virtual Token * clone()const			{   return new TControl(id);  }
 	private:
-		identifierId id;
+		StringId id;
 };
 // -----
 struct TEndCommand :  public Token {
 	static const uint32_t TYPE_ID=0x01 << 2;
-	TEndCommand() : Token(getTypeId()) 	{   }
+	TEndCommand() : Token(getTypeId()) 		{   }
 	virtual std::string toString()const		{	return ";";	}
-	virtual Token * clone()const 		{	return new TEndCommand();	}
+	virtual Token * clone()const 			{	return new TEndCommand();	}
 
-	static uint32_t getTypeId()			{	return TYPE_ID;	}
+	static uint32_t getTypeId()				{	return TYPE_ID;	}
 };
 
 // -----
@@ -178,10 +178,10 @@ struct TColon :  public Token {
 // -----
 struct TObject :  public Token {
 	static const uint32_t TYPE_ID=0x01 << 10;
-	static uint32_t getTypeId()			{	return TYPE_ID;	}
+	static uint32_t getTypeId()					{	return TYPE_ID;	}
 	TObject(Object * _obj)  : Token(getTypeId()),obj(_obj) {}
 	virtual std::string toString()const 		{	return obj.toString();	}
-	virtual Token * clone()const 		{	return new TObject(obj->clone());	}
+	virtual Token * clone()const 				{	return new TObject(obj->clone());	}
 	ObjRef obj;
 };
 
@@ -190,15 +190,15 @@ struct TOperator :  public Token {
 	static const uint32_t TYPE_ID=0x01 << 11;
 	static uint32_t getTypeId()			{	return TYPE_ID;	}
 	TOperator(const std::string & s,const int _type=getTypeId())  : Token(_type)	{	op=Operator::getOperator(s);	}
-	TOperator(int id)  : Token(getTypeId())					{	op=Operator::getOperator(id);	}
+	TOperator(StringId id)  : Token(getTypeId())					{	op = Operator::getOperator(id);	}
 	TOperator(const Operator * _op) : Token(getTypeId()),op(_op) {}
 
-	int getPrecedence() 				{	return op->getPrecedence();	}
-	int getAssociativity() 				{	return op->getAssociativity();	}
-	const Operator * getOperator()const {	return op;	}
+	int getPrecedence() 						{	return op->getPrecedence();	}
+	int getAssociativity() 						{	return op->getAssociativity();	}
+	const Operator * getOperator()const			{	return op;	}
 
 	virtual std::string toString()const 		{	return op->getString();	}
-	virtual Token * clone()const 		{	return new TOperator(op);	}
+	virtual Token * clone()const 				{	return new TOperator(op);	}
 
 	private:
 		const Operator * op;

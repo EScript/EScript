@@ -34,17 +34,17 @@ class UserFunction : public ExtObject {
 		/*! [Parameter] */
 		class Parameter {
 			private:
-				identifierId name;
+				StringId name;
 				ObjRef defaultValueExpressionRef;
 				ObjRef typeRef;
 				bool multiParam;
 			public:
-				explicit Parameter(identifierId  name,Object * defaultValueExpression=NULL,Object * type=NULL);
+				explicit Parameter(const StringId & name,Object * defaultValueExpression=NULL,Object * type=NULL);
 				~Parameter();
 				std::string toString()const;
 
 				Parameter* clone()const;
-				identifierId getName()const					{   return name;    }
+				StringId getName()const						{   return name;    }
 				Object * getType()const						{   return typeRef.get();   }
 
 				void setMultiParam(bool b)					{   multiParam=b;   }

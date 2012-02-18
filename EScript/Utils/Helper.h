@@ -26,18 +26,18 @@ class Type;
 //@{
 
 /*! Add a type Function attribute to @p type with given name. */
-void declareFunction(Type * type, identifierId nameId, Function::functionPtr fn);
+void declareFunction(Type * type, StringId nameId, Function::functionPtr fn);
 void declareFunction(Type * type, const char * name, Function::functionPtr fn);
-void declareFunction(Type * type, identifierId nameId, int minParamCount, int maxParamCount, Function::functionPtr fn);
+void declareFunction(Type * type, StringId nameId, int minParamCount, int maxParamCount, Function::functionPtr fn);
 void declareFunction(Type * type, const char * name, int minParamCount, int maxParamCount, Function::functionPtr fn);
-void declareConstant(Type * type, identifierId nameId, Object * value);
+void declareConstant(Type * type, StringId nameId, Object * value);
 void declareConstant(Type * type, const char * name, Object * value);
 
-void declareFunction(Namespace * nameSpace, identifierId nameId, Function::functionPtr fn);
+void declareFunction(Namespace * nameSpace, StringId nameId, Function::functionPtr fn);
 void declareFunction(Namespace * nameSpace, const char * name, Function::functionPtr fn);
-void declareFunction(Namespace * nameSpace, identifierId nameId, int minParamCount, int maxParamCount, Function::functionPtr fn);
+void declareFunction(Namespace * nameSpace, StringId nameId, int minParamCount, int maxParamCount, Function::functionPtr fn);
 void declareFunction(Namespace * nameSpace, const char * name, int minParamCount, int maxParamCount, Function::functionPtr fn);
-void declareConstant(Namespace * nameSpace, identifierId nameId, Object * value);
+void declareConstant(Namespace * nameSpace, StringId nameId, Object * value);
 void declareConstant(Namespace * nameSpace, const char * name, Object * value);
 
 void initPrintableName(Type * type, const std::string & printableName);
@@ -76,7 +76,7 @@ template<class T> static T * assertType(Runtime & runtime, const ObjPtr & obj) {
 	return t;
 }
 
-Object * callMemberFunction(Runtime & rt, ObjPtr obj, identifierId fnNameId, const ParameterValues & params);
+Object * callMemberFunction(Runtime & rt, ObjPtr obj, StringId fnNameId, const ParameterValues & params);
 Object * callMemberFunction(Runtime & rt, ObjPtr obj, const std::string & fnName, const ParameterValues & params);
 Object * callFunction(Runtime & rt, Object * function, const ParameterValues & params);
 

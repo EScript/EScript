@@ -47,7 +47,7 @@ void Type::init(EScript::Namespace & globals) {
 
 	// attrMap_t is declared outside of the getObjAttributes declaration as it otherwise leads to a strange
 	// preprocessor error on gcc.
-	typedef std::map<identifierId, Object *> attrMap_t;
+	typedef std::map<StringId, Object *> attrMap_t;
 
 	//! [ESMF] Map Type.getObjAttributes()
 	ES_MFUNCTION_DECLARE(typeObject,const Type,"getObjAttributes",0,0,{
@@ -65,7 +65,7 @@ void Type::init(EScript::Namespace & globals) {
 
 	//! [ESMF] self Object.setTypeAttribute(key,value)
 	ESMF_DECLARE(typeObject,Type,"setTypeAttribute",2,2,
-				(self->setAttribute(parameter[0]->hash(),Attribute(parameter[1],Attribute::TYPE_ATTR_BIT)),self))
+				(self->setAttribute(parameter[0].toString(),Attribute(parameter[1],Attribute::TYPE_ATTR_BIT)),self))
 }
 
 //---
@@ -110,14 +110,14 @@ static const char * typeAttrErrorHint =
 	"or adding object attributes to a Type whose instances cannot store object attributes. ";
 
 
-Attribute * Type::findTypeAttribute(const identifierId id){
+Attribute * Type::findTypeAttribute(const StringId id){
 	Type * t=this;
 	do{
 		Attribute * attr = t->attributes.accessAttribute(id);
 		if( attr != NULL ){
 			if( attr->isObjAttribute() ){
 				std::string message = "(findTypeAttribute) type-attribute expected but object-attribute found. ('";
-				message += identifierIdToString(id) + "')\n" + typeAttrErrorHint;
+				message += id.toString() + "')\n" + typeAttrErrorHint;
 				throw new Exception(message);
 			}
 			return attr;
@@ -129,7 +129,7 @@ Attribute * Type::findTypeAttribute(const identifierId id){
 
 
 //! ---|> Object
-Attribute * Type::_accessAttribute(const identifierId id,bool localOnly){
+Attribute * Type::_accessAttribute(const StringId id,bool localOnly){
 	// is local attribute?
 	Attribute * attr = attributes.accessAttribute(id);
 	if(attr!=NULL || localOnly)
@@ -146,7 +146,7 @@ Attribute * Type::_accessAttribute(const identifierId id,bool localOnly){
 }
 
 //! ---|> Object
-bool Type::setAttribute(const identifierId id,const Attribute & attr){
+bool Type::setAttribute(const StringId id,const Attribute & attr){
 	attributes.setAttribute(id,attr);
 	if(attr.isObjAttribute())
 		setFlag(FLAG_CONTAINS_OBJ_ATTRS,true);
@@ -165,14 +165,14 @@ void Type::copyObjAttributesTo(Object * instance){
 	}
 }
 
-void Type::getTypeAttributes(std::map<identifierId,Object *> & attrs)const{
+void Type::getTypeAttributes(std::map<StringId,Object *> & attrs)const{
 	for(AttributeContainer::const_iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
 		if(it->second.isTypeAttribute())
 			attrs[it->first] = it->second.getValue();
 	}
 }
 
-void Type::getObjAttributes(std::map<identifierId,Object *> & attrs)const{
+void Type::getObjAttributes(std::map<StringId,Object *> & attrs)const{
 	for(AttributeContainer::const_iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
 		if(it->second.isObjAttribute())
 			attrs[it->first] = it->second.getValue();
@@ -180,7 +180,7 @@ void Type::getObjAttributes(std::map<identifierId,Object *> & attrs)const{
 }
 
 //! ---|> Object
-void Type::getLocalAttributes(std::map<identifierId,Object *> & attrs){
+void Type::getLocalAttributes(std::map<StringId,Object *> & attrs){
 	for(AttributeContainer::iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
 		attrs[it->first] = it->second.getValue();
 	}

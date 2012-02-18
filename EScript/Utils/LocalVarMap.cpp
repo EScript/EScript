@@ -41,7 +41,7 @@ void  LocalVarMap::reset(){
 }
 
 //! findAndUpdate
-bool LocalVarMap::findAndUpdate(identifierId varId,Object * val) {
+bool LocalVarMap::findAndUpdate(StringId varId,Object * val) {
 	objMap_t::iterator i=getValues()->find(varId);
 	if(i==getValues()->end())
 		return false;

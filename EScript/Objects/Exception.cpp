@@ -78,9 +78,9 @@ std::string Exception::toString()const {
 	sprinter << "[#"<<getTypeName();
 
 	sprinter << " \""<<msg<<"\"";
-	if(getLine()>=0 || getFilenameId()!=0){
+	if(getLine()>=0 || !getFilenameId().empty()){
 		sprinter<<" near ";
-		if(getFilenameId()!=0)
+		if(!getFilenameId().empty())
 			sprinter<<"'"<<getFilename()<<"'";
 		if(getLine()>=0)
 			sprinter<<":"<<getLine();

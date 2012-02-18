@@ -21,7 +21,7 @@
 namespace EScript {
 
 //! (static)
-Token * Tokenizer::identifyStaticToken(identifierId id){
+Token * Tokenizer::identifyStaticToken(StringId id){
 	static tokenMap_t constants;
 	// init
 	if(constants.empty()){
@@ -58,7 +58,7 @@ Token * Tokenizer::identifyStaticToken(identifierId id){
 }
 
 //! (internal)
-Token * Tokenizer::identifyToken(identifierId id)const{
+Token * Tokenizer::identifyToken(StringId id)const{
 	tokenMap_t::const_iterator it=customTokens.find(id);
 	if(it!=customTokens.end())
 		return it->second.get();
@@ -67,7 +67,7 @@ Token * Tokenizer::identifyToken(identifierId id)const{
 
 //! (internal)
 void Tokenizer::defineToken(const std::string & name,Token * value){
-	customTokens[stringToIdentifierId(name)]=value;
+	customTokens[StringId(name)] = value;
 }
 
 //! (ctor)
@@ -87,7 +87,7 @@ void Tokenizer::getTokens( const char * prog,tokenList_t & tokens)  throw (Excep
 
 	Token * token;
 	do {
-		token=readNextToken(prog,cursor,line,startPos,tokens);
+		token = readNextToken(prog,cursor,line,startPos,tokens);
 		if (token!=NULL) {
 			token->setLine(line);
 			token->setStaringPos(startPos);
@@ -166,7 +166,7 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_
 			cursor++;
 			c=prog[cursor];
 		}
-		identifierId id=EScript::stringToIdentifierId(accum);
+		const StringId id(accum);
 		Token * o=identifyToken(id);
 		if (o!=NULL) {
 			return o->clone();

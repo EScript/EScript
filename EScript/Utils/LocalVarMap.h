@@ -36,14 +36,14 @@ class LocalVarMap {
 		void reset();
 //        void clearValues();
 
-		inline Object * find(const identifierId id)const{
+		inline Object * find(const StringId id)const{
 			objMap_t::const_iterator i=getValues()->find(id);
 			return (i==getValues()->end() || i->second.empty()) ?
 				NULL : i->second.top().get();
 		}
 
-		bool findAndUpdate(const identifierId id,Object * val);
-		inline void declare(const identifierId varId,Object * val){
+		bool findAndUpdate(const StringId id,Object * val);
+		inline void declare(const StringId varId,Object * val){
 			objStack_t & s=(*getValues())[varId];
 			s.push(val);
 			localVars.push(&s);
@@ -53,7 +53,7 @@ class LocalVarMap {
 		// ---- internals
 	private:
 		typedef std::stack<ObjRef> objStack_t;
-		typedef std::map<identifierId,objStack_t > objMap_t;
+		typedef std::map<StringId,objStack_t > objMap_t;
 		inline objMap_t * getValues()const 		{	return values;	}
 
 		LocalVarMap * parent;

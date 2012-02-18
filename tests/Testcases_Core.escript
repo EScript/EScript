@@ -930,10 +930,10 @@ if(!benchmark)
 //
 //	Runtime._setErrorConfig(0);
 
-	var A = new Type();
-	A.m ::= 1;
-	var a = new A();
-	a.m = 2;
+//	var A = new Type();
+//	A.m ::= 1;
+//	var a = new A();
+//	a.m = 2;
 }
 //
 //}

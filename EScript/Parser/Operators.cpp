@@ -11,7 +11,7 @@ namespace EScript {
 Operator::operatorMap_t Operator::ops;
 
 //! (static)
-const Operator * Operator::getOperator(identifierId id) {
+const Operator * Operator::getOperator(StringId id) {
 	if(ops.empty()){
 		int p=-1;
 		declareOperator(p   ,"UNKNOWN");
@@ -78,18 +78,13 @@ const Operator * Operator::getOperator(identifierId id) {
 }
 
 //! (static)
-const Operator * Operator::getOperator(const std::string & op) {
-	return getOperator(stringToIdentifierId(op));
-}
-
-//! (static)
 void Operator::declareOperator(int precedence,const std::string & op,associativity_t associativity){
-	const identifierId id(stringToIdentifierId(op));
+	const StringId id(op);
 	ops.insert(std::make_pair(id, Operator(id,precedence,op,associativity)));
 }
 
 //! (ctor)
-Operator::Operator(identifierId _id,int _precedence,const std::string & _s,associativity_t _associativity):
+Operator::Operator(StringId _id,int _precedence,const std::string & _s,associativity_t _associativity):
 		id(_id),precedence(_precedence),s(_s),associativity(_associativity) {
 }
 

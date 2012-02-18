@@ -20,22 +20,22 @@ class Block : public Object {
 		typedef std::deque<Statement > statementList;
 		typedef statementList::iterator statementCursor;
 		typedef statementList::const_iterator cStatementCursor;
-		typedef std::set<identifierId>  declaredVariableMap_t;
+		typedef std::set<StringId>  declaredVariableMap_t;
 
 		Block(int lineNr=-1);
 		virtual ~Block();
 
 		statementList & getStatements()                 {   return statements;  }
-		void setFilename(identifierId filename)  		{   filenameId=filename;  }
-		std::string getFilename()const                  {   return identifierIdToString(filenameId);    }
+		void setFilename(StringId filename)  			{   filenameId=filename;  }
+		std::string getFilename()const                  {   return filenameId.toString();    }
 		int getLine()const								{	return line;	}
 
 
 		/*! returns false if variable was already declared */
-		bool declareVar(const std::string & s)			{	return declareVar(EScript::stringToIdentifierId(s));	}
-		bool declareVar(identifierId id);
+//		bool declareVar(const std::string & s)			{	return declareVar(EScript::stringToIdentifierId(s));	}
+		bool declareVar(StringId id);
 		const declaredVariableMap_t * getVars()const 	{ 	return vars;    }
-		bool isLocalVar(identifierId id)				{	return vars==NULL ? false : vars->count(id)>0;	}
+		bool isLocalVar(StringId id)				{	return vars==NULL ? false : vars->count(id)>0;	}
 		void addStatement(const Statement & s);
 		bool hasLocalVars()const						{	return vars!=NULL && !vars->empty(); }
 
@@ -43,7 +43,7 @@ class Block : public Object {
 		virtual std::string toString()const ;
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_BLOCK; }
 	private:
-		identifierId filenameId; // for debugging
+		StringId filenameId; // for debugging
 		declaredVariableMap_t * vars;
 		statementList statements;
 		int line;

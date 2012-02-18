@@ -39,7 +39,7 @@ std::string Block::toString()const {
 	return sprinter.str();
 }
 
-bool Block::declareVar(identifierId id) {
+bool Block::declareVar(StringId id) {
 	if(vars==NULL){
 		vars=new declaredVariableMap_t();
 	}

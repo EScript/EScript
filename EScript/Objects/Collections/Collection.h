@@ -37,7 +37,7 @@ class Collection : public ExtObject {
 		virtual bool rt_contains(Runtime & runtime,ObjPtr value);
 		virtual Object * rt_reduce(Runtime & runtime,ObjPtr function,ObjPtr initialValue, const ParameterValues & additionalValues);
 		virtual Object * rt_map(Runtime & runtime,ObjPtr function, const ParameterValues & additionalValues);
-		virtual Object * rt_extract(Runtime & runtime,identifierId functionId,bool decision=true);
+		virtual Object * rt_extract(Runtime & runtime,StringId functionId,bool decision=true);
 
 
 		/// ---|> Object

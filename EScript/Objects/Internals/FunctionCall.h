@@ -15,19 +15,19 @@ class FunctionCall : public Object {
 		ES_PROVIDES_TYPE_NAME(FunctionCall)
 	public:
 		FunctionCall(Object * exp,const std::vector<ObjRef> & parameter,bool isConstructorCall=false,
-					identifierId filename=0, int line=-1);
+					StringId filename=StringId(), int line=-1);
 		virtual ~FunctionCall() {}
 
-		Object * getStatement()const    			{   return expRef.get();    }
+		Object * getStatement()const    				{   return expRef.get();    }
 
-		int getLine()const        					{   return lineNumber;  }
-		void setLine(int i)      					{   lineNumber=i;   }
-		void setFilename(const std::string & filename)  {   filenameId=stringToIdentifierId(filename);  }
-		std::string getFilename()const                  {   return identifierIdToString(filenameId);    }
+		int getLine()const        						{   return lineNumber;  }
+		void setLine(int i)      						{   lineNumber = i;   }
+		void setFilename(const std::string & filename)  {   filenameId = filename;  }
+		std::string getFilename()const                  {   return filenameId.toString();    }
 
-		bool isConstructorCall()const				{	return constructorCall; }
-		size_t getNumParams()const					{	return parameters.size(); }
-		Object * getParamExpression(size_t i)const	{	return parameters[i].get();	}
+		bool isConstructorCall()const					{	return constructorCall; }
+		size_t getNumParams()const						{	return parameters.size(); }
+		Object * getParamExpression(size_t i)const		{	return parameters[i].get();	}
 
 		/// ---|> [Object]
 		virtual std::string toString()const;
@@ -39,7 +39,7 @@ class FunctionCall : public Object {
 		std::vector<ObjRef> parameters;
 		bool constructorCall;
 		int lineNumber; // for debugging
-		identifierId filenameId; // for debugging
+		StringId filenameId; // for debugging
 };
 }
 

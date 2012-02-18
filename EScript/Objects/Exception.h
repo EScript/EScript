@@ -29,10 +29,10 @@ class Exception : public ExtObject {
 		const std::string & getStackInfo()const				{	return stackInfo;	}
 		void setStackInfo(const std::string & s)			{	stackInfo=s;	}
 
-		void setFilename(const std::string & filename)		{   filenameId=stringToIdentifierId(filename);  }
-		void setFilenameId(identifierId _filenameId)		{   filenameId=_filenameId;  }
-		std::string getFilename()const                  	{   return identifierIdToString(filenameId);    }
-		identifierId getFilenameId()const                  	{   return filenameId;    }
+		void setFilename(const std::string & filename)		{   filenameId = filename;  }
+		void setFilenameId(StringId _filenameId)			{   filenameId = _filenameId;  }
+		std::string getFilename()const                  	{   return filenameId.toString();    }
+		StringId getFilenameId()const                  		{   return filenameId;    }
 
 		/// ---|> [Object]
 		virtual Object * clone()const;
@@ -42,7 +42,7 @@ class Exception : public ExtObject {
 		std::string msg;
 		std::string stackInfo;
 		int line;
-		identifierId filenameId;
+		StringId filenameId;
 };
 
 }

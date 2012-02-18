@@ -10,7 +10,7 @@
 using namespace EScript;
 
 //! (ctor) UserFunction::Parameter
-UserFunction::Parameter::Parameter(identifierId _name,Object * defaultValueExpression/*=NULL*/,Object * type/*=NULL*/):
+UserFunction::Parameter::Parameter(const StringId & _name,Object * defaultValueExpression/*=NULL*/,Object * type/*=NULL*/):
 	name(_name),defaultValueExpressionRef(defaultValueExpression),typeRef(type),multiParam(false){
 }
 
@@ -19,7 +19,7 @@ UserFunction::Parameter::~Parameter(){
 }
 
 std::string UserFunction::Parameter::toString()const{
-	std::string s=typeRef.toString()+' '+EScript::identifierIdToString(name);
+	std::string s=typeRef.toString()+' '+name.toString();
 	if(!defaultValueExpressionRef.isNull())
 		s+='='+defaultValueExpressionRef->toDbgString();
 	if(multiParam)

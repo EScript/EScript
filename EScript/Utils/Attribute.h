@@ -6,6 +6,7 @@
 #define ES_Attribute_H
 
 #include "ObjRef.h"
+#include "StringId.h"
 #include <stdint.h>
 
 namespace EScript {

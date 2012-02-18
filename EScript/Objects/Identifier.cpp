@@ -27,17 +27,17 @@ void Identifier::init(EScript::Namespace & globals) {
 }
 
 //! (static)
-Identifier * Identifier::create( identifierId id){
+Identifier * Identifier::create( StringId id){
 	return new Identifier(id);
 }
 
 //! (static)
 Identifier * Identifier::create( const std::string & s){
-	return new Identifier(stringToIdentifierId(s));
+	return new Identifier(s);
 }
 
 //! (ctor)
-Identifier::Identifier(const identifierId &_id):
+Identifier::Identifier(const StringId &_id):
 		Object(getTypeObject()),id(_id) {
 	//ctor
 }
@@ -49,7 +49,7 @@ Identifier::~Identifier() {
 
 //! ---|> [Object]
 std::string Identifier::toString()const {
-	return identifierIdToString(getId());
+	return getId().toString();
 }
 
 //! ---|> [Object]

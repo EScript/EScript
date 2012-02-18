@@ -14,12 +14,12 @@ namespace EScript {
 class GetAttribute : public Object {
 		ES_PROVIDES_TYPE_NAME(GetAttribute)
 	public:
-		GetAttribute(Object * obj,identifierId attrId);
+		GetAttribute(Object * obj,StringId attrId);
 		GetAttribute(Object * obj,const std::string & attrName);
 		virtual ~GetAttribute();
 
-		identifierId getAttrId()const			{   return attrId;  }
-		const std::string & getAttrName()const	{   return identifierIdToString(attrId);    }
+		StringId getAttrId()const				{   return attrId;  }
+		const std::string & getAttrName()const	{   return attrId.toString();    }
 		Object * getObjectExpression()			{   return objRef.get();    }
 
 		/// ---|> [Object]
@@ -28,7 +28,7 @@ class GetAttribute : public Object {
 
 	private:
 		ObjRef objRef;
-		identifierId attrId;
+		StringId attrId;
 };
 }
 

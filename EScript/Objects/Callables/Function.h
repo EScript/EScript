@@ -27,14 +27,14 @@ class Function : public Object {
 		typedef Object * ( * functionPtr)(Runtime & runtime,Object * caller, const ParameterValues & parameter);
 		// ---
 		Function(functionPtr fnptr);
-		Function(identifierId originalName, int minParamCount, int maxParamCount, functionPtr fnptr);
+		Function(StringId originalName, int minParamCount, int maxParamCount, functionPtr fnptr);
 		virtual ~Function();
 
 		int getCallCounter()const							{	return callCounter;	}
 		functionPtr getFnPtr()const							{	return fnptr;	}
 		int getMaxParamCount()const							{	return maxParamCount;	}
 		int getMinParamCount()const							{	return minParamCount;	}
-		identifierId getOriginalName()const					{	return originalName;	}
+		StringId getOriginalName()const						{	return originalName;	}
 		void increaseCallCounter()							{	++callCounter;	}
 		void resetCallCounter()								{	callCounter=0;	}
 
@@ -44,7 +44,7 @@ class Function : public Object {
 	private:
 		functionPtr fnptr;
 		int minParamCount,maxParamCount;
-		identifierId originalName;
+		StringId originalName;
 		int callCounter;
 };
 

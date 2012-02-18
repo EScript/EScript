@@ -76,7 +76,7 @@ void RuntimeBlock::init(RuntimeContext * _ctxt,const Block * _staticBlock,Runtim
 
 
 /*!	changed due to BUG[20090424] */
-bool RuntimeBlock::assignToVariable(Runtime & rt,const identifierId id,Object * val) {
+bool RuntimeBlock::assignToVariable(Runtime & rt,const StringId id,Object * val) {
 	// look for local variable
 	if (localVariables.findAndUpdate(id,val)){
 		return true;

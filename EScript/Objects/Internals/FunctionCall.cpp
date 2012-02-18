@@ -13,7 +13,7 @@ using namespace EScript;
 
 //! (ctor)
 FunctionCall::FunctionCall(Object * exp,const std::vector<ObjRef> & parameterVec,bool _isConstructorCall,
-						identifierId filename,int line/*=-1*/):
+						StringId filename,int line/*=-1*/):
 		expRef(exp),parameters(parameterVec.begin(), parameterVec.end()),constructorCall(_isConstructorCall),
 		lineNumber(line),filenameId(filename){
 	//ctor

@@ -129,7 +129,7 @@ Namespace * Runtime::getGlobals()const	{
 	return globals.get();
 }
 
-Object * Runtime::readMemberAttribute(Object * obj,const identifierId id){
+Object * Runtime::readMemberAttribute(Object * obj,const StringId id){
 	try{
 		Attribute * attr = obj->_accessAttribute(id,false);
 		if(attr==NULL){
@@ -149,7 +149,7 @@ Object * Runtime::readMemberAttribute(Object * obj,const identifierId id){
 
 //!	@note Redesign due to [BUG20080324]
 //! \note calls setCallingObject
-Object * Runtime::getVariable(const identifierId id) {
+Object * Runtime::getVariable(const StringId id) {
 	RuntimeBlock * rtb = getCurrentContext()->getCurrentRTB();
 	if(rtb) {
 		Object * result=NULL;
@@ -169,14 +169,14 @@ Object * Runtime::getVariable(const identifierId id) {
 	return globals->getLocalAttribute(id).getValue();
 }
 
-Object * Runtime::getGlobalVariable(const identifierId id) {
+Object * Runtime::getGlobalVariable(const StringId id) {
 	// \note getLocalAttribute is used to skip the members of Type
 	// 	which are otherwise found as false global variables  [BUG20100618]
 	return globals->getLocalAttribute(id).getValue();
 }
 
 //! redesign because of BUG[20090424]
-void Runtime::assignToVariable(const identifierId id,Object * value) {
+void Runtime::assignToVariable(const StringId id,Object * value) {
 	// search for local variable (bla)
 	RuntimeBlock * rtb = getCurrentContext()->getCurrentRTB();
 	if (rtb && rtb->assignToVariable(*this,id,value)) {
@@ -186,14 +186,14 @@ void Runtime::assignToVariable(const identifierId id,Object * value) {
 		// assigned to global variable
 		return;
 	}else{
-		warn("Variable '"+identifierIdToString(id)+"' is not defined, assuming local variable.");
+		warn("Variable '"+id.toString()+"' is not defined, assuming local variable.");
 		if(rtb)
 			rtb->initLocalVariable(id,value);
 	}
 }
 
 
-bool Runtime::assignToAttribute(ObjPtr obj,identifierId attrId,ObjPtr value){
+bool Runtime::assignToAttribute(ObjPtr obj,StringId attrId,ObjPtr value){
 	Attribute * attr = obj->_accessAttribute(attrId,false);
 	if(attr == NULL)
 		return false;
@@ -818,7 +818,7 @@ RuntimeContext * Runtime::createAndPushFunctionCallContext(const ObjPtr & _calli
 
 	for (size_t i=0;i<numberOfAssignedParameters;++i) {
 		ObjRef valueRef;
-		identifierId name=(*paramExpressions)[i]->getName();
+		StringId name=(*paramExpressions)[i]->getName();
 
 		if(i<paramValues.count() && !paramValues[i].isNull() ){
 			valueRef=paramValues.get(i);
@@ -826,7 +826,7 @@ RuntimeContext * Runtime::createAndPushFunctionCallContext(const ObjPtr & _calli
 		else{
 			Object* defaultValueExpression=(*paramExpressions)[i]->getDefaultValueExpression();
 			if(defaultValueExpression==NULL){
-				warn("Too few parameters given, missing \""+EScript::identifierIdToString((*paramExpressions)[i]->getName())+"\"");
+				warn("Too few parameters given, missing \""+(*paramExpressions)[i]->getName().toString()+"\"");
 				valueRef = Void::get(); // init missing value with "void"
 			}else{
 				valueRef=executeObj(defaultValueExpression);
@@ -844,7 +844,7 @@ RuntimeContext * Runtime::createAndPushFunctionCallContext(const ObjPtr & _calli
 
 	// assign multiParam
 	if(!multiParam.isNull()){
-		identifierId name=(*paramExpressions)[paramExpSize-1]->getName();
+		StringId name=(*paramExpressions)[paramExpSize-1]->getName();
 
 		for (size_t i=numberOfAssignedParameters;i<paramValues.count();++i) {
 			ObjRef valueRef=paramValues.get(i);
@@ -867,7 +867,7 @@ RuntimeContext * Runtime::createAndPushFunctionCallContext(const ObjPtr & _calli
 }
 
 /*! (internal) Called by createAndPushFunctionCallContext(...)*/
-bool Runtime::checkType(const identifierId & name, Object * obj,Object *typeExpression){
+bool Runtime::checkType(const StringId & name, Object * obj,Object *typeExpression){
 	if(obj==NULL)
 		return false;
 	ObjRef typeObj=executeObj(typeExpression);
@@ -885,7 +885,7 @@ bool Runtime::checkType(const identifierId & name, Object * obj,Object *typeExpr
 	}else if(obj->isA(typeObj.toType<Type>()) ||  obj->isIdentical(*this,typeObj)){
 		return true;
 	}
-	setException("Wrong value type for parameter '" + EScript::identifierIdToString(name)+"'. "+
+	setException("Wrong value type for parameter '" + name.toString()+"'. "+
 		"Expected object of type '"+typeExpression->toString()+"', but received object of type '"+obj->getTypeName()+"'.");
 	return false;
 }

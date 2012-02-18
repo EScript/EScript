@@ -43,19 +43,19 @@ class Runtime : public ExtObject  {
 	/// @name Variables
 	// 	@{
 	public:
-		Object * getVariable(const identifierId id);
-		Object * getGlobalVariable(const identifierId id);
+		Object * getVariable(const StringId id);
+		Object * getGlobalVariable(const StringId id);
 		Namespace * getGlobals()const;
 
-		void assignToVariable(const identifierId id,Object * value);
-		void assignToVariable(const std::string & name,Object * value) {
-			assignToVariable(EScript::stringToIdentifierId(name),value);
-		}
-		bool assignToAttribute(ObjPtr obj,identifierId attrId,ObjPtr value);
+		void assignToVariable(const StringId id,Object * value);
+//		void assignToVariable(const std::string & name,Object * value) {
+//			assignToVariable(EScript::stringToIdentifierId(name),value);
+//		}
+		bool assignToAttribute(ObjPtr obj,StringId attrId,ObjPtr value);
 	public:
 		/*! returns the object's attribute with the given id. If the attribute can not be found, NULL is returned.
 			If the attribute can be found but not accessed, a warning is emitted and NULL is returned. */
-		Object * readMemberAttribute(Object * obj,const identifierId id);
+		Object * readMemberAttribute(Object * obj,const StringId id);
 
 		ERef<Namespace> globals;
 	// 	@}
@@ -96,7 +96,7 @@ class Runtime : public ExtObject  {
 	private:
 		RuntimeContext * createAndPushFunctionCallContext(const ObjPtr & callingObject,UserFunction * ufun,const ParameterValues & paramValues);
 		Object * executeUserConstructor(const ObjPtr & _callingObject,const ParameterValues & paramValues);
-		bool checkType(const identifierId & name,Object * obj,Object *typeExpression);
+		bool checkType(const StringId & name,Object * obj,Object *typeExpression);
 		/*! (internal) Used to track the status of the active function calls (for stack traces) */
 		struct FunctionCallInfo{
 			FunctionCall * funCall;

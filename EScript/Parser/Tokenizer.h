@@ -21,9 +21,9 @@ namespace EScript {
 /*! [Tokenizer] */
 class Tokenizer {
 	public:
-		typedef std::map<identifierId, _CountedRef<Token> > tokenMap_t;
+		typedef std::map<StringId, _CountedRef<Token> > tokenMap_t;
 		typedef std::vector<_CountedRef<Token> > tokenList_t;
-		static Token * identifyStaticToken(identifierId id);
+		static Token * identifyStaticToken(StringId id);
 
 		Tokenizer();
 		virtual ~Tokenizer();
@@ -44,7 +44,7 @@ class Tokenizer {
 	private:
 
 		Token * readNextToken(const char * prog, int & cursor,int &line,size_t & startPos,tokenList_t & tokens) throw (Exception *);
-		Token * identifyToken(identifierId id)const;
+		Token * identifyToken(StringId id)const;
 
 		inline bool isNumber(char c) const;
 		inline bool isChar(char c) const;
