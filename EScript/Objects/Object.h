@@ -135,12 +135,14 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 				if(attr.isNull()) ...
 		*/
 		const Attribute & getAttribute(const StringId id)const;
+		const Attribute & getAttribute(const char * c_str)const					{	return getAttribute(StringId(c_str));	}
 
 		/*!	---o 
 			Try to set the value of an object attribute.
 			Returns false if the attribute can not be set.
 			\note Has to be overridden if an Object type should support user defined attributes. */
 		virtual bool setAttribute(const StringId id,const Attribute & attr);
+		bool setAttribute(const char * c_str,const Attribute & attr)			{	return setAttribute(StringId(c_str),attr);	}
 
 		/*! ---o
 			Collect all attributes in a map; used for debugging. */

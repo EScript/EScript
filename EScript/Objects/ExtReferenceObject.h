@@ -12,15 +12,25 @@
 namespace EScript {
 
 
-namespace Policies_AttributeProviders{
+namespace Policies{
 
-//! Use this policy to directly store the AttributeContainer inside the ExtReferenceObject.
-class storeInEObject{
+/*! Policy for locating an ExtRefernceObject's attribute storage.
+	Use this policy to directly store the AttributeContainer inside the ExtReferenceObject.
+	Alternative implementations could e.g. store the attributeContainer as user data at the referenced object. */
+class StoreAttrsInEObject_Policy{
 		AttributeContainer attributeContainer;
 	protected:
+		/*!	(static) Returns a pointer to the object's attributeContainer. If @param create is 'false' and
+			the object has no attributeContainer, the function returns NULL. If @param create is 'true' and no
+			attributeContainer exists, a new one is created, so that always an valid container is returned. */
 		static AttributeContainer * getAttributeContainer(storeInEObject * obj,bool /*create*/){
 			return &(obj->attributeContainer);
 		}
+		
+		/*! (static) Should return true iff the object's Type's attributes are already initialized with the 
+			object's attributeContainer. This function is only called by the ExtReferenceObject's constructor.
+			As for this specific policy, the attributeContainer has always just been created then, it can not already
+			been initialized. */
 		static bool areObjAttributesInitialized(storeInEObject * /*obj*/){
 			return false;
 		}
@@ -31,9 +41,9 @@ class storeInEObject{
 /*! [ExtReferenceObject] ---|> [Object]
 	A Ext(entable)ReferenceObject can be used as wrapper for user defined C++ objects that can be enriched by user
 	defined attributes. For a description how the C++-object is handled and how the equalityComparator works, \see ReferenceObject.h
-	The way the AttributeContainer is stored is controlled by @tparam attributeProvider.
+	The way the AttributeContainer is stored is controlled by the @tparam attributeProvider.
 */
-template <typename _T,typename equalityComparator = _RefObjEqComparators::EqualContent, typename attributeProvider = Policies_AttributeProviders::storeInEObject >
+template <typename _T,typename equalityComparator = _RefObjEqComparators::EqualContent, typename attributeProvider = Policies::StoreAttrsInEObject_Policy >
 class ExtReferenceObject : public Object, private attributeProvider {
 		ES_PROVIDES_TYPE_NAME(ExtReferenceObject)
 	public:
@@ -108,11 +118,6 @@ class ExtReferenceObject : public Object, private attributeProvider {
 			AttributeContainer * attrContainer = getAttributeContainer(this,false);
 			if(attrContainer!=NULL)
 				attrContainer->collectAttributes(attrs);
-		}
-
-
-		void cloneAttributesFrom(const ExtReferenceObject_t * other){
-			getAttributeContainer(this).cloneAttributesFrom(other->objAttributes);
 		}
 	// @}
 
