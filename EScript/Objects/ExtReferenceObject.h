@@ -23,7 +23,7 @@ class StoreAttrsInEObject_Policy{
 		/*!	(static) Returns a pointer to the object's attributeContainer. If @param create is 'false' and
 			the object has no attributeContainer, the function returns NULL. If @param create is 'true' and no
 			attributeContainer exists, a new one is created, so that always an valid container is returned. */
-		static AttributeContainer * getAttributeContainer(storeInEObject * obj,bool /*create*/){
+		static AttributeContainer * getAttributeContainer(StoreAttrsInEObject_Policy * obj,bool /*create*/){
 			return &(obj->attributeContainer);
 		}
 		
@@ -31,7 +31,7 @@ class StoreAttrsInEObject_Policy{
 			object's attributeContainer. This function is only called by the ExtReferenceObject's constructor.
 			As for this specific policy, the attributeContainer has always just been created then, it can not already
 			been initialized. */
-		static bool areObjAttributesInitialized(storeInEObject * /*obj*/){
+		static bool areObjAttributesInitialized(StoreAttrsInEObject_Policy * /*obj*/){
 			return false;
 		}
 };
