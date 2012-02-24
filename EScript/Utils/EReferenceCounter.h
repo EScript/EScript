@@ -5,6 +5,8 @@
 #ifndef EREFERENCECOUNTER_H
 #define EREFERENCECOUNTER_H
 
+#include <cstddef>
+
 namespace EScript {
 
 template<class Obj_t>

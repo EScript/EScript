@@ -5,6 +5,7 @@
 #ifndef OBJREF_H
 #define OBJREF_H
 
+#include <cstddef>
 #include <string>
 
 namespace EScript {

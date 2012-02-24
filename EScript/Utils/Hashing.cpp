@@ -38,7 +38,7 @@ identifierId EScript::stringToIdentifierId(const std::string & s){
 	identifierDB & db=getIdentifierDB();
 	identifierId id=_hash(s);
 	while(true){
-	identifierDB::iterator lbIt=db.lower_bound(id);
+		identifierDB::iterator lbIt=db.lower_bound(id);
 		if(lbIt==db.end() || db.key_comp()(id, lbIt->first) ){
 			// id not found -> insert it
 			db.insert(lbIt,std::make_pair(id,s));
