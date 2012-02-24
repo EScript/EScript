@@ -302,24 +302,34 @@ Object * Runtime::executeObj(Object * obj){
 							(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+'.'+sa->getAttrName()+'='+(value.isNull()?"":value->toDbgString())+')');
 				}
 			}
-		}else if(sa->getAttributeFlags()&Attribute::TYPE_ATTR_BIT){
-			Type * t=obj2.toType<Type>();
-			if(t){
-				t->setAttribute(sa->attrId,Attribute(value,sa->getAttributeFlags()));
-			}else{
-				warn(std::string("Can not set typeAttr to non-Type-Object: '")+sa->getAttrName()+"' ("+
-						(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+'.'+sa->getAttrName()+'='+(value.isNull()?"":value->toDbgString())+')'
-						+"Setting objAttr instead.");
-				if(!obj2->setAttribute(sa->attrId,Attribute(value,sa->getAttributeFlags() & ~(Attribute::TYPE_ATTR_BIT)))){ // fallback: set obj attribute
+		}else {
+			const Attribute::flag_t attrFlags = sa->getAttributeFlags();
+		
+			// check for @(override)
+			if(attrFlags&Attribute::OVERRITDE_BIT && obj2->_accessAttribute(sa->attrId,false)==NULL){
+				warn(std::string("No attribute to override: '")+sa->getAttrName()+"' ("+
+						(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+'.'+sa->getAttrName()+'='+(value.isNull()?"":value->toDbgString())+")");
+			}
+			if(attrFlags&Attribute::TYPE_ATTR_BIT){
+				Type * t=obj2.toType<Type>();
+				if(t){
+					t->setAttribute(sa->attrId,Attribute(value,attrFlags));
+				}else{
+					warn(std::string("Can not set typeAttr to non-Type-Object: '")+sa->getAttrName()+"' ("+
+							(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+'.'+sa->getAttrName()+'='+(value.isNull()?"":value->toDbgString())+')'
+							+"Setting objAttr instead.");
+					if(!obj2->setAttribute(sa->attrId,Attribute(value,attrFlags & ~(Attribute::TYPE_ATTR_BIT)))){ // fallback: set obj attribute
+						warn(std::string("Cannot set object attribute '")+sa->getAttrName()+"' ("+
+								(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+'.'+sa->getAttrName()+'='+(value.isNull()?"":value->toDbgString())+')');
+					}
+				}
+			}else { // obj attribute
+				if(!obj2->setAttribute(sa->attrId,Attribute(value,attrFlags)))
 					warn(std::string("Cannot set object attribute '")+sa->getAttrName()+"' ("+
 							(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+'.'+sa->getAttrName()+'='+(value.isNull()?"":value->toDbgString())+')');
-				}
+				
 			}
-		}else { // obj attribute
-			if(!obj2->setAttribute(sa->attrId,Attribute(value,sa->getAttributeFlags())))
-				warn(std::string("Cannot set object attribute '")+sa->getAttrName()+"' ("+
-						(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+'.'+sa->getAttrName()+'='+(value.isNull()?"":value->toDbgString())+')');
-			
+		
 		}
 		return value.detachAndDecrease();
 	}

@@ -55,6 +55,16 @@ out(t.m2,"\n");
 	
 }
 
+{
+	var A = new Type();
+	A.foo ::= $bar;
+	
+	var B = new Type(A);
+	B.foo @(override) ::= $foo;
+	B.foo2 @(override) ::= $foo;
+	
+	
+}
 
 //parser.getAnnotations ( positionOf@, end)
 //result:

@@ -46,6 +46,7 @@ const StringId Consts::IDENTIFIER_yield("yield");
 const StringId Consts::ANNOTATION_ATTR_const("const");
 const StringId Consts::ANNOTATION_ATTR_init("init");
 const StringId Consts::ANNOTATION_ATTR_member("member");
+const StringId Consts::ANNOTATION_ATTR_override("override");
 const StringId Consts::ANNOTATION_ATTR_private("private");
 const StringId Consts::ANNOTATION_ATTR_public("public");
 const StringId Consts::ANNOTATION_ATTR_type("type");

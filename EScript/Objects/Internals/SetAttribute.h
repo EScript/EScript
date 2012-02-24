@@ -20,13 +20,13 @@ class SetAttribute : public Object {
 		SetAttribute(Object * obj,StringId attrId,Object * valueExp,Attribute::flag_t _attrFlags,int _line=-1);
 		virtual ~SetAttribute();
 
-		StringId getAttrId()const   	{   return attrId;  }
-		Object * getObjectExpression()  	{   return objExpr.get();    }
-		Attribute::flag_t getAttributeFlags()  	{   return attrFlags;    }
-		Object * getValueExpression()  		{   return valueExpr.get();    }
-		std::string getAttrName()const		{   return attrId.toString();    }
-
-		int getLine()const					{	return line;	}
+		StringId getAttrId()const   					{   return attrId;  }
+		Object * getObjectExpression()const				{   return objExpr.get();    }
+		Attribute::flag_t getAttributeFlags()const  	{   return attrFlags;    }
+		Object * getValueExpression()const 		 		{   return valueExpr.get();    }
+		std::string getAttrName()const					{   return attrId.toString();    }
+	
+		int getLine()const								{	return line;	}
 
 		/// ---|> [Object]
 		virtual std::string toString()const;

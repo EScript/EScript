@@ -849,6 +849,8 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 						}else{
 							inverseFlags |= Attribute::TYPE_ATTR_BIT;
 						}
+					}else if(name == Consts::ANNOTATION_ATTR_override){
+						flags |= Attribute::OVERRITDE_BIT;
 					}else if(name == Consts::ANNOTATION_ATTR_private){
 						if(inverseFlags&Attribute::PRIVATE_BIT){
 							info(DEFAULT_WARNING,"Warning: '@(private)' is used in combination with @(public) and is ignored.",atOp);

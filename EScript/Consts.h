@@ -53,6 +53,7 @@ struct Consts{
 	static const StringId ANNOTATION_ATTR_const;
 	static const StringId ANNOTATION_ATTR_init;
 	static const StringId ANNOTATION_ATTR_member;
+	static const StringId ANNOTATION_ATTR_override;
 	static const StringId ANNOTATION_ATTR_private;
 	static const StringId ANNOTATION_ATTR_public;
 	static const StringId ANNOTATION_ATTR_type;
