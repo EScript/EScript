@@ -11,8 +11,8 @@
 namespace EScript {
 
 //! (internal) Collection of comparators used for comparing ReferenceObjects.
-namespace _RefObjEqComparators{ //! \todo --> Policies_RefObjEqComparators
-	struct EqualContent{
+namespace Policies{ //! \todo --> Policies_RefObjEqComparators
+	struct EqualContent_ComparePolicy{
 		template <typename ReferenceObject_t>
 		static inline bool isEqual(ReferenceObject_t * a,const ObjPtr b)	{
 			ReferenceObject_t * other = b.toType<ReferenceObject_t >();
@@ -20,7 +20,7 @@ namespace _RefObjEqComparators{ //! \todo --> Policies_RefObjEqComparators
 		}
 	};
 
-	struct SameEObjects{
+	struct SameEObjects_ComparePolicy{
 		static inline bool isEqual( Object * a,const ObjPtr b)	{	return a==b.get();	}
 	};
 }
@@ -30,17 +30,17 @@ namespace _RefObjEqComparators{ //! \todo --> Policies_RefObjEqComparators
 	data can be an object, a pointer or a smart reference and is defined by the first template parameter.
 
 	The second template parameter defines how two instances are compared during an test for equality.
-	If the default value '_RefObjEqComparators::EqualContent' is used, the two referenced values are
+	If the default value 'Policies::EqualContent_ComparePolicy' is used, the two referenced values are
 	compared using their '=='-operator (which has to be defined for the values's type).
-	If '_RefObjEqComparators::SameEObjects' is used, the pointers of the two compared ReferenceObject are used
+	If 'Policies::SameEObjects' is used, the pointers of the two compared ReferenceObject are used
 	for equality testing. The latter can be used if the values is an object (and not a reference) and
 	the this object does not define a '==' operator.
 */
-template <typename _T,typename equalityComparator = _RefObjEqComparators::EqualContent >
+template <typename _T,typename comparisonPolicy = Policies::EqualContent_ComparePolicy >
 class ReferenceObject : public Object {
 		ES_PROVIDES_TYPE_NAME(ReferenceObject)
 	public:
-		typedef ReferenceObject<_T,equalityComparator> ReferenceObject_t;
+		typedef ReferenceObject<_T,comparisonPolicy> ReferenceObject_t;
 
 		// ---
 		ReferenceObject(const _T & _obj, Type * type=NULL):
@@ -57,7 +57,7 @@ class ReferenceObject : public Object {
 
 		}
 		/// ---|> [Object]
-		virtual bool rt_isEqual(Runtime &,const ObjPtr o)	{	return equalityComparator::isEqual(this,o);	}
+		virtual bool rt_isEqual(Runtime &,const ObjPtr o)	{	return comparisonPolicy::isEqual(this,o);	}
 	private:
 		_T obj;
 };

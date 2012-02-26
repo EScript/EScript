@@ -40,14 +40,14 @@ class StoreAttrsInEObject_Policy{
 
 /*! [ExtReferenceObject] ---|> [Object]
 	A Ext(entable)ReferenceObject can be used as wrapper for user defined C++ objects that can be enriched by user
-	defined attributes. For a description how the C++-object is handled and how the equalityComparator works, \see ReferenceObject.h
+	defined attributes. For a description how the C++-object is handled and how the comparisonPolicy works, \see ReferenceObject.h
 	The way the AttributeContainer is stored is controlled by the @tparam attributeProvider.
 */
-template <typename _T,typename equalityComparator = _RefObjEqComparators::EqualContent, typename attributeProvider = Policies::StoreAttrsInEObject_Policy >
+template <typename _T,typename comparisonPolicy = Policies::EqualContent_ComparePolicy, typename attributeProvider = Policies::StoreAttrsInEObject_Policy >
 class ExtReferenceObject : public Object, private attributeProvider {
 		ES_PROVIDES_TYPE_NAME(ExtReferenceObject)
 	public:
-		typedef ExtReferenceObject<_T,equalityComparator,attributeProvider> ExtReferenceObject_t;
+		typedef ExtReferenceObject<_T,comparisonPolicy,attributeProvider> ExtReferenceObject_t;
 
 		// ---
 		ExtReferenceObject(const _T & _obj, Type * type=NULL) :
@@ -67,7 +67,7 @@ class ExtReferenceObject : public Object, private attributeProvider {
 			throw new Exception(std::string("Trying to clone unclonable object '")+this->toString()+"'");
 		}
 		/// ---|> [Object]
-		virtual bool rt_isEqual(Runtime &,const ObjPtr o)	{	return equalityComparator::isEqual(this,o);	}
+		virtual bool rt_isEqual(Runtime &,const ObjPtr o)	{	return comparisonPolicy::isEqual(this,o);	}
 
 
 	// -----
