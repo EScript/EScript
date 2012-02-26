@@ -123,13 +123,13 @@
 	// this should create a runtime error (Block.+ not found) OR a syntax error .
 	// (Not shure about what's better...)
 	var errorFound=false;
-	Runtime._setErrorConfig(Runtime.TREAT_WARNINGS_AS_ERRORS);
+	Runtime.setTreatWarningsAsError(true);
 	try{
 		parse('+out("");').execute();
 	}catch(e){
 		errorFound=true;
 	}
-	Runtime._setErrorConfig(0);
+	Runtime.setTreatWarningsAsError(false);
 
 	   test( "BUG[20080229]", errorFound );
 }
@@ -276,13 +276,13 @@
 	var a=new A();
 
 	var errorFound=false;
-	Runtime._setErrorConfig(Runtime.TREAT_WARNINGS_AS_ERRORS);
+	Runtime.setTreatWarningsAsError(true);
 	try{
 		a.thisShouldntBeHere;
 	}catch(e){
 		errorFound=true;
 	}
-	Runtime._setErrorConfig(0);
+	Runtime.setTreatWarningsAsError(false);
 	test( "BUG[20100605]", errorFound );
 	Type.thisShouldntBeHere=void;
 
@@ -290,13 +290,13 @@
 {	// Object member functions are accessible locally without an Object!
 
 	var errorFound=false;
-	Runtime._setErrorConfig(Runtime.TREAT_WARNINGS_AS_ERRORS);
+	Runtime.setTreatWarningsAsError(true);
 	try{
 		isSet; // this should not exist.
 	}catch(e){
 		errorFound=true;
 	}
-	Runtime._setErrorConfig(0);
+	Runtime.setTreatWarningsAsError(false);
 	test( "BUG[20100618]", errorFound );
 }
 { // do...while with continue does not re-check condition;
@@ -321,7 +321,7 @@
 { 	// undeclared member attribute not detected
 
 	var errorFound=false;
-	Runtime._setErrorConfig(Runtime.TREAT_WARNINGS_AS_ERRORS);
+	Runtime.setTreatWarningsAsError(true);
 	try{
 	var A=new Type();
 		A._constructor::=fn(){
@@ -331,11 +331,11 @@
 	}catch(e){
 		errorFound=true;
 	}
-	Runtime._setErrorConfig(0);
+	Runtime.setTreatWarningsAsError(false);
 	test( "BUG[20100815]", errorFound );
 }
 {	// assigning to an undefined member of a Type-Object results in a crash.
-	Runtime._setErrorConfig(Runtime.TREAT_WARNINGS_AS_ERRORS);
+	Runtime.setTreatWarningsAsError(true);
 	var ok=true;
 	try{
 		var a=new Type();
@@ -343,7 +343,7 @@
 		FOO.bla = 5;
 	}catch(e){
 	}
-	Runtime._setErrorConfig(0);
+	Runtime.setTreatWarningsAsError(false);
 	test( "BUG[20110217]", ok );
 }
 { // #17966	Wrong line number is reported when parameter type check fails
@@ -457,10 +457,11 @@
 	GLOBALS.__test20110604a := 1;
 	GLOBALS.__test20110604b := 2;
 
-	Runtime._setErrorConfig(Runtime.IGNORE_WARNINGS);
+	var l = Runtime.getLoggingLevel();
+	Runtime.setLoggingLevel(Runtime.ERROR); // ignore warnings
 	test( "BUG[20110604]",
 			(fn(__test20110604a,__test20110604b) { return void == __test20110604a && void == __test20110604b;	} )() );
-	Runtime._setErrorConfig(0);
+	Runtime.setLoggingLevel(l);
 }
 {	// if a file is loaded that returns a UserFunction, this function is destroyed during loading and the system crashes.
 
@@ -483,13 +484,13 @@
 }
 {	// calling library functions which do not accept parameters does not produce a warning.
 	var errorFound=false;
-	Runtime._setErrorConfig(Runtime.TREAT_WARNINGS_AS_ERRORS);
+	Runtime.setTreatWarningsAsError(true);
 	try{
 		clock(12,3,4);
 	}catch(e){
 		errorFound=true;
 	}
-	Runtime._setErrorConfig(0);
+	Runtime.setTreatWarningsAsError(false);
 	test( "BUG[20110905]", errorFound );
 }
 {	// late added object attributes result in unexpected behavior and should issue a warning on access.
@@ -501,7 +502,7 @@
 	A.m := 1;
 
 	var exceptionCounter=0;
-	Runtime._setErrorConfig(Runtime.TREAT_WARNINGS_AS_ERRORS);
+	Runtime.setTreatWarningsAsError(true);
 	try{	a.m;		}catch(e){	++exceptionCounter;	}
 	try{	a.m = 1;	}catch(e){	++exceptionCounter;	}
 	try{	B.m;		}catch(e){	++exceptionCounter;	}
@@ -516,13 +517,13 @@
 	try{	c.m = 1;	}catch(e){	++exceptionCounter;	}
 
 
-	Runtime._setErrorConfig(0);
+	Runtime.setTreatWarningsAsError(false);
 	test( "BUG[20110918]", exceptionCounter == 6 );
 }
 
 
 {	// assignment to inherited static attributes does not work.
-	Runtime._setErrorConfig(Runtime.TREAT_WARNINGS_AS_ERRORS);
+	Runtime.setTreatWarningsAsError(true);
 	var errorFound=false;
 	try{
 		var A := new Type();
@@ -537,7 +538,7 @@
 	}catch(e){
 		errorFound = true;
 	}
-	Runtime._setErrorConfig(0);
+	Runtime.setTreatWarningsAsError(false);
 	test( "BUG[20120215]", !errorFound );
 
 }

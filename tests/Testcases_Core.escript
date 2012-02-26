@@ -926,9 +926,6 @@ if(!benchmark)
 		exceptionCaught = true;
 	}
 	test("Inheritance restrictions:",exceptionCaught);
-//	Runtime._setErrorConfig(Runtime.TREAT_WARNINGS_AS_ERRORS);
-//
-//	Runtime._setErrorConfig(0);
 
 //	var A = new Type();
 //	A.m ::= 1;
@@ -942,7 +939,7 @@ if(!benchmark)
 //
 //	// Function parameter checks
 //	out("\n Function Tests..\n");
-//	Runtime._setErrorConfig(Runtime.TREAT_WARNINGS_AS_ERRORS);
+//	Runtime.setTreatWarningsAsError(true);
 //
 //	var exceptionCount = 0;
 //	var okCount = 0;
@@ -970,7 +967,7 @@ if(!benchmark)
 //
 //	out(":",__LINE__,"\n");
 //	out(exceptionCount , "\t", okCount );
-//	Runtime._setErrorConfig(0);
+//	Runtime.setTreatWarningsAsError(false);
 //
 //}
 //out("\n");

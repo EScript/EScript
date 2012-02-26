@@ -120,9 +120,7 @@ void Parser::log(Logger::level_t messageLevel, const std::string & msg,const _Co
 	logger->log(messageLevel,os.str());
 }
 
-/**
- *  Loads and parses a File.
- */
+//! Loads and parses a File.
 Block * Parser::parseFile(const std::string & filename) {
 	StringData content;
 	try{
@@ -137,9 +135,7 @@ Block * Parser::parseFile(const std::string & filename) {
 	return rootBlock.detachAndDecrease();
 }
 
-/**
- *  Parse a CString.
- */
+//! Parse a CString.
 Object * Parser::parse(Block * rootBlock,const StringData & c) {
 	tokenizer.defineToken("__FILE__",new TObject(String::create(rootBlock->getFilename())));
 	tokenizer.defineToken("__DIR__",new TObject(String::create(IO::dirname(rootBlock->getFilename()))));
@@ -172,9 +168,7 @@ Object * Parser::parse(Block * rootBlock,const StringData & c) {
 	return statement.getExpression();
 }
 
-/**
- * [Helper]
- */
+//! [Helper]
 struct _BlockInfo {
 	Token * token;
 	unsigned int index;
@@ -608,7 +602,7 @@ Statement Parser::createStatement(Object *exp)const{
 	return Statement(Statement::TYPE_EXPRESSION,exp);
 }
 
-/*! (internal) */
+//! (internal)
 Statement Parser::getStatement(ParsingContext & ctxt,int & cursor,int to)const{
 
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
@@ -684,7 +678,7 @@ Block * Parser::getBlock(ParsingContext & ctxt,int & cursor)const {
 	return b;
 }
 
-/*!	getMap */
+//!	getMap
 Object * Parser::getMap(ParsingContext & ctxt,int & cursor)const  {
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	if (!Token::isA<TStartMap>(tokens.at(cursor)))
@@ -1601,8 +1595,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 	}
 }
 
-/*!	getLValue
-*/
+//!	getLValue
 Parser::lValue_t Parser::getLValue(ParsingContext & ctxt,int from,int to,Object * & obj,
 								StringId & identifier,Object * &indexExpression)const  {
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;

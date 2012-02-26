@@ -5,9 +5,9 @@
 #ifndef RUNTIME_H
 #define RUNTIME_H
 
-#include "../Objects/ExtObject.h"
-//#include "RuntimeBlock.h"
 #include "RuntimeContext.h"
+#include "../Objects/ExtObject.h"
+#include "../Utils/Logger.h"
 #include "../Utils/ObjRef.h"
 #include "../Utils/ObjArray.h"
 #include <stack>
@@ -20,7 +20,7 @@ class Block;
 class UserFunction;
 class Exception;
 class FunctionCall;
-class LoggerGroup;
+
 
 /*! [Runtime] ---|> [ExtObject]    */
 class Runtime : public ExtObject  {
@@ -178,14 +178,10 @@ class Runtime : public ExtObject  {
 	/// @name Debugging
 	// 	@{
 	public:
+		Logger::level_t getLoggingLevel()				{	return logger->getMinLevel();	}
+		void setLoggingLevel(Logger::level_t level)		{	logger->setMinLevel(level);	}
+		void setTreatWarningsAsError(bool b);
 		
-		//! \todo Replace errorConfig completely by using the logger 
-		static const unsigned int ES_IGNORE_WARNINGS=1<<0;
-		static const unsigned int ES_TREAT_WARNINGS_AS_ERRORS=1<<1;
-
-		void setErrorConfig(unsigned int _errorConfig);
-		unsigned int getErrorConfig()					{	return this->errorConfig;	}
-
 		int getCurrentLine()const;
 		std::string getCurrentFile()const;
 		LoggerGroup * getLogger()const					{	return logger.get();	}
@@ -193,7 +189,6 @@ class Runtime : public ExtObject  {
 		std::string getStackInfo();
 	private:
 		_CountedRef<LoggerGroup> logger;
-		unsigned int errorConfig;
 	// 	@}
 
 };

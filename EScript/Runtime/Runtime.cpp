@@ -45,22 +45,18 @@ void Runtime::init(EScript::Namespace & globals) {
 	
 	declareConstant(&globals,getClassName(),typeObject);
 
-	declareConstant(typeObject,"IGNORE_WARNINGS",Number::create(Runtime::ES_IGNORE_WARNINGS));
-	declareConstant(typeObject,"TREAT_WARNINGS_AS_ERRORS",Number::create(Runtime::ES_TREAT_WARNINGS_AS_ERRORS));
-
-
-	//!	[ESMF] Number Runtime._getErrorConfig();
-	ESF_DECLARE(typeObject,"_getErrorConfig",0,0, Number::create(runtime.getErrorConfig()))
-
+	declareConstant(typeObject,"DEBUG",Number::create(static_cast<int>(Logger::DEBUG)));
+	declareConstant(typeObject,"INFO",Number::create(static_cast<int>(Logger::INFO)));
+	declareConstant(typeObject,"PEDANTIC_WARNING",Number::create(static_cast<int>(Logger::PEDANTIC_WARNING)));
+	declareConstant(typeObject,"WARNING",Number::create(static_cast<int>(Logger::WARNING)));
+	declareConstant(typeObject,"ERROR",Number::create(static_cast<int>(Logger::ERROR)));
+	declareConstant(typeObject,"FATAL",Number::create(static_cast<int>(Logger::FATAL)));
+	
 	//!	[ESMF] Number Runtime._getStackSize();
 	ESF_DECLARE(typeObject,"_getStackSize",0,0, Number::create(runtime.getStackSize()))
 
 	//!	[ESMF] Number Runtime._getStackSizeLimit();
 	ESF_DECLARE(typeObject,"_getStackSizeLimit",0,0, Number::create(runtime.getStackSizeLimit()))
-
-	//!	[ESMF] void Runtime._setErrorConfig(number);
-	ESF_DECLARE(typeObject,"_setErrorConfig",1,1,
-				(runtime.setErrorConfig(static_cast<unsigned int>(parameter[0].toInt())),Void::get()) )
 
 	//!	[ESMF] void Runtime._setStackSizeLimit(number);
 	ESF_DECLARE(typeObject,"_setStackSizeLimit",1,1,
@@ -69,8 +65,19 @@ void Runtime::init(EScript::Namespace & globals) {
 	//!	[ESMF] void Runtime.exception( [message] );
 	ESF_DECLARE(typeObject,"exception",0,1, (runtime.setException(parameter[0].toString()),Void::get()))
 
+	//!	[ESMF] Number Runtime.getLoggingLevel();
+	ESF_DECLARE(typeObject,"getLoggingLevel",0,0, Number::create(static_cast<int>(runtime.getLoggingLevel())))
+
 	//!	[ESMF] String Runtime.getStackInfo();
 	ESF_DECLARE(typeObject,"getStackInfo",0,0, String::create(runtime.getStackInfo()))
+
+	//!	[ESMF] void Runtime.setLoggingLevel(Number);
+	ESF_DECLARE(typeObject,"setLoggingLevel",1,1,
+				(runtime.setLoggingLevel(static_cast<Logger::level_t>(parameter[0].toInt())),Void::get()) )
+
+	//!	[ESMF] void Runtime.setTreatWarningsAsError(bool);
+	ESF_DECLARE(typeObject,"setTreatWarningsAsError",1,1,
+				(runtime.setTreatWarningsAsError(parameter[0].toBool()),Void::get()) )
 
 	//!	[ESMF] void Runtime.warn([message]);
 	ESF_DECLARE(typeObject,"warn",0,1, (runtime.warn(parameter[0].toString()),Void::get()))
@@ -103,7 +110,7 @@ void Runtime::init(EScript::Namespace & globals) {
 //! (ctor)
 Runtime::Runtime() :
 		ExtObject(Runtime::getTypeObject()), stackSizeLimit(512),
-		state(STATE_NORMAL),logger(new LoggerGroup(Logger::WARNING)), errorConfig(0){ //,currentLine(0) {
+		state(STATE_NORMAL),logger(new LoggerGroup(Logger::WARNING)){ 
 
 	logger->addLogger("coutLogger",new StdLogger(std::cout));
 	
@@ -1095,18 +1102,16 @@ void Runtime::throwException(const std::string & s,Object * obj) {
 	throw e;
 }
 
-void Runtime::setErrorConfig(unsigned int _errorConfig){
-	errorConfig = _errorConfig;
+void Runtime::setTreatWarningsAsError(bool b){
+////
+////	// ES_IGNORE_WARNINGS? --> completely ignore warnings
+////	if(errorConfig&ES_IGNORE_WARNINGS){
+////		logger->setMinLevel(Logger::ERROR);
+////	}else{
+////		logger->setMinLevel(Logger::_ALL);
+////	}
 
-	// ES_IGNORE_WARNINGS? --> completely ignore warnings
-	if(errorConfig&ES_IGNORE_WARNINGS){
-		logger->setMinLevel(Logger::ERROR);
-	}else{
-		logger->setMinLevel(Logger::_ALL);
-	}
-
-	// ES_TREAT_WARNINGS_AS_ERRORS? --> disable coutLogger and add throwLogger
-	if(errorConfig&ES_TREAT_WARNINGS_AS_ERRORS){
+	if(b){ // --> disable coutLogger and add throwLogger
 		Logger * coutLogger = logger->getLogger("coutLogger");
 		if(coutLogger!=NULL)
 			coutLogger->setMinLevel(Logger::ERROR);		
@@ -1116,7 +1121,7 @@ void Runtime::setErrorConfig(unsigned int _errorConfig){
 			Runtime & rt;
 			virtual void doLog(level_t,const std::string & message){	rt.setException(message);	}
 		public:
-			ThrowLogger(Runtime & _rt) : Logger(WARNING,WARNING), rt(_rt){}
+			ThrowLogger(Runtime & _rt) : Logger(PEDANTIC_WARNING,WARNING), rt(_rt){}
 		};
 		logger->addLogger("throwLogger",new ThrowLogger(*this));
 	}else{

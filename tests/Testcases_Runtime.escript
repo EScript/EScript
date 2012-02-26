@@ -12,14 +12,14 @@
 }
 
 {
-	Runtime._setErrorConfig(Runtime.TREAT_WARNINGS_AS_ERRORS);
+	Runtime.setTreatWarningsAsError(true);
 	var exceptionMessage;;
 	try{
 		Runtime.warn("foo");
 	}catch(e){
 		exceptionMessage = e.getMessage();
 	}
-	Runtime._setErrorConfig(0);
+	Runtime.setTreatWarningsAsError(false);
 	test( "Runtime.warn",exceptionMessage.contains("foo"));
 
 }
