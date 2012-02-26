@@ -41,12 +41,21 @@ void init() {
 	UserFunction::init(*SGLOBALS);
 	YieldIterator::init(*SGLOBALS);
 
-	declareConstant(SGLOBALS,"VERSION",String::create(ES_VERSION));
-	declareConstant(SGLOBALS,"SGLOBALS",SGLOBALS);
-
 	Parser::init(*SGLOBALS);
 	Runtime::init(*SGLOBALS);
 
+	declareConstant(SGLOBALS,"SGLOBALS",SGLOBALS);
+
+	// init EScript namespace
+	Namespace * escript = new Namespace();
+	declareConstant(SGLOBALS,"EScript",escript);
+
+	declareConstant(escript,"VERSION",Number::create(ES_VERSION));
+	declareConstant(escript,"VERSION_STRING",String::create(ES_VERSION_STRING));
+
+	
+	// -------------
+	
 	initLibrary(StdLib::init);
 	initLibrary(IOLib::init);
 	initLibrary(MathLib::init);

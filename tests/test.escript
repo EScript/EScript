@@ -1,5 +1,5 @@
 // Testcases for HasEScript Scripting-Language 0.5
-out ("Testcases for ",VERSION,"\n","-"*79,"\n");
+out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 
 var a = new ExtObject();
 //a.CONST (const) := $foo;
