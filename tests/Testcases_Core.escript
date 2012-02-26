@@ -930,9 +930,9 @@ if(!benchmark)
 }
 
 {
-	// attribute annotations
+	// @(const,private)
 	var A = new Type();
-	A.constant @(const) := 16;
+	A.constant @(const) := 99;
 	A.privateMember @(private) := void;
 	A.privateFunction @(private,const) ::= fn(){
 		return privateMember;
@@ -945,27 +945,70 @@ if(!benchmark)
 	var B = new Type(A);
 	B._constructor ::= fn(bla)@(super(bla+1)){
 	};
+	B.publicFunction ::= fn(){
+		return privateFunction() + this.constant;
+	};
 	
-	var b = new B(5);
+	var b = new B(16); // privateMember = 16+1
 	
 	// try some illegal things ;-)
-	var errorCount = 0;
+	var exceptionCount = 0;
 	
 	// throw some exception
-	try{	b.constant = "foo";	}catch(e){	++errorCount;	}
-	try{	b.privateFunction = "somethingElse";	}catch(e){	++errorCount;	}
+	try{	b.constant = "foo";	}catch(e){	++exceptionCount;	}
+	try{	b.privateFunction = "somethingElse";	}catch(e){	++exceptionCount;	}
 
 	// create some warnings
 	Runtime.setTreatWarningsAsError(true);
-	try{	new A(5);	}catch(e){	++errorCount;	}
-	try{	b.privateMember++;	}catch(e){	++errorCount;	}
-	try{	b.privateFunction();	}catch(e){	++errorCount;	}
+	try{	new A(5);	}catch(e){	++exceptionCount;	}
+	try{	b.privateMember++;	}catch(e){	++exceptionCount;	}
+	try{	b.privateFunction();	}catch(e){	++exceptionCount;	}
 	Runtime.setTreatWarningsAsError(false);
 	
-	++b.constant;
-	out(errorCount);
+	++b.constant; // constant = 100
 	
+	test("@(const,private):",exceptionCount==5 && b.publicFunction()==117);
 }
+
+{	//@(override)
+	var A = new Type();
+	A.a := 1;
+	A.b ::= 2;
+	
+	var B = new Type(A);
+	B.a @(override) := 10;
+	B.b @(override) := 20;
+	
+	Runtime.setTreatWarningsAsError(true);
+	var exceptionCount = 0;
+	try{	B.c @(override) := 20;	}catch(e){	++exceptionCount;	} // should issue a warning, but should still be executed
+	Runtime.setTreatWarningsAsError(false);
+
+	var b = new B();
+	b.a @(override) := 100;
+	
+	test("@(override):", A.a == 1 && exceptionCount==1 && b.a == 100 && b.c==20 );
+}
+
+
+{	//@(init)
+	var A = new Type();
+	A.a @(init) := fn(){	return 17;	};
+	A.b @(init) := 17->fn(){	return this;	};
+	A.c @(init) := Array;
+	
+	var T = new Type();
+	T._constructor ::= fn(){
+		this.value := 17;
+	};
+	A.d @(init) := T;
+
+	var B = new Type(A);
+	var b = new B();
+	
+	test("@(init):", b.a == 17 && b.b==17 && b.c == [] && b.d.value==17  );
+}
+
 //
 //}
 //{

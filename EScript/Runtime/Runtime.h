@@ -50,9 +50,6 @@ class Runtime : public ExtObject  {
 		Namespace * getGlobals()const;
 
 		void assignToVariable(const StringId id,Object * value);
-//		void assignToVariable(const std::string & name,Object * value) {
-//			assignToVariable(EScript::stringToIdentifierId(name),value);
-//		}
 		bool assignToAttribute(ObjPtr obj,StringId attrId,ObjPtr value);
 	public:
 		/*! returns the object's attribute with the given id. If the attribute can not be found, NULL is returned.

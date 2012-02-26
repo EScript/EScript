@@ -20,7 +20,7 @@ void AttributeContainer::initAttributes(Runtime & rt){
 		if(attr.isInitializable()){
 			Type * t = dynamic_cast<Type*>(attr.getValue());
 			if(t!=NULL){
-				attr.setValue( rt.executeFunction(t->getAttribute(Consts::IDENTIFIER_fn_constructor).getValue(), NULL, ParameterValues()));
+				attr.setValue( rt.executeFunction(t->getAttribute(Consts::IDENTIFIER_fn_constructor).getValue(), t, ParameterValues(),true));
 			}else{
 				attr.setValue( rt.executeFunction(attr.getValue(),NULL,ParameterValues()));
 			}

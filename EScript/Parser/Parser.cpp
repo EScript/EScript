@@ -839,6 +839,8 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 					if(name == Consts::ANNOTATION_ATTR_const){
 						flags |= Attribute::CONST_BIT;
 					}else if(name == Consts::ANNOTATION_ATTR_init){
+						if(flags&Attribute::TYPE_ATTR_BIT)
+							log(Logger::WARNING,"'@(init)' is used in combination with @(type) or '::='.",atOp);
 						flags |= Attribute::INIT_BIT;
 					}else if(name == Consts::ANNOTATION_ATTR_member){
 						if(flags&Attribute::TYPE_ATTR_BIT){
@@ -866,6 +868,8 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 						}else{
 							flags |= Attribute::TYPE_ATTR_BIT;
 						}
+						if(flags&Attribute::INIT_BIT)
+							log(Logger::WARNING,"'@(init)' is used in combination with @(type) or '::='.",atOp);
 					}else {
 						throwError("Invalid annotation: '"+name.toString()+'\'',atOp);
 					}
