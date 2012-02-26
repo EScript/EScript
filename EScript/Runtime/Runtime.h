@@ -188,9 +188,9 @@ class Runtime : public ExtObject  {
 
 		int getCurrentLine()const;
 		std::string getCurrentFile()const;
+		LoggerGroup * getLogger()const					{	return logger.get();	}
 
 		std::string getStackInfo();
-
 	private:
 		_CountedRef<LoggerGroup> logger;
 		unsigned int errorConfig;

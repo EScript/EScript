@@ -118,7 +118,7 @@ static std::string findFile(Runtime & runtime, const std::string & filename){
 Object * StdLib::load(Runtime & runtime,const std::string & filename){
 	ERef<Block> block;
 	try {
-		block=EScript::loadScriptFile(findFile(runtime,filename));
+		block=EScript::loadScriptFile(findFile(runtime,filename),runtime.getLogger());
 	} catch (Exception * e) {
 		runtime.setException(e); // adds stack info
 		return NULL;
@@ -271,7 +271,7 @@ void StdLib::init(EScript::Namespace * globals) {
 		static const StringId inline_id("[inline]");
 		block->setFilename(inline_id);
 		try{
-			Parser p;
+			Parser p(runtime.getLogger());
 			p.parse(block.get(),StringData(parameter[0]->toString()));
 		}catch(Exception * e){
 			runtime.setException(e); // adds stack info

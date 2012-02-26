@@ -3,9 +3,6 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Parser.h"
-#include <iostream>
-#include <stdio.h>
-#include <stack>
 #include "Tokenizer.h"
 #include "Operators.h"
 #include "../EScript.h"
@@ -24,6 +21,10 @@
 #include "../Objects/Identifier.h"
 
 #include "../Utils/IO/IO.h"
+
+#include <stdio.h>
+#include <stack>
+#include <sstream>
 
 namespace EScript {
 using std::string;
@@ -71,7 +72,7 @@ void Parser::init(EScript::Namespace & globals) {
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//!	[ESMF] Parser new Parser();
-	ESF_DECLARE(typeObject,"_constructor",0,0,new Parser())
+	ESF_DECLARE(typeObject,"_constructor",0,0,new Parser(runtime.getLogger()))
 
 	//!	[ESMF] Block Parser.parse(String)
 	ES_MFUNCTION_DECLARE(typeObject,Parser,"parse",1,1,{
@@ -94,7 +95,9 @@ void Parser::init(EScript::Namespace & globals) {
 // -------------------------------------------------------------------------------------------------------------------
 
 //!	(ctor)
-Parser::Parser(Type * type):Object(type?type:getTypeObject()),warningLevel(DEBUG_INFO) {
+Parser::Parser(Logger * _logger,Type * type) : 
+		Object(type?type:getTypeObject()),
+		logger(_logger ? _logger : new StdLogger(std::cout)) {
 	//ctor
 }
 
@@ -108,13 +111,13 @@ Object * Parser::clone()const {
 	return new Parser();
 }
 
-void Parser::info(warningLevel_t messageLevel, const std::string & msg,const _CountedRef<Token> & token)const{
-	if(messageLevel>=warningLevel){
-		std::cerr << "(Parser) "<< msg << " ("<< getCurrentFilename();
-		if(token!=NULL)
-			std::cerr <<':'<< token->getLine();
-		std::cerr << ")\n";
-	}
+void Parser::log(Logger::level_t messageLevel, const std::string & msg,const _CountedRef<Token> & token)const{
+	std::ostringstream os;
+	os << "[Parser] " << msg << " (" << getCurrentFilename();
+	if(token!=NULL)
+		os << ':' << token->getLine();
+	os << ").";
+	logger->log(messageLevel,os.str());
 }
 
 /**
@@ -350,7 +353,7 @@ void Parser::pass_2(ParsingContext & ctxt,
 				if (tc->getId()==Consts::IDENTIFIER_var) {
 					if (TIdentifier * ti=Token::cast<TIdentifier>(ctxt.tokens.at(cursor+1))) {
 						if(!blockStack.top()->declareVar(ti->getId())){
-							info(DEFAULT_WARNING, "Warning: Duplicate local variable '"+ti->toString()+'\'',ti);
+							log(Logger::WARNING, "Duplicate local variable '"+ti->toString()+'\'',ti);
 						}
 //						Token::removeReference(token);
 						continue;
@@ -499,7 +502,7 @@ Object * Parser::getExpression(ParsingContext & ctxt,int & cursor,int to)const  
 		return NULL;
 	}/// Commands: if(...){}
 	else if (Token::isA<TControl>(tokens.at(cursor))) {
-		info(DEFAULT_WARNING, "Warning: No control statement here!",tokens.at(cursor));
+		log(Logger::WARNING, "No control statement here!",tokens.at(cursor));
 		return NULL;
 	} /// Block: {...}
 	else if (Token::isA<TStartBlock>(tokens.at(cursor))) {
@@ -644,7 +647,7 @@ Block * Parser::getBlock(ParsingContext & ctxt,int & cursor)const {
 					continue;
 				for(Block::declaredVariableMap_t::const_iterator it=vars->begin();it!=vars->end();++it){
 					if(vars2->count(*it)>0){
-						info(PEDANTIC_WARNING,"Shadowed local variable  '"+(*it).toString()+"' in block.",tokens.at(cursor));
+						log(Logger::PEDANTIC_WARNING,"Shadowed local variable  '"+(*it).toString()+"' in block.",tokens.at(cursor));
 					}
 
 				}
@@ -672,7 +675,7 @@ Block * Parser::getBlock(ParsingContext & ctxt,int & cursor)const {
 
 		/// Commands have to end on ";" or "}".
 		if (!(Token::isA<TEndCommand>(tokens.at(cursor)) || Token::isA<TEndBlock>(tokens.at(cursor)))) {
-			info(DEBUG_INFO, tokens.at(cursor)->toString(),tokens.at(cursor));
+			log(Logger::DEBUG, tokens.at(cursor)->toString(),tokens.at(cursor));
 			throwError("Syntax Error in Block.",tokens.at(cursor));
 		}
 		++cursor;
@@ -715,7 +718,7 @@ Object * Parser::getMap(ParsingContext & ctxt,int & cursor)const  {
 
 		/// ii) read ":"
 		if (!Token::isA<TMapDelimiter>(tokens.at(cursor))) {
-			info(DEBUG_INFO, tokens.at(cursor)->toString(),tokens.at(cursor));
+			log(Logger::DEBUG, tokens.at(cursor)->toString(),tokens.at(cursor));
 			throwError("Map: Expected : ",tokens.at(cursor));
 		}
 		++cursor;
@@ -837,7 +840,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 
 				for(annotations_t::const_iterator it=annotations.begin();it!=annotations.end();++it ){
 					const StringId name = it->first;
-					info(DEBUG_INFO,"Info: Annotation:"+name.toString(),atOp );
+					log(Logger::INFO,"Annotation:"+name.toString(),atOp );
 //					const int pos = it->second;
 					if(name == Consts::ANNOTATION_ATTR_const){
 						flags |= Attribute::CONST_BIT;
@@ -845,7 +848,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 						flags |= Attribute::INIT_BIT;
 					}else if(name == Consts::ANNOTATION_ATTR_member){
 						if(flags&Attribute::TYPE_ATTR_BIT){
-							info(DEFAULT_WARNING,"Warning: '@(member)' is used in combination with @(type) or '::=' and is ignored.",atOp);
+							log(Logger::WARNING,"'@(member)' is used in combination with @(type) or '::=' and is ignored.",atOp);
 						}else{
 							inverseFlags |= Attribute::TYPE_ATTR_BIT;
 						}
@@ -853,19 +856,19 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 						flags |= Attribute::OVERRITDE_BIT;
 					}else if(name == Consts::ANNOTATION_ATTR_private){
 						if(inverseFlags&Attribute::PRIVATE_BIT){
-							info(DEFAULT_WARNING,"Warning: '@(private)' is used in combination with @(public) and is ignored.",atOp);
+							log(Logger::WARNING,"'@(private)' is used in combination with @(public) and is ignored.",atOp);
 						}else{
 							flags |= Attribute::PRIVATE_BIT;
 						}
 					}else if(name == Consts::ANNOTATION_ATTR_public){
 						if(flags&Attribute::PRIVATE_BIT){
-							info(DEFAULT_WARNING,"Warning: '@(public)' is used in combination with @(private) and is ignored.",atOp);
+							log(Logger::WARNING,"'@(public)' is used in combination with @(private) and is ignored.",atOp);
 						}else{
 							inverseFlags |= Attribute::PRIVATE_BIT;
 						}
 					}else if(name == Consts::ANNOTATION_ATTR_type){
 						if(inverseFlags&Attribute::TYPE_ATTR_BIT){
-							info(DEFAULT_WARNING,"Warning: '@(member)' is used in combination with @(type) or '::=' and is ignored.",atOp);
+							log(Logger::WARNING,"'@(member)' is used in combination with @(type) or '::=' and is ignored.",atOp);
 						}else{
 							flags |= Attribute::TYPE_ATTR_BIT;
 						}
@@ -900,7 +903,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 	/// "a.b.c"
 	if (op->getString()==".") {
 		if (rightExprFrom>to) {
-			info(DEBUG_INFO, "Error .1 ",tokens[opPosition]);
+			log(Logger::DEBUG, "Error .1 ",tokens[opPosition]);
 			throwError("Syntax error after '.'",tokens[opPosition]);
 		}
 		cursor=to;
@@ -923,7 +926,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 				return new GetAttribute(leftExpression,i->getId());
 			}
 		}
-		info(DEBUG_INFO, "Error .2 ",tokens[opPosition]);
+		log(Logger::DEBUG, "Error .2 ",tokens[opPosition]);
 		throwError("Syntax error after '.'",tokens[opPosition]);
 	}
 	///  Function Call
@@ -1140,7 +1143,7 @@ Object * Parser::getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const
 		for(annotations_t::const_iterator it=annotations.begin();it!=annotations.end();++it ){
 			const StringId name = it->first;
 			int parameterPos = it->second;
-			info(DEBUG_INFO,"Info: Annotation:"+name.toString(),superOp );
+			log(Logger::INFO,"Annotation:"+name.toString(),superOp );
 //					const int pos = it->second;
 			if(name == Consts::ANNOTATION_FN_super){
 				if(parameterPos<0){
@@ -1148,7 +1151,7 @@ Object * Parser::getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const
 				}
 				getExpressionsInBrackets(ctxt,parameterPos,superConCallExpressions);
 			}else{
-				info(DEFAULT_WARNING,"Anntoation is invalid for functions: '"+name.toString()+"'",superOp);
+				log(Logger::WARNING,"Anntoation is invalid for functions: '"+name.toString()+"'",superOp);
 			}
 		}
 		cursor = annotationTo+1;

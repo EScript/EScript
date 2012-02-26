@@ -103,9 +103,8 @@ void Runtime::init(EScript::Namespace & globals) {
 //! (ctor)
 Runtime::Runtime() :
 		ExtObject(Runtime::getTypeObject()), stackSizeLimit(512),
-		state(STATE_NORMAL),errorConfig(0){ //,currentLine(0) {
+		state(STATE_NORMAL),logger(new LoggerGroup(Logger::WARNING)), errorConfig(0){ //,currentLine(0) {
 
-	logger = new LoggerGroup();
 	logger->addLogger("coutLogger",new StdLogger(std::cout));
 	
 	globals = EScript::getSGlobals()->clone();
@@ -1069,7 +1068,7 @@ void Runtime::warn(const std::string & s) {
 	if(getCurrentContext()->getCurrentRTB()!=NULL){
 		Block * b=getCurrentContext()->getCurrentRTB()->getStaticBlock();
 		if(b!=NULL)
-			os<<" File: '"<<b->getFilename()<<"' near line "<<getCurrentLine()<<std::endl;
+			os<<" ('"<<b->getFilename()<<"':~"<<getCurrentLine()<<")";
 	}
 	logger->warn(os.str());
 

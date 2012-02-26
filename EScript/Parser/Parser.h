@@ -11,6 +11,7 @@
 #include "../Objects/Exception.h"
 #include "../Objects/Values/String.h"
 #include "../Objects/Callables/UserFunction.h"
+#include "../Utils/Logger.h"
 
 #include <vector>
 
@@ -44,7 +45,7 @@ class Parser : public Object {
 		};
 		//-----------
 
-		Parser(Type * type=NULL);
+		Parser(Logger * logger=NULL, Type * type=NULL);
 		virtual ~Parser();
 
 		Object * parse(Block * rootBlock,const StringData & code);
@@ -62,17 +63,9 @@ class Parser : public Object {
 			ParsingContext(Tokenizer::tokenList_t & _tokens,const EPtr<String> & _code ) : tokens(_tokens),rootBlock(NULL),code(_code){}
 		};
 
-		enum warningLevel_t{
-			NO_WARNINGS = 100,
-			DEFAULT_WARNING = 10,
-			PEDANTIC_WARNING = 5,
-			DEBUG_INFO = 0
-		};
-
 	private:
-		void info(warningLevel_t messageLevel, const std::string & msg,const _CountedRef<Token> & token=NULL)const;
-		
-		warningLevel_t warningLevel;
+		_CountedRef<Logger> logger;
+		void log(Logger::level_t messageLevel, const std::string & msg,const _CountedRef<Token> & token=NULL)const;
 		
 		// only for debugging
 		StringId currentFilename;

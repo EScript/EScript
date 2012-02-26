@@ -21,6 +21,7 @@ class Namespace;
 class Object;
 class Runtime;
 class Type;
+class Logger;
 
 //! @name Declaration
 //@{
@@ -82,7 +83,7 @@ Object * callFunction(Runtime & rt, Object * function, const ParameterValues & p
 
 void out(Object * obj);
 
-Block * loadScriptFile(const std::string & filename);
+Block * loadScriptFile(const std::string & filename,Logger * logger=NULL);
 
 //! @return (success, result)
 std::pair<bool, ObjRef> execute(Runtime & runtime, Block * block);
