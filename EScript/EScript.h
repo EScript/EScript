@@ -21,8 +21,8 @@
 #ifndef ESCRIPT_H
 #define ESCRIPT_H
 
-#define ES_VERSION 509 // huge(always 0) * 10000 + major * 100 + minor
-#define ES_VERSION_STRING "EScript 0.5.9 (almost 0.6) GubbelGubbel - experimental (http://escript.berlios.de/)"
+#define ES_VERSION 600 // huge(always 0) * 10000 + major * 100 + minor
+#define ES_VERSION_STRING "EScript 0.6.0 GubbelGubbel - stable (http://escript.berlios.de/)"
 
 #include "Objects/Object.h"
 #include "Objects/Type.h"
