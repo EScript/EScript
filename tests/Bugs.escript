@@ -575,7 +575,3 @@
 	
 	test( "BUG[20120226.2]", !result1 && result2 && errorFound );
 }
-//{
-//	var a=5;;
-//	out(parse('{out(a);}').execute());	
-//}

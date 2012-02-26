@@ -19,6 +19,7 @@
 #include "../Objects/Callables/UserFunction.h"
 #include "../Objects/Callables/Delegate.h"
 #include "../Objects/YieldIterator.h"
+#include "../Parser/Parser.h"
 #include "../Utils/Logger.h"
 #include <algorithm>
 #include <iostream>
@@ -231,6 +232,26 @@ bool Runtime::assignToAttribute(ObjPtr obj,StringId attrId,ObjPtr value){
 // ----------------------------------------------------------------------
 // ---- General execution
 
+Object * Runtime::eval(const StringData & code){
+	ERef<Block> block(new Block());
+	static const StringId inline_id("[inline]");
+	block->setFilename(inline_id);
+	try{
+		Parser p(getLogger());
+		p.parse(block.get(),code);
+	}catch(Exception * e){
+		setException(e);
+		return NULL;
+	}
+	pushContext(RuntimeContext::create());
+	getCurrentContext()->createAndPushRTB(block.get());// this is later popped implicitly when the context is executed.
+
+	ObjRef resultRef = executeCurrentContext(true);
+	popContext();
+	block = NULL; // remove possibly pending reference to the result to prevent accidental deletion
+	return resultRef.detachAndDecrease();	
+}
+
 /*! - identify object by internalTypeId (as defined in typeIds.h)
 	- dispatch if object is an expression ( 0x20 >= id <0x30 )
 	- return ref or copy otherwise. */
@@ -396,6 +417,7 @@ Object * Runtime::executeObj(Object * obj){
 	return NULL;
 }
 
+//! (internal) 
 Object * Runtime::executeBlock(Block * block) {
 	getCurrentContext()->createAndPushRTB(block);
 	ObjRef resultRef = executeCurrentContext(true);

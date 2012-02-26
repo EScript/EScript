@@ -71,10 +71,10 @@ void Parser::init(EScript::Namespace & globals) {
 
 	declareConstant(&globals,getClassName(),typeObject);
 
-	//!	[ESMF] Parser new Parser();
+	//!	[ESMF] Parser new Parser();  @deprecated
 	ESF_DECLARE(typeObject,"_constructor",0,0,new Parser(runtime.getLogger()))
 
-	//!	[ESMF] Block Parser.parse(String)
+	//!	[ESMF] Block Parser.parse(String) @deprecated
 	ES_MFUNCTION_DECLARE(typeObject,Parser,"parse",1,1,{
 		ERef<Block> block(new Block());
 		static const StringId inline_id("[inline]");
@@ -88,7 +88,7 @@ void Parser::init(EScript::Namespace & globals) {
 		return block.detachAndDecrease();
 	})
 
-	//!	[ESMF] Block Parser.parseFile(String filename)
+	//!	[ESMF] Block Parser.parseFile(String filename) @deprecated
 	ESMF_DECLARE(typeObject,Parser,"parseFile",1,1, self->parseFile(parameter[0]->toString()))
 }
 

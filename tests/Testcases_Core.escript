@@ -1,3 +1,6 @@
+return fn(){
+// -------------------
+
 var OK="\t ok\n";
 var FAILED="\t failed\n";
 
@@ -716,12 +719,9 @@ if(!benchmark)
 }
 //---
 {
-	out("Parser:\t\t");
-	var s=(new Parser()).parse("while(a<10)a++;");
-	var a=0;
-	s.execute();
-	//out(a);
-	if( a==10)
+	out("eval:\t\t");
+	var a=eval("var b=0;while(b<10)b++; b;");
+	if( a==10 && eval("fn(a){return a*a;};")(5) == 25 )
 		{out (OK);}else { errors+=1; out(FAILED); }
 }
 //---
@@ -1005,3 +1005,4 @@ if(!benchmark)
 //
 //}
 //out("\n");
+};

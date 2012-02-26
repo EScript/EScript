@@ -20,6 +20,7 @@ class Block;
 class UserFunction;
 class Exception;
 class FunctionCall;
+class StringData;
 
 
 /*! [Runtime] ---|> [ExtObject]    */
@@ -66,8 +67,8 @@ class Runtime : public ExtObject  {
 	/// @name General execution
 	// 	@{
 	public:
+		Object * eval(const StringData & code);
 		Object * executeObj(Object * obj);
-		Object * executeBlock(Block * block);
 
 		void setCallingObject(Object * obj)				{  callingObject=obj;	}
 		Object * getCallingObject()const 				{  return callingObject.get();	}
@@ -82,6 +83,8 @@ class Runtime : public ExtObject  {
 		void setStackSizeLimit(size_t s)				{	stackSizeLimit = s;	}
 
 	private:
+		Object * executeBlock(Block * block);
+
 		ObjRef callingObject;
 		std::stack<RuntimeContext::RTBRef> contextStack;
 		size_t stackSizeLimit;

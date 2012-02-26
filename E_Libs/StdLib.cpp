@@ -225,7 +225,9 @@ void StdLib::init(EScript::Namespace * globals) {
 	ESF_DECLARE(globals,"clock",0,0,Number::create( static_cast<double>(clock())/CLOCKS_PER_SEC))
 	#endif
 	}
-
+	//!	[ESF]  Object eval(string)
+	ESF_DECLARE(globals,"eval",1,1, runtime.eval(StringData(parameter[0].toString())))
+	
 	/*!	[ESF]  Map getDate([time])
 		like http://de3.php.net/manual/de/function.getdate.php	*/
 	ES_FUNCTION_DECLARE(globals,"getDate",0,1,{
@@ -264,7 +266,7 @@ void StdLib::init(EScript::Namespace * globals) {
 		return NULL;
 	})
 
-	//!	[ESF]  Block parse(string)
+	//!	[ESF]  Block parse(string) @deprecated
 	ES_FUNCTION_DECLARE(globals,"parse",1,1, {
 		assertParamCount(runtime,parameter.count(),1,1);
 		ERef<Block> block(new Block());
