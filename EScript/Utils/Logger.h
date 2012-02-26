@@ -21,13 +21,13 @@ class Logger : public EReferenceCounter<Logger> {
 			_ALL = 0,
 			DEBUG = 1,
 			INFO = 2,
-			WARNING = 3,
-			PEDANTIC_WARNING = 4,
+			PEDANTIC_WARNING = 3,
+			WARNING = 4,
 			ERROR = 5,
 			FATAL = 6,
 			_NONE = 10
 		};
-		Logger(level_t _minLevel=_ALL,level_t _maxLevel = _ALL) : minLevel(_minLevel),maxLevel(_maxLevel){}
+		Logger(level_t _minLevel=_ALL,level_t _maxLevel = _NONE) : minLevel(_minLevel),maxLevel(_maxLevel){}
 		virtual ~Logger(){}
 		
 		void debug(const std::string & msg)			{	log(DEBUG,msg);	}
@@ -38,8 +38,9 @@ class Logger : public EReferenceCounter<Logger> {
 		void info(const std::string & msg)			{	log(INFO,msg);	}
 		void log(level_t l,const std::string & msg)	{	if(testLevel(l))	doLog(l,msg);	}
 		void pedantic(const std::string & msg)		{	log(PEDANTIC_WARNING,msg);	}
+		void setMinLevel(level_t l)					{	minLevel = l;	}
+		void setMaxLevel(level_t l)					{	maxLevel = l;	}
 		void warn(const std::string & msg)			{	log(WARNING,msg);	}
-
 		
 	private:
 		bool testLevel(level_t t)const				{	return 	static_cast<int>(t)>=static_cast<int>(minLevel) && 
@@ -57,9 +58,9 @@ class Logger : public EReferenceCounter<Logger> {
 /*! [LoggerGroup] ---|>[Logger]
 		|
 		--------> [Logger*]		*/
-class LoggerGroup : Logger {
+class LoggerGroup : public Logger {
 	public:
-		LoggerGroup(level_t _minLevel=_ALL,level_t _maxLevel = _ALL) : Logger(_minLevel,_maxLevel){}
+		LoggerGroup(level_t _minLevel=_ALL,level_t _maxLevel = _NONE) : Logger(_minLevel,_maxLevel){}
 		virtual ~LoggerGroup(){}
 		
 		void addLogger(const std::string & name,Logger * logger);
@@ -78,9 +79,9 @@ class LoggerGroup : Logger {
 /*! [StdLogger] ---|>[Logger]
 		|
 		--------> std::ostream		*/
-class StdLogger : Logger {
+class StdLogger : public Logger {
 	public:
-		StdLogger(std::ostream & stream, level_t _minLevel=_ALL,level_t _maxLevel = _ALL) : Logger(_minLevel,_maxLevel),out(stream){}
+		StdLogger(std::ostream & stream, level_t _minLevel=_ALL,level_t _maxLevel = _NONE) : Logger(_minLevel,_maxLevel),out(stream){}
 		virtual ~StdLogger(){}
 	private:
 		//! ---|> Logger

@@ -3,6 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Runtime.h"
+#include "RuntimeBlock.h"
 #include "../EScript.h"
 #include "../Objects/Internals/ConditionalExpr.h"
 #include "../Objects/Internals/GetAttribute.h"
@@ -12,13 +13,13 @@
 #include "../Objects/Internals/FunctionCall.h"
 #include "../Objects/Internals/LogicOp.h"
 #include "../Objects/Internals/Statement.h"
-#include "RuntimeBlock.h"
 #include "../Objects/Values/Void.h"
 #include "../Objects/Exception.h"
 #include "../Objects/Callables/Function.h"
 #include "../Objects/Callables/UserFunction.h"
 #include "../Objects/Callables/Delegate.h"
 #include "../Objects/YieldIterator.h"
+#include "../Utils/Logger.h"
 #include <algorithm>
 #include <iostream>
 #include <list>
@@ -104,7 +105,10 @@ Runtime::Runtime() :
 		ExtObject(Runtime::getTypeObject()), stackSizeLimit(512),
 		state(STATE_NORMAL),errorConfig(0){ //,currentLine(0) {
 
-	globals=EScript::getSGlobals()->clone();
+	logger = new LoggerGroup();
+	logger->addLogger("coutLogger",new StdLogger(std::cout));
+	
+	globals = EScript::getSGlobals()->clone();
 	declareConstant(globals.get(),"GLOBALS",globals.get());
 	declareConstant(globals.get(),"SGLOBALS",EScript::getSGlobals());
 
@@ -252,7 +256,7 @@ Object * Runtime::executeObj(Object * obj){
 			setCallingObject(obj2Ref.get());
 			resultRef = readMemberAttribute( obj2Ref.get(),ga->getAttrId() );
 			if (resultRef.isNull()) {
-				warn("Member not set '"+ga->toString()+'\'');
+				warn("Member not set '"+ga->toString()+"\'.");
 			}
 		}
 		return resultRef.detachAndDecrease();
@@ -1055,23 +1059,20 @@ bool Runtime::stateError(Object * obj){
 
 
 void Runtime::info(const std::string & s) {
-	std::cout << "\n Note: "<<s;
+	logger->info(s);
 }
 
 
 void Runtime::warn(const std::string & s) {
-	if(getErrorConfig()&ES_IGNORE_WARNINGS) return;
-	else if(getErrorConfig()&ES_TREAT_WARNINGS_AS_ERRORS) {
-		setException(s);
-		return;
-	}
-	std::cout << "\n WARNING: "<< s << std::endl;
+	std::ostringstream os;
+	os << s;
 	if(getCurrentContext()->getCurrentRTB()!=NULL){
 		Block * b=getCurrentContext()->getCurrentRTB()->getStaticBlock();
-		if(b)
-			std::cout<<"\tFile: '"<<b->getFilename()<<"' near line "<<getCurrentLine()<<"\n";
-//        std::cout << " *** "<<b->getFilename()<<":"<<b->toString();
+		if(b!=NULL)
+			os<<" File: '"<<b->getFilename()<<"' near line "<<getCurrentLine()<<std::endl;
 	}
+	logger->warn(os.str());
+
 }
 
 void Runtime::setException(const std::string & s) {
@@ -1095,6 +1096,37 @@ void Runtime::throwException(const std::string & s,Object * obj) {
 	throw e;
 }
 
+void Runtime::setErrorConfig(unsigned int _errorConfig){
+	errorConfig = _errorConfig;
+
+	// ES_IGNORE_WARNINGS? --> completely ignore warnings
+	if(errorConfig&ES_IGNORE_WARNINGS){
+		logger->setMinLevel(Logger::ERROR);
+	}else{
+		logger->setMinLevel(Logger::_ALL);
+	}
+
+	// ES_TREAT_WARNINGS_AS_ERRORS? --> disable coutLogger and add throwLogger
+	if(errorConfig&ES_TREAT_WARNINGS_AS_ERRORS){
+		Logger * coutLogger = logger->getLogger("coutLogger");
+		if(coutLogger!=NULL)
+			coutLogger->setMinLevel(Logger::ERROR);		
+		
+		//! ThrowLogger ---|> Logger
+		class ThrowLogger : public Logger{
+			Runtime & rt;
+			virtual void doLog(level_t,const std::string & message){	rt.setException(message);	}
+		public:
+			ThrowLogger(Runtime & _rt) : Logger(WARNING,WARNING), rt(_rt){}
+		};
+		logger->addLogger("throwLogger",new ThrowLogger(*this));
+	}else{
+		Logger * coutLogger = logger->getLogger("coutLogger");
+		if(coutLogger!=NULL)
+			coutLogger->setMinLevel(Logger::_ALL);		
+		logger->removeLogger("throwLogger");
+	}
+}
 
 // ----------------------------------------------------------------------
 // ---- Debugging

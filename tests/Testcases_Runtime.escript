@@ -20,7 +20,7 @@
 		exceptionMessage = e.getMessage();
 	}
 	Runtime._setErrorConfig(0);
-	test( "Runtime.warn",exceptionMessage=="foo");
+	test( "Runtime.warn",exceptionMessage.contains("foo"));
 
 }
 

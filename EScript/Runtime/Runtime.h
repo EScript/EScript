@@ -20,6 +20,7 @@ class Block;
 class UserFunction;
 class Exception;
 class FunctionCall;
+class LoggerGroup;
 
 /*! [Runtime] ---|> [ExtObject]    */
 class Runtime : public ExtObject  {
@@ -177,10 +178,12 @@ class Runtime : public ExtObject  {
 	/// @name Debugging
 	// 	@{
 	public:
+		
+		//! \todo Replace errorConfig completely by using the logger 
 		static const unsigned int ES_IGNORE_WARNINGS=1<<0;
 		static const unsigned int ES_TREAT_WARNINGS_AS_ERRORS=1<<1;
 
-		void setErrorConfig(unsigned int _errorConfig)	{	errorConfig=_errorConfig;	}
+		void setErrorConfig(unsigned int _errorConfig);
 		unsigned int getErrorConfig()					{	return this->errorConfig;	}
 
 		int getCurrentLine()const;
@@ -189,6 +192,7 @@ class Runtime : public ExtObject  {
 		std::string getStackInfo();
 
 	private:
+		_CountedRef<LoggerGroup> logger;
 		unsigned int errorConfig;
 	// 	@}
 

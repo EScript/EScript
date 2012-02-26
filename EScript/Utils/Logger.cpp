@@ -4,6 +4,7 @@
 // ------------------------------------------------------
 #include "Logger.h"
 #include <stdexcept>
+#include <iostream>
 
 namespace EScript{
 
@@ -45,7 +46,39 @@ void LoggerGroup::doLog(level_t l,const std::string & msg){
 
 //! ---|> Logger
 void StdLogger::doLog(level_t l,const std::string & msg){
-	out << l << msg <<"\n";
+	out << std::endl;
+	switch(l){
+		case DEBUG:{
+			out << "Debug: ";
+			break;
+		}
+		case INFO:{
+			out << "Debug: ";
+			break;
+		}
+		case WARNING:{
+			out << "Warning: ";
+			break;
+		}
+		case PEDANTIC_WARNING:{
+			out << "Pedantic warning: ";
+			break;
+		}
+		case ERROR:{
+			out << "Error: ";
+			break;
+		}
+		case FATAL:{
+			out << "Fatal error: ";
+			break;
+		}
+		case _ALL:
+		case _NONE:
+		default:{
+			out << "Logging ("<<l<<"):";
+		}
+	}
+	out << msg << std::endl;
 }
 
 }

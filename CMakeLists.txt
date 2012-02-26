@@ -58,6 +58,7 @@ set(ESCRIPT_SOURCES
 	EScript/Utils/IO/DefaultFileSystemHandler.cpp
 	EScript/Utils/IO/IO.cpp
 	EScript/Utils/LocalVarMap.cpp
+	EScript/Utils/Logger.cpp
 	EScript/Utils/StringData.cpp
 	EScript/Utils/StringUtils.cpp
 	E_Libs/ext/Rand.cpp
