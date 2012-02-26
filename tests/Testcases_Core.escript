@@ -915,6 +915,7 @@ if(!benchmark)
 	);
 }
 
+// -----------------------------------------------
 // >=0.5.9 features
 {
 	var exceptionCaught = false;
@@ -926,10 +927,44 @@ if(!benchmark)
 	}
 	test("Inheritance restrictions:",exceptionCaught);
 
-//	var A = new Type();
-//	A.m ::= 1;
-//	var a = new A();
-//	a.m = 2;
+}
+
+{
+	// attribute annotations
+	var A = new Type();
+	A.constant @(const) := 16;
+	A.privateMember @(private) := void;
+	A.privateFunction @(private,const) ::= fn(){
+		return privateMember;
+	};
+	A._constructor @(private) ::= fn(bla){
+		privateMember = bla;
+	};
+	
+	
+	var B = new Type(A);
+	B._constructor ::= fn(bla)@(super(bla+1)){
+	};
+	
+	var b = new B(5);
+	
+	// try some illegal things ;-)
+	var errorCount = 0;
+	
+	// throw some exception
+	try{	b.constant = "foo";	}catch(e){	++errorCount;	}
+	try{	b.privateFunction = "somethingElse";	}catch(e){	++errorCount;	}
+
+	// create some warnings
+	Runtime.setTreatWarningsAsError(true);
+	try{	new A(5);	}catch(e){	++errorCount;	}
+	try{	b.privateMember++;	}catch(e){	++errorCount;	}
+	try{	b.privateFunction();	}catch(e){	++errorCount;	}
+	Runtime.setTreatWarningsAsError(false);
+	
+	++b.constant;
+	out(errorCount);
+	
 }
 //
 //}

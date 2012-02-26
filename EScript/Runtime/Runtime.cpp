@@ -210,10 +210,12 @@ bool Runtime::assignToAttribute(ObjPtr obj,StringId attrId,ObjPtr value){
 	
 	if(attr->getFlags()&Attribute::ASSIGNMENT_RELEVANT_BITS){
 		if(attr->isConst()){
-			throwException("Cannot assign to const attribute."); // \todo Change to setException?
+			setException("Cannot assign to const attribute."); 
+			return true;
 		}else if(attr->isPrivate()){
 			if( obj!=getCurrentContext()->getCaller() ){
-				throwException("Cannot assign to private attribute."); // \todo Change to setException?
+				setException("Cannot assign to private attribute.");
+				return true;
 			}
 		}
 		// the attribute is a reference -> do not set the new value object but assign the new value.
@@ -285,6 +287,8 @@ Object * Runtime::executeObj(Object * obj){
 		/// Local variable
 		if (sa->objExpr.isNull()) {
 			assignToVariable(sa->attrId,value.get());
+			if(!assertNormalState(sa))
+				return NULL;
 			return value.detachAndDecrease();
 		}
 		/// obj.ident
@@ -300,6 +304,8 @@ Object * Runtime::executeObj(Object * obj){
 			// which is caught and emitted as warning as this is normally no more critical than trying to assign to a nonexistent attribute.
 			try{
 				success = assignToAttribute(obj2,sa->attrId,value);
+				if(!assertNormalState(sa))
+					return NULL;
 			}catch(Exception * e){
 				ERef<Exception> eHolder(e);
 				warn(eHolder->getMessage());
@@ -935,19 +941,26 @@ Object * Runtime::executeUserConstructor(const ObjPtr & _callingObject,const Par
 		if(!currentCons)
 			continue;
 
-		internalTypeId_t funType = currentCons->_getInternalTypeId();
+		const internalTypeId_t funType = currentCons->_getInternalTypeId();
 
 		// c++ function found -> stop here
 		if(	funType==_TypeIds::TYPE_FUNCTION ){
 			Function * baseCons=static_cast<Function*>(currentCons);
 			// create real object with baseCons( currentPrams)
 			baseObj = executeFunction(baseCons,type,currentParams,true);
-			
+			if(baseObj.isNull()){
+				// no object created?
+				if(getState()!=STATE_EXCEPTION){ // ... altough no exception occured?
+					setException("Base constructor did not return an object.");
+					return NULL;
+				}
+				return NULL;
+			}
 			// init the object
 			baseObj->_initAttributes(*this);
 			break;
 		}else if(funType!=_TypeIds::TYPE_USER_FUNCTION ){
-			setException("Constructor needs to be a function");
+			setException("Constructor needs to be a function.");
 			return NULL;
 		}
 

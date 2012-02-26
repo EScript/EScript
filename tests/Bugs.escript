@@ -523,13 +523,13 @@
 
 
 {	// assignment to inherited static attributes does not work.
-	Runtime.setTreatWarningsAsError(true);
+//	Runtime.setTreatWarningsAsError(true);
 	var errorFound=false;
 	try{
-		var A := new Type();
+		var A = new Type();
 		A.staticAttribute ::= 0;
 
-		var B := new Type(A);
+		var B = new Type(A);
 		B.assignStaticAttribute ::= fn(){
 			staticAttribute = 1;
 		};	
@@ -538,7 +538,30 @@
 	}catch(e){
 		errorFound = true;
 	}
-	Runtime.setTreatWarningsAsError(false);
+//	Runtime.setTreatWarningsAsError(false);
 	test( "BUG[20120215]", !errorFound );
 
+}
+{	// Using invalid superconstructor parameters for the base-constructor is not detected and can crash the program
+	var errorFound=false;
+	try{
+		var A := new Type();
+		A._constructor ::= fn()@(super("A Map is expected here!")){};
+		new A();
+	}catch(e){
+		errorFound = true;
+	}
+	test( "BUG[20120226]", errorFound );
+}
+{	// local variables can be assigned by using ':=', which should produce a warning.
+	var errorFound=false;
+	var a;
+	Runtime.setTreatWarningsAsError(true);
+	try{
+		a:=1;
+	}catch(e){
+		errorFound = true;
+	}
+	Runtime.setTreatWarningsAsError(false);
+	test( "BUG[20120226.2]", a==1&&errorFound );
 }
