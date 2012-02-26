@@ -887,6 +887,10 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 		if (lValueType != LVALUE_MEMBER) {
 			throwError("No valid member-LValue before '"+op->getString()+"' ",tokens[opPosition]);
 		}
+		if(obj==NULL){
+			log(Logger::WARNING,"Use '=' for assigning to local variables instead of '"+op->getString()+"' ",tokens[opPosition]);
+			return SetAttribute::createAssignment(obj,memberIdentifier,rightExpression,currentLine);
+		}
 		return new SetAttribute(obj,memberIdentifier,rightExpression,flags,currentLine);
 	}
 

@@ -545,7 +545,7 @@
 {	// Using invalid superconstructor parameters for the base-constructor is not detected and can crash the program
 	var errorFound=false;
 	try{
-		var A := new Type();
+		var A = new Type();
 		A._constructor ::= fn()@(super("A Map is expected here!")){};
 		new A();
 	}catch(e){
@@ -555,13 +555,27 @@
 }
 {	// local variables can be assigned by using ':=', which should produce a warning.
 	var errorFound=false;
-	var a;
+	var result1=false;
+	var result2=false;
+	
 	Runtime.setTreatWarningsAsError(true);
 	try{
-		a:=1;
+		/* this should produce a warning, which is transformed
+			into an exception before the 'execute()' is executed. */
+		result1 = parse("var a; a:=true; out('Should not be executed!'); a;").execute(); 
 	}catch(e){
 		errorFound = true;
 	}
 	Runtime.setTreatWarningsAsError(false);
-	test( "BUG[20120226.2]", a==1&&errorFound );
+	// but it should work like an ordenary assignment
+	var l = Runtime.getLoggingLevel();
+	Runtime.setLoggingLevel(Runtime.ERROR); // ignore warnings
+	result2 = parse("var a; a:=true; a;").execute(); 
+	Runtime.setLoggingLevel(l);
+	
+	test( "BUG[20120226.2]", !result1 && result2 && errorFound );
 }
+//{
+//	var a=5;;
+//	out(parse('{out(a);}').execute());	
+//}
