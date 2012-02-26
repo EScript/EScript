@@ -16,7 +16,7 @@ class Runtime;
 /*! [AttributeContainer]   */
 class AttributeContainer {
 	void operator=(const AttributeContainer & other);
-	
+
 	public:
 		typedef std::map<StringId,Attribute> attributeMap_t;
 		typedef attributeMap_t::iterator iterator;

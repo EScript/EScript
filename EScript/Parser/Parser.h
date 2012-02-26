@@ -66,7 +66,7 @@ class Parser : public Object {
 	private:
 		_CountedRef<Logger> logger;
 		void log(Logger::level_t messageLevel, const std::string & msg,const _CountedRef<Token> & token=NULL)const;
-		
+
 		// only for debugging
 		StringId currentFilename;
 		std::string getCurrentFilename()const	{	return currentFilename.toString();	}
@@ -83,7 +83,7 @@ class Parser : public Object {
 		Object * getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const;
 		UserFunction::parameterList_t * getFunctionParameters(ParsingContext & ctxt,int & cursor)const;
 		void getExpressionsInBrackets(ParsingContext & ctxt,int & cursor,std::vector<ObjRef> & expressions)const;
-	
+
 		typedef std::vector<std::pair<StringId,int> > annotations_t; //  (annotation's id, position of option bracket or -1)*
 		void getAnnotations(ParsingContext & ctxt,int from,int to,annotations_t & annotations)const;
 

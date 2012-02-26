@@ -62,7 +62,7 @@ void init() {
 	declareConstant(escript,"ATTR_REFERENCE_BIT",Number::create(Attribute::REFERENCE_BIT));
 	declareConstant(escript,"ATTR_OVERRIDE_BIT",Number::create(Attribute::OVERRIDE_BIT));
 	// -------------
-	
+
 	initLibrary(StdLib::init);
 	initLibrary(IOLib::init);
 	initLibrary(MathLib::init);

@@ -46,7 +46,7 @@ class ExtObject : public Object {
 
 		/// ---|> [Object]
 		virtual Attribute * _accessAttribute(const StringId id,bool localOnly);
-		
+
 		/// ---|> [Object]
 		virtual void _initAttributes(Runtime & rt);
 

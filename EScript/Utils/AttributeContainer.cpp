@@ -32,11 +32,10 @@ void AttributeContainer::cloneAttributesFrom(const AttributeContainer & other) {
 	for(attributeMap_t::const_iterator it = other.attributes.begin() ; it!=other.attributes.end() ; ++it){
 		setAttribute(it->first, Attribute(it->second.getValue()->getRefOrCopy(),it->second.getFlags() ));
 	}
-		
+
 }
 
 void AttributeContainer::collectAttributes(std::map<StringId,Object *> & attrs){
 	for(attributeMap_t::iterator it = attributes.begin() ; it!=attributes.end() ; ++it)
 		attrs[it->first] = it->second.getValue();
 }
-

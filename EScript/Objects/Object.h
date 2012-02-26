@@ -79,9 +79,9 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 		//! ---o
 		//! For internal use only.
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_UNKNOWN; }
-		
-		
-		/*! If this object is the value of an attribute marked as reference, and a new value is assigned to this attribute, 
+
+
+		/*! If this object is the value of an attribute marked as reference, and a new value is assigned to this attribute,
 			this function is called instead of setting the new object as value for the attribute.
 			This makes only sense for reference objects like NumberRef.
 			---o	*/
@@ -112,32 +112,32 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 			\note Has to be overridden if an Object type should support user defined attributes.
 		*/
 		virtual Attribute * _accessAttribute(const StringId id,bool localOnly);
-				
+
 		/*! ---o (internal)
-		This function is called by the runtime after a new Object has been created in the script using "new". The 
-			execution takes place after the Object itself has been created, but before the first scripted constructor is executed.			
+		This function is called by the runtime after a new Object has been created in the script using "new". The
+			execution takes place after the Object itself has been created, but before the first scripted constructor is executed.
 			Extended attribute initializations can be performed here.
 			\note Has to be overridden if an Object type should support user defined attributes. */
 		virtual void _initAttributes(Runtime & rt);
-		
+
 		/*! Get the locally stored attribute with the given id.
 			If the attribute is not found, the resulting attribute references NULL.
-			\code 
+			\code
 				const Attribute & attr = obj->getLocalAttribute("attrName");
 				if(attr.isNull()) ...
 		*/
 		const Attribute & getLocalAttribute(const StringId id)const;
-		
+
 		/*! Get the attribute with the given id. The attribute can be stored locally or be accessible by the object's type.
 			If the attribute is not found, the resulting attribute references NULL.
-			\code 
+			\code
 				const Attribute & attr = obj->getAttribute("doesNotExist");
 				if(attr.isNull()) ...
 		*/
 		const Attribute & getAttribute(const StringId id)const;
 		const Attribute & getAttribute(const char * c_str)const					{	return getAttribute(StringId(c_str));	}
 
-		/*!	---o 
+		/*!	---o
 			Try to set the value of an object attribute.
 			Returns false if the attribute can not be set.
 			\note Has to be overridden if an Object type should support user defined attributes. */

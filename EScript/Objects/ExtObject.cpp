@@ -20,7 +20,7 @@ void ExtObject::init(EScript::Namespace & globals) {
 	Type * typeObject=getTypeObject();
 	typeObject->allowUserInheritance(true);
 	initPrintableName(typeObject,getClassName());
-	
+
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//!	[ESF] ExtObject new ExtObject( [Map objAttributes] )
@@ -84,7 +84,7 @@ void ExtObject::_initAttributes(Runtime & rt){
 //! ---|> [Object]
 Attribute * ExtObject::_accessAttribute(const StringId id,bool localOnly){
 	Attribute * attr = objAttributes.accessAttribute(id);
-	
+
 	if( attr==NULL && !localOnly && getType()!=NULL){
 		attr = getType()->findTypeAttribute(id);
 	}

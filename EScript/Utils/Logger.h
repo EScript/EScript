@@ -29,7 +29,7 @@ class Logger : public EReferenceCounter<Logger> {
 		};
 		Logger(level_t _minLevel=_ALL,level_t _maxLevel = _NONE) : minLevel(_minLevel),maxLevel(_maxLevel){}
 		virtual ~Logger(){}
-		
+
 		void debug(const std::string & msg)			{	log(DEBUG,msg);	}
 		void error(const std::string & msg)			{	log(ERROR,msg);	}
 		void fatal(const std::string & msg)			{	log(FATAL,msg);	}
@@ -41,14 +41,14 @@ class Logger : public EReferenceCounter<Logger> {
 		void setMinLevel(level_t l)					{	minLevel = l;	}
 		void setMaxLevel(level_t l)					{	maxLevel = l;	}
 		void warn(const std::string & msg)			{	log(WARNING,msg);	}
-		
+
 	private:
-		bool testLevel(level_t t)const				{	return 	static_cast<int>(t)>=static_cast<int>(minLevel) && 
+		bool testLevel(level_t t)const				{	return 	static_cast<int>(t)>=static_cast<int>(minLevel) &&
 																static_cast<int>(t)<=static_cast<int>(maxLevel); }
 
 		//! ---o
 		virtual void doLog(level_t l,const std::string & msg) = 0;
-		
+
 		level_t minLevel;
 		level_t maxLevel;
 };
@@ -62,7 +62,7 @@ class LoggerGroup : public Logger {
 	public:
 		LoggerGroup(level_t _minLevel=_ALL,level_t _maxLevel = _NONE) : Logger(_minLevel,_maxLevel){}
 		virtual ~LoggerGroup(){}
-		
+
 		void addLogger(const std::string & name,Logger * logger);
 		bool removeLogger(const std::string & name);
 		void clearLoggers();

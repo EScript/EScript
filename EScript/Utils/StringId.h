@@ -33,9 +33,9 @@ class StringId{
 			return *this;
 		}
 		bool empty()const								{	return id==0;	}
-		
-		bool operator==(const StringId & other)const	{	return id == other.id;	}		
-		bool operator!=(const StringId & other)const	{	return id != other.id;	}		
+
+		bool operator==(const StringId & other)const	{	return id == other.id;	}
+		bool operator!=(const StringId & other)const	{	return id != other.id;	}
 		bool operator<(const StringId & other)const		{	return id < other.id;	}
 };
 }

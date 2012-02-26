@@ -82,4 +82,3 @@ void StdLogger::doLog(level_t l,const std::string & msg){
 }
 
 }
-

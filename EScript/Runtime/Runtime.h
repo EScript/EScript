@@ -181,7 +181,7 @@ class Runtime : public ExtObject  {
 		Logger::level_t getLoggingLevel()				{	return logger->getMinLevel();	}
 		void setLoggingLevel(Logger::level_t level)		{	logger->setMinLevel(level);	}
 		void setTreatWarningsAsError(bool b);
-		
+
 		int getCurrentLine()const;
 		std::string getCurrentFile()const;
 		LoggerGroup * getLogger()const					{	return logger.get();	}

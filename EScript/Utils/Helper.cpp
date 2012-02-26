@@ -182,21 +182,21 @@ std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & fi
 std::pair<bool, ObjRef> executeStream(Runtime & runtime, std::istream & stream) {
 	ERef<Block> rootBlock = new Block;
 	rootBlock->setFilename(StringId("stdin"));
-	
+
 	std::string streamData;
 	while(stream.good()) {
 		char buffer[256];
 		stream.read(buffer, 256);
 		streamData.append(buffer, stream.gcount());
 	}
-	
+
 	try {
 		Parser parser(runtime.getLogger());
 		parser.parse(rootBlock.get(), StringData(streamData));
 	} catch (Exception * error) {
 		return std::make_pair(false, error);
 	}
-	
+
 	return execute(runtime, rootBlock.get());
 }
 

@@ -41,9 +41,9 @@ std::string SetAttribute::toString()const {
 			if( attrFlags & Attribute::INIT_BIT)		s+="init,";
 			s+=')';
 		}
-		if( attrFlags & Attribute::TYPE_ATTR_BIT)		
+		if( attrFlags & Attribute::TYPE_ATTR_BIT)
 			s+="::=";
-		else 
+		else
 			s+=":=";
 	}
 	s+='('+valueExpr.toString()+") ";

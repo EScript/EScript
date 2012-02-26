@@ -19,7 +19,7 @@ Type * YieldIterator::getTypeObject(){
 void YieldIterator::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();
 	initPrintableName(typeObject,getClassName());
-	
+
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! Object YieldIterator.key()

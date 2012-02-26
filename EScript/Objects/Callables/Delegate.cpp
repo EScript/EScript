@@ -20,7 +20,7 @@ Type * Delegate::getTypeObject(){
 void Delegate::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();
 	initPrintableName(typeObject,getClassName());
-	
+
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//!	[ESMF] Delegate new Delegate(object,function)

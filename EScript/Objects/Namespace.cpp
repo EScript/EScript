@@ -21,7 +21,7 @@ void Namespace::init(EScript::Namespace & globals) {
 	// [Namespace] ---|> [ExtObject] ---|> [Object]
 	Type * typeObject=getTypeObject();
 	initPrintableName(typeObject,getClassName());
-	
+
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! [ESMF] Namespace new Namespace()

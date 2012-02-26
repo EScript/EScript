@@ -43,7 +43,7 @@ Type * Runtime::getTypeObject(){
 void Runtime::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();
 	initPrintableName(typeObject,getClassName());
-	
+
 	declareConstant(&globals,getClassName(),typeObject);
 
 	declareConstant(typeObject,"DEBUG",Number::create(static_cast<int>(Logger::DEBUG)));
@@ -52,7 +52,7 @@ void Runtime::init(EScript::Namespace & globals) {
 	declareConstant(typeObject,"WARNING",Number::create(static_cast<int>(Logger::WARNING)));
 	declareConstant(typeObject,"ERROR",Number::create(static_cast<int>(Logger::ERROR)));
 	declareConstant(typeObject,"FATAL",Number::create(static_cast<int>(Logger::FATAL)));
-	
+
 	//!	[ESMF] Number Runtime._getStackSize();
 	ESF_DECLARE(typeObject,"_getStackSize",0,0, Number::create(runtime.getStackSize()))
 
@@ -111,10 +111,10 @@ void Runtime::init(EScript::Namespace & globals) {
 //! (ctor)
 Runtime::Runtime() :
 		ExtObject(Runtime::getTypeObject()), stackSizeLimit(512),
-		state(STATE_NORMAL),logger(new LoggerGroup(Logger::WARNING)){ 
+		state(STATE_NORMAL),logger(new LoggerGroup(Logger::WARNING)){
 
 	logger->addLogger("coutLogger",new StdLogger(std::cout));
-	
+
 	globals = EScript::getSGlobals()->clone();
 	declareConstant(globals.get(),"GLOBALS",globals.get());
 	declareConstant(globals.get(),"SGLOBALS",EScript::getSGlobals());
@@ -208,10 +208,10 @@ bool Runtime::assignToAttribute(ObjPtr obj,StringId attrId,ObjPtr value){
 	Attribute * attr = obj->_accessAttribute(attrId,false);
 	if(attr == NULL)
 		return false;
-	
+
 	if(attr->getFlags()&Attribute::ASSIGNMENT_RELEVANT_BITS){
 		if(attr->isConst()){
-			setException("Cannot assign to const attribute."); 
+			setException("Cannot assign to const attribute.");
 			return true;
 		}else if(attr->isPrivate()){
 			if( obj!=getCurrentContext()->getCaller() ){
@@ -249,7 +249,7 @@ Object * Runtime::eval(const StringData & code){
 	ObjRef resultRef = executeCurrentContext(true);
 	popContext();
 	block = NULL; // remove possibly pending reference to the result to prevent accidental deletion
-	return resultRef.detachAndDecrease();	
+	return resultRef.detachAndDecrease();
 }
 
 /*! - identify object by internalTypeId (as defined in typeIds.h)
@@ -341,7 +341,7 @@ Object * Runtime::executeObj(Object * obj){
 			}
 		}else {
 			const Attribute::flag_t attrFlags = sa->getAttributeFlags();
-		
+
 			// check for @(override)
 			if(attrFlags&Attribute::OVERRIDE_BIT && obj2->_accessAttribute(sa->attrId,false)==NULL){
 				warn(std::string("No attribute to override: '")+sa->getAttrName()+"' ("+
@@ -364,9 +364,9 @@ Object * Runtime::executeObj(Object * obj){
 				if(!obj2->setAttribute(sa->attrId,Attribute(value,attrFlags)))
 					warn(std::string("Cannot set object attribute '")+sa->getAttrName()+"' ("+
 							(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+'.'+sa->getAttrName()+'='+(value.isNull()?"":value->toDbgString())+')');
-				
+
 			}
-		
+
 		}
 		return value.detachAndDecrease();
 	}
@@ -417,7 +417,7 @@ Object * Runtime::executeObj(Object * obj){
 	return NULL;
 }
 
-//! (internal) 
+//! (internal)
 Object * Runtime::executeBlock(Block * block) {
 	getCurrentContext()->createAndPushRTB(block);
 	ObjRef resultRef = executeCurrentContext(true);
@@ -783,7 +783,7 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 		}  catch (...){
 			setException("C++ exception");
 			return NULL;
-		}			
+		}
 	} // is UserFunction?
 	else if (type==_TypeIds::TYPE_USER_FUNCTION){
 		if (isConstructorCall) {
@@ -1149,8 +1149,8 @@ void Runtime::setTreatWarningsAsError(bool b){
 	if(b){ // --> disable coutLogger and add throwLogger
 		Logger * coutLogger = logger->getLogger("coutLogger");
 		if(coutLogger!=NULL)
-			coutLogger->setMinLevel(Logger::ERROR);		
-		
+			coutLogger->setMinLevel(Logger::ERROR);
+
 		//! ThrowLogger ---|> Logger
 		class ThrowLogger : public Logger{
 			Runtime & rt;
@@ -1162,7 +1162,7 @@ void Runtime::setTreatWarningsAsError(bool b){
 	}else{
 		Logger * coutLogger = logger->getLogger("coutLogger");
 		if(coutLogger!=NULL)
-			coutLogger->setMinLevel(Logger::_ALL);		
+			coutLogger->setMinLevel(Logger::_ALL);
 		logger->removeLogger("throwLogger");
 	}
 }

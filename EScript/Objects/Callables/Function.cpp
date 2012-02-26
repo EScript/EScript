@@ -19,7 +19,7 @@ Type * Function::getTypeObject()	{
 void Function::init(EScript::Namespace & globals) {
 	Type * typeObject=getTypeObject();
 	initPrintableName(typeObject,getClassName());
-	
+
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! [ESMF] Number|false Function.getMaxParamCount()

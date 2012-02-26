@@ -95,7 +95,7 @@ void Parser::init(EScript::Namespace & globals) {
 // -------------------------------------------------------------------------------------------------------------------
 
 //!	(ctor)
-Parser::Parser(Logger * _logger,Type * type) : 
+Parser::Parser(Logger * _logger,Type * type) :
 		Object(type?type:getTypeObject()),
 		logger(_logger ? _logger : new StdLogger(std::cout)) {
 	//ctor

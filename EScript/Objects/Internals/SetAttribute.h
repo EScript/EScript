@@ -16,7 +16,7 @@ class SetAttribute : public Object {
 		ES_PROVIDES_TYPE_NAME(SetAttribute)
 	public:
 		static SetAttribute * createAssignment(Object * obj,StringId attrId,Object * valueExp,int _line=-1);
-		
+
 		SetAttribute(Object * obj,StringId attrId,Object * valueExp,Attribute::flag_t _attrFlags,int _line=-1);
 		virtual ~SetAttribute();
 
@@ -25,7 +25,7 @@ class SetAttribute : public Object {
 		Attribute::flag_t getAttributeFlags()const  	{   return attrFlags;    }
 		Object * getValueExpression()const 		 		{   return valueExpr.get();    }
 		std::string getAttrName()const					{   return attrId.toString();    }
-	
+
 		int getLine()const								{	return line;	}
 
 		/// ---|> [Object]

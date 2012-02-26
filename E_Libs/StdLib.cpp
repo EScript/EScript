@@ -227,7 +227,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	}
 	//!	[ESF]  Object eval(string)
 	ESF_DECLARE(globals,"eval",1,1, runtime.eval(StringData(parameter[0].toString())))
-	
+
 	/*!	[ESF]  Map getDate([time])
 		like http://de3.php.net/manual/de/function.getdate.php	*/
 	ES_FUNCTION_DECLARE(globals,"getDate",0,1,{

@@ -22,9 +22,9 @@ void Collection::init(EScript::Namespace & globals) {
 
 	Type * typeObject=getTypeObject();
 	initPrintableName(typeObject,getClassName());
-	
+
 	declareConstant(&globals,getClassName(),typeObject);
-	
+
 	//! [ESMF] Object Collection[key]
 	ESMF_DECLARE(typeObject,Collection,"_get",1,1,self->getValue(parameter[0]))
 

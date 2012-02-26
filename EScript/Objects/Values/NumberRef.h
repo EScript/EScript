@@ -32,7 +32,7 @@ class NumberRef : public Number {
 
 		/// ---|> [Object]
 		virtual Object * getRefOrCopy();
-		
+
 		/// ---|> [Object]
 		virtual void _assignValue(ObjPtr value);
 

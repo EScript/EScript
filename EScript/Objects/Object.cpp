@@ -90,7 +90,7 @@ void Object::init(EScript::Namespace & globals) {
 	//! [ESMF] Bool Object.isSet(key)
 	ESF_DECLARE(typeObject,"isSet",1,1,Bool::create(!caller->getAttribute(parameter[0].toString()).isNull()))
 
-	//! [ESMF] Bool Object.setAttribute(key,value(,flags=ATTR_NORMAL_ATTRIBUTE)) 
+	//! [ESMF] Bool Object.setAttribute(key,value(,flags=ATTR_NORMAL_ATTRIBUTE))
 	ESF_DECLARE(typeObject,"setAttribute",2,3,
 				Bool::create(caller->setAttribute(parameter[0].toString(),
 													Attribute(parameter[1],

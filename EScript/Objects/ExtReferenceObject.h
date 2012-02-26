@@ -26,8 +26,8 @@ class StoreAttrsInEObject_Policy{
 		static AttributeContainer * getAttributeContainer(StoreAttrsInEObject_Policy * obj,bool /*create*/){
 			return &(obj->attributeContainer);
 		}
-		
-		/*! (static) Should return true iff the object's Type's attributes are already initialized with the 
+
+		/*! (static) Should return true iff the object's Type's attributes are already initialized with the
 			object's attributeContainer. This function is only called by the ExtReferenceObject's constructor.
 			As for this specific policy, the attributeContainer has always just been created then, it can not already
 			been initialized. */
@@ -52,7 +52,7 @@ class ExtReferenceObject : public Object, private attributeProvider {
 		// ---
 		ExtReferenceObject(const _T & _obj, Type * type=NULL) :
 					Object(type), attributeProvider(), obj(_obj){
-			
+
 			if(type!=NULL && !areObjAttributesInitialized(this)){
 				type->copyObjAttributesTo(this);
 			}
@@ -98,7 +98,7 @@ class ExtReferenceObject : public Object, private attributeProvider {
 			Attribute * attr = attrContainer!=NULL ? attrContainer->accessAttribute(id) : NULL;
 			return  ( attr!=NULL || localOnly || getType()==NULL) ? attr : getType()->findTypeAttribute(id);
 		}
-		
+
 		/// ---|> [Object]
 		virtual void _initAttributes(Runtime & rt){
 			// if the type contains obj attributes, this object will surely also have some, so it is safe to init the attribute container.

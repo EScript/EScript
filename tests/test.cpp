@@ -38,8 +38,8 @@ public:
 		return type;
 	}
 	Attribute m1,m2;
-	
-	E_TestObject(int i=0,float f=0) : 
+
+	E_TestObject(int i=0,float f=0) :
 			ReferenceObject<TestObject>(TestObject(i,f),getTypeObject()),
 			m1(new NumberRef(ref().m1),Attribute::REFERENCE_BIT ),
 			m2(new NumberRef(ref().m2),Attribute::REFERENCE_BIT ){
