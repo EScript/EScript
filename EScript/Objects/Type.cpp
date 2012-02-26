@@ -62,10 +62,6 @@ void Type::init(EScript::Namespace & globals) {
 		self->collectTypeAttributes(attrs);
 		return Map::create(attrs);
 	})
-
-	//! [ESMF] self Object.setTypeAttribute(key,value)
-	ESMF_DECLARE(typeObject,Type,"setTypeAttribute",2,2,
-				(self->setAttribute(parameter[0].toString(),Attribute(parameter[1],Attribute::TYPE_ATTR_BIT)),self))
 }
 
 //---

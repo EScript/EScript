@@ -53,7 +53,14 @@ void init() {
 	declareConstant(escript,"VERSION",Number::create(ES_VERSION));
 	declareConstant(escript,"VERSION_STRING",String::create(ES_VERSION_STRING));
 
-	
+	// define attribute constants
+	declareConstant(escript,"ATTR_NORMAL_ATTRIBUTE",Number::create(Attribute::NORMAL_ATTRIBUTE));
+	declareConstant(escript,"ATTR_CONST_BIT",Number::create(Attribute::CONST_BIT));
+	declareConstant(escript,"ATTR_PRIVATE_BIT",Number::create(Attribute::PRIVATE_BIT));
+	declareConstant(escript,"ATTR_TYPE_ATTR_BIT",Number::create(Attribute::TYPE_ATTR_BIT));
+	declareConstant(escript,"ATTR_INIT_BIT",Number::create(Attribute::INIT_BIT));
+	declareConstant(escript,"ATTR_REFERENCE_BIT",Number::create(Attribute::REFERENCE_BIT));
+	declareConstant(escript,"ATTR_OVERRIDE_BIT",Number::create(Attribute::OVERRIDE_BIT));
 	// -------------
 	
 	initLibrary(StdLib::init);

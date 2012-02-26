@@ -186,7 +186,7 @@
 
 	var C=new Type();
 	C.m1:=1;
-	C.setObjAttribute("==",  fn(b){
+	C.setAttribute("==",  fn(b){
 		if(b---|>Number){
 			return this.m1==b;
 		}else return false;

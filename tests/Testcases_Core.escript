@@ -599,23 +599,23 @@ if(!benchmark)
  //disble for benchmarks
    out("Get-/setAttribute:");
    var normalPlus=GLOBALS.Number.getAttribute("+");
-   Number.setTypeAttribute("+",fn(i){
+   Number.setAttribute("+",fn(i){
 		return this-i;
-   });
+   },EScript.ATTR_TYPE_ATTR_BIT);
    var a=1+2; // = 1-2;
-   Number.setTypeAttribute("+",normalPlus);
+   Number.setAttribute("+",normalPlus,EScript.ATTR_TYPE_ATTR_BIT);
    var b=1+2; // = 1+2//
  /// Fakultät
-   Number.setTypeAttribute("!_post",fn(){
+   Number.setAttribute("!_post",fn(){
 	   if(this<=1) return this;
 	   return this* ((this-1)!);
-   });
+   },EScript.ATTR_TYPE_ATTR_BIT);
    var c=7!; // 7*6*5*4*3*2*1
    if( a==-1 && b==3 && c==5040 && (1)."+"(2)==3 )
 		{out (OK);}else { errors+=1; out(FAILED); }
  /// Note: 2008-02-11 When setting Attributes of Type-Objects, Debug-Object-Counting
  /// does not work properly until deleting new Attributes: \todo !!!check this
-	Number.setTypeAttribute("!_post",void);
+	Number.setAttribute("!_post",void,EScript.ATTR_TYPE_ATTR_BIT);
 /// Todo:    Number.unsetAttribute("!_post");
 }
 
@@ -630,11 +630,10 @@ if(!benchmark)
 	};
 	A.a:=1; /// object-member of A
 	A.b:=1; /// object-member of A
-//    A.setTypeAttribute("c",1); /// type-member of A \TODO????????????????????????
 	A.c::=1;
-	A.setObjAttribute("d",1); /// object-member of A
+	A.setAttribute("d",1,EScript.ATTR_NORMAL_ATTRIBUTE); /// object-member of A
 	A.e::=1; /// type-member of A
-	A.setTypeAttribute($f,1); /// type-member of A
+	A.setAttribute($f,1,EScript.ATTR_TYPE_ATTR_BIT); /// type-member of A
 
 	A._printableName ::= "MyUserdefinedA"; /// change the type name used for toString.
 //    print_r(A._getAttributes());

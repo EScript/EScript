@@ -316,7 +316,7 @@ Object * Runtime::executeObj(Object * obj){
 			const Attribute::flag_t attrFlags = sa->getAttributeFlags();
 		
 			// check for @(override)
-			if(attrFlags&Attribute::OVERRITDE_BIT && obj2->_accessAttribute(sa->attrId,false)==NULL){
+			if(attrFlags&Attribute::OVERRIDE_BIT && obj2->_accessAttribute(sa->attrId,false)==NULL){
 				warn(std::string("No attribute to override: '")+sa->getAttrName()+"' ("+
 						(sa->objExpr.isNull()?"":sa->objExpr->toDbgString())+'.'+sa->getAttrName()+'='+(value.isNull()?"":value->toDbgString())+")");
 			}
