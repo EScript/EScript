@@ -458,7 +458,7 @@
 	GLOBALS.__test20110604b := 2;
 
 	var l = Runtime.getLoggingLevel();
-	Runtime.setLoggingLevel(Runtime.ERROR); // ignore warnings
+	Runtime.setLoggingLevel(Runtime.LOG_ERROR); // ignore warnings
 	test( "BUG[20110604]",
 			(fn(__test20110604a,__test20110604b) { return void == __test20110604a && void == __test20110604b;	} )() );
 	Runtime.setLoggingLevel(l);
@@ -569,7 +569,7 @@
 	Runtime.setTreatWarningsAsError(false);
 	// but it should work like an ordenary assignment
 	var l = Runtime.getLoggingLevel();
-	Runtime.setLoggingLevel(Runtime.ERROR); // ignore warnings
+	Runtime.setLoggingLevel(Runtime.LOG_ERROR); // ignore warnings
 	result2 = parse("var a; a:=true; a;").execute(); 
 	Runtime.setLoggingLevel(l);
 	

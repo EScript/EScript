@@ -48,32 +48,32 @@ void LoggerGroup::doLog(level_t l,const std::string & msg){
 void StdLogger::doLog(level_t l,const std::string & msg){
 	out << std::endl;
 	switch(l){
-		case DEBUG:{
+		case LOG_DEBUG:{
 			out << "Debug: ";
 			break;
 		}
-		case INFO:{
+		case LOG_INFO:{
 			out << "Debug: ";
 			break;
 		}
-		case WARNING:{
+		case LOG_WARNING:{
 			out << "Warning: ";
 			break;
 		}
-		case PEDANTIC_WARNING:{
+		case LOG_PEDANTIC_WARNING:{
 			out << "Pedantic warning: ";
 			break;
 		}
-		case ERROR:{
+		case LOG_ERROR:{
 			out << "Error: ";
 			break;
 		}
-		case FATAL:{
+		case LOG_FATAL:{
 			out << "Fatal error: ";
 			break;
 		}
-		case _ALL:
-		case _NONE:
+		case LOG_ALL:
+		case LOG_NONE:
 		default:{
 			out << "Logging ("<<l<<"):";
 		}

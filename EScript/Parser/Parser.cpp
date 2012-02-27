@@ -347,7 +347,7 @@ void Parser::pass_2(ParsingContext & ctxt,
 				if (tc->getId()==Consts::IDENTIFIER_var) {
 					if (TIdentifier * ti=Token::cast<TIdentifier>(ctxt.tokens.at(cursor+1))) {
 						if(!blockStack.top()->declareVar(ti->getId())){
-							log(Logger::WARNING, "Duplicate local variable '"+ti->toString()+'\'',ti);
+							log(Logger::LOG_WARNING, "Duplicate local variable '"+ti->toString()+'\'',ti);
 						}
 //						Token::removeReference(token);
 						continue;
@@ -496,7 +496,7 @@ Object * Parser::getExpression(ParsingContext & ctxt,int & cursor,int to)const  
 		return NULL;
 	}/// Commands: if(...){}
 	else if (Token::isA<TControl>(tokens.at(cursor))) {
-		log(Logger::WARNING, "No control statement here!",tokens.at(cursor));
+		log(Logger::LOG_WARNING, "No control statement here!",tokens.at(cursor));
 		return NULL;
 	} /// Block: {...}
 	else if (Token::isA<TStartBlock>(tokens.at(cursor))) {
@@ -641,7 +641,7 @@ Block * Parser::getBlock(ParsingContext & ctxt,int & cursor)const {
 					continue;
 				for(Block::declaredVariableMap_t::const_iterator it=vars->begin();it!=vars->end();++it){
 					if(vars2->count(*it)>0){
-						log(Logger::PEDANTIC_WARNING,"Shadowed local variable  '"+(*it).toString()+"' in block.",tokens.at(cursor));
+						log(Logger::LOG_PEDANTIC_WARNING,"Shadowed local variable  '"+(*it).toString()+"' in block.",tokens.at(cursor));
 					}
 
 				}
@@ -669,7 +669,7 @@ Block * Parser::getBlock(ParsingContext & ctxt,int & cursor)const {
 
 		/// Commands have to end on ";" or "}".
 		if (!(Token::isA<TEndCommand>(tokens.at(cursor)) || Token::isA<TEndBlock>(tokens.at(cursor)))) {
-			log(Logger::DEBUG, tokens.at(cursor)->toString(),tokens.at(cursor));
+			log(Logger::LOG_DEBUG, tokens.at(cursor)->toString(),tokens.at(cursor));
 			throwError("Syntax Error in Block.",tokens.at(cursor));
 		}
 		++cursor;
@@ -712,7 +712,7 @@ Object * Parser::getMap(ParsingContext & ctxt,int & cursor)const  {
 
 		/// ii) read ":"
 		if (!Token::isA<TMapDelimiter>(tokens.at(cursor))) {
-			log(Logger::DEBUG, tokens.at(cursor)->toString(),tokens.at(cursor));
+			log(Logger::LOG_DEBUG, tokens.at(cursor)->toString(),tokens.at(cursor));
 			throwError("Map: Expected : ",tokens.at(cursor));
 		}
 		++cursor;
@@ -834,17 +834,17 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 
 				for(annotations_t::const_iterator it=annotations.begin();it!=annotations.end();++it ){
 					const StringId name = it->first;
-					log(Logger::INFO,"Annotation:"+name.toString(),atOp );
+					log(Logger::LOG_INFO,"Annotation:"+name.toString(),atOp );
 //					const int pos = it->second;
 					if(name == Consts::ANNOTATION_ATTR_const){
 						flags |= Attribute::CONST_BIT;
 					}else if(name == Consts::ANNOTATION_ATTR_init){
 						if(flags&Attribute::TYPE_ATTR_BIT)
-							log(Logger::WARNING,"'@(init)' is used in combination with @(type) or '::='.",atOp);
+							log(Logger::LOG_WARNING,"'@(init)' is used in combination with @(type) or '::='.",atOp);
 						flags |= Attribute::INIT_BIT;
 					}else if(name == Consts::ANNOTATION_ATTR_member){
 						if(flags&Attribute::TYPE_ATTR_BIT){
-							log(Logger::WARNING,"'@(member)' is used in combination with @(type) or '::=' and is ignored.",atOp);
+							log(Logger::LOG_WARNING,"'@(member)' is used in combination with @(type) or '::=' and is ignored.",atOp);
 						}else{
 							inverseFlags |= Attribute::TYPE_ATTR_BIT;
 						}
@@ -852,24 +852,24 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 						flags |= Attribute::OVERRIDE_BIT;
 					}else if(name == Consts::ANNOTATION_ATTR_private){
 						if(inverseFlags&Attribute::PRIVATE_BIT){
-							log(Logger::WARNING,"'@(private)' is used in combination with @(public) and is ignored.",atOp);
+							log(Logger::LOG_WARNING,"'@(private)' is used in combination with @(public) and is ignored.",atOp);
 						}else{
 							flags |= Attribute::PRIVATE_BIT;
 						}
 					}else if(name == Consts::ANNOTATION_ATTR_public){
 						if(flags&Attribute::PRIVATE_BIT){
-							log(Logger::WARNING,"'@(public)' is used in combination with @(private) and is ignored.",atOp);
+							log(Logger::LOG_WARNING,"'@(public)' is used in combination with @(private) and is ignored.",atOp);
 						}else{
 							inverseFlags |= Attribute::PRIVATE_BIT;
 						}
 					}else if(name == Consts::ANNOTATION_ATTR_type){
 						if(inverseFlags&Attribute::TYPE_ATTR_BIT){
-							log(Logger::WARNING,"'@(member)' is used in combination with @(type) or '::=' and is ignored.",atOp);
+							log(Logger::LOG_WARNING,"'@(member)' is used in combination with @(type) or '::=' and is ignored.",atOp);
 						}else{
 							flags |= Attribute::TYPE_ATTR_BIT;
 						}
 						if(flags&Attribute::INIT_BIT)
-							log(Logger::WARNING,"'@(init)' is used in combination with @(type) or '::='.",atOp);
+							log(Logger::LOG_WARNING,"'@(init)' is used in combination with @(type) or '::='.",atOp);
 					}else {
 						throwError("Invalid annotation: '"+name.toString()+'\'',atOp);
 					}
@@ -892,7 +892,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 			throwError("No valid member-LValue before '"+op->getString()+"' ",tokens[opPosition]);
 		}
 		if(obj==NULL){
-			log(Logger::WARNING,"Use '=' for assigning to local variables instead of '"+op->getString()+"' ",tokens[opPosition]);
+			log(Logger::LOG_WARNING,"Use '=' for assigning to local variables instead of '"+op->getString()+"' ",tokens[opPosition]);
 			return SetAttribute::createAssignment(obj,memberIdentifier,rightExpression,currentLine);
 		}
 		return new SetAttribute(obj,memberIdentifier,rightExpression,flags,currentLine);
@@ -905,7 +905,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 	/// "a.b.c"
 	if (op->getString()==".") {
 		if (rightExprFrom>to) {
-			log(Logger::DEBUG, "Error .1 ",tokens[opPosition]);
+			log(Logger::LOG_DEBUG, "Error .1 ",tokens[opPosition]);
 			throwError("Syntax error after '.'",tokens[opPosition]);
 		}
 		cursor=to;
@@ -928,7 +928,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 				return new GetAttribute(leftExpression,i->getId());
 			}
 		}
-		log(Logger::DEBUG, "Error .2 ",tokens[opPosition]);
+		log(Logger::LOG_DEBUG, "Error .2 ",tokens[opPosition]);
 		throwError("Syntax error after '.'",tokens[opPosition]);
 	}
 	///  Function Call
@@ -1145,7 +1145,7 @@ Object * Parser::getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const
 		for(annotations_t::const_iterator it=annotations.begin();it!=annotations.end();++it ){
 			const StringId name = it->first;
 			int parameterPos = it->second;
-			log(Logger::INFO,"Annotation:"+name.toString(),superOp );
+			log(Logger::LOG_INFO,"Annotation:"+name.toString(),superOp );
 //					const int pos = it->second;
 			if(name == Consts::ANNOTATION_FN_super){
 				if(parameterPos<0){
@@ -1153,7 +1153,7 @@ Object * Parser::getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const
 				}
 				getExpressionsInBrackets(ctxt,parameterPos,superConCallExpressions);
 			}else{
-				log(Logger::WARNING,"Anntoation is invalid for functions: '"+name.toString()+"'",superOp);
+				log(Logger::LOG_WARNING,"Anntoation is invalid for functions: '"+name.toString()+"'",superOp);
 			}
 		}
 		cursor = annotationTo+1;
