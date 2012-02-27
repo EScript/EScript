@@ -75,7 +75,7 @@ void StdLogger::doLog(level_t l,const std::string & msg){
 		case LOG_ALL:
 		case LOG_NONE:
 		default:{
-			out << "Logging ("<<l<<"):";
+			out << "Logging ("<<static_cast<int>(l)<<"):";
 		}
 	}
 	out << msg << std::endl;
