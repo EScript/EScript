@@ -575,3 +575,13 @@
 	
 	test( "BUG[20120226.2]", !result1 && result2 && errorFound );
 }
+{ // Attributes with @(init) are initialized twice, if an object has an user defined constructor
+	var A=new Type();
+	A.m @(init) := fn(){	return 5;	};
+	A._constructor ::= fn(){	this.result := m;	};
+
+	var a=new A();
+
+	test( "BUG[20120228]", a.result == 5 );
+	
+}

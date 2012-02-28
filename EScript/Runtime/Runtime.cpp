@@ -978,8 +978,6 @@ Object * Runtime::executeUserConstructor(const ObjPtr & _callingObject,const Par
 				}
 				return NULL;
 			}
-			// init the object
-			baseObj->_initAttributes(*this);
 			break;
 		}else if(funType!=_TypeIds::TYPE_USER_FUNCTION ){
 			setException("Constructor needs to be a function.");
