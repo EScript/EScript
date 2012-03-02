@@ -26,8 +26,8 @@
 #include <list>
 #include <sstream>
 #include <stack>
-using namespace EScript;
 
+namespace EScript{
 
 // ----------------------------------------------------------------------
 // ---- Initialization
@@ -1136,13 +1136,7 @@ void Runtime::throwException(const std::string & s,Object * obj) {
 }
 
 void Runtime::setTreatWarningsAsError(bool b){
-////
-////	// ES_IGNORE_WARNINGS? --> completely ignore warnings
-////	if(errorConfig&ES_IGNORE_WARNINGS){
-////		logger->setMinLevel(Logger::ERROR);
-////	}else{
-////		logger->setMinLevel(Logger::_ALL);
-////	}
+
 
 	if(b){ // --> disable coutLogger and add throwLogger
 		Logger * coutLogger = logger->getLogger("coutLogger");
@@ -1167,6 +1161,40 @@ void Runtime::setTreatWarningsAsError(bool b){
 
 // ----------------------------------------------------------------------
 // ---- Debugging
+
+//! CountingLogger ---|> Logger
+class CountingLogger : public Logger{
+	std::map<level_t,uint32_t> counter;
+	virtual void doLog(level_t l,const std::string & ){	++counter[l];	}
+public:
+	CountingLogger() : Logger(LOG_ALL,LOG_NONE){}
+	~CountingLogger() {}
+	uint32_t get(level_t l)const{	
+		std::map<level_t,uint32_t>::const_iterator it = counter.find(l);
+		return it == counter.end() ? 0 : it->second;	
+	}
+	void reset(level_t l)			{	counter[l] = 0;	}
+};
+
+void Runtime::enableLogCounting(){
+	if(logger->getLogger("countingLogger")==NULL)
+		logger->addLogger("countingLogger",new CountingLogger());
+}
+		
+void Runtime::disableLogCounting(){
+	logger->removeLogger("countingLogger");
+}
+		
+void Runtime::resetLogCounter(Logger::level_t level){
+	CountingLogger * l = dynamic_cast<CountingLogger*>(logger->getLogger("countingLogger"));
+	if(l!=NULL)
+		l->reset(level);
+}
+		
+uint32_t Runtime::getLogCounter(Logger::level_t level)const{
+	CountingLogger * l = dynamic_cast<CountingLogger*>(logger->getLogger("countingLogger"));
+	return l==NULL ? 0 : l->get(level);
+}
 
 std::string Runtime::getCurrentFile()const{
 	if(getCurrentContext()->getCurrentRTB()!=NULL){
@@ -1219,4 +1247,6 @@ std::string Runtime::getStackInfo(){
 	}
 	os<<"\n\n----------------------\n";
 	return os.str();
+}
+
 }
