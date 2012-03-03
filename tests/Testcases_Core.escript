@@ -614,7 +614,9 @@ if(!benchmark)
 	   return this* ((this-1)!);
    },EScript.ATTR_TYPE_ATTR_BIT);
    var c=7!; // 7*6*5*4*3*2*1
-   if( a==-1 && b==3 && c==5040 && (1)."+"(2)==3 )
+
+   if( a==-1 && b==3 && c==5040 && (1)."+"(2)==3
+		&& Number.getAttributeFlags("+") == EScript.ATTR_TYPE_ATTR_BIT	)
 		{out (OK);}else { errors+=1; out(FAILED); }
  /// Note: 2008-02-11 When setting Attributes of Type-Objects, Debug-Object-Counting
  /// does not work properly until deleting new Attributes: \todo !!!check this
@@ -921,7 +923,7 @@ if(!benchmark)
 	var exceptionCaught = false;
 	try{
 		var Number2 = new Type(Number);
-		
+
 	}catch(e){
 		exceptionCaught = true;
 	}
@@ -940,20 +942,20 @@ if(!benchmark)
 	A._constructor @(private) ::= fn(bla){
 		privateMember = bla;
 	};
-	
-	
+
+
 	var B = new Type(A);
 	B._constructor ::= fn(bla)@(super(bla+1)){
 	};
 	B.publicFunction ::= fn(){
 		return privateFunction() + this.constant;
 	};
-	
+
 	var b = new B(16); // privateMember = 16+1
-	
+
 	// try some illegal things ;-)
 	var exceptionCount = 0;
-	
+
 	// throw some exception
 	try{	b.constant = "foo";	}catch(e){	++exceptionCount;	}
 	try{	b.privateFunction = "somethingElse";	}catch(e){	++exceptionCount;	}
@@ -964,9 +966,9 @@ if(!benchmark)
 	try{	b.privateMember++;	}catch(e){	++exceptionCount;	}
 	try{	b.privateFunction();	}catch(e){	++exceptionCount;	}
 	Runtime.setTreatWarningsAsError(false);
-	
+
 	++b.constant; // constant = 100
-	
+
 	test("@(const,private):",exceptionCount==5 && b.publicFunction()==117);
 }
 
@@ -974,11 +976,11 @@ if(!benchmark)
 	var A = new Type();
 	A.a := 1;
 	A.b ::= 2;
-	
+
 	var B = new Type(A);
 	B.a @(override) := 10;
 	B.b @(override) := 20;
-	
+
 	Runtime.setTreatWarningsAsError(true);
 	var exceptionCount = 0;
 	try{	B.c @(override) := 20;	}catch(e){	++exceptionCount;	} // should issue a warning, but should still be executed
@@ -986,7 +988,7 @@ if(!benchmark)
 
 	var b = new B();
 	b.a @(override) := 100;
-	
+
 	test("@(override):", A.a == 1 && exceptionCount==1 && b.a == 100 && b.c==20 );
 }
 
@@ -996,7 +998,7 @@ if(!benchmark)
 	A.a @(init) := fn(){	return 17;	};
 	A.b @(init) := 17->fn(){	return this;	};
 	A.c @(init) := Array;
-	
+
 	var T = new Type();
 	T._constructor ::= fn(){
 		this.value := 17;
@@ -1005,7 +1007,7 @@ if(!benchmark)
 
 	var B = new Type(A);
 	var b = new B();
-	
+
 	test("@(init):", b.a == 17 && b.b==17 && b.c == [] && b.d.value==17  );
 }
 

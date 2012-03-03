@@ -28,3 +28,6 @@
 	test( "Runtime._stackSize",
 			(fn(){return Runtime._getStackSize();})() == (fn(){ return (fn(){return Runtime._getStackSize();})();})()-1 );
 }
+//Runtime.enableLogCounting();
+
+//out("-",Runtime.getLogCounter(Runtime.LOG_ERROR),"\n");

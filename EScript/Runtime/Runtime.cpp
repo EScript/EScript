@@ -63,14 +63,32 @@ void Runtime::init(EScript::Namespace & globals) {
 	ESF_DECLARE(typeObject,"_setStackSizeLimit",1,1,
 				(runtime.setStackSizeLimit(static_cast<size_t>(parameter[0].toInt())),Void::get()) )
 
+	//!	[ESMF] void Runtime.disableLogCounting( );
+	ESF_DECLARE(typeObject,"disableLogCounting",0,1, (runtime.disableLogCounting(),Void::get()))
+
+
+	//!	[ESMF] void Runtime.enableLogCounting( );
+	ESF_DECLARE(typeObject,"enableLogCounting",0,1, (runtime.enableLogCounting(),Void::get()))
+
 	//!	[ESMF] void Runtime.exception( [message] );
 	ESF_DECLARE(typeObject,"exception",0,1, (runtime.setException(parameter[0].toString()),Void::get()))
+
+	//!	[ESMF] Number Runtime.getLogCounter(Number);
+	ESF_DECLARE(typeObject,"getLogCounter",1,1, Number::create(runtime.getLogCounter(static_cast<Logger::level_t>(parameter[0].toInt()))))
 
 	//!	[ESMF] Number Runtime.getLoggingLevel();
 	ESF_DECLARE(typeObject,"getLoggingLevel",0,0, Number::create(static_cast<int>(runtime.getLoggingLevel())))
 
 	//!	[ESMF] String Runtime.getStackInfo();
 	ESF_DECLARE(typeObject,"getStackInfo",0,0, String::create(runtime.getStackInfo()))
+
+	//!	[ESMF] void Runtime.log(Number,String);
+	ESF_DECLARE(typeObject,"log",2,2,
+				(runtime.log(static_cast<Logger::level_t>(parameter[0].toInt()),parameter[1].toString()),Void::get()) )
+
+	//!	[ESMF] void Runtime.resetLogCounter(Number);
+	ESF_DECLARE(typeObject,"resetLogCounter",1,1,
+				(runtime.resetLogCounter(static_cast<Logger::level_t>(parameter[0].toInt())),Void::get()) )
 
 	//!	[ESMF] void Runtime.setLoggingLevel(Number);
 	ESF_DECLARE(typeObject,"setLoggingLevel",1,1,
@@ -1169,9 +1187,9 @@ class CountingLogger : public Logger{
 public:
 	CountingLogger() : Logger(LOG_ALL,LOG_NONE){}
 	~CountingLogger() {}
-	uint32_t get(level_t l)const{	
+	uint32_t get(level_t l)const{
 		std::map<level_t,uint32_t>::const_iterator it = counter.find(l);
-		return it == counter.end() ? 0 : it->second;	
+		return it == counter.end() ? 0 : it->second;
 	}
 	void reset(level_t l)			{	counter[l] = 0;	}
 };
@@ -1180,17 +1198,17 @@ void Runtime::enableLogCounting(){
 	if(logger->getLogger("countingLogger")==NULL)
 		logger->addLogger("countingLogger",new CountingLogger());
 }
-		
+
 void Runtime::disableLogCounting(){
 	logger->removeLogger("countingLogger");
 }
-		
+
 void Runtime::resetLogCounter(Logger::level_t level){
 	CountingLogger * l = dynamic_cast<CountingLogger*>(logger->getLogger("countingLogger"));
 	if(l!=NULL)
 		l->reset(level);
 }
-		
+
 uint32_t Runtime::getLogCounter(Logger::level_t level)const{
 	CountingLogger * l = dynamic_cast<CountingLogger*>(logger->getLogger("countingLogger"));
 	return l==NULL ? 0 : l->get(level);

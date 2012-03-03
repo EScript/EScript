@@ -74,7 +74,12 @@ if(benchmark){
 	SGLOBALS.out("\nMin:",times.front(),"ms\tMed:",times[ (times.count()*0.5).floor() ],"ms\tMax:",times.back(),"ms\n" );
 	SGLOBALS.out("Avg:",sum/ (tries*innerLoops),"\n");
 }else{
-	t();
+	try{
+		t();
+	}catch(e){
+		Runtime.log(Runtime.LOG_ERROR,e);
+		++errors;
+	}
 }
 
 load("Testcases_IOLib.escript");

@@ -187,7 +187,9 @@ class Runtime : public ExtObject  {
 		LoggerGroup * getLogger()const					{	return logger.get();	}
 
 		std::string getStackInfo();
-		
+
+		void log(Logger::level_t l,const std::string & s)	{	logger->log(l,s);	}
+
 		void enableLogCounting();
 		void disableLogCounting();
 		void resetLogCounter(Logger::level_t level);
