@@ -8,6 +8,11 @@
 
 #include <sstream>
 
+#ifndef M_PI
+#define M_PI		3.14159265358979323846
+#define M_PI_2		1.57079632679489661923
+#endif
+
 #if defined(_MSC_VER)
 static inline double round(const double & x) { return floor(x + 0.5); }
 static inline float roundf(const float & x) { return floorf(x + 0.5f); }
