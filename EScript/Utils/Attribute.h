@@ -27,31 +27,31 @@ class Attribute{
 
 	private:
 		ObjRef value;
-		flag_t flags;
+		flag_t properties;
 	public:
-		explicit Attribute(flag_t _flags = NORMAL_ATTRIBUTE):flags(_flags) {}
-		/*implicit*/ Attribute(const ObjPtr & _value,flag_t  _flags = NORMAL_ATTRIBUTE):value(_value.get()),flags(_flags) {}
-		/*implicit*/ Attribute(const ObjRef & _value,flag_t  _flags = NORMAL_ATTRIBUTE):value(_value.get()),flags(_flags) {}
-		/*implicit*/ Attribute(Object * _value,flag_t  _flags = NORMAL_ATTRIBUTE):value(_value),flags(_flags) {}
-		/*implicit*/ Attribute(const Attribute & e):value(e.value),flags(e.flags) {}
+		explicit Attribute(flag_t _properties = NORMAL_ATTRIBUTE):properties(_properties) {}
+		/*implicit*/ Attribute(const ObjPtr & _value,flag_t  _properties = NORMAL_ATTRIBUTE):value(_value.get()),properties(_properties) {}
+		/*implicit*/ Attribute(const ObjRef & _value,flag_t  _properties = NORMAL_ATTRIBUTE):value(_value.get()),properties(_properties) {}
+		/*implicit*/ Attribute(Object * _value,flag_t  _properties = NORMAL_ATTRIBUTE):value(_value),properties(_properties) {}
+		/*implicit*/ Attribute(const Attribute & e):value(e.value),properties(e.properties) {}
 
-		bool getFlag(flag_t f)const			{	return (flags&f)>0;	}
-		flag_t getFlags()const				{	return flags;	}
+		bool getProperty(flag_t f)const		{	return (properties&f)>0;	}
+		flag_t getProperties()const			{	return properties;	}
 
 		Object * getValue()const 			{	return value.get();	}
-		bool isConst()const					{	return flags&CONST_BIT;	}
-		bool isInitializable()const 		{	return flags&INIT_BIT;	}
+		bool isConst()const					{	return properties&CONST_BIT;	}
+		bool isInitializable()const 		{	return properties&INIT_BIT;	}
 		bool isNull()const 					{	return value.isNull();	}
-		bool isObjAttribute()const 			{	return !getFlag(TYPE_ATTR_BIT);	}
-		bool isTypeAttribute()const 		{	return getFlag(TYPE_ATTR_BIT);	}
-		bool isPrivate()const				{	return flags&PRIVATE_BIT;	}
-		bool isReference()const				{	return flags&REFERENCE_BIT;	}
-		bool isOverriding()const			{	return flags&OVERRIDE_BIT;	}
+		bool isObjAttribute()const 			{	return !(properties&TYPE_ATTR_BIT);	}
+		bool isTypeAttribute()const 		{	return properties&TYPE_ATTR_BIT;	}
+		bool isPrivate()const				{	return properties&PRIVATE_BIT;	}
+		bool isReference()const				{	return properties&REFERENCE_BIT;	}
+		bool isOverriding()const			{	return properties&OVERRIDE_BIT;	}
 
 		void setValue(Object * v)			{	value=v;	}
-		void set(Object * v,flag_t f)		{	value=v, flags=f;	}
+		void set(Object * v,flag_t f)		{	value=v, properties=f;	}
 		Attribute & operator=(const Attribute & e){
-			set(e.value.get(), e.flags);
+			set(e.value.get(), e.properties);
 			return *this;
 		}
 };

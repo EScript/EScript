@@ -616,7 +616,7 @@ if(!benchmark)
    var c=7!; // 7*6*5*4*3*2*1
 
    if( a==-1 && b==3 && c==5040 && (1)."+"(2)==3
-		&& Number.getAttributeFlags("+") == EScript.ATTR_TYPE_ATTR_BIT	)
+		&& Number.getAttributeProperties("+") == EScript.ATTR_TYPE_ATTR_BIT	)
 		{out (OK);}else { errors+=1; out(FAILED); }
  /// Note: 2008-02-11 When setting Attributes of Type-Objects, Debug-Object-Counting
  /// does not work properly until deleting new Attributes: \todo !!!check this

@@ -39,7 +39,7 @@ Dafür ist das Klassen- und Objekt System von EScript deutlicher ausgeprägt als
 <li><a href="#extobjects">Erweiterbare Objekte: Z. B. <code>ExtObjects</code></a></li>
 <li><a href="#functionattributes">Funktionsattribute (Memberfunktionen)</a></li>
 <li><a href="#typesinheritance">Typen und Vererbung</a></li>
-<li><a href="#attributes">Objektattribute und Annotationen</li>
+<li><a href="#attributes">Eigenschaften von Attributen</li>
 <li><a href="#delegates">Delegates</a></li>
 <li><a href="#globalvariables">Globale Variablen</a></li>
 <li><a href="#specialconstants">Spezielle Konstanten</a></li>
@@ -764,16 +764,15 @@ Dieser muss dann das eigentliche C++-(EScript)-Objekt zurück liefern.
 </p>
 
 <!-- ______________________________________________________________________________ -->
-<h2 id="attributes">Objektattribute und Annotationen</h2>
-<p>Neben der Unterscheidung von Typattributen und Objektattributen, gibt es noch mehrere anpassbare Attributeigenschaften (seit Version 0.6.0).
-Diese werden über <em>Attributannotationen</em> definiert.
-Dazu kann zwischen dem Namen des Attributes und dem Attributerzeugungsoperator (<code>:=</code> oder <code>::=</code>) eine Annotationsliste angegeben werden: <code>Object.AttributName @(Annotation1,Annotation2, ...) := Wert</code>. 
-Es können dabei mehrere Annotationen kombiniert werden, wobei sich unsinnige Kombinationen ergeben können, die dann eine Warnung verursachen (z.B. @(private,public) ).
-Es folgt eine Übersicht über die wichtigsten Annotationen.</p>
+<h2 id="attributes">Eigenschaften von Attributen</h2>
+<p>Neben der Unterscheidung von Typattributen und Objektattributen, gibt es noch mehrere anpassbare <em>Attributeigenschaften</em> (seit Version 0.6.0).
+Um diese zu definieren, kann zwischen dem Namen des Attributes und dem Attributerzeugungsoperator (<code>:=</code> oder <code>::=</code>) eine Liste von Eigenschaftskonstanten angegeben werden: <code>Object.AttributName @(Eigenschaft1,Eigenschaft2, ...) := Wert</code>. 
+Es können dabei mehrere Eigenschaften kombiniert werden, wobei sich unsinnige Kombinationen ergeben können, die dann eine Warnung verursachen (z.B. @(private,public) ).
+Es folgt eine Übersicht über die wichtigsten Eigenschaften.</p>
 
 
 <h3><code>@(const)</code></h3>
-<p>Die Annotation <code>@(const)</code> verhindert, dass einem Attribut ein neues Objekt zugeordnet wird. 
+<p>Die Eigenschaft <code>@(const)</code> verhindert, dass einem Attribut ein neues Objekt zugeordnet wird. 
 Der Wert des gespeicherten Objektes kann sich jedoch durchaus ändern.
 Damit entspricht es in C++ einem const-Pointer (und nicht einem const-Wert).
 Beim Versuch einen neues Objekt zuzuweisen, wird eine Ausnahme geworfen.
@@ -788,7 +787,7 @@ a.v = a.v + 1; // Ausnahme wird geworfen beim Versuch der Zuweisung zu einem kon
 </pre>
 
 <h3><code>@(init)</code></h3>
-<p>Die Annotation <code>@(init)</code> erlaubt die Initialisierung von Objektattributen mit Instanzen eines Typs oder dem Rückgabewert einer beliebigen Funktion (oder Delegate oder anderem ausführbaren Objekt).
+<p>Die Eigenschaft <code>@(init)</code> erlaubt die Initialisierung von Objektattributen mit Instanzen eines Typs oder dem Rückgabewert einer beliebigen Funktion (oder Delegate oder anderem ausführbaren Objekt).
 Dazu ein Beispiel, bei dem jeder Instanz eines Objektes ein Array als Objektattribut hinzugefügt werden soll:
 </p>
 
@@ -822,9 +821,9 @@ D.arr @(init) := fn(){ return []; }; // Attribut wird mit einer Funktion initial
 </pre>
 
 <h3><code>@(override)</code></h3>
-<p>Die Annotation <code>@(override)</code> führt dazu, dass das Attribut bereits existieren muss (im Objekt selber oder in einem der geerbten Typen), wenn es angelegt wird.
+<p>Die Eigenschaft <code>@(override)</code> führt dazu, dass das Attribut bereits existieren muss (im Objekt selber oder in einem der geerbten Typen), wenn es angelegt wird.
 Existiert noch kein Attribut gleichen Namens, wird eine Warnung ausgegeben; die Attributerstellung wird jedoch ausgeführt.
-Diese Annotation ist nützlich um auf Tippfehler oder Änderungen in den Methodennamen einer Basisklasse hingewiesen zu werden und sollte daher an entsprechenden Stellen auch eingesetzt werden ;-)
+Diese Eigenschaft ist nützlich um auf Tippfehler oder Änderungen in den Methodennamen einer Basisklasse hingewiesen zu werden und sollte daher an entsprechenden Stellen auch eingesetzt werden ;-)
 </p>
 <pre class="code">
 var A = new Type();
@@ -838,7 +837,7 @@ B.m2 @(override) ::= fn(){	out("blubb!"); }; // Jetzt ok, da 'm2' trotz Warnung 
 
 
 <h3><code>@(private)</code></h3>
-<p>Die Annotation <code>@(private)</code> schränkt den Zugriff auf ein Memberattribut so ein, dass nur noch von Membermethoden des jeweiligen Objektes darauf zugegriffen werden kann. 
+<p>Die Eigenschaft <code>@(private)</code> schränkt den Zugriff auf ein Memberattribut so ein, dass nur noch von Membermethoden des jeweiligen Objektes darauf zugegriffen werden kann. 
 Zugriffe von ausserhalb führen zu einer Warnung und werden nicht ausgeführt.</p>
 <div class="att">
 <code>@(private)</code> verhält sich anders als z. B. das <code>private</code> in C++.
@@ -866,10 +865,10 @@ b.m2(new B()); // Warnung wegen Zugriffsverletzung. Keine Ausgabe.
 
 
 <h3><code>@(type)</code></h3>
-<p>Die Annotation <code>@(type)</code> sorgt für die Anlegung eines Typattributes (anstatt eines Objektattributes).
+<p>Die Eigenschaft <code>@(type)</code> sorgt für die Anlegung eines Typattributes (anstatt eines Objektattributes).
 Damit ist es nichts anderes als eine alternative Schreibweise für den <code>::=</code>-Operator.
 Der Einfachheit halber sollte auch der <code>::=</code>-Operator vorgezogen werden.
-Ich habe die <code>@(type)</code>-Annotation an dieser Stelle nur erwähnt, um deutlich zu machen, dass der  <code>::=</code>-Operator nur eine syntaktische Kurzschreibweise für diese Annotation darstellt.
+Ich habe die <code>@(type)</code>-Eigenschaft an dieser Stelle nur erwähnt, um deutlich zu machen, dass der  <code>::=</code>-Operator nur eine syntaktische Kurzschreibweise für diese Eigenschaft darstellt.
 </p>
 
 <pre class="code">

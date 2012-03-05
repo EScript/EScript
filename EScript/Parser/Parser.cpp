@@ -822,47 +822,47 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 		Attribute::flag_t flags = op->getString()=="::=" ? Attribute::TYPE_ATTR_BIT : 0;
 		Attribute::flag_t inverseFlags = 0;
 
-		/// extract annotations:  Object.member @(annotation*) := value
-		///                       leftExpr      annotation        rightExpr
+		/// extract properties:  Object.member @(property*) := value
+		///                       leftExpr      property        rightExpr
 		if( Token::isA<TEndBracket>(tokens[leftExprTo]) ){
-			int annotationStart = findCorrespondingBracket<TEndBracket,TStartBracket>(ctxt,leftExprTo,leftExprFrom,-1);
-			TOperator * atOp = Token::cast<TOperator>(tokens.at(annotationStart-1));
-			if(annotationStart>0 && atOp!=NULL && atOp->toString()=="@"){
-				annotations_t annotations;
-				getAnnotations(ctxt,annotationStart+1,leftExprTo-1,annotations);
-				leftExprTo = annotationStart-2;
+			int propertyStart = findCorrespondingBracket<TEndBracket,TStartBracket>(ctxt,leftExprTo,leftExprFrom,-1);
+			TOperator * atOp = Token::cast<TOperator>(tokens.at(propertyStart-1));
+			if(propertyStart>0 && atOp!=NULL && atOp->toString()=="@"){
+				properties_t properties;
+				readProperties(ctxt,propertyStart+1,leftExprTo-1,properties);
+				leftExprTo = propertyStart-2;
 
-				for(annotations_t::const_iterator it=annotations.begin();it!=annotations.end();++it ){
+				for(properties_t::const_iterator it=properties.begin();it!=properties.end();++it ){
 					const StringId name = it->first;
-					log(Logger::LOG_INFO,"Annotation:"+name.toString(),atOp );
+					log(Logger::LOG_INFO,"Property:"+name.toString(),atOp );
 //					const int pos = it->second;
-					if(name == Consts::ANNOTATION_ATTR_const){
+					if(name == Consts::PROPERTY_ATTR_const){
 						flags |= Attribute::CONST_BIT;
-					}else if(name == Consts::ANNOTATION_ATTR_init){
+					}else if(name == Consts::PROPERTY_ATTR_init){
 						if(flags&Attribute::TYPE_ATTR_BIT)
 							log(Logger::LOG_WARNING,"'@(init)' is used in combination with @(type) or '::='.",atOp);
 						flags |= Attribute::INIT_BIT;
-					}else if(name == Consts::ANNOTATION_ATTR_member){
+					}else if(name == Consts::PROPERTY_ATTR_member){
 						if(flags&Attribute::TYPE_ATTR_BIT){
 							log(Logger::LOG_WARNING,"'@(member)' is used in combination with @(type) or '::=' and is ignored.",atOp);
 						}else{
 							inverseFlags |= Attribute::TYPE_ATTR_BIT;
 						}
-					}else if(name == Consts::ANNOTATION_ATTR_override){
+					}else if(name == Consts::PROPERTY_ATTR_override){
 						flags |= Attribute::OVERRIDE_BIT;
-					}else if(name == Consts::ANNOTATION_ATTR_private){
+					}else if(name == Consts::PROPERTY_ATTR_private){
 						if(inverseFlags&Attribute::PRIVATE_BIT){
 							log(Logger::LOG_WARNING,"'@(private)' is used in combination with @(public) and is ignored.",atOp);
 						}else{
 							flags |= Attribute::PRIVATE_BIT;
 						}
-					}else if(name == Consts::ANNOTATION_ATTR_public){
+					}else if(name == Consts::PROPERTY_ATTR_public){
 						if(flags&Attribute::PRIVATE_BIT){
 							log(Logger::LOG_WARNING,"'@(public)' is used in combination with @(private) and is ignored.",atOp);
 						}else{
 							inverseFlags |= Attribute::PRIVATE_BIT;
 						}
-					}else if(name == Consts::ANNOTATION_ATTR_type){
+					}else if(name == Consts::PROPERTY_ATTR_type){
 						if(inverseFlags&Attribute::TYPE_ATTR_BIT){
 							log(Logger::LOG_WARNING,"'@(member)' is used in combination with @(type) or '::=' and is ignored.",atOp);
 						}else{
@@ -871,7 +871,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 						if(flags&Attribute::INIT_BIT)
 							log(Logger::LOG_WARNING,"'@(init)' is used in combination with @(type) or '::='.",atOp);
 					}else {
-						throwError("Invalid annotation: '"+name.toString()+'\'',atOp);
+						throwError("Invalid property: '"+name.toString()+'\'',atOp);
 					}
 				}
 			}
@@ -1136,18 +1136,18 @@ Object * Parser::getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const
 	else if(superOp!=NULL && superOp->toString()=="@"){
 		++cursor;
 		if(!Token::isA<TStartBracket>(tokens.at(cursor))){
-			throwError("Annotation expects brackets.",superOp);
+			throwError("Property expects brackets.",superOp);
 		}
-		const int annotationTo = findCorrespondingBracket<TStartBracket,TEndBracket>(ctxt,cursor);
+		const int propertyTo = findCorrespondingBracket<TStartBracket,TEndBracket>(ctxt,cursor);
 
-		annotations_t annotations;
-		getAnnotations(ctxt,cursor+1,annotationTo-1,annotations);
-		for(annotations_t::const_iterator it=annotations.begin();it!=annotations.end();++it ){
+		properties_t properties;
+		readProperties(ctxt,cursor+1,propertyTo-1,properties);
+		for(properties_t::const_iterator it=properties.begin();it!=properties.end();++it ){
 			const StringId name = it->first;
 			int parameterPos = it->second;
-			log(Logger::LOG_INFO,"Annotation:"+name.toString(),superOp );
+			log(Logger::LOG_INFO,"Property:"+name.toString(),superOp );
 //					const int pos = it->second;
-			if(name == Consts::ANNOTATION_FN_super){
+			if(name == Consts::PROPERTY_FN_super){
 				if(parameterPos<0){
 					throwError("Super attribute needs parameter list.",superOp);
 				}
@@ -1156,7 +1156,7 @@ Object * Parser::getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const
 				log(Logger::LOG_WARNING,"Anntoation is invalid for functions: '"+name.toString()+"'",superOp);
 			}
 		}
-		cursor = annotationTo+1;
+		cursor = propertyTo+1;
 
 	}
 
@@ -1903,27 +1903,27 @@ void Parser::getExpressionsInBrackets(ParsingContext & ctxt,int & cursor,std::ve
  *       ^from                            ^p    ^to
  * ---> [ ($const,-1),($private,-1),($somthingWithOptions,p) ]
  */
-void Parser::getAnnotations(ParsingContext & ctxt,int from,int to,annotations_t & annotations)const{
+void Parser::readProperties(ParsingContext & ctxt,int from,int to,properties_t & properties)const{
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	for(int cursor = from;cursor<=to;++cursor){
 		Token * t = tokens.at(cursor).get();
 		const TIdentifier * tid = Token::cast<TIdentifier>(t);
 		if( tid==NULL )
-			throwError("Identifier expected in annotation",t);
+			throwError("Identifier expected in property",t);
 
 		int optionPos = -1;
 		++cursor;
-		if( Token::isA<TStartBracket>(tokens.at(cursor)) && cursor < to ){ // annotation has options 'annotation(exp1,exp2)'
+		if( Token::isA<TStartBracket>(tokens.at(cursor)) && cursor < to ){ // property has options 'property(exp1,exp2)'
 			optionPos = cursor;
 			cursor = findCorrespondingBracket<TStartBracket,TEndBracket>(ctxt,cursor,to); // skip expressions in brackets
 			if(cursor<0)
-				throwError("Unclosed option list in annotation",tokens.at(cursor));
+				throwError("Unclosed option list in property",tokens.at(cursor));
 			++cursor; // skip ')'
 		}
 		if(cursor<=to && !Token::isA<TDelimiter>(tokens.at(cursor))){ // expect a delimiter or the end.
-			throwError("Syntax error in annotation",tokens.at(cursor));
+			throwError("Syntax error in property",tokens.at(cursor));
 		}
-		annotations.push_back( std::make_pair(tid->getId(),optionPos) );
+		properties.push_back( std::make_pair(tid->getId(),optionPos) );
 	}
 }
 

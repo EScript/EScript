@@ -87,9 +87,9 @@ void Object::init(EScript::Namespace & globals) {
 	//! [ESMF] Object Object.getAttribute(key)
 	ESF_DECLARE(typeObject,"getAttribute",1,1,caller->getAttribute(parameter[0].toString()).getValue())
 
-	//! [ESMF] Object Object.getAttributeFlags(key)
-	ESF_DECLARE(typeObject,"getAttributeFlags",1,1,
-				Number::create(static_cast<unsigned int>(caller->getAttribute(parameter[0].toString()).getFlags())))
+	//! [ESMF] Object Object.getAttributeProperties(key)
+	ESF_DECLARE(typeObject,"getAttributeProperties",1,1,
+				Number::create(static_cast<unsigned int>(caller->getAttribute(parameter[0].toString()).getProperties())))
 
 	//! [ESMF] Bool Object.isSet(key)
 	ESF_DECLARE(typeObject,"isSet",1,1,Bool::create(!caller->getAttribute(parameter[0].toString()).isNull()))

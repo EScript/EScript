@@ -156,7 +156,7 @@ void Type::copyObjAttributesTo(Object * instance){
 			const Attribute & a=it->second;
 			if( a.isNull() || a.isTypeAttribute() )
 				continue;
-			instance->setAttribute( it->first, Attribute(a.getValue()->getRefOrCopy(),a.getFlags()));
+			instance->setAttribute( it->first, Attribute(a.getValue()->getRefOrCopy(),a.getProperties()));
 		}
 	}
 }

@@ -227,7 +227,7 @@ bool Runtime::assignToAttribute(ObjPtr obj,StringId attrId,ObjPtr value){
 	if(attr == NULL)
 		return false;
 
-	if(attr->getFlags()&Attribute::ASSIGNMENT_RELEVANT_BITS){
+	if(attr->getProperties()&Attribute::ASSIGNMENT_RELEVANT_BITS){
 		if(attr->isConst()){
 			setException("Cannot assign to const attribute.");
 			return true;
@@ -358,7 +358,7 @@ Object * Runtime::executeObj(Object * obj){
 				}
 			}
 		}else {
-			const Attribute::flag_t attrFlags = sa->getAttributeFlags();
+			const Attribute::flag_t attrFlags = sa->getAttributeProperties();
 
 			// check for @(override)
 			if(attrFlags&Attribute::OVERRIDE_BIT && obj2->_accessAttribute(sa->attrId,false)==NULL){

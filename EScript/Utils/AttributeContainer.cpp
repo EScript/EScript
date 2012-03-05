@@ -30,7 +30,7 @@ void AttributeContainer::initAttributes(Runtime & rt){
 
 void AttributeContainer::cloneAttributesFrom(const AttributeContainer & other) {
 	for(attributeMap_t::const_iterator it = other.attributes.begin() ; it!=other.attributes.end() ; ++it){
-		setAttribute(it->first, Attribute(it->second.getValue()->getRefOrCopy(),it->second.getFlags() ));
+		setAttribute(it->first, Attribute(it->second.getValue()->getRefOrCopy(),it->second.getProperties() ));
 	}
 
 }

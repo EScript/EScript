@@ -84,8 +84,8 @@ class Parser : public Object {
 		UserFunction::parameterList_t * getFunctionParameters(ParsingContext & ctxt,int & cursor)const;
 		void getExpressionsInBrackets(ParsingContext & ctxt,int & cursor,std::vector<ObjRef> & expressions)const;
 
-		typedef std::vector<std::pair<StringId,int> > annotations_t; //  (annotation's id, position of option bracket or -1)*
-		void getAnnotations(ParsingContext & ctxt,int from,int to,annotations_t & annotations)const;
+		typedef std::vector<std::pair<StringId,int> > properties_t; //  (property's id, position of option bracket or -1)*
+		void readProperties(ParsingContext & ctxt,int from,int to,properties_t & properties)const;
 
 		Statement createStatement(Object * obj)const;
 

@@ -22,7 +22,7 @@ class SetAttribute : public Object {
 
 		StringId getAttrId()const   					{   return attrId;  }
 		Object * getObjectExpression()const				{   return objExpr.get();    }
-		Attribute::flag_t getAttributeFlags()const  	{   return attrFlags;    }
+		Attribute::flag_t getAttributeProperties()const  	{   return attrFlags;    }
 		Object * getValueExpression()const 		 		{   return valueExpr.get();    }
 		std::string getAttrName()const					{   return attrId.toString();    }
 
