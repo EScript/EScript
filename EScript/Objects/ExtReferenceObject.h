@@ -53,7 +53,7 @@ class ExtReferenceObject : public Object, private attributeProvider {
 		ExtReferenceObject(const _T & _obj, Type * type=NULL) :
 					Object(type), attributeProvider(), obj(_obj){
 
-			if(type!=NULL && !areObjAttributesInitialized(this)){
+			if(type!=NULL && !attributeProvider::areObjAttributesInitialized(this)){
 				type->copyObjAttributesTo(this);
 			}
 
