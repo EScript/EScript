@@ -136,4 +136,10 @@ bool Bool::toBool()const {
 bool Bool::rt_isEqual(Runtime &,const ObjPtr o){
 	return  value==o.toBool(false);
 }
+//! ---|> Object
+void Bool::_asmOut(std::ostream & out){
+	out<<"push (Bool) "<<toString()<<"\n";
+}
+
 } // namespace EScript
+

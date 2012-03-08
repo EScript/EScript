@@ -113,7 +113,13 @@ void Object::init(EScript::Namespace & globals) {
 
 	//! Delegate Object -> function
 	ESF_DECLARE(typeObject,"->",1,1,new Delegate(caller,parameter[0]))
-
+	
+	//! String Object._getAsm()
+	ES_FUNCTION_DECLARE(typeObject,"_getAsm",0,0,{
+		std::ostringstream out;
+		caller->_asmOut(out);
+		return String::create(out.str());
+	})
 }
 
 
@@ -314,6 +320,9 @@ bool Object::setAttribute(const StringId /*id*/,const Attribute & /*val*/){
 
 // -----------------------------------------------------------------------------------------------
 
+void Object::_asmOut(std::ostream & out){
+	out << toString();
+}
 
 //void Object::tmp_toByteCode(ostream &s){
 //	s<<"\"Obj:"<<toString()<<"\"";

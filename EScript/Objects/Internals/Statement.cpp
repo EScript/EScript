@@ -29,4 +29,16 @@ Statement::~Statement() {
 	//dtor
 }
 
+
+//! ---o EXPERIMENTAL !!!!!
+void Statement::_asmOut(std::ostream & out){
+	if(expression.isNotNull()){
+		expression->_asmOut(out);
+		out<<"pop\n";
+		out<<"\n";
+	}
+
+}
+
+
 }

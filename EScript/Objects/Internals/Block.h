@@ -25,6 +25,9 @@ class Block : public Object {
 		Block(int lineNr=-1);
 		virtual ~Block();
 
+		//! ---|> Object
+		virtual void _asmOut(std::ostream & out);
+
 		statementList & getStatements()                 {   return statements;  }
 		void setFilename(StringId filename)  			{   filenameId=filename;  }
 		std::string getFilename()const                  {   return filenameId.toString();    }

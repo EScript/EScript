@@ -51,3 +51,13 @@ void Block::addStatement(const Statement & s) {
 	if(s.isValid())
 		statements.push_back(s);
 }
+
+//! ---|> Object
+void Block::_asmOut(std::ostream & out){
+	out<<"{\n";
+	for ( statementCursor c = statements.begin();  c != statements.end(); ++c) {
+		c->_asmOut(out);
+//		out<<"\n";
+	}
+	out<<"}\n";
+}

@@ -386,3 +386,7 @@ bool Number::toBool()const {
 bool Number::rt_isEqual(Runtime & ,const ObjPtr o){
 	return getValue()==o.toDouble();
 }
+//! ---|> Object
+void Number::_asmOut(std::ostream & out){
+	out<<"push (Number) "<<toDouble()<<"\n";
+}

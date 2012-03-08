@@ -47,3 +47,22 @@ std::string FunctionCall::toDbgString() const {
 	sprinter << ") near '" << getFilename() << "':" << getLine() << "";
 	return sprinter.str();
 }
+
+//! ---|> Statement
+void FunctionCall::_asmOut(std::ostream & out){
+	out << "//<FunctionCall '"<<toString()<<"'\n";
+//	if(expRef.isNotNull()){ 
+	// switch by type: getVar -> findVar, function call? add push[NULL] , else 'dup'
+	expRef->_asmOut(out);
+	
+//		out<<"\n";
+//	}
+	for(std::vector<ObjRef>::iterator it=parameters.begin();it!=parameters.end();++it){
+		(*it)->_asmOut(out);
+	}
+	out << "call "<<parameters.size()<<"\n";
+	
+	out << "//FunctionCall >\n";
+//	out << "push $" <<attrId.toString()<<"\n";
+
+}

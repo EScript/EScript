@@ -1,0 +1,238 @@
+pushObj Obj
+pushBool Bool
+pushInt Int
+...
+pushIdentifier Identifier
+
+pop -
+callFunction
+return -
+
+getVariable -
+getVariable Identifier
+
+setRegister $1
+
+jmp
+jmpIfTrue
+jmpIfFalse
+
+--------------------------------
+Examples:
+
+out("Hello HasE!");
+
+findVar 'out'  // push obj, push result
+[NULL,FUN]
+
+push (String) "Hello HasE!"
+[NULL, FUN,"Hello HasE!"] 
+
+call 1 // one parameter
+[ NULL ]
+
+pop
+[]
+
+
+
+----------
+7+8; => 7.+(8)
+
+[]
+push 7
+[7]
+
+dup
+[7,7]
+
+getAttribute '+'  
+[7,FUN]
+
+push (Number) 8
+[7,FUN,8]
+
+call 1
+
+[15]
+
+pop
+[]
+
+------------------
+
+a+b;
+
+getVar 'a'
+[a]
+dup
+[a,a]
+getAttribute '+'
+[a,FUN]
+
+getVar 'b'
+[a,FUN,b] 
+
+call 1
+------------------
+
+a+B.b;
+
+[]
+getVar 'a'
+[a]
+dup
+[a,a]
+getAttribute '+'
+[a,FUN]
+
+getVar 'B'
+[a,FUN,B] 
+
+getAttribute 'b'
+[a,FUN,b] 
+
+call 1
+[result]
+pop
+[]
+
+------------------
+{
+var a = 5;
+}
+
+init $a
+[]
+push (Number) 5
+[5]
+assignVar $a
+[5]
+pop
+[]
+
+------------------
+GLOBALS.out();
+
+[]
+getVar 'GLOBALS' // push NULL, push result
+[GLOBALS]
+dup
+[GLOBALS,GLOBALS]
+
+getAttribute 'out'  // pop obj,push result
+[GLOBALS,out]
+
+call 0 // pop params,pop fun,pop caller, push result
+[NULL]
+pop 
+[]
+------------------
+
+A.B.C.d = 5;
+[]
+getVar 'A' // push result
+[A]
+
+getAttribute 'B'  // pop obj,push result
+[B]
+
+getAttribute 'C'  
+[C]
+
+push (Number) 5
+[C,5]
+
+assignAttr 'd'  // pop value,pop obj,assign,push value
+[5]
+
+pop 
+[]
+------------------
+
+if( a>b ) // a.'>'(b)
+	out(a);
+else 
+	out(b);
+
+[]
+getVar 'a' 
+[a]
+
+dup
+[a,a]
+
+getAttribute '>'  
+[a,FUN]
+
+getVar 'b' 
+[a,FUN,b]
+
+call 1
+[result]
+
+jmpOnFalse marker1:
+[]
+
+findVar 'out'
+[NULL,FUN]
+
+getVar 'a'
+[NULL,FUN,a]
+
+call 1
+[NULL]
+pop
+[]
+jmp marker2:
+
+---
+marker1:
+
+findVar 'out'
+[NULL,FUN]
+
+getVar 'b'
+[NULL,FUN,b]
+
+call 1
+[NULL]
+pop
+[]
+marker2:
+
+----------
+
+(A.a())()
+
+push NULL
+[NULL]
+
+getVar 'A'
+[NULL,A]
+
+dup
+[NULL,A,A]
+
+getAttribute 'a'
+[NULL,A,a]
+
+call 0
+[NULL,result]
+
+call 0
+[result2]
+
+pop
+[]
+
+
+---------------------------------
+
+
+
+
+stack functions:
+_extractNumber
+_extractIdentifier
+

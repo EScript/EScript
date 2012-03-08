@@ -1,6 +1,32 @@
 // Testcases for HasEScript Scripting-Language
 out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 
+{
+	
+	var block = parse("7+8;");
+	out( block._getAsm() );
+	
+	
+	
+	
+	exit(0);
+	
+	
+	
+	
+	
+	
+	
+}
+
+
+
+
+
+
+
+
+
 //----
 // init
 GLOBALS.benchmark:=false;

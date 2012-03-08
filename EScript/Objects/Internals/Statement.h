@@ -53,7 +53,8 @@ class Statement {
 			}
 			return *this;
 		}
-
+		//! ---o EXPERIMENTAL !!!!!
+		virtual void _asmOut(std::ostream & out);
 	private:
 		type_t type;
 		ObjRef expression;

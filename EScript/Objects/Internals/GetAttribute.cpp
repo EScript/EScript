@@ -32,3 +32,16 @@ std::string GetAttribute::toString()const {
 	s += attrId.toString();
 	return s;
 }
+
+//! ---|> Statement
+void GetAttribute::_asmOut(std::ostream & out){
+	out << "//<GetAttribute '"<<toString()<<"'\n";
+	if(objRef.isNotNull()){
+		objRef->_asmOut(out);
+		out<<"\n";
+		out<<"dup\n";
+	}
+	out << "getAttribute $" <<attrId.toString()<<"\n";
+	out << "//GetAttribute>\n";
+
+}

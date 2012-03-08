@@ -85,6 +85,10 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 			---o	*/
 		virtual void _assignValue(ObjPtr value);
 
+
+		//! ---o EXPERIMENTAL !!!!!
+		virtual void _asmOut(std::ostream & out);
+
 	//	@}
 
 	// -------------------------
