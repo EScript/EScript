@@ -1,5 +1,5 @@
 /*
-**  Copyright (c) 2007-2011 Claudius Jaehn
+**  Copyright (c) Claudius Jaehn, 2007-2012
 **
 **  Permission is hereby granted, free of charge, to any person obtaining a copy of this
 **  software and associated documentation files (the "Software"), to deal in the Software
@@ -21,8 +21,7 @@
 #ifndef ESCRIPT_H
 #define ESCRIPT_H
 
-#define ES_VERSION 600 // huge(always 0) * 10000 + major * 100 + minor
-#define ES_VERSION_STRING "EScript 0.6.0 GubbelGubbel - stable (http://escript.berlios.de/)"
+#include "Version.h"
 
 #include "Objects/Object.h"
 #include "Objects/Type.h"
