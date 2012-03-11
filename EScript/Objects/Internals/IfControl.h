@@ -21,6 +21,8 @@ class IfControl : public Object {
 		const Statement & getAction()const		{	return actionRef;	}
 		const Statement & getElseAction()const	{	return elseActionRef;	}
 
+		//! ---|> Statement
+		virtual void _asmOut(std::ostream & out);
 	private:
 		ObjRef conditionRef;
 		Statement actionRef;

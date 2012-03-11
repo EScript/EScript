@@ -8,7 +8,9 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 		"a.b();",
 		"a.b.c();",
 		"a+b;",
-		"(a.b())();"
+		"(a.b())();",
+		"if(true) 'yes';",
+		"if(a) 'yes'; else if( b ) ; else 'no';",
 	];
 	
 	

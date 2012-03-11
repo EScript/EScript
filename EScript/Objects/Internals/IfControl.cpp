@@ -16,3 +16,48 @@ IfControl::IfControl(Object * condition,const Statement & action,const Statement
 IfControl::~IfControl() {
 	//dtor
 }
+
+//! ---|> Statement
+void IfControl::_asmOut(std::ostream & out){
+	static int markerNr = 0;
+	
+	out << "//<IfControl '"<<toString()<<"'\n";
+	if(conditionRef.isNull()){
+		if(elseActionRef.isValid()){
+			elseActionRef._asmOut(out);
+		}
+	}else{
+		const int elseMarker = ++markerNr;
+		
+		
+		
+		conditionRef->_asmOut(out);
+		out << "jmpIfFalse marker"<<elseMarker<<":\n";
+		if(actionRef.isValid()){
+			actionRef._asmOut(out);
+		}
+		
+		if(elseActionRef.isValid()){
+			const int endMarker = ++markerNr;
+			out << "jmp marker"<<endMarker<<"\n";
+			out << "marker"<<elseMarker<<":\n";
+			elseActionRef._asmOut(out);
+			out << "marker"<<endMarker<<":\n";
+		}else{
+			out << "marker"<<elseMarker<<":\n";
+		}
+		
+		
+	
+	}
+//	if(objRef.isNotNull()){
+//		objRef->_asmOut(out);
+//		out<<"\n";
+////		out<<"dup\n";
+//		out << "getAttribute $" <<attrId.toString()<<"\n";
+//	}else{
+//		out << "getVar $" <<attrId.toString()<<"\n";
+//	}
+	out << "//IfControl>\n";
+
+}

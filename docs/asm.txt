@@ -45,8 +45,8 @@ jmpIfFalse
 
 initLocal Identifier
 
---------------------------------
-Examples:
+---------------------------------------------------
+FunctionCall & GetAttribute
 
 out("Hello HasE!");
 
@@ -147,11 +147,51 @@ call 0
 pop
 []
 
+---------------------------------------------------
+Jumps
 
+if(true) "yes";
 
-
+[]
+push true
+[true]
+jumpOnFalse marker1:
+[]
+push "yes"
+["yes"]
+pop
+[]
+marker1:
+[]
 
 ------------------
+
+if(a) "yes";
+else if( b ) ;
+else "no";
+
+[]
+getVar 'a'
+[a]
+jumpOnFalse marker1:
+[]
+getVar 'b'
+[b]
+jumpOnFalse marker2:
+[]
+jmp marker3:
+marker2:
+push "no";
+["no"]
+pop;
+[]
+
+marker1:
+marker3:
+[]
+
+---------------------------------------------------
+todo
 
 a+B.b;
 

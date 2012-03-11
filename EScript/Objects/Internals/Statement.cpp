@@ -34,8 +34,9 @@ Statement::~Statement() {
 void Statement::_asmOut(std::ostream & out){
 	if(expression.isNotNull()){
 		expression->_asmOut(out);
-		out<<"pop\n";
-		out<<"\n";
+		if(type == TYPE_EXPRESSION)
+			out<<"pop\n";
+//		out<<"\n";
 	}
 
 }
