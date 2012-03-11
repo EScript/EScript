@@ -33,3 +33,48 @@ std::string LogicOp::toString()const {
 		sprinter<<rightRef.toString();
 	return sprinter.str();
 }
+
+//! ---|> Object
+void LogicOp::_asmOut(std::ostream & out){
+	static int markerNr = 0;
+	
+	switch(op){
+	case NOT:{
+		leftRef->_asmOut(out);
+		out << "not\n";
+		break;
+	}
+	case OR:{
+		const int marker = ++markerNr;
+		const int endMarker = ++markerNr;
+
+		leftRef->_asmOut(out);
+		out << "jmpOnTrue marker"<<marker<<":\n";
+		rightRef->_asmOut(out);
+		out << "jmpOnTrue marker"<<marker<<":\n";
+		out << "push (Bool) false\n";
+		out << "jmp marker"<<endMarker<<":\n";
+		out << "marker" << marker<<":\n";
+		out << "push (Bool) true\n";
+		out << "marker" << endMarker<<":\n";
+		break;
+	}
+	default:
+	case AND:{
+		const int marker = ++markerNr;
+		const int endMarker = ++markerNr;
+
+		leftRef->_asmOut(out);
+		out << "jmpOnFalse marker"<<marker<<":\n";
+		rightRef->_asmOut(out);
+		out << "jmpOnFalse marker"<<marker<<":\n";
+		out << "push (Bool) true\n";
+		out << "jmp marker"<<endMarker<<":\n";
+		out << "marker" << marker<<":\n";
+		out << "push (Bool) false\n";
+		out << "marker" << endMarker<<":\n";
+		break;
+	}
+	}
+	
+}

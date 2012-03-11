@@ -36,6 +36,17 @@ findVar Identifier
 	else push (GLOBALS, GLOBALS.Identifier) (or NULL,NULL + Warning) 
 
 
+jumpOnFalse marker
+	pop value
+	if value.toBool() == false --> jmp marker
+
+jumpOnTrue marker
+	pop value
+	if value.toBool() == true --> jmp marker
+
+not
+	pop obj
+	push !(obj.toBool())
 
 setRegister $1
 
@@ -189,6 +200,64 @@ pop;
 marker1:
 marker3:
 []
+
+
+------------------
+
+a && b;
+
+	getVar 'a'
+		[a]
+	jmpOnFalse false1:
+		[]
+	getVar 'b'
+		[b]
+	jmpOnFalse false1:
+		[]
+	push true
+		[true]
+	jmp end1:
+		[true]
+false1:
+	push false
+		[false]
+end1:
+	pop
+		[]
+		
+
+------------------
+
+a || b;
+
+	getVar 'a'
+		[a]
+	jmpOnTrue true1:
+		[]
+	getVar 'b'
+		[b]
+	jmpOnTrue true1:
+		[]
+	push false
+		[false]
+	jmp end1:
+		[false]
+true1:
+	push true
+		[true]
+end1:
+	pop
+		[]
+
+------------------
+
+!a;
+
+
+	getVar 'a'
+		[a]
+	not
+		[Bool]
 
 ---------------------------------------------------
 todo

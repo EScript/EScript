@@ -55,8 +55,8 @@ const Operator * Operator::getOperator(StringId id) {
 		declareOperator(++p ,"&");
 		declareOperator(++p ,"^");
 		declareOperator(++p ,"|");
-		declareOperator(++p ,"&&");
-		declareOperator(++p ,"||");
+		declareOperator(++p ,"&&",R);
+		declareOperator(++p ,"||",R);
 
 		//declareOperator(++p ,":");
 		declareOperator(++p ,"?");//R

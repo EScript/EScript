@@ -50,14 +50,6 @@ void IfControl::_asmOut(std::ostream & out){
 		
 	
 	}
-//	if(objRef.isNotNull()){
-//		objRef->_asmOut(out);
-//		out<<"\n";
-////		out<<"dup\n";
-//		out << "getAttribute $" <<attrId.toString()<<"\n";
-//	}else{
-//		out << "getVar $" <<attrId.toString()<<"\n";
-//	}
 	out << "//IfControl>\n";
 
 }

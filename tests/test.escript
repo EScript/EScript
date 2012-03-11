@@ -11,6 +11,10 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 		"(a.b())();",
 		"if(true) 'yes';",
 		"if(a) 'yes'; else if( b ) ; else 'no';",
+		"a||b;",
+		"a||b||c;",
+		"a&&b;",
+		"!a;",
 	];
 	
 	
@@ -20,9 +24,7 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 		out( block._getAsm() );
 	
 	}
-	
-	
-	
+
 	
 	exit(0);
 	
