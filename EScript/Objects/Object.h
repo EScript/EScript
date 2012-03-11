@@ -9,6 +9,7 @@
 #include "../Utils/ObjRef.h"
 #include "../Utils/Hashing.h"
 #include "../Utils/EReferenceCounter.h"
+#include "../Parser/CompilerContext.h"
 #include "typeIds.h"
 
 #include <iostream>
@@ -87,7 +88,7 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 
 
 		//! ---o EXPERIMENTAL !!!!!
-		virtual void _asmOut(std::ostream & out);
+		virtual void _asm(CompilerContext & ctxt);
 
 	//	@}
 

@@ -22,7 +22,7 @@ class IfControl : public Object {
 		const Statement & getElseAction()const	{	return elseActionRef;	}
 
 		//! ---|> Statement
-		virtual void _asmOut(std::ostream & out);
+		virtual void _asm(CompilerContext & ctxt);
 	private:
 		ObjRef conditionRef;
 		Statement actionRef;

@@ -31,9 +31,10 @@ Statement::~Statement() {
 
 
 //! ---o EXPERIMENTAL !!!!!
-void Statement::_asmOut(std::ostream & out){
+void Statement::_asm(CompilerContext & ctxt){
+	std::ostringstream & out = ctxt.out;
 	if(expression.isNotNull()){
-		expression->_asmOut(out);
+		expression->_asm(ctxt);
 		if(type == TYPE_EXPRESSION)
 			out<<"pop\n";
 //		out<<"\n";

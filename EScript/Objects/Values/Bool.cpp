@@ -137,8 +137,8 @@ bool Bool::rt_isEqual(Runtime &,const ObjPtr o){
 	return  value==o.toBool(false);
 }
 //! ---|> Object
-void Bool::_asmOut(std::ostream & out){
-	out<<"push (Bool) "<<toString()<<"\n";
+void Bool::_asm(CompilerContext & ctxt){
+	ctxt.out<<"push (Bool) "<<toString()<<"\n";
 }
 
 } // namespace EScript

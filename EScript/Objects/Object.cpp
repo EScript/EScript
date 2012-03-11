@@ -117,8 +117,9 @@ void Object::init(EScript::Namespace & globals) {
 	//! String Object._getAsm()
 	ES_FUNCTION_DECLARE(typeObject,"_getAsm",0,0,{
 		std::ostringstream out;
-		caller->_asmOut(out);
-		return String::create(out.str());
+		CompilerContext ctxt;
+		caller->_asm(ctxt);
+		return String::create(ctxt.out.str());
 	})
 }
 
@@ -320,7 +321,8 @@ bool Object::setAttribute(const StringId /*id*/,const Attribute & /*val*/){
 
 // -----------------------------------------------------------------------------------------------
 
-void Object::_asmOut(std::ostream & out){
+void Object::_asm(CompilerContext & ctxt){
+	std::ostringstream & out = ctxt.out;
 	out << toString();
 }
 

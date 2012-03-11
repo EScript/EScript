@@ -18,38 +18,36 @@ IfControl::~IfControl() {
 }
 
 //! ---|> Statement
-void IfControl::_asmOut(std::ostream & out){
-	static int markerNr = 0;
+void IfControl::_asm(CompilerContext & ctxt){
 	
-	out << "//<IfControl '"<<toString()<<"'\n";
+	ctxt.out << "//<IfControl '"<<toString()<<"'\n";
 	if(conditionRef.isNull()){
 		if(elseActionRef.isValid()){
-			elseActionRef._asmOut(out);
+			elseActionRef._asm(ctxt);
 		}
 	}else{
-		const int elseMarker = ++markerNr;
+		const CompilerContext::markerId_t elseMarker = ctxt.createMarkerId("ifElse");
 		
 		
-		
-		conditionRef->_asmOut(out);
-		out << "jmpIfFalse marker"<<elseMarker<<":\n";
+		conditionRef->_asm(ctxt);
+		ctxt.out << "jmpIfFalse "<<elseMarker<<":\n";
 		if(actionRef.isValid()){
-			actionRef._asmOut(out);
+			actionRef._asm(ctxt);
 		}
 		
 		if(elseActionRef.isValid()){
-			const int endMarker = ++markerNr;
-			out << "jmp marker"<<endMarker<<"\n";
-			out << "marker"<<elseMarker<<":\n";
-			elseActionRef._asmOut(out);
-			out << "marker"<<endMarker<<":\n";
+			const CompilerContext::markerId_t endMarker = ctxt.createMarkerId("ifEnd");
+			ctxt.out << "jmp "<<endMarker<<"\n";
+			ctxt.out << elseMarker<<":\n";
+			elseActionRef._asm(ctxt);
+			ctxt.out << endMarker<<":\n";
 		}else{
-			out << "marker"<<elseMarker<<":\n";
+			ctxt.out << elseMarker<<":\n";
 		}
 		
 		
 	
 	}
-	out << "//IfControl>\n";
+	ctxt.out << "//IfControl>\n";
 
 }

@@ -77,7 +77,7 @@ class Number : public Object {
 		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_NUMBER;	}
 
 		//! ---|> Object
-		void _asmOut(std::ostream & out);
+		void _asm(CompilerContext & ctxt);
 	protected:
 		union{
 			void * valuePtr;

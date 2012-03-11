@@ -34,16 +34,16 @@ std::string GetAttribute::toString()const {
 }
 
 //! ---|> Statement
-void GetAttribute::_asmOut(std::ostream & out){
-	out << "//<GetAttribute '"<<toString()<<"'\n";
+void GetAttribute::_asm(CompilerContext & ctxt){
+	ctxt.out << "//<GetAttribute '"<<toString()<<"'\n";
 	if(objRef.isNotNull()){
-		objRef->_asmOut(out);
-		out<<"\n";
+		objRef->_asm(ctxt);
+		ctxt.out<<"\n";
 //		out<<"dup\n";
-		out << "getAttribute $" <<attrId.toString()<<"\n";
+		ctxt.out << "getAttribute $" <<attrId.toString()<<"\n";
 	}else{
-		out << "getVar $" <<attrId.toString()<<"\n";
+		ctxt.out << "getVar $" <<attrId.toString()<<"\n";
 	}
-	out << "//GetAttribute>\n";
+	ctxt.out << "//GetAttribute>\n";
 
 }

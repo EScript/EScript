@@ -50,8 +50,8 @@ std::string FunctionCall::toDbgString() const {
 }
 
 //! ---|> Statement
-void FunctionCall::_asmOut(std::ostream & out){
-	out << "//<FunctionCall '"<<toString()<<"'\n";
+void FunctionCall::_asm(CompilerContext & ctxt){
+	ctxt.out << "//<FunctionCall '"<<toString()<<"'\n";
 //	if(expRef.isNotNull()){ 
 	// switch by type: getVar -> findVar, function call? add push[NULL] , else 'dup'
 	
@@ -61,22 +61,22 @@ void FunctionCall::_asmOut(std::ostream & out){
 		// getAttributeExpression (...)
 		if( gAttr ){
 			if(gAttr->getObjectExpression()==NULL){ // singleIdentifier (...)
-				out << "findVar $" <<gAttr->getAttrId().toString()<<"\n";
+				ctxt.out << "findVar $" <<gAttr->getAttrId().toString()<<"\n";
 				break;
 			} // getAttributeExpression.identifier (...)
 			else if(GetAttribute * gAttrGAttr = dynamic_cast<GetAttribute *>(gAttr->getObjectExpression() )){
-				gAttrGAttr->_asmOut(out);
-				out << "dup\n";
-				out << "getAttribute(2) $" <<gAttr->getAttrId().toString()<<"\n";
+				gAttrGAttr->_asm(ctxt);
+				ctxt.out << "dup\n";
+				ctxt.out << "getAttribute(2) $" <<gAttr->getAttrId().toString()<<"\n";
 				break;
 			} // somethingElse.identifier (...) e.g. foo().bla(), 7.bla()
 			else{
-				expRef->_asmOut(out);
+				expRef->_asm(ctxt);
 				break;
 			}
 		}else{
-			out << "push NULL\n";
-			expRef->_asmOut(out);
+			ctxt.out << "push NULL\n";
+			expRef->_asm(ctxt);
 			break;
 		}
 		
@@ -86,11 +86,11 @@ void FunctionCall::_asmOut(std::ostream & out){
 //		out<<"\n";
 //	}
 	for(std::vector<ObjRef>::iterator it=parameters.begin();it!=parameters.end();++it){
-		(*it)->_asmOut(out);
+		(*it)->_asm(ctxt);
 	}
-	out << "call "<<parameters.size()<<"\n";
+	ctxt.out << "call "<<parameters.size()<<"\n";
 	
-	out << "//FunctionCall >\n";
+	ctxt.out << "//FunctionCall >\n";
 //	out << "push $" <<attrId.toString()<<"\n";
 
 }

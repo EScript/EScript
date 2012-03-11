@@ -52,7 +52,7 @@ class String : public Object {
 		virtual std::string toDbgString()const;
 		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_STRING;	}
 		//! ---|> Object
-		void _asmOut(std::ostream & out);
+		void _asm(CompilerContext & ctxt);
 	private:
 		StringData sData;
 };

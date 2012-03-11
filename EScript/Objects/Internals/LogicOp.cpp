@@ -35,44 +35,42 @@ std::string LogicOp::toString()const {
 }
 
 //! ---|> Object
-void LogicOp::_asmOut(std::ostream & out){
-	static int markerNr = 0;
-	
+void LogicOp::_asm(CompilerContext & ctxt){
 	switch(op){
 	case NOT:{
-		leftRef->_asmOut(out);
-		out << "not\n";
+		leftRef->_asm(ctxt);
+		ctxt.out << "not\n";
 		break;
 	}
 	case OR:{
-		const int marker = ++markerNr;
-		const int endMarker = ++markerNr;
+		const CompilerContext::markerId_t marker = ctxt.createMarkerId("orMarker");
+		const CompilerContext::markerId_t endMarker = ctxt.createMarkerId("orEndMarker");
 
-		leftRef->_asmOut(out);
-		out << "jmpOnTrue marker"<<marker<<":\n";
-		rightRef->_asmOut(out);
-		out << "jmpOnTrue marker"<<marker<<":\n";
-		out << "push (Bool) false\n";
-		out << "jmp marker"<<endMarker<<":\n";
-		out << "marker" << marker<<":\n";
-		out << "push (Bool) true\n";
-		out << "marker" << endMarker<<":\n";
+		leftRef->_asm(ctxt);
+		ctxt.out << "jmpOnTrue "<<marker<<":\n";
+		rightRef->_asm(ctxt);
+		ctxt.out << "jmpOnTrue "<<marker<<":\n";
+		ctxt.out << "push (Bool) false\n";
+		ctxt.out << "jmp "<<endMarker<<":\n";
+		ctxt.out << marker<<":\n";
+		ctxt.out << "push (Bool) true\n";
+		ctxt.out << endMarker<<":\n";
 		break;
 	}
 	default:
 	case AND:{
-		const int marker = ++markerNr;
-		const int endMarker = ++markerNr;
+		const CompilerContext::markerId_t marker = ctxt.createMarkerId("andMarker");
+		const CompilerContext::markerId_t endMarker = ctxt.createMarkerId("andEndMarker");
 
-		leftRef->_asmOut(out);
-		out << "jmpOnFalse marker"<<marker<<":\n";
-		rightRef->_asmOut(out);
-		out << "jmpOnFalse marker"<<marker<<":\n";
-		out << "push (Bool) true\n";
-		out << "jmp marker"<<endMarker<<":\n";
-		out << "marker" << marker<<":\n";
-		out << "push (Bool) false\n";
-		out << "marker" << endMarker<<":\n";
+		leftRef->_asm(ctxt);
+		ctxt.out << "jmpOnFalse "<<marker<<":\n";
+		rightRef->_asm(ctxt);
+		ctxt.out << "jmpOnFalse "<<marker<<":\n";
+		ctxt.out << "push (Bool) true\n";
+		ctxt.out << "jmp "<<endMarker<<":\n";
+		ctxt.out << marker<<":\n";
+		ctxt.out << "push (Bool) false\n";
+		ctxt.out << endMarker<<":\n";
 		break;
 	}
 	}

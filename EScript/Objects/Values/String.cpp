@@ -342,6 +342,6 @@ bool String::rt_isEqual(Runtime &, const ObjPtr o){
 	return o.isNull()?false:sData==objToStringData(o.get());
 }
 //! ---|> Object
-void String::_asmOut(std::ostream & out){
-	out<<"push (String) '"<<toString()<<"'\n";
+void String::_asm(CompilerContext & ctxt){
+	ctxt.out<<"push (String) '"<<toString()<<"'\n";
 }

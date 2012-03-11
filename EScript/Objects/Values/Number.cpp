@@ -387,6 +387,6 @@ bool Number::rt_isEqual(Runtime & ,const ObjPtr o){
 	return getValue()==o.toDouble();
 }
 //! ---|> Object
-void Number::_asmOut(std::ostream & out){
-	out<<"push (Number) "<<toDouble()<<"\n";
+void Number::_asm(CompilerContext & ctxt){
+	ctxt.out<<"push (Number) "<<toDouble()<<"\n";
 }

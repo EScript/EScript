@@ -53,11 +53,11 @@ void Block::addStatement(const Statement & s) {
 }
 
 //! ---|> Object
-void Block::_asmOut(std::ostream & out){
-	out<<"{\n";
+void Block::_asm(CompilerContext & ctxt){
+	ctxt.out<<"{\n";
 	for ( statementCursor c = statements.begin();  c != statements.end(); ++c) {
-		c->_asmOut(out);
+		c->_asm(ctxt);
 //		out<<"\n";
 	}
-	out<<"}\n";
+	ctxt.out<<"}\n";
 }

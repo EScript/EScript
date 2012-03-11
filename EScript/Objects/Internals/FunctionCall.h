@@ -35,7 +35,7 @@ class FunctionCall : public Object {
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_FUNCTION_CALL; }
 		
 		//! ---|> Statement
-		virtual void _asmOut(std::ostream & out);
+		virtual void _asm(CompilerContext & ctxt);
 	protected:
 		ObjRef expRef;
 		std::vector<ObjRef> parameters;

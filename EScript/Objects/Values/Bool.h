@@ -36,7 +36,7 @@ class Bool : public Object {
 		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_BOOL;	}
 
 		//! ---|> Object
-		void _asmOut(std::ostream & out);
+		void _asm(CompilerContext & ctxt);
 		
 	protected:
 		bool value;

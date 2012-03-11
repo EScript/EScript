@@ -27,7 +27,7 @@ class GetAttribute : public Object {
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_GET_ATTRIBUTE; }
 
 		//! ---|> Statement
-		virtual void _asmOut(std::ostream & out);
+		virtual void _asm(CompilerContext & ctxt);
 	private:
 		ObjRef objRef;
 		StringId attrId;
