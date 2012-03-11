@@ -1,15 +1,41 @@
-pushObj Obj
-pushBool Bool
-pushInt Int
+push (Obj) Obj
+push (Bool) Bool
+push (Int) Int
 ...
-pushIdentifier Identifier
+push (Identifier) Identifier
 
-pop -
-callFunction
 return -
 
-getVariable -
-getVariable Identifier
+
+pop  -
+	remove entry from stack
+
+dup -
+	push topmost entry on stack
+
+call numParams
+	pop numParams * parameters
+	pop function
+	pop object
+	call the function
+	push result (or jump to exception point)
+
+	
+getAttribute Identifier
+	pop Object
+	push Object.Identifier (or NULL + Warning)
+	
+getVar Identifier
+	if local.Identifier -> push (local.Identifier) // only temporary!!!!!!!
+	else if this.Identifier -> push (this.Identifier)
+	else push (GLOBALS.Identifier) (or NULL + Warning) 
+
+findVar Identifier
+	if local.Identifier -> push (NULL, local.Identifier) // only temporary!!!!!!!
+	else if this.Identifier -> push (this, this.Identifier)
+	else push (GLOBALS, GLOBALS.Identifier) (or NULL,NULL + Warning) 
+
+
 
 setRegister $1
 
@@ -17,12 +43,14 @@ jmp
 jmpIfTrue
 jmpIfFalse
 
+initLocal Identifier
+
 --------------------------------
 Examples:
 
 out("Hello HasE!");
 
-findVar 'out'  // push obj, push result
+findVar 'out'  // push obj & result
 [NULL,FUN]
 
 push (String) "Hello HasE!"
@@ -61,6 +89,31 @@ pop
 
 ------------------
 
+a.b();
+
+getVar 'a'
+[a]
+dup
+[a,a]
+getAttribute 'b'
+[a,FUN]
+
+call 0
+------------------
+a.b.c();
+
+getVar 'a'
+[a]
+getAttribute 'b'
+[b]
+dup
+[b,b]
+getAttribute 'c'
+[b,FUN]
+
+call 0
+------------------
+
 a+b;
 
 getVar 'a'
@@ -74,6 +127,30 @@ getVar 'b'
 [a,FUN,b] 
 
 call 1
+------------------
+
+(a.b())();
+
+[]
+push NULL
+[NULL]
+getVar 'a'
+[NULL,a]
+dup
+[NULL,a,a]
+getAttribute 'b'
+[NULL,a,b]
+call 0
+[NULL,result]
+call 0
+[result2]
+pop
+[]
+
+
+
+
+
 ------------------
 
 a+B.b;

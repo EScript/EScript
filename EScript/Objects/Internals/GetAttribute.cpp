@@ -39,9 +39,11 @@ void GetAttribute::_asmOut(std::ostream & out){
 	if(objRef.isNotNull()){
 		objRef->_asmOut(out);
 		out<<"\n";
-		out<<"dup\n";
+//		out<<"dup\n";
+		out << "getAttribute $" <<attrId.toString()<<"\n";
+	}else{
+		out << "getVar $" <<attrId.toString()<<"\n";
 	}
-	out << "getAttribute $" <<attrId.toString()<<"\n";
 	out << "//GetAttribute>\n";
 
 }

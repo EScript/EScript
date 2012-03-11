@@ -2,9 +2,22 @@
 out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 
 {
+	var expressions = [
+		"7+8;",
+		"out('Hello HasE!');",
+		"a.b();",
+		"a.b.c();",
+		"a+b;",
+		"(a.b())();"
+	];
 	
-	var block = parse("7+8;");
-	out( block._getAsm() );
+	
+	foreach(expressions as var expression ){
+		out("\n","-"*30,"\n[",expression,"]\n");
+		var block = parse( expression);
+		out( block._getAsm() );
+	
+	}
 	
 	
 	

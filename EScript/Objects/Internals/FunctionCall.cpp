@@ -3,6 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "FunctionCall.h"
+#include "GetAttribute.h"
 
 #include <iterator>
 #include <sstream>
@@ -53,7 +54,34 @@ void FunctionCall::_asmOut(std::ostream & out){
 	out << "//<FunctionCall '"<<toString()<<"'\n";
 //	if(expRef.isNotNull()){ 
 	// switch by type: getVar -> findVar, function call? add push[NULL] , else 'dup'
-	expRef->_asmOut(out);
+	
+	do{
+		GetAttribute * gAttr = expRef.toType<GetAttribute>();
+
+		// getAttributeExpression (...)
+		if( gAttr ){
+			if(gAttr->getObjectExpression()==NULL){ // singleIdentifier (...)
+				out << "findVar $" <<gAttr->getAttrId().toString()<<"\n";
+				break;
+			} // getAttributeExpression.identifier (...)
+			else if(GetAttribute * gAttrGAttr = dynamic_cast<GetAttribute *>(gAttr->getObjectExpression() )){
+				gAttrGAttr->_asmOut(out);
+				out << "dup\n";
+				out << "getAttribute(2) $" <<gAttr->getAttrId().toString()<<"\n";
+				break;
+			} // somethingElse.identifier (...) e.g. foo().bla(), 7.bla()
+			else{
+				expRef->_asmOut(out);
+				break;
+			}
+		}else{
+			out << "push NULL\n";
+			expRef->_asmOut(out);
+			break;
+		}
+		
+	}while(false);
+	
 	
 //		out<<"\n";
 //	}
