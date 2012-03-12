@@ -30,6 +30,7 @@ set(ESCRIPT_SOURCES
 	EScript/Objects/Internals/FunctionCall.cpp
 	EScript/Objects/Internals/GetAttribute.cpp
 	EScript/Objects/Internals/IfControl.cpp
+	EScript/Objects/Internals/Instruction.cpp
 	EScript/Objects/Internals/LogicOp.cpp
 	EScript/Objects/Internals/SetAttribute.cpp
 	EScript/Objects/Internals/Statement.cpp
