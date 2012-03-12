@@ -38,9 +38,10 @@ class Block : public Object {
 //		bool declareVar(const std::string & s)			{	return declareVar(EScript::stringToIdentifierId(s));	}
 		bool declareVar(StringId id);
 		const declaredVariableMap_t * getVars()const 	{ 	return vars;    }
-		bool isLocalVar(StringId id)				{	return vars==NULL ? false : vars->count(id)>0;	}
+		bool isLocalVar(StringId id)					{	return vars==NULL ? false : vars->count(id)>0;	}
 		void addStatement(const Statement & s);
 		bool hasLocalVars()const						{	return vars!=NULL && !vars->empty(); }
+		size_t getNumLocalVars()const					{	return vars==NULL ? 0 : vars->size(); }
 
 		/// ---|> [Object]
 		virtual std::string toString()const ;

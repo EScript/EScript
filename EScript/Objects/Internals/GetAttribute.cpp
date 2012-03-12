@@ -40,9 +40,14 @@ void GetAttribute::_asm(CompilerContext & ctxt){
 		objRef->_asm(ctxt);
 		ctxt.out<<"\n";
 //		out<<"dup\n";
-		ctxt.out << "getAttribute $" <<attrId.toString()<<"\n";
+		ctxt.out << "getAttribute '" <<attrId.toString()<<"'\n";
 	}else{
-		ctxt.out << "getVar $" <<attrId.toString()<<"\n";
+		const int localVarIndex = ctxt.getVarIndex(attrId);
+		if(localVarIndex>=0){
+			ctxt.out << "getLocalVar $" <<localVarIndex<<"\n";
+		}else{
+			ctxt.out << "getVar '" <<attrId.toString()<<"'\n";
+		}
 	}
 	ctxt.out << "//GetAttribute>\n";
 

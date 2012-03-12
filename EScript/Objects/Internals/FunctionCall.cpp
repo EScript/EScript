@@ -60,14 +60,22 @@ void FunctionCall::_asm(CompilerContext & ctxt){
 
 		// getAttributeExpression (...)
 		if( gAttr ){
+			const StringId attrId = gAttr->getAttrId();
+
 			if(gAttr->getObjectExpression()==NULL){ // singleIdentifier (...)
-				ctxt.out << "findVar $" <<gAttr->getAttrId().toString()<<"\n";
+				const int localVarIndex = ctxt.getVarIndex(attrId);
+				if(localVarIndex>=0){
+					ctxt.out << "push NULL\n";
+					ctxt.out << "getLocalVar $" <<localVarIndex<<"\n";
+				}else{
+					ctxt.out << "findVar '" <<attrId.toString()<<"'\n";
+				}
 				break;
 			} // getAttributeExpression.identifier (...)
 			else if(GetAttribute * gAttrGAttr = dynamic_cast<GetAttribute *>(gAttr->getObjectExpression() )){
 				gAttrGAttr->_asm(ctxt);
 				ctxt.out << "dup\n";
-				ctxt.out << "getAttribute(2) $" <<gAttr->getAttrId().toString()<<"\n";
+				ctxt.out << "getAttribute(2) $" <<attrId.toString()<<"\n";
 				break;
 			} // somethingElse.identifier (...) e.g. foo().bla(), 7.bla()
 			else{
