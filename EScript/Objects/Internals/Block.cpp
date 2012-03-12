@@ -56,7 +56,7 @@ void Block::addStatement(const Statement & s) {
 void Block::_asm(CompilerContext & ctxt){
 	
 	ctxt.out<<"{\n";
-	if(vars)
+	if(vars) 
 		ctxt.pushLocalVars(*vars);
 
 	for ( statementCursor c = statements.begin();  c != statements.end(); ++c) {
@@ -64,12 +64,10 @@ void Block::_asm(CompilerContext & ctxt){
 //		out<<"\n";
 	}
 	if(vars){
-		ctxt.popLocalVars(getNumLocalVars());
-		const size_t startIndex = ctxt.getNumLocalVars();
-		
-		for(size_t i=0;i<getNumLocalVars();++i ){
-			ctxt.out << "reset $" << (startIndex+i) << "\n";
+		for(std::set<StringId>::const_iterator it = vars->begin();it!=vars->end();++it){
+			ctxt.out << "reset $" << ctxt.getVarIndex(*it) << "\n";
 		}
+		ctxt.popLocalVars();
 	}
 
 	ctxt.out<<"}\n";

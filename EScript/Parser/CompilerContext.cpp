@@ -1,26 +1,23 @@
 #include "CompilerContext.h"
-#include <stdexcept>
 
 
 namespace EScript{
 
-void CompilerContext::popLocalVars(const size_t count){
-	if(count>localVariables.size())
-		throw std::invalid_argument("popLocalVars");
-	localVariables.resize(localVariables.size()-count);
-}
 void CompilerContext::pushLocalVars(const std::set<StringId> & variableNames){
+	currentLocalVariableStack.push_back(indexNameMapping_t());
 	for(std::set<StringId>::const_iterator it = variableNames.begin();it!=variableNames.end();++it){
-		localVariables.push_back(*it);
+		const size_t varIndex = localVariables.size();
+		localVariables.push_back( *it );
+		currentLocalVariableStack.back()[ *it ] = varIndex;
 	}
 }
 int CompilerContext::getVarIndex(const StringId name)const{
-	if(!localVariables.empty()){
-		int index = localVariables.size()-1;
-		for(std::vector<StringId>::const_reverse_iterator it = localVariables.rbegin();it!=localVariables.rend();++it){
-			if(*it==name)
-				return index;
-			--index;
+
+	for(std::vector<indexNameMapping_t>::const_reverse_iterator it=currentLocalVariableStack.rbegin();
+			it!=currentLocalVariableStack.rend();++it){
+		const indexNameMapping_t::const_iterator fIt = it->find(name);
+		if(fIt!=it->end()){
+			return fIt->second;
 		}
 	}
 	return -1;
@@ -32,5 +29,9 @@ StringId CompilerContext::getVar(const int index)const{
 
 }
 
+//		void pushLocalVars(const std::set<StringId> & variableNames);
+void CompilerContext::popLocalVars(){
+	currentLocalVariableStack.pop_back();
+}
 
 }

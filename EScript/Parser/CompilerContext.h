@@ -6,6 +6,7 @@
 #define COMPILER_CONTEXT
 
 #include "../Utils/StringId.h"
+#include <map>
 #include <set>
 #include <string>
 #include <sstream>
@@ -19,7 +20,11 @@ namespace EScript {
 class CompilerContext {
 		int markerCounter;
 		
-		std::vector<StringId> localVariables;
+		std::vector<StringId> localVariables; 
+		
+		typedef std::map<StringId,size_t> indexNameMapping_t;
+		
+		std::vector<indexNameMapping_t> currentLocalVariableStack;
 	public:
 		typedef std::string markerId_t;
 		CompilerContext() : markerCounter(0){}
@@ -39,8 +44,8 @@ class CompilerContext {
 		
 		std::ostringstream out; // temporary
 		
-		void popLocalVars(const size_t count);
 		void pushLocalVars(const std::set<StringId> & variableNames);
+		void popLocalVars();
 		size_t getNumLocalVars()const	{	return localVariables.size();	}
 		int getVarIndex(const StringId name)const;
 		StringId getVar(const int index)const;
