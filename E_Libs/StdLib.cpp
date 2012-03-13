@@ -281,6 +281,22 @@ void StdLib::init(EScript::Namespace * globals) {
 		}
 		return block.detachAndDecrease();
 	})
+	//!	[ESF]  Block _parse2(string) 
+	ES_FUNCTION_DECLARE(globals,"_parse2",1,1, {
+		assertParamCount(runtime,parameter.count(),1,1);
+		ERef<Block> block(new Block());
+		static const StringId inline_id("[inline]");
+		block->setFilename(inline_id);
+		try{
+			Parser p(runtime.getLogger());
+			p._produceBytecode = true;
+			p.parse(block.get(),StringData(parameter[0]->toString()));
+		}catch(Exception * e){
+			runtime.setException(e); // adds stack info
+			return NULL;
+		}
+		return block.detachAndDecrease();
+	})
 
 	//! [ESF]  obj parseJSON(string)
 	ESF_DECLARE(globals,"parseJSON",1,1,JSON::parseJSON(parameter[0].toString()))

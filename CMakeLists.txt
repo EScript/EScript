@@ -27,11 +27,13 @@ set(ESCRIPT_SOURCES
 	EScript/Objects/Identifier.cpp
 	EScript/Objects/Internals/Block.cpp
 	EScript/Objects/Internals/ConditionalExpr.cpp
+	EScript/Objects/Internals/ForeachExpression.cpp
 	EScript/Objects/Internals/FunctionCall.cpp
 	EScript/Objects/Internals/GetAttribute.cpp
 	EScript/Objects/Internals/IfControl.cpp
 	EScript/Objects/Internals/Instruction.cpp
 	EScript/Objects/Internals/LogicOp.cpp
+	EScript/Objects/Internals/LoopExpression.cpp
 	EScript/Objects/Internals/SetAttribute.cpp
 	EScript/Objects/Internals/Statement.cpp
 	EScript/Objects/Namespace.cpp
@@ -43,6 +45,7 @@ set(ESCRIPT_SOURCES
 	EScript/Objects/Values/String.cpp
 	EScript/Objects/Values/Void.cpp
 	EScript/Objects/YieldIterator.cpp
+	EScript/Parser/CompilerContext.cpp
 	EScript/Parser/Parser.cpp
 	EScript/Parser/Operators.cpp
 	EScript/Parser/Token.cpp

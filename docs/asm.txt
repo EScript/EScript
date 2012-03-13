@@ -259,8 +259,203 @@ end1:
 	not
 		[Bool]
 
+
+------------------
+
+var a = 1;
+{
+var b = 2;
+}
+
+
+	// init $0,$1
+	push (Number) 1
+	[1]
+	dup
+	[1,1]
+	assignLocal $0
+	[1]
+	pop
+	[]
+	
+	
+	push (Number) 2
+	[2]
+	dup
+	[2,2]
+	assignLocal $1
+	[1]
+	pop
+	[]
+	reset $1
+	
+	reset $0
+
+
+------------------
+var a = var b = 2;
+
+	push (Number) 2
+	[2]
+	dup
+	[2,2]
+	assignLocal $1
+	[2]
+	dup
+	[2,2]
+	assignLocal $0
+	[2]
+	pop
+	[]
+	reset $0
+	reset $1
+
+
+------------------
+a = var b;
+
+	getLocalVar $0
+	[b]
+	dup
+	[b,b]
+	push NULL
+	[b,b,NULL]
+	assign 'a'    // opt: findAndAssign 'a'
+	[b]
+	pop
+	[]
+	reset $0
+	
+------------------
+a.b = 5;
+
+	push (Number) 5
+	[5]
+	dup
+	[5,5]
+	getVar 'a'
+	[5,5,a]
+	assign 'b'
+	[5]
+	pop
+	[]
+	
+------------------
+foo().b = true;
+
+	push (Bool) true
+	[true]
+	dup
+	[true,true]
+	findVar 'foo'
+	[true,true,NULL,foo]
+	call 0
+	[true,true,result]
+	assign 'b'
+	[true]
+	pop
+	[]
+	
+------------------
+a.b := true;
+
+	push (Bool) true
+	[true]
+	dup
+	[true,true]
+	getVar 'a'
+	[true,true,a]
+	push (uint) 0 // properties
+	[true,true,a,0]
+	setAttribute 'b'
+	[true]
+	pop
+	[]
+	
+------------------
+while(true);
+
+loopCond:
+	push true
+	[true]
+	jmpOnFalse loopEnd:
+	[]
+	
+	jmp loopCond:
+loopEnd:
+
+------------------
+for(var i=0;i<10;++i){
+	var a = i;
+}
+	push (Number) 0
+		[0]
+	dup
+		[0,0]
+	assignLocal $0
+		[0]
+	pop
+		[]
+loopBegin1:
+	getLocalVar $0
+		[i]
+	dup
+		[i,i]
+	getAttribute(2) '<'
+		[i,FUN]
+	push (Number) 10
+		[i,FUN,10]
+	call 1
+		[result]
+	jmpOnFalse loopEnd2:
+		[]
+	getLocalVar $0
+		[i]
+	dup
+		[i,i]
+	assignLocal $1
+		[i]
+	pop
+		[]
+	reset $1
+
+	getLocalVar $0
+		[i]
+	dup
+		[i,i]
+	getAttribute(2) '++_pre'
+		[i,FUN]
+	call 0
+		[result]
+	pop
+		[]
+	jmp loopBegin1:
+		[]
+loopEnd2:
+	reset $0
+	
+
+------------------
+foreach(arr as var key,var value){
+	value;
+}
+
 ---------------------------------------------------
 todo
+
+
+foreach
+
+[] {,}
+continue
+break
+conditionalExpr
+return
+try
+catch
+throw
+
+
 
 a+B.b;
 

@@ -26,7 +26,8 @@ class Statement {
 			// less frequent
 			TYPE_EXCEPTION,
 			TYPE_EXIT,
-			TYPE_UNDEFINED
+			TYPE_UNDEFINED,
+			TYPE_LOOP   // temporary used for new parser
 		};
 
 		Statement( const Statement & other);

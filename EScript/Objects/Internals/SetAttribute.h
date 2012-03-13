@@ -32,6 +32,8 @@ class SetAttribute : public Object {
 		virtual std::string toString()const;
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_SET_ATTRIBUTE; }
 
+		//! ---|> Object
+		virtual void _asm(CompilerContext & ctxt);
 	private:
 		friend class Runtime;
 		ObjRef objExpr;

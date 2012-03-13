@@ -11,7 +11,9 @@
 #include "../Objects/Internals/SetAttribute.h"
 #include "../Objects/Internals/IfControl.h"
 #include "../Objects/Internals/ConditionalExpr.h"
+#include "../Objects/Internals/ForeachExpression.h"
 #include "../Objects/Internals/LogicOp.h"
+#include "../Objects/Internals/LoopExpression.h"
 #include "../Objects/Internals/Statement.h"
 
 #include "../Objects/Values/Number.h"
@@ -96,7 +98,7 @@ void Parser::init(EScript::Namespace & globals) {
 
 //!	(ctor)
 Parser::Parser(Logger * _logger,Type * type) :
-		Object(type?type:getTypeObject()),
+		Object(type?type:getTypeObject()), _produceBytecode(false),
 		logger(_logger ? _logger : new StdLogger(std::cout)) {
 	//ctor
 }
@@ -1263,21 +1265,27 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		++cursor;
 		Statement action=getStatement(ctxt,cursor);
 
-		loopWrappingBlock->addStatement( initExp );
-		loopWrappingBlock->setJumpPosA( loopWrappingBlock->getNextPos() );
-		if(condition!=NULL)
-			loopWrappingBlock->addStatement( Statement(
-						Statement::TYPE_IF,
-						new IfControl(condition,action,Statement(Statement::TYPE_BREAK))));
-		else if(action.isValid())
-			loopWrappingBlock->addStatement(action);
+		if(_produceBytecode){
+			loopWrappingBlock->addStatement( Statement(Statement::TYPE_LOOP, 
+														LoopExpression::createForLoop(initExp,condition,incr,action) ) );
+			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
+		}else{
+			loopWrappingBlock->addStatement( initExp );
+			loopWrappingBlock->setJumpPosA( loopWrappingBlock->getNextPos() );
+			if(condition!=NULL)
+				loopWrappingBlock->addStatement( Statement(
+							Statement::TYPE_IF,
+							new IfControl(condition,action,Statement(Statement::TYPE_BREAK))));
+			else if(action.isValid())
+				loopWrappingBlock->addStatement(action);
 
-		loopWrappingBlock->setContinuePos( loopWrappingBlock->getNextPos() );
-		loopWrappingBlock->addStatement( incr );
-		loopWrappingBlock->addStatement( Statement( Statement::TYPE_JUMP_TO_A ) );
-		loopWrappingBlock->setBreakPos( Block::POS_HANDLE_AND_LEAVE );
+			loopWrappingBlock->setContinuePos( loopWrappingBlock->getNextPos() );
+			loopWrappingBlock->addStatement( incr );
+			loopWrappingBlock->addStatement( Statement( Statement::TYPE_JUMP_TO_A ) );
+			loopWrappingBlock->setBreakPos( Block::POS_HANDLE_AND_LEAVE );
 
-		return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
+			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
+		}
 	}
 	/// while-Control
 	/*
@@ -1304,16 +1312,24 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		}
 		++cursor;
 		Statement action=getStatement(ctxt,cursor);
-		loopWrappingBlock->setContinuePos( Block::POS_HANDLE_AND_RESTART );
-		loopWrappingBlock->setJumpPosA( Block::POS_HANDLE_AND_RESTART );
-		loopWrappingBlock->addStatement( Statement(
-						Statement::TYPE_IF,
-						new IfControl(condition,action,Statement(Statement::TYPE_BREAK))));
-		loopWrappingBlock->addStatement( Statement(Statement::TYPE_JUMP_TO_A));
+		if(_produceBytecode){
+			loopWrappingBlock->addStatement( Statement(Statement::TYPE_LOOP, LoopExpression::createWhileLoop(condition,action) ) );
+			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
+			
+		}else{
+			loopWrappingBlock->setContinuePos( Block::POS_HANDLE_AND_RESTART );
+			loopWrappingBlock->setJumpPosA( Block::POS_HANDLE_AND_RESTART );
+			loopWrappingBlock->addStatement( Statement(
+							Statement::TYPE_IF,
+							new IfControl(condition,action,Statement(Statement::TYPE_BREAK))));
+			loopWrappingBlock->addStatement( Statement(Statement::TYPE_JUMP_TO_A));
 
-		loopWrappingBlock->setBreakPos( Block::POS_HANDLE_AND_LEAVE );
+			loopWrappingBlock->setBreakPos( Block::POS_HANDLE_AND_LEAVE );
 
-		return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
+			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
+		}
+		
+		
 	}
 	/// Do-while-Control
 	/*
@@ -1346,16 +1362,21 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		if (!Token::isA<TEndCommand>(tokens.at(cursor))) {
 			throwError("[do-while] expects ;",tokens.at(cursor));
 		}
+		if(_produceBytecode){
+			loopWrappingBlock->addStatement( Statement(Statement::TYPE_LOOP, LoopExpression::createDoWhileLoop(condition,action) ) );
+			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
+			
+		}else{
+			loopWrappingBlock->setJumpPosA( Block::POS_HANDLE_AND_RESTART );
+			loopWrappingBlock->addStatement( action );
+			loopWrappingBlock->setContinuePos( loopWrappingBlock->getNextPos() );
+			loopWrappingBlock->addStatement( Statement(
+							Statement::TYPE_IF,
+							new IfControl(condition, Statement(Statement::TYPE_JUMP_TO_A),Statement())));
+			loopWrappingBlock->setBreakPos( Block::POS_HANDLE_AND_LEAVE );
 
-		loopWrappingBlock->setJumpPosA( Block::POS_HANDLE_AND_RESTART );
-		loopWrappingBlock->addStatement( action );
-		loopWrappingBlock->setContinuePos( loopWrappingBlock->getNextPos() );
-		loopWrappingBlock->addStatement( Statement(
-						Statement::TYPE_IF,
-						new IfControl(condition, Statement(Statement::TYPE_JUMP_TO_A),Statement())));
-		loopWrappingBlock->setBreakPos( Block::POS_HANDLE_AND_LEAVE );
-
-		return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
+			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
+		}
 
 	}
 	/// foreach-Control
@@ -1374,6 +1395,8 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		 }	break:
 
 	*/
+	
+
 	else if(cId==Consts::IDENTIFIER_foreach) {
 		if (!Token::isA<TStartBlock>(tokens.at(cursor)))  // foreach{...as...}
 			throwError("[foreach] expects (",tokens.at(cursor));
@@ -1406,94 +1429,102 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		++cursor;
 		Statement action=getStatement(ctxt,cursor);
 
-		static const StringId itId("__id");
-		static const StringId getIteratorId("getIterator");
-		static const StringId keyFnId("key");
-		static const StringId valueFnId("value");
+		if(_produceBytecode){
+			loopWrappingBlock->addStatement( Statement(Statement::TYPE_LOOP, new ForeachExpression(
+					arrayExpression,keyIdent?keyIdent->getId():StringId(), valueIdent?valueIdent->getId():StringId(), action) ) );
+			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
+		}else{
+			static const StringId itId("__id");
+			static const StringId getIteratorId("getIterator");
+			static const StringId keyFnId("key");
+			static const StringId valueFnId("value");
 
-		// var __it;
-		loopWrappingBlock->declareVar(itId);
+			// var __it;
+			loopWrappingBlock->declareVar(itId);
 
-		// __it = __getIterator([array])
-		struct fnWrapper {
-			ES_FUNCTION(esf_getIterator){
-				Object * it=NULL;
-				if(	Collection * c=parameter[0].toType<Collection>()){
-					it = c->getIterator();
-				}else if(parameter[0].toType<YieldIterator>()){
-					it = parameter[0].get();
-				}else {
-					it = callMemberFunction(runtime,parameter[0] ,getIteratorId,ParameterValues());
-				}
-				if(it!=NULL){
-					runtime.assignToVariable(itId,it);
-				}else{
-					runtime.setException("Could not get iterator from '" + parameter[0]->toDbgString() + '\'');
+			// __it = __getIterator([array])
+			struct fnWrapper {
+				ES_FUNCTION(esf_getIterator){
+					Object * it=NULL;
+					if(	Collection * c=parameter[0].toType<Collection>()){
+						it = c->getIterator();
+					}else if(parameter[0].toType<YieldIterator>()){
+						it = parameter[0].get();
+					}else {
+						it = callMemberFunction(runtime,parameter[0] ,getIteratorId,ParameterValues());
+					}
+					if(it!=NULL){
+						runtime.assignToVariable(itId,it);
+					}else{
+						runtime.setException("Could not get iterator from '" + parameter[0]->toDbgString() + '\'');
+						return NULL;
+					}
 					return NULL;
 				}
-				return NULL;
-			}
-			ES_FUNCTION(esf_setValues){
-				ObjPtr  it=runtime.getVariable(itId);
-				Identifier * valueId=parameter[0].toType<Identifier>();
-				Identifier * keyId=parameter[1].toType<Identifier>();
-				if(Iterator * it2=it.toType<Iterator>()){
-					if(keyId!=NULL)
-						runtime.assignToVariable(keyId->getId(),it2->key());
-					runtime.assignToVariable(valueId->getId(),it2->value());
-				}else if(YieldIterator * yIt=it.toType<YieldIterator>()){
-					if(keyId!=NULL)
-						runtime.assignToVariable(keyId->getId(),yIt->key());
-					runtime.assignToVariable(valueId->getId(),yIt->value());
-				}else{
-					if(keyId!=NULL)
-						runtime.assignToVariable(keyId->getId(),
-									callMemberFunction(runtime,it ,keyFnId,ParameterValues()));
-					runtime.assignToVariable(valueId->getId(),
-								callMemberFunction(runtime,it ,valueFnId,ParameterValues()));
+				ES_FUNCTION(esf_setValues){
+					ObjPtr  it=runtime.getVariable(itId);
+					Identifier * valueId=parameter[0].toType<Identifier>();
+					Identifier * keyId=parameter[1].toType<Identifier>();
+					if(Iterator * it2=it.toType<Iterator>()){
+						if(keyId!=NULL)
+							runtime.assignToVariable(keyId->getId(),it2->key());
+						runtime.assignToVariable(valueId->getId(),it2->value());
+					}else if(YieldIterator * yIt=it.toType<YieldIterator>()){
+						if(keyId!=NULL)
+							runtime.assignToVariable(keyId->getId(),yIt->key());
+						runtime.assignToVariable(valueId->getId(),yIt->value());
+					}else{
+						if(keyId!=NULL)
+							runtime.assignToVariable(keyId->getId(),
+										callMemberFunction(runtime,it ,keyFnId,ParameterValues()));
+						runtime.assignToVariable(valueId->getId(),
+									callMemberFunction(runtime,it ,valueFnId,ParameterValues()));
+					}
+					return NULL;
 				}
-				return NULL;
+			};
+			{
+				std::vector<ObjRef> paramExp;
+				paramExp.push_back(arrayExpression);
+				Object * getIterator = new FunctionCall(new Function(fnWrapper::esf_getIterator), paramExp);
+				loopWrappingBlock->addStatement( createStatement(getIterator));
 			}
-		};
-		{
-			std::vector<ObjRef> paramExp;
-			paramExp.push_back(arrayExpression);
-			Object * getIterator = new FunctionCall(new Function(fnWrapper::esf_getIterator), paramExp);
-			loopWrappingBlock->addStatement( createStatement(getIterator));
+
+			loopWrappingBlock->setJumpPosA( loopWrappingBlock->getNextPos() );
+			// if( __it.end() )	break;
+			static const StringId endId("end");
+			Object * condition = new FunctionCall(
+									new GetAttribute(new GetAttribute(NULL,itId),endId ),std::vector<ObjRef>());
+			loopWrappingBlock->addStatement( Statement(
+							Statement::TYPE_IF,
+							new IfControl(condition,Statement(Statement::TYPE_BREAK),Statement())));
+
+			{ // key == __it.key(), value==__it.value()
+				std::vector<ObjRef> paramExp;
+				paramExp.push_back( Identifier::create(valueIdent->getId()));
+				if(keyIdent!=NULL)
+					paramExp.push_back( Identifier::create(keyIdent->getId()));
+				loopWrappingBlock->addStatement( createStatement(new FunctionCall(new Function(fnWrapper::esf_setValues), paramExp)));
+
+			}
+			// [action]
+			loopWrappingBlock->addStatement( action );
+			// :continue
+			loopWrappingBlock->setContinuePos( loopWrappingBlock->getNextPos() );
+			// __it.next();
+			static const StringId nextFnId("next");
+			loopWrappingBlock->addStatement( createStatement(
+							new FunctionCall(
+								new GetAttribute(new GetAttribute(NULL,itId),nextFnId ),std::vector<ObjRef>())));
+			// goto :second
+			loopWrappingBlock->addStatement( Statement(Statement::TYPE_JUMP_TO_A) );
+
+			loopWrappingBlock->setBreakPos( Block::POS_HANDLE_AND_LEAVE );
+
+			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
+		
 		}
-
-		loopWrappingBlock->setJumpPosA( loopWrappingBlock->getNextPos() );
-		// if( __it.end() )	break;
-		static const StringId endId("end");
-		Object * condition = new FunctionCall(
-								new GetAttribute(new GetAttribute(NULL,itId),endId ),std::vector<ObjRef>());
-		loopWrappingBlock->addStatement( Statement(
-						Statement::TYPE_IF,
-						new IfControl(condition,Statement(Statement::TYPE_BREAK),Statement())));
-
-		{ // key == __it.key(), value==__it.value()
-			std::vector<ObjRef> paramExp;
-			paramExp.push_back( Identifier::create(valueIdent->getId()));
-			if(keyIdent!=NULL)
-				paramExp.push_back( Identifier::create(keyIdent->getId()));
-			loopWrappingBlock->addStatement( createStatement(new FunctionCall(new Function(fnWrapper::esf_setValues), paramExp)));
-
-		}
-		// [action]
-		loopWrappingBlock->addStatement( action );
-		// :continue
-		loopWrappingBlock->setContinuePos( loopWrappingBlock->getNextPos() );
-		// __it.next();
-		static const StringId nextFnId("next");
-		loopWrappingBlock->addStatement( createStatement(
-						new FunctionCall(
-							new GetAttribute(new GetAttribute(NULL,itId),nextFnId ),std::vector<ObjRef>())));
-		// goto :second
-		loopWrappingBlock->addStatement( Statement(Statement::TYPE_JUMP_TO_A) );
-
-		loopWrappingBlock->setBreakPos( Block::POS_HANDLE_AND_LEAVE );
-
-		return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
+		
 	}
 
 	/// try-catch-control

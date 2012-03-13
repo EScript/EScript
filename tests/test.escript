@@ -15,12 +15,28 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 		"a||b||c;",
 		"a&&b;",
 		"!a;",
+		"var a; { var b; }",
+		"var a; { var a; {var a;}} {var a;}",
+		"var a = 1;{var b = 2;}",
+		"var a = var b = 2;",
+		"var a = out; a();",
+		"var a=4; { var b=17; }",
+		"a = var b;",
+		"a.b = 5;",
+		"foo().b = true;",
+		"a.b := true;",
+		"a.b ::= true;",
+		"a.b @(private) ::= true;",
+		"while(true);",
+		"do{17;}while(false);",
+		"for(var i=0;i<10;++i){	var a = i;}",
+		"foreach(arr as var key,var value){	value; }",
 	];
 	
 	
 	foreach(expressions as var expression ){
 		out("\n","-"*30,"\n[",expression,"]\n");
-		var block = parse( expression);
+		var block = _parse2( expression);
 		out( block._getAsm() );
 	
 	}

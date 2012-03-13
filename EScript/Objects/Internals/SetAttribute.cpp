@@ -49,3 +49,32 @@ std::string SetAttribute::toString()const {
 	s+='('+valueExpr.toString()+") ";
 	return s;
 }
+
+//! ---|> Object
+void SetAttribute::_asm(CompilerContext & ctxt){
+	valueExpr->_asm(ctxt);
+	ctxt.out << "dup\n";
+	
+	if(assign){
+		// no object given: a = ...
+		if(objExpr.isNull()){
+			// local variable: var a = ...	
+			if(ctxt.getVarIndex(attrId)>=0){
+				ctxt.out << "assignLocal $"<<ctxt.getVarIndex(attrId)<<"\n";
+			}else{
+				valueExpr->_asm(ctxt);
+				ctxt.out << "assign '" << attrId.toString() << "'\n";
+			
+			}
+		}else{
+			objExpr->_asm(ctxt);
+			ctxt.out << "assign '" << attrId.toString() << "'\n";
+		}
+		
+	}else{
+			objExpr->_asm(ctxt);
+			ctxt.out << "push (uint) " << static_cast<int>(getAttributeProperties())<<"\n";
+			ctxt.out << "setAttribute '" << attrId.toString() << "'\n";
+	}
+	
+}

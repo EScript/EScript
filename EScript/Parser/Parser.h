@@ -45,6 +45,8 @@ class Parser : public Object {
 		};
 		//-----------
 
+		bool _produceBytecode;
+
 		Parser(Logger * logger=NULL, Type * type=NULL);
 		virtual ~Parser();
 
