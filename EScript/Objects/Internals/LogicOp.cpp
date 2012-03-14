@@ -46,8 +46,8 @@ void LogicOp::_asm(CompilerContext & ctxt){
 		break;
 	}
 	case OR:{
-		const CompilerContext::marker_t marker = ctxt.createMarker("orMarker");
-		const CompilerContext::marker_t endMarker = ctxt.createMarker("orEndMarker");
+		const uint32_t marker = ctxt.createMarker();
+		const uint32_t endMarker = ctxt.createMarker();
 
 		leftRef->_asm(ctxt);
 		ctxt.addInstruction(Instruction::createJmpOnTrue(marker));
@@ -69,8 +69,8 @@ void LogicOp::_asm(CompilerContext & ctxt){
 	}
 	default:
 	case AND:{
-		const CompilerContext::marker_t marker = ctxt.createMarker("andMarker");
-		const CompilerContext::marker_t endMarker = ctxt.createMarker("andEndMarker");
+		const uint32_t marker = ctxt.createMarker();
+		const uint32_t endMarker = ctxt.createMarker();
 
 		leftRef->_asm(ctxt);
 		ctxt.addInstruction(Instruction::createJmpOnFalse(marker));

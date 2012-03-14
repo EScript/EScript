@@ -15,17 +15,12 @@ namespace EScript {
 
 /*! Collection of (assembler-)instructions and the corresponding data.	*/
 class InstructionBlock {
-		
 		std::vector<StringId> localVariables; 
-		
 		std::vector<std::string> stringConstants;
-		std::vector<std::string> markerNames;
-
 		std::vector<Instruction> instructions;
-
+		// flags...
 	public:
-		typedef uint32_t marker_t;
-		static const marker_t NAMED_MARKER_OFFSET = 0x10000;
+		
 
 		InstructionBlock() {}
 		
@@ -34,11 +29,8 @@ class InstructionBlock {
 			instructions.push_back(newInstruction);	
 			instructions.back().setLine(line);
 		}
-
-		void clearMarkerNames()								{	markerNames.clear();	}
-		marker_t createMarker();
-		marker_t createMarker(const std::string & prefix);
-		
+		void clearJumpMarkers()									{	}		//! \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			
 		uint32_t declareString(const std::string & str){
 			stringConstants.push_back(str);
 			return static_cast<uint32_t>(stringConstants.size()-1);
@@ -50,13 +42,11 @@ class InstructionBlock {
 		std::string toString()const;
 		StringId getLocalVarName(const int index)const;
 
-		std::string getMarkerName(const marker_t m)const;
-
 		size_t getNumLocalVars()const							{	return localVariables.size();	}
 		std::string getStringConstant(const uint32_t index)const{	return index<=stringConstants.size() ? stringConstants[index] : "";	}
 		int getVarIndex(const StringId name)const;
 		
-		bool hasJumpMarkers()const								{	return !markerNames.empty();	}
+		bool hasJumpMarkers()const								{	return true;	} //! \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		
 		std::vector<Instruction> & _accessInstructions()		{	return instructions;	}
 		const std::vector<Instruction> & _accessInstructions()const	{	return instructions;	}

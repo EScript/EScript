@@ -185,15 +185,27 @@ std::string Instruction::toString(const InstructionBlock & ctxt)const{
 		break;
 	}
 	case I_JMP:{
-		out << "jmp " << ctxt.getMarkerName(getValue_uint32());
+		out << "jmp ";
+		if( getValue_uint32()<JMP_TO_MARKER_OFFSET) 
+			out << "-> "<<getValue_uint32();
+		else 
+			out << "MARKER_" << getValue_uint32()-JMP_TO_MARKER_OFFSET<< ":";
 		break;
 	}
 	case I_JMP_ON_TRUE:{
-		out << "jmpOnTrue " << ctxt.getMarkerName(getValue_uint32());
+		out << "jmpOnTrue ";
+		if( getValue_uint32()<JMP_TO_MARKER_OFFSET) 
+			out << "-> "<<getValue_uint32();
+		else 
+			out << "MARKER_" << getValue_uint32()-JMP_TO_MARKER_OFFSET<< ":";
 		break;
 	}
 	case I_JMP_ON_FALSE:{
-		out << "jmpOnFalse " << ctxt.getMarkerName(getValue_uint32());
+		out << "jmpOnFalse ";
+		if( getValue_uint32()<JMP_TO_MARKER_OFFSET) 
+			out << "-> "<<getValue_uint32();
+		else 
+			out << "MARKER_" << getValue_uint32()-JMP_TO_MARKER_OFFSET<< ":";
 		break;
 	}
 	case I_NOT:{
@@ -237,7 +249,11 @@ std::string Instruction::toString(const InstructionBlock & ctxt)const{
 		break;
 	}	
 	case I_SET_MARKER:{
-		out << ctxt.getMarkerName(getValue_uint32());
+		if( getValue_uint32()<JMP_TO_MARKER_OFFSET) 
+			out << "!!!!!!!!!!!!!";
+		else 
+			out << "MARKER_" << getValue_uint32()-JMP_TO_MARKER_OFFSET<< ":";
+
 		break;
 	}
 	default:

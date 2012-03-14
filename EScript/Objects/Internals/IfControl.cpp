@@ -27,7 +27,7 @@ void IfControl::_asm(CompilerContext & ctxt){
 			elseActionRef._asm(ctxt);
 		}
 	}else{
-		const CompilerContext::marker_t elseMarker = ctxt.createMarker("ifElse");
+		const uint32_t elseMarker = ctxt.createMarker();
 		
 		
 		conditionRef->_asm(ctxt);
@@ -38,7 +38,7 @@ void IfControl::_asm(CompilerContext & ctxt){
 		}
 		
 		if(elseActionRef.isValid()){
-			const CompilerContext::marker_t endMarker = ctxt.createMarker("ifEnd");
+			const uint32_t endMarker = ctxt.createMarker();
 			ctxt.addInstruction(Instruction::createJmp(endMarker));
 //			ctxt.out << "jmp "<<endMarker<<"\n";
 			ctxt.addInstruction(Instruction::createSetMarker(elseMarker));

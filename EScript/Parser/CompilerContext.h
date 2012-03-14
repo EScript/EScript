@@ -29,19 +29,19 @@ class CompilerContext {
 		typedef std::map<StringId,size_t> indexNameMapping_t;
 		std::vector<indexNameMapping_t> currentLocalVariableStack;
 		int currentLine;
+		uint32_t currentMarkerId;
 	public:
-		typedef uint32_t marker_t;
-		CompilerContext(InstructionBlock & _instructions) : instructions(_instructions),currentLine(-1){}
+		CompilerContext(InstructionBlock & _instructions) : 
+				instructions(_instructions),currentLine(-1),currentMarkerId(Instruction::JMP_TO_MARKER_OFFSET){}
 		
 		void addInstruction(const Instruction & newInstruction)	{	instructions.addInstruction(newInstruction,currentLine);	}
 
-		marker_t createMarker()									{	return instructions.createMarker();	}
-		marker_t createMarker(const std::string & prefix)		{	return instructions.createMarker(prefix);	}
+		uint32_t createMarker()									{	return currentMarkerId++;	}
 		uint32_t declareString(const std::string & str)			{	return instructions.declareString(str);	}
 
 		std::string getInstructionsAsString()const				{	return instructions.toString();	}
 		StringId getLocalVarName(const int index)const			{	return instructions.getLocalVarName(index);	}
-		std::string getMarkerName(const marker_t m)const		{	return instructions.getMarkerName(m); }
+
 		size_t getNumLocalVars()const							{	return instructions.getNumLocalVars();	}
 		std::string getStringConstant(const uint32_t index)const{	return instructions.getStringConstant(index);	}
 		int getVarIndex(const StringId name)const;

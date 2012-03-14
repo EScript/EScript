@@ -45,7 +45,7 @@ void CompilerContext::finalizeInstructions( InstructionBlock & instructionBlock 
 				}
 			}
 			tmp.swap(instructions);
-			instructionBlock.clearMarkerNames();
+//			instructionBlock.clearMarkerNames();
 		}
 
 		{ // pass 2: adapt jump instructions
@@ -56,7 +56,7 @@ void CompilerContext::finalizeInstructions( InstructionBlock & instructionBlock 
 					const uint32_t markerId = it->getValue_uint32();
 					
 					// is name of a marker (and not already a jump position)
-					if(markerId>=InstructionBlock::NAMED_MARKER_OFFSET){
+					if(markerId>=Instruction::JMP_TO_MARKER_OFFSET){
 						it->setValue_uint32(markerToPosition[markerId]);
 					}
 				}

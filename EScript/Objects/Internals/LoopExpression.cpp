@@ -20,8 +20,8 @@ LoopExpression::LoopExpression( 	const Statement & _initStmt,
 
 //! ---|> Statement
 void LoopExpression::_asm(CompilerContext & ctxt){
-	const CompilerContext::marker_t loopBegin = ctxt.createMarker("loopBegin");
-	const CompilerContext::marker_t loopEndMarker = ctxt.createMarker("loopEnd");
+	const uint32_t loopBegin = ctxt.createMarker();
+	const uint32_t loopEndMarker = ctxt.createMarker();
 	
 //	ctxt.out << "//<LoopExpression '"<<toString()<<"'\n";
 	if(initStmt.isValid()){

@@ -40,6 +40,7 @@ class Instruction {
 			I_SET_ATTRIBUTE,
 			I_SET_MARKER,
 		};
+		static const uint32_t JMP_TO_MARKER_OFFSET = 0x100000; //! if a jump target is >= JMP_TO_MARKER_OFFSET, the target is a marker and not an address.
 
 		std::string toString(const InstructionBlock & ctxt)const;
 

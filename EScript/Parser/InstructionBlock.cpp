@@ -5,32 +5,6 @@ namespace EScript{
 
 
 
-InstructionBlock::marker_t InstructionBlock::createMarker()	{
-	const marker_t m = markerNames.size();
-	std::ostringstream o; 
-	o << "marker" << m; 
-	markerNames.push_back(o.str());
-	return NAMED_MARKER_OFFSET + m;
-}		
-InstructionBlock::marker_t InstructionBlock::createMarker(const std::string & prefix)	{	
-	const marker_t m = markerNames.size();
-	std::ostringstream o; 
-	o << prefix << m; 
-	markerNames.push_back(o.str());
-	return NAMED_MARKER_OFFSET + m;
-}
-std::string InstructionBlock::getMarkerName(const marker_t m)const{
-	std::ostringstream o;
-	if(m<NAMED_MARKER_OFFSET){
-		o<<m;
-	}else{
-		const uint32_t index = m - NAMED_MARKER_OFFSET;
-		if(index<=markerNames.size()) 
-			o<<markerNames[index];
-	}
-	o<<":";
-	return o.str();
-}
 
 StringId InstructionBlock::getLocalVarName(const int index)const{
 	if(index <0 || index>=static_cast<int>(localVariables.size()))
