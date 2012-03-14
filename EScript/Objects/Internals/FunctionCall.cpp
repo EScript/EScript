@@ -52,10 +52,8 @@ std::string FunctionCall::toDbgString() const {
 
 //! ---|> Statement
 void FunctionCall::_asm(CompilerContext & ctxt){
-	ctxt.out << "//<FunctionCall '"<<toString()<<"'\n";
-//	if(expRef.isNotNull()){ 
-	// switch by type: getVar -> findVar, function call? add push[NULL] , else 'dup'
-	
+//	ctxt.out << "//<FunctionCall '"<<toString()<<"'\n";
+
 	do{
 		GetAttribute * gAttr = expRef.toType<GetAttribute>();
 
@@ -66,17 +64,22 @@ void FunctionCall::_asm(CompilerContext & ctxt){
 			if(gAttr->getObjectExpression()==NULL){ // singleIdentifier (...)
 				const int localVarIndex = ctxt.getVarIndex(attrId);
 				if(localVarIndex>=0){
-					ctxt.out << "push NULL\n";
-					ctxt.out << "getLocalVar $" <<localVarIndex<<"\n";
+					ctxt.addInstruction(Instruction::createPushVoid());
+//					ctxt.out << "push NULL\n";
+					ctxt.addInstruction(Instruction::createGetLocalVariable(localVarIndex));
+//					ctxt.out << "getLocalVar $" <<localVarIndex<<"\n";
 				}else{
-					ctxt.out << "findVar '" <<attrId.toString()<<"'\n";
+					ctxt.addInstruction(Instruction::createFindVariable(attrId));
+//					ctxt.out << "findVar '" <<attrId.toString()<<"'\n";
 				}
 				break;
 			} // getAttributeExpression.identifier (...)
 			else if(GetAttribute * gAttrGAttr = dynamic_cast<GetAttribute *>(gAttr->getObjectExpression() )){
 				gAttrGAttr->_asm(ctxt);
-				ctxt.out << "dup\n";
-				ctxt.out << "getAttribute(2) $" <<attrId.toString()<<"\n";
+				ctxt.addInstruction(Instruction::createDup());
+//				ctxt.out << "dup\n";
+				ctxt.addInstruction(Instruction::createGetAttribute(attrId));
+//				ctxt.out << "getAttribute(2) $" <<attrId.toString()<<"\n";
 				break;
 			} // somethingElse.identifier (...) e.g. foo().bla(), 7.bla()
 			else{
@@ -84,7 +87,8 @@ void FunctionCall::_asm(CompilerContext & ctxt){
 				break;
 			}
 		}else{
-			ctxt.out << "push NULL\n";
+			ctxt.addInstruction(Instruction::createPushVoid());
+//			ctxt.out << "push NULL\n";
 			expRef->_asm(ctxt);
 			break;
 		}
@@ -97,9 +101,10 @@ void FunctionCall::_asm(CompilerContext & ctxt){
 	for(std::vector<ObjRef>::iterator it=parameters.begin();it!=parameters.end();++it){
 		(*it)->_asm(ctxt);
 	}
-	ctxt.out << "call "<<parameters.size()<<"\n";
+	ctxt.addInstruction(Instruction::createCall(parameters.size()));
+//	ctxt.out << "call "<<parameters.size()<<"\n";
 	
-	ctxt.out << "//FunctionCall >\n";
-//	out << "push $" <<attrId.toString()<<"\n";
+//	ctxt.out << "//FunctionCall >\n";
+
 
 }

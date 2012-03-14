@@ -389,5 +389,5 @@ bool Number::rt_isEqual(Runtime & ,const ObjPtr o){
 }
 //! ---|> Object
 void Number::_asm(CompilerContext & ctxt){
-	ctxt.out<<"push (Number) "<<toDouble()<<"\n";
+	ctxt.addInstruction(Instruction::createPushNumber(toDouble()));
 }

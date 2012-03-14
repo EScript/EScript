@@ -21,6 +21,9 @@ class Void : public Type {
 		virtual bool rt_isEqual(Runtime & rt,const ObjPtr o);
 		virtual std::string toString()const;
 
+		//! ---|> Object
+		void _asm(CompilerContext & ctxt);
+		
 	protected:
 		virtual ~Void();
 		Void();

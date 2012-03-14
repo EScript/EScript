@@ -20,33 +20,40 @@ LoopExpression::LoopExpression( 	const Statement & _initStmt,
 
 //! ---|> Statement
 void LoopExpression::_asm(CompilerContext & ctxt){
-	const CompilerContext::markerId_t loopBegin = ctxt.createMarkerId("loopBegin");
-	const CompilerContext::markerId_t loopEndMarker = ctxt.createMarkerId("loopEnd");
+	const CompilerContext::marker_t loopBegin = ctxt.createMarker("loopBegin");
+	const CompilerContext::marker_t loopEndMarker = ctxt.createMarker("loopEnd");
 	
-	ctxt.out << "//<LoopExpression '"<<toString()<<"'\n";
+//	ctxt.out << "//<LoopExpression '"<<toString()<<"'\n";
 	if(initStmt.isValid()){
+		ctxt.setLine(initStmt.getLine());
 		initStmt._asm(ctxt);
 	}
-	ctxt.out << loopBegin<<":\n";
+
+//	ctxt.out << loopBegin<<":\n";
+	ctxt.addInstruction(Instruction::createSetMarker(loopBegin));
+	
 	if(preConditionExpression.isNotNull()){
 		preConditionExpression->_asm(ctxt);
-		ctxt.out << "jmpOnFalse " << loopEndMarker << ":\n";
+		ctxt.addInstruction(Instruction::createJmpOnFalse(loopEndMarker));
+//		ctxt.out << "jmpOnFalse " << loopEndMarker << ":\n";
 	}
 	action._asm(ctxt);
 	
 	if(postConditionExpression.isNotNull()){ // increaseStmt is ignored!
 		postConditionExpression->_asm(ctxt);
-		ctxt.out << "jmpOnTrue " << loopBegin << ":\n";
+		ctxt.addInstruction(Instruction::createJmpOnTrue(loopBegin));
+//		ctxt.out << "jmpOnTrue " << loopBegin << ":\n";
 	}else{
 		if(increaseStmt.isValid()){
 			increaseStmt._asm(ctxt);
 		}
-		ctxt.out << "jmp " << loopBegin << ":\n";
+//		ctxt.out << "jmp " << loopBegin << ":\n";
+		ctxt.addInstruction(Instruction::createJmp(loopBegin));
 	}
 	
+	ctxt.addInstruction(Instruction::createSetMarker(loopEndMarker));
+//	ctxt.out << loopEndMarker << ":\n";
 
-	ctxt.out << loopEndMarker << ":\n";
-
-	ctxt.out << "//LoopExpression>\n";
+//	ctxt.out << "//LoopExpression>\n";
 
 }

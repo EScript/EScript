@@ -56,7 +56,7 @@ void Block::addStatement(const Statement & s) {
 //! ---|> Object
 void Block::_asm(CompilerContext & ctxt){
 	
-	ctxt.out<<"{\n";
+//	ctxt.out<<"{\n";
 	if(vars) 
 		ctxt.pushLocalVars(*vars);
 
@@ -66,11 +66,12 @@ void Block::_asm(CompilerContext & ctxt){
 	}
 	if(vars){
 		for(std::set<StringId>::const_iterator it = vars->begin();it!=vars->end();++it){
-			ctxt.out << "reset $" << ctxt.getVarIndex(*it) << "\n";
+			ctxt.addInstruction(Instruction::createResetLocalVariable(ctxt.getVarIndex(*it)));
+//			ctxt.out << "reset $" << ctxt.getVarIndex(*it) << "\n";
 		}
 		ctxt.popLocalVars();
 	}
 
-	ctxt.out<<"}\n";
+//	ctxt.out<<"}\n";
 
 }

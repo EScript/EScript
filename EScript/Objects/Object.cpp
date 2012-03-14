@@ -120,7 +120,8 @@ void Object::init(EScript::Namespace & globals) {
 		std::ostringstream out;
 		CompilerContext ctxt;
 		caller->_asm(ctxt);
-		return String::create(ctxt.out.str());
+		
+		return String::create(ctxt.out.str() + "\n-----\n" + ctxt.getInstructionsAsString());
 	})
 }
 

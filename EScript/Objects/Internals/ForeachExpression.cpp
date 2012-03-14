@@ -18,8 +18,8 @@ ForeachExpression::ForeachExpression( Object * _collectionExpression,
 
 //! ---|> Statement
 void ForeachExpression::_asm(CompilerContext & ctxt){
-	const CompilerContext::markerId_t loopBegin = ctxt.createMarkerId("loopBegin");
-	const CompilerContext::markerId_t loopEndMarker = ctxt.createMarkerId("loopEnd");
+	const CompilerContext::marker_t loopBegin = ctxt.createMarker("loopBegin");
+	const CompilerContext::marker_t loopEndMarker = ctxt.createMarker("loopEnd");
 	
 	////	/* NEW (idea)
 ////		foreach( [array] as [keyIdent],[valueIndent] ) [action]

@@ -343,5 +343,5 @@ bool String::rt_isEqual(Runtime &, const ObjPtr o){
 }
 //! ---|> Object
 void String::_asm(CompilerContext & ctxt){
-	ctxt.out<<"push (String) '"<<toString()<<"'\n";
+	ctxt.addInstruction(Instruction::createPushString(ctxt.declareString(toString())));
 }

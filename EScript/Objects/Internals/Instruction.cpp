@@ -3,6 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Instruction.h"
+#include "../../Parser/CompilerContext.h"
 #include <iostream>
 #include <sstream>
 
@@ -44,6 +45,13 @@ Instruction Instruction::createGetAttribute(const StringId id){
 }
 
 //! (static)
+Instruction Instruction::createGetLocalVariable(const uint32_t localVarIdx){
+	Instruction i(I_GET_LOCAL_VARIABLE);
+	i.setValue_uint32(localVarIdx);
+	return i;
+}
+
+//! (static)
 Instruction Instruction::createGetVariable(const StringId id){
 	Instruction i(I_GET_VARIABLE);
 	i.setValue_Identifier(id);
@@ -51,23 +59,23 @@ Instruction Instruction::createGetVariable(const StringId id){
 }
 
 //! (static)
-Instruction Instruction::createJmp(const StringId id){
+Instruction Instruction::createJmp(const uint32_t markerId){
 	Instruction i(I_JMP);
-	i.setValue_Identifier(id);
+	i.setValue_uint32(markerId);
 	return i;
 }
 
 //! (static)
-Instruction Instruction::createJmpOnTrue(const StringId id){
+Instruction Instruction::createJmpOnTrue(const uint32_t markerId){
 	Instruction i(I_JMP_ON_TRUE);
-	i.setValue_Identifier(id);
+	i.setValue_uint32(markerId);
 	return i;
 }
 
 //! (static)
-Instruction Instruction::createJmpOnFalse(const StringId id){
+Instruction Instruction::createJmpOnFalse(const uint32_t markerId){
 	Instruction i(I_JMP_ON_FALSE);
-	i.setValue_Identifier(id);
+	i.setValue_uint32(markerId);
 	return i;
 }
 
@@ -104,9 +112,9 @@ Instruction Instruction::createPushNumber(const double value){
 }
 
 //! (static)
-Instruction Instruction::createPushString(const std::string & value){
+Instruction Instruction::createPushString(const uint32_t stringIndex){
 	Instruction i(I_PUSH_STRING);
-	i.setValue_String(value);
+	i.setValue_uint32(stringIndex);
 	return i;
 }
 
@@ -122,7 +130,12 @@ Instruction Instruction::createPushVoid(){
 	Instruction i(I_PUSH_VOID);
 	return i;
 }
-
+//! (static)
+Instruction Instruction::createResetLocalVariable(const uint32_t localVarIdx){
+	Instruction i(I_RESET_LOCAL_VARIABLE);
+	i.setValue_uint32(localVarIdx);
+	return i;
+}
 //! (static)
 Instruction Instruction::createSetAttribute(const StringId id){
 	Instruction i(I_SET_ATTRIBUTE);
@@ -130,98 +143,106 @@ Instruction Instruction::createSetAttribute(const StringId id){
 	return i;
 }
 //! (static)
-Instruction Instruction::createSetMarker(const StringId id){
+Instruction Instruction::createSetMarker(const uint32_t markerId){
 	Instruction i(I_SET_MARKER);
-	i.setValue_Identifier(id);
+	i.setValue_uint32(markerId);
 	return i;
 }
 
-std::string Instruction::toString()const{
+std::string Instruction::toString(const CompilerContext & ctxt)const{
 	std::ostringstream out;
 	switch(type){
 	case I_ASSIGN_LOCAL:{
-		out << "assignLocal $" << getValue_uint32() << "\n";
+		out << "assignLocal $" << getValue_uint32() <<" // '" << ctxt.getLocalVarName(getValue_uint32()).toString()<<"'";
 		break;
 	}	
 	case I_ASSIGN:{
-		out << "assign '" << getValue_Identifier().toString() << "'\n";
+		out << "assign '" << getValue_Identifier().toString() << "'";
 		break;
 	}
 	case I_CALL:{
-		out << "call " << getValue_uint32() << "\n";
+		out << "call " << getValue_uint32();
 		break;
 	}	
 	case I_DUP:{
-		out << "dup\n";
+		out << "dup";
 		break;
 	}
 	case I_FIND_VARIABLE:{
-		out << "findVariable '" << getValue_Identifier().toString() << "'\n";
+		out << "findVariable '" << getValue_Identifier().toString() << "'";
 		break;
 	}
 	case I_GET_ATTRIBUTE:{
-		out << "getAttribute '" << getValue_Identifier().toString() << "'\n";
+		out << "getAttribute '" << getValue_Identifier().toString() << "'";
+		break;
+	}	
+	case I_GET_LOCAL_VARIABLE:{
+		out << "getLocalVariable $" << getValue_uint32()<<" // '" << ctxt.getLocalVarName(getValue_uint32()).toString()<<"'";
 		break;
 	}
 	case I_GET_VARIABLE:{
-		out << "getVariable '" << getValue_Identifier().toString() << "'\n";
+		out << "getVariable '" << getValue_Identifier().toString() << "'";
 		break;
 	}
 	case I_JMP:{
-		out << "jmp " << getValue_Identifier().toString() << ":\n";
+		out << "jmp " << ctxt.getMarkerName(getValue_uint32());
 		break;
 	}
 	case I_JMP_ON_TRUE:{
-		out << "jmpOnTrue " << getValue_Identifier().toString() << ":\n";
+		out << "jmpOnTrue " << ctxt.getMarkerName(getValue_uint32());
 		break;
 	}
 	case I_JMP_ON_FALSE:{
-		out << "jmpOnFalse " << getValue_Identifier().toString() << ":\n";
+		out << "jmpOnFalse " << ctxt.getMarkerName(getValue_uint32());
 		break;
 	}
 	case I_NOT:{
-		out << "not\n";
+		out << "not";
 		break;
 	}
 	case I_POP:{
-		out << "pop\n";
+		out << "pop";
 		break;
 	}
 	case I_PUSH_BOOL:{
-		out << "push (Bool) " << getValue_Bool() << "\n";
+		out << "push (Bool) " << (getValue_Bool() ? "true" : "false");
 		break;
 	}
 	case I_PUSH_ID:{
-		out << "call " << getValue_uint32() << "\n";
+		out << "call " << getValue_uint32();
 		break;
 	}
 	case I_PUSH_NUMBER:{
-		out << "push (Number) " << getValue_Number() << "\n";
+		out << "push (Number) " << getValue_Number();
 		break;
 	}
 	case I_PUSH_STRING:{
-		out << "push (String) \"" << getValue_String() << "\"\n";
+		out << "push (String) #"<<getValue_uint32()<<" // \"" << ctxt.getStringConstant(getValue_uint32())  << "\"";
 		break;
 	}	
 	case I_PUSH_UINT:{
-		out << "push (uint) \"" << getValue_uint32() << "\"\n";
+		out << "push (uint) " << getValue_uint32();
 		break;
 	}
 	case I_PUSH_VOID:{
-		out << "push (Void) Void\n";
+		out << "push (Void) Void";
+		break;
+	}	
+	case I_RESET_LOCAL_VARIABLE:{
+		out << "reset $" << getValue_uint32() <<" // '" << ctxt.getLocalVarName(getValue_uint32()).toString()<<"'";
 		break;
 	}
 	case I_SET_ATTRIBUTE:{
-		out << "setAttribute '" << getValue_Identifier().toString() << "'\n";
+		out << "setAttribute '" << getValue_Identifier().toString() << "'";
 		break;
 	}	
 	case I_SET_MARKER:{
-		out << getValue_Identifier().toString() << ":\n";
+		out << ctxt.getMarkerName(getValue_uint32());
 		break;
 	}
 	default:
 	case I_UNDEFINED:
-			out << "????\n";
+			out << "????";
 			break;
 	
 	}

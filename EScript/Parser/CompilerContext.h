@@ -19,7 +19,7 @@ namespace EScript {
 	As the compilation process is currently under development, it is not clear how this class changes 
 	in the near future.	*/
 class CompilerContext {
-		int markerCounter;
+//		int markerCounter;
 		
 		std::vector<StringId> localVariables; 
 		
@@ -27,36 +27,56 @@ class CompilerContext {
 		
 		std::vector<indexNameMapping_t> currentLocalVariableStack;
 		std::vector<Instruction> instructions;
+		std::vector<std::string> stringConstants;
+		std::vector<std::string> markerNames;
 		int line;
 	public:
-		typedef std::string markerId_t;
-		CompilerContext() : markerCounter(0),line(-1){}
+		typedef uint32_t marker_t;
+		CompilerContext() : line(-1){}
 		
-		int createNewMarkerNr()	{	return ++markerCounter;	}
-		
-		markerId_t createMarkerId()	{	
+		marker_t createMarker()	{
+			const marker_t m = markerNames.size();
 			std::ostringstream o; 
-			o<<"marker"<<createNewMarkerNr(); 
-			return o.str();	
+			o << "marker" << m; 
+			markerNames.push_back(o.str());
+			return m;
 		}		
-		markerId_t createMarkerId(const std::string & prefix)	{	
+		marker_t createMarker(const std::string & prefix)	{	
+			const marker_t m = markerNames.size();
 			std::ostringstream o; 
-			o<<prefix<<createNewMarkerNr(); 
-			return o.str();	
+			o << prefix << m; 
+			markerNames.push_back(o.str());
+			return m;
 		}
-		
+		std::string getMarkerName(const marker_t m)const{
+			std::ostringstream o;
+			if(m<=markerNames.size()) o<<markerNames[m];
+			else o<<m;
+			o<<":";
+			return o.str();
+		}
+
 		std::ostringstream out; // temporary
 		
 		void pushLocalVars(const std::set<StringId> & variableNames);
 		void popLocalVars();
 		size_t getNumLocalVars()const	{	return localVariables.size();	}
 		int getVarIndex(const StringId name)const;
-		StringId getVar(const int index)const;
+		StringId getLocalVarName(const int index)const;
 		
 		void setLine(int l)				{	line=l;	}
 		void addInstruction(const Instruction & newInstruction){	
 			instructions.push_back(newInstruction);	
 			instructions.back().setLine(line);
+		}
+		uint32_t declareString(const std::string & str){
+			stringConstants.push_back(str);
+			return static_cast<uint32_t>(stringConstants.size()-1);
+		}
+		
+		std::string getInstructionsAsString()const;
+		std::string getStringConstant(const uint32_t index)const{
+			return index<=stringConstants.size() ? stringConstants[index] : "";
 		}
 };
 }

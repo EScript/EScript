@@ -36,7 +36,8 @@ void Statement::_asm(CompilerContext & ctxt){
 	if(expression.isNotNull()){
 		expression->_asm(ctxt);
 		if(type == TYPE_EXPRESSION)
-			ctxt.out<<"pop\n";
+			ctxt.addInstruction(Instruction::createPop());
+//			ctxt.out<<"pop\n";
 //		out<<"\n";
 	}
 

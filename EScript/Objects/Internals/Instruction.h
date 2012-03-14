@@ -8,6 +8,8 @@
 #include "Statement.h"
 
 namespace EScript {
+	
+class CompilerContext;
 
 /*! [Instruction]  
 	Work in progress!	*/
@@ -22,6 +24,7 @@ class Instruction {
 			I_FIND_VARIABLE,
 			I_GET_ATTRIBUTE,
 			I_GET_VARIABLE,
+			I_GET_LOCAL_VARIABLE,
 			I_JMP,
 			I_JMP_ON_TRUE,
 			I_JMP_ON_FALSE,
@@ -33,11 +36,12 @@ class Instruction {
 			I_PUSH_STRING,
 			I_PUSH_UINT,
 			I_PUSH_VOID,
+			I_RESET_LOCAL_VARIABLE,
 			I_SET_ATTRIBUTE,
 			I_SET_MARKER,
 		};
 
-		std::string toString()const;
+		std::string toString(const CompilerContext & ctxt)const;
 
 		type_t getType()const						{	return type;	}
 
@@ -53,29 +57,28 @@ class Instruction {
 		bool getValue_Bool()const					{	return value_bool;	}
 		void setValue_Bool(bool v)					{	value_bool=v;	}
 
-		const std::string & getValue_String()const	{	return value_str;	}
-		void setValue_String(const std::string & v)	{	value_str=v;	}
-
 		static Instruction createAssign(const StringId varName);
 		static Instruction createAssignLocal(const uint32_t localVarIdx);
 		static Instruction createCall(const uint32_t numParams);
 		static Instruction createDup()				{	return Instruction(I_DUP);	}
 		static Instruction createFindVariable(const StringId id);
 		static Instruction createGetAttribute(const StringId id);
+		static Instruction createGetLocalVariable(const uint32_t localVarIdx);
 		static Instruction createGetVariable(const StringId id);
-		static Instruction createJmp(const StringId id);
-		static Instruction createJmpOnTrue(const StringId id);
-		static Instruction createJmpOnFalse(const StringId id);
+		static Instruction createJmp(const uint32_t markerId);
+		static Instruction createJmpOnTrue(const uint32_t markerId);
+		static Instruction createJmpOnFalse(const uint32_t markerId);
 		static Instruction createNot();
 		static Instruction createPop();
 		static Instruction createPushBool(const bool value);
 		static Instruction createPushId(const StringId id);
 		static Instruction createPushNumber(const double value);
-		static Instruction createPushString(const std::string & value);
+		static Instruction createPushString(const uint32_t stringIndex);
 		static Instruction createPushUInt(const uint32_t value);
 		static Instruction createPushVoid();
+		static Instruction createResetLocalVariable(const uint32_t localVarIdx);
 		static Instruction createSetAttribute(const StringId id);
-		static Instruction createSetMarker(const StringId id);
+		static Instruction createSetMarker(const uint32_t markerId);
 
 		void setLine(int l)	{	line = l;	}
 
@@ -91,7 +94,6 @@ class Instruction {
 			uint32_t value_uint32;
 			bool value_bool;
 		};
-		std::string value_str; // to be removed!!!!!!!
 		int line;
 //		Statement stmt; // to be removed!!!!!!!
 };

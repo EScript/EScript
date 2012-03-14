@@ -41,38 +41,53 @@ void LogicOp::_asm(CompilerContext & ctxt){
 	switch(op){
 	case NOT:{
 		leftRef->_asm(ctxt);
-		ctxt.out << "not\n";
+		ctxt.addInstruction(Instruction::createNot());
+//		ctxt.out << "not\n";
 		break;
 	}
 	case OR:{
-		const CompilerContext::markerId_t marker = ctxt.createMarkerId("orMarker");
-		const CompilerContext::markerId_t endMarker = ctxt.createMarkerId("orEndMarker");
+		const CompilerContext::marker_t marker = ctxt.createMarker("orMarker");
+		const CompilerContext::marker_t endMarker = ctxt.createMarker("orEndMarker");
 
 		leftRef->_asm(ctxt);
-		ctxt.out << "jmpOnTrue "<<marker<<":\n";
+		ctxt.addInstruction(Instruction::createJmpOnTrue(marker));
+//		ctxt.out << "jmpOnTrue "<<marker<<":\n";
 		rightRef->_asm(ctxt);
-		ctxt.out << "jmpOnTrue "<<marker<<":\n";
-		ctxt.out << "push (Bool) false\n";
-		ctxt.out << "jmp "<<endMarker<<":\n";
-		ctxt.out << marker<<":\n";
-		ctxt.out << "push (Bool) true\n";
-		ctxt.out << endMarker<<":\n";
+		ctxt.addInstruction(Instruction::createJmpOnTrue(marker));
+//		ctxt.out << "jmpOnTrue "<<marker<<":\n";
+		ctxt.addInstruction(Instruction::createPushBool(false));
+//		ctxt.out << "push (Bool) false\n";
+		ctxt.addInstruction(Instruction::createJmp(endMarker));
+//		ctxt.out << "jmp "<<endMarker<<":\n";
+		ctxt.addInstruction(Instruction::createSetMarker(marker));
+//		ctxt.out << marker<<":\n";
+		ctxt.addInstruction(Instruction::createPushBool(true));
+//		ctxt.out << "push (Bool) true\n";
+		ctxt.addInstruction(Instruction::createSetMarker(endMarker));
+//		ctxt.out << endMarker<<":\n";
 		break;
 	}
 	default:
 	case AND:{
-		const CompilerContext::markerId_t marker = ctxt.createMarkerId("andMarker");
-		const CompilerContext::markerId_t endMarker = ctxt.createMarkerId("andEndMarker");
+		const CompilerContext::marker_t marker = ctxt.createMarker("andMarker");
+		const CompilerContext::marker_t endMarker = ctxt.createMarker("andEndMarker");
 
 		leftRef->_asm(ctxt);
-		ctxt.out << "jmpOnFalse "<<marker<<":\n";
+		ctxt.addInstruction(Instruction::createJmpOnFalse(marker));
+//		ctxt.out << "jmpOnFalse "<<marker<<":\n";
 		rightRef->_asm(ctxt);
-		ctxt.out << "jmpOnFalse "<<marker<<":\n";
-		ctxt.out << "push (Bool) true\n";
-		ctxt.out << "jmp "<<endMarker<<":\n";
-		ctxt.out << marker<<":\n";
-		ctxt.out << "push (Bool) false\n";
-		ctxt.out << endMarker<<":\n";
+		ctxt.addInstruction(Instruction::createJmpOnFalse(marker));
+//		ctxt.out << "jmpOnFalse "<<marker<<":\n";
+		ctxt.addInstruction(Instruction::createPushBool(true));
+//		ctxt.out << "push (Bool) true\n";
+		ctxt.addInstruction(Instruction::createJmp(endMarker));
+//		ctxt.out << "jmp "<<endMarker<<":\n";
+		ctxt.addInstruction(Instruction::createSetMarker(marker));
+//		ctxt.out << marker<<":\n";
+		ctxt.addInstruction(Instruction::createPushBool(false));
+//		ctxt.out << "push (Bool) false\n";
+		ctxt.addInstruction(Instruction::createSetMarker(endMarker));
+//		ctxt.out << endMarker<<":\n";
 		break;
 	}
 	}

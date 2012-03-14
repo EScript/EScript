@@ -36,20 +36,21 @@ std::string GetAttribute::toString()const {
 
 //! ---|> Statement
 void GetAttribute::_asm(CompilerContext & ctxt){
-	ctxt.out << "//<GetAttribute '"<<toString()<<"'\n";
+//	ctxt.out << "//<GetAttribute '"<<toString()<<"'\n";
 	if(objRef.isNotNull()){
 		objRef->_asm(ctxt);
-		ctxt.out<<"\n";
-//		out<<"dup\n";
-		ctxt.out << "getAttribute '" <<attrId.toString()<<"'\n";
+		ctxt.addInstruction(Instruction::createGetAttribute(attrId));
+//		ctxt.out << "getAttribute '" <<attrId.toString()<<"'\n";
 	}else{
 		const int localVarIndex = ctxt.getVarIndex(attrId);
 		if(localVarIndex>=0){
-			ctxt.out << "getLocalVar $" <<localVarIndex<<"\n";
+			ctxt.addInstruction(Instruction::createGetLocalVariable(localVarIndex));
+//			ctxt.out << "getLocalVar $" <<localVarIndex<<"\n";
 		}else{
-			ctxt.out << "getVar '" <<attrId.toString()<<"'\n";
+			ctxt.addInstruction(Instruction::createGetVariable(attrId));
+//			ctxt.out << "getVar '" <<attrId.toString()<<"'\n";
 		}
 	}
-	ctxt.out << "//GetAttribute>\n";
+//	ctxt.out << "//GetAttribute>\n";
 
 }

@@ -22,7 +22,7 @@ int CompilerContext::getVarIndex(const StringId name)const{
 	}
 	return -1;
 }
-StringId CompilerContext::getVar(const int index)const{
+StringId CompilerContext::getLocalVarName(const int index)const{
 	if(index <0 || index>=localVariables.size())
 		return StringId();
 	return localVariables.at(static_cast<size_t>(index));
@@ -32,6 +32,16 @@ StringId CompilerContext::getVar(const int index)const{
 //		void pushLocalVars(const std::set<StringId> & variableNames);
 void CompilerContext::popLocalVars(){
 	currentLocalVariableStack.pop_back();
+}
+
+
+
+std::string CompilerContext::getInstructionsAsString()const{
+	std::ostringstream out;
+	for(std::vector<Instruction>::const_iterator it = instructions.begin();it!=instructions.end();++it){
+		out << it->toString(*this) << "\n";
+	}
+	return out.str();
 }
 
 }

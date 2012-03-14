@@ -139,7 +139,6 @@ bool Bool::rt_isEqual(Runtime &,const ObjPtr o){
 }
 //! ---|> Object
 void Bool::_asm(CompilerContext & ctxt){
-	ctxt.out<<"push (Bool) "<<toString()<<"\n";
 	ctxt.addInstruction(Instruction::createPushBool(value));
 }
 
