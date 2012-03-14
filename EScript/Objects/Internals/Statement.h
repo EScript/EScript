@@ -9,6 +9,7 @@
 #include "../../Utils/ObjRef.h"
 
 namespace EScript {
+class CompilerContext;
 
 /*! [Statement]  */
 class Statement {

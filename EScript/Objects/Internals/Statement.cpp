@@ -3,6 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Statement.h"
+#include "../../Parser/CompilerContext.h"
 
 namespace EScript {
 
@@ -32,11 +33,10 @@ Statement::~Statement() {
 
 //! ---o EXPERIMENTAL !!!!!
 void Statement::_asm(CompilerContext & ctxt){
-	std::ostringstream & out = ctxt.out;
 	if(expression.isNotNull()){
 		expression->_asm(ctxt);
 		if(type == TYPE_EXPRESSION)
-			out<<"pop\n";
+			ctxt.out<<"pop\n";
 //		out<<"\n";
 	}
 

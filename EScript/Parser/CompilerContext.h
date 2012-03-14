@@ -6,6 +6,7 @@
 #define COMPILER_CONTEXT
 
 #include "../Utils/StringId.h"
+#include "../Objects/Internals/Instruction.h"
 #include <map>
 #include <set>
 #include <string>
@@ -25,9 +26,11 @@ class CompilerContext {
 		typedef std::map<StringId,size_t> indexNameMapping_t;
 		
 		std::vector<indexNameMapping_t> currentLocalVariableStack;
+		std::vector<Instruction> instructions;
+		int line;
 	public:
 		typedef std::string markerId_t;
-		CompilerContext() : markerCounter(0){}
+		CompilerContext() : markerCounter(0),line(-1){}
 		
 		int createNewMarkerNr()	{	return ++markerCounter;	}
 		
@@ -49,6 +52,12 @@ class CompilerContext {
 		size_t getNumLocalVars()const	{	return localVariables.size();	}
 		int getVarIndex(const StringId name)const;
 		StringId getVar(const int index)const;
+		
+		void setLine(int l)				{	line=l;	}
+		void addInstruction(const Instruction & newInstruction){	
+			instructions.push_back(newInstruction);	
+			instructions.back().setLine(line);
+		}
 };
 }
 

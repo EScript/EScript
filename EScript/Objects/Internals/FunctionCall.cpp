@@ -4,6 +4,7 @@
 // ------------------------------------------------------
 #include "FunctionCall.h"
 #include "GetAttribute.h"
+#include "../../Parser/CompilerContext.h"
 
 #include <iterator>
 #include <sstream>

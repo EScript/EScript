@@ -4,7 +4,7 @@
 // ------------------------------------------------------
 #include "String.h"
 #include "../../EScript.h"
-
+#include "../../Parser/CompilerContext.h"
 #include "../../Utils/StringUtils.h"
 
 #include <sstream>

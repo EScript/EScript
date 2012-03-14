@@ -3,6 +3,8 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "LogicOp.h"
+#include "../../Parser/CompilerContext.h"
+
 #include <sstream>
 
 using namespace EScript;

@@ -5,6 +5,7 @@
 #include "Number.h"
 #include "../../EScript.h"
 #include "Bool.h"
+#include "../../Parser/CompilerContext.h"
 
 #include <sstream>
 

@@ -5,6 +5,7 @@
 #include "Object.h"
 #include "../EScript.h"
 #include "../Consts.h"
+#include "../Parser/CompilerContext.h"
 #include <sstream>
 
 #ifdef ES_DEBUG_MEMORY

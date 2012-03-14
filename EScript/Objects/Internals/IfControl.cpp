@@ -3,6 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "IfControl.h"
+#include "../../Parser/CompilerContext.h"
 
 using namespace EScript;
 

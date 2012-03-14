@@ -15,7 +15,10 @@ class Instruction {
 	public:
 		enum type_t{
 			I_UNDEFINED,
+			I_ASSIGN,
+			I_ASSIGN_LOCAL,
 			I_CALL,
+			I_DUP,
 			I_FIND_VARIABLE,
 			I_GET_ATTRIBUTE,
 			I_GET_VARIABLE,
@@ -28,7 +31,9 @@ class Instruction {
 			I_PUSH_ID,
 			I_PUSH_NUMBER,
 			I_PUSH_STRING,
+			I_PUSH_UINT,
 			I_PUSH_VOID,
+			I_SET_ATTRIBUTE,
 			I_SET_MARKER,
 		};
 
@@ -36,17 +41,14 @@ class Instruction {
 
 		type_t getType()const						{	return type;	}
 
+		uint32_t getValue_uint32()const				{	return value_uint32;	}
+		void setValue_uint32(const uint32_t v)		{	value_uint32 = v;	}
+		
 		double getValue_Number()const				{	return value_number;	}
 		void setValue_Number(double v)				{	value_number=v;	}
 
-		size_t getValue_NumParams()const			{	return value_numParams;	}
-		void setValue_NumParams(size_t v)			{	value_numParams=v;	}
-
 		StringId getValue_Identifier()const			{	return StringId(value_identifier);	}
 		void setValue_Identifier(StringId v)		{	value_identifier=v.getValue();	}
-
-		StringId getValue_MarkerId()const			{	return StringId(value_markerId);	}
-		void setValue_MarkerId(StringId v)			{	value_markerId=v.getValue();	}
 
 		bool getValue_Bool()const					{	return value_bool;	}
 		void setValue_Bool(bool v)					{	value_bool=v;	}
@@ -54,24 +56,31 @@ class Instruction {
 		const std::string & getValue_String()const	{	return value_str;	}
 		void setValue_String(const std::string & v)	{	value_str=v;	}
 
-		static Instruction createCall(const Statement & _stmt,const size_t numParams);
-		static Instruction createFindVariable(const Statement & _stmt,const StringId id);
-		static Instruction createGetAttribute(const Statement & _stmt,const StringId id);
-		static Instruction createGetVariable(const Statement & _stmt,const StringId id);
-		static Instruction createJmp(const Statement & _stmt,const StringId id);
-		static Instruction createJmpOnTrue(const Statement & _stmt,const StringId id);
-		static Instruction createJmpOnFalse(const Statement & _stmt,const StringId id);
-		static Instruction createNot(const Statement & _stmt);
-		static Instruction createPop(const Statement & _stmt);
-		static Instruction createPushBool(const Statement & _stmt,const bool value);
-		static Instruction createPushId(const Statement & _stmt,const StringId id);
-		static Instruction createPushNumber(const Statement & _stmt,const double value);
-		static Instruction createPushString(const Statement & _stmt,const std::string & value);
-		static Instruction createPushVoid(const Statement & _stmt);
-		static Instruction createSetMarker(const Statement & _stmt,const StringId id);
+		static Instruction createAssign(const StringId varName);
+		static Instruction createAssignLocal(const uint32_t localVarIdx);
+		static Instruction createCall(const uint32_t numParams);
+		static Instruction createDup()				{	return Instruction(I_DUP);	}
+		static Instruction createFindVariable(const StringId id);
+		static Instruction createGetAttribute(const StringId id);
+		static Instruction createGetVariable(const StringId id);
+		static Instruction createJmp(const StringId id);
+		static Instruction createJmpOnTrue(const StringId id);
+		static Instruction createJmpOnFalse(const StringId id);
+		static Instruction createNot();
+		static Instruction createPop();
+		static Instruction createPushBool(const bool value);
+		static Instruction createPushId(const StringId id);
+		static Instruction createPushNumber(const double value);
+		static Instruction createPushString(const std::string & value);
+		static Instruction createPushUInt(const uint32_t value);
+		static Instruction createPushVoid();
+		static Instruction createSetAttribute(const StringId id);
+		static Instruction createSetMarker(const StringId id);
+
+		void setLine(int l)	{	line = l;	}
 
 	private:
-		Instruction( type_t _type, const Statement & _stmt) : type(_type){}//,stmt(_stmt){}
+		Instruction( type_t _type) : type(_type),line(-1){}//,stmt(_stmt){}
 		
 
 		type_t type;
@@ -79,10 +88,11 @@ class Instruction {
 			double value_number;
 			size_t value_numParams;
 			uint32_t value_identifier;
-			uint32_t value_markerId;
+			uint32_t value_uint32;
 			bool value_bool;
 		};
 		std::string value_str; // to be removed!!!!!!!
+		int line;
 //		Statement stmt; // to be removed!!!!!!!
 };
 }

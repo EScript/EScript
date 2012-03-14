@@ -3,6 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Block.h"
+#include "../../Parser/CompilerContext.h"
 
 #include <sstream>
 #include <utility>

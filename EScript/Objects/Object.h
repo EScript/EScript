@@ -9,7 +9,6 @@
 #include "../Utils/ObjRef.h"
 #include "../Utils/Hashing.h"
 #include "../Utils/EReferenceCounter.h"
-#include "../Parser/CompilerContext.h"
 #include "typeIds.h"
 
 #include <iostream>
@@ -21,7 +20,7 @@ class Runtime;
 class Namespace;
 class Type;
 class ObjectReleaseHandler;
-
+class CompilerContext;
 
 /*! [Object]    */
 class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
