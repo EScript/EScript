@@ -1,14 +1,12 @@
 #include "CompilerContext.h"
-
+#include <sstream>
 
 namespace EScript{
 
 void CompilerContext::pushLocalVars(const std::set<StringId> & variableNames){
 	currentLocalVariableStack.push_back(indexNameMapping_t());
 	for(std::set<StringId>::const_iterator it = variableNames.begin();it!=variableNames.end();++it){
-		const size_t varIndex = localVariables.size();
-		localVariables.push_back( *it );
-		currentLocalVariableStack.back()[ *it ] = varIndex;
+		currentLocalVariableStack.back()[ *it ] = instructions.declareLocalVarible(*it);
 	}
 }
 int CompilerContext::getVarIndex(const StringId name)const{
@@ -22,26 +20,54 @@ int CompilerContext::getVarIndex(const StringId name)const{
 	}
 	return -1;
 }
-StringId CompilerContext::getLocalVarName(const int index)const{
-	if(index <0 || index>=localVariables.size())
-		return StringId();
-	return localVariables.at(static_cast<size_t>(index));
 
-}
 
 //		void pushLocalVars(const std::set<StringId> & variableNames);
 void CompilerContext::popLocalVars(){
 	currentLocalVariableStack.pop_back();
 }
 
+	
+//! (static) \todo // move to Compiler
+void CompilerContext::finalizeInstructions( InstructionBlock & instructionBlock ){
+	std::vector<Instruction> & instructions = instructionBlock._accessInstructions();
+	
+	if(instructionBlock.hasJumpMarkers()){
+		std::map<uint32_t,uint32_t> markerToPosition;
+	
+		{ // pass 1: remove setMarker-instructions and store position
+			std::vector<Instruction> tmp;
+			for(std::vector<Instruction>::const_iterator it=instructions.begin();it!=instructions.end();++it){
+				if( it->getType() == Instruction::I_SET_MARKER ){
+					markerToPosition[it->getValue_uint32()] = tmp.size();
+				}else{
+					tmp.push_back(*it);
+				}
+			}
+			tmp.swap(instructions);
+			instructionBlock.clearMarkerNames();
+		}
 
-
-std::string CompilerContext::getInstructionsAsString()const{
-	std::ostringstream out;
-	for(std::vector<Instruction>::const_iterator it = instructions.begin();it!=instructions.end();++it){
-		out << it->toString(*this) << "\n";
+		{ // pass 2: adapt jump instructions
+			for(std::vector<Instruction>::iterator it=instructions.begin();it!=instructions.end();++it){
+				if( it->getType() == Instruction::I_JMP 
+						|| it->getType() == Instruction::I_JMP_ON_TRUE 
+						|| it->getType() == Instruction::I_JMP_ON_FALSE){
+					const uint32_t markerId = it->getValue_uint32();
+					
+					// is name of a marker (and not already a jump position)
+					if(markerId>=InstructionBlock::NAMED_MARKER_OFFSET){
+						it->setValue_uint32(markerToPosition[markerId]);
+					}
+				}
+			}
+			
+		}
+		
 	}
-	return out.str();
-}
+		
 
+//	originalInstructions.swap(finalInstructions);
+	
+}
 }

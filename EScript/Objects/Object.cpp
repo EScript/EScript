@@ -118,8 +118,10 @@ void Object::init(EScript::Namespace & globals) {
 	//! String Object._getAsm()
 	ES_FUNCTION_DECLARE(typeObject,"_getAsm",0,0,{
 		std::ostringstream out;
-		CompilerContext ctxt;
+		InstructionBlock ib;
+		CompilerContext ctxt(ib);
 		caller->_asm(ctxt);
+		CompilerContext::finalizeInstructions(ib);
 		
 		return String::create(ctxt.out.str() + "\n-----\n" + ctxt.getInstructionsAsString());
 	})

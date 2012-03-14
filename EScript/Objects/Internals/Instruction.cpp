@@ -149,7 +149,7 @@ Instruction Instruction::createSetMarker(const uint32_t markerId){
 	return i;
 }
 
-std::string Instruction::toString(const CompilerContext & ctxt)const{
+std::string Instruction::toString(const InstructionBlock & ctxt)const{
 	std::ostringstream out;
 	switch(type){
 	case I_ASSIGN_LOCAL:{

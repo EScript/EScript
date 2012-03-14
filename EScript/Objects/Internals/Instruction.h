@@ -9,7 +9,7 @@
 
 namespace EScript {
 	
-class CompilerContext;
+class InstructionBlock;
 
 /*! [Instruction]  
 	Work in progress!	*/
@@ -41,7 +41,7 @@ class Instruction {
 			I_SET_MARKER,
 		};
 
-		std::string toString(const CompilerContext & ctxt)const;
+		std::string toString(const InstructionBlock & ctxt)const;
 
 		type_t getType()const						{	return type;	}
 
