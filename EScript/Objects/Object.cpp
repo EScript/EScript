@@ -119,6 +119,9 @@ void Object::init(EScript::Namespace & globals) {
 	ES_FUNCTION_DECLARE(typeObject,"_getAsm",0,0,{
 		std::ostringstream out;
 		InstructionBlock ib;
+		ib.declareLocalVariable(Consts::IDENTIFIER_this); // thisFn
+		ib.declareLocalVariable(Consts::IDENTIFIER_thisFn); // thisFn
+		
 		CompilerContext ctxt(ib);
 		caller->_asm(ctxt);
 		CompilerContext::finalizeInstructions(ib);

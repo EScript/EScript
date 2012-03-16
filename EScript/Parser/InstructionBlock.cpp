@@ -4,8 +4,6 @@
 namespace EScript{
 
 
-
-
 StringId InstructionBlock::getLocalVarName(const int index)const{
 	if(index <0 || index>=static_cast<int>(localVariables.size()))
 		return StringId();
@@ -13,6 +11,13 @@ StringId InstructionBlock::getLocalVarName(const int index)const{
 
 }
 
+void InstructionBlock::emplace(InstructionBlock & other){
+	using namespace std;
+	swap(other.localVariables,localVariables);
+	swap(other.stringConstants,stringConstants);
+	swap(other.instructions,instructions);
+	swap(other.internalFunctions,internalFunctions);
+}
 
 std::string InstructionBlock::toString()const{
 	std::ostringstream out;

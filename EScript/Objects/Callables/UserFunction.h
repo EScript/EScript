@@ -6,6 +6,7 @@
 #define USERFUNCTION_H
 
 #include "../ExtObject.h"
+#include "../../Parser/InstructionBlock.h"
 #include <vector>
 
 namespace EScript {
@@ -84,6 +85,10 @@ class UserFunction : public ExtObject {
 		int getMaxParamCount()const;
 		int getMinParamCount()const;
 
+		const InstructionBlock & getInstructions()const 	{	return instructions;	}
+		void emplaceInstructions( InstructionBlock & source){	instructions.emplace(source);	}
+	
+	
 		/// ---|> [Object]
 		virtual UserFunction * clone()const;
 		virtual std::string toDbgString()const;
@@ -97,6 +102,7 @@ class UserFunction : public ExtObject {
 		ERef<String> fileString;
 		size_t posInFile,codeLen;
 
+		InstructionBlock instructions;
 	//	@}
 };
 }

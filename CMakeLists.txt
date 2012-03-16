@@ -51,6 +51,7 @@ set(ESCRIPT_SOURCES
 	EScript/Parser/Parser.cpp
 	EScript/Parser/Token.cpp
 	EScript/Parser/Tokenizer.cpp
+	EScript/Runtime/FunctionCallContext.cpp
 	EScript/Runtime/Runtime.cpp
 	EScript/Runtime/RuntimeBlock.cpp
 	EScript/Runtime/RuntimeContext.cpp

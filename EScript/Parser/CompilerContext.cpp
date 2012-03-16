@@ -6,7 +6,7 @@ namespace EScript{
 void CompilerContext::pushLocalVars(const std::set<StringId> & variableNames){
 	currentLocalVariableStack.push_back(indexNameMapping_t());
 	for(std::set<StringId>::const_iterator it = variableNames.begin();it!=variableNames.end();++it){
-		currentLocalVariableStack.back()[ *it ] = instructions.declareLocalVarible(*it);
+		currentLocalVariableStack.back()[ *it ] = instructions.declareLocalVariable(*it);
 	}
 }
 int CompilerContext::getVarIndex(const StringId name)const{

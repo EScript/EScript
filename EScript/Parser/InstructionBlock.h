@@ -7,17 +7,20 @@
 
 #include "../Utils/StringId.h"
 #include "../Objects/Internals/Instruction.h"
+#include "../Objects/Object.h"
 
 #include <string>
 #include <vector>
 
 namespace EScript {
+class UserFunction;
 
 /*! Collection of (assembler-)instructions and the corresponding data.	*/
 class InstructionBlock {
 		std::vector<StringId> localVariables; 
-		std::vector<std::string> stringConstants;
+		std::vector<std::string> stringConstants;  //! \todo --> StringData
 		std::vector<Instruction> instructions;
+		std::vector<ObjRef > internalFunctions; //! UserFunction
 		// flags...
 	public:
 		
@@ -35,7 +38,7 @@ class InstructionBlock {
 			stringConstants.push_back(str);
 			return static_cast<uint32_t>(stringConstants.size()-1);
 		}
-		uint32_t declareLocalVarible(const StringId name){
+		uint32_t declareLocalVariable(const StringId name){
 			localVariables.push_back(name);
 			return static_cast<uint32_t>(localVariables.size()-1);
 		}
@@ -51,6 +54,9 @@ class InstructionBlock {
 		std::vector<Instruction> & _accessInstructions()		{	return instructions;	}
 		const std::vector<Instruction> & _accessInstructions()const	{	return instructions;	}
 
+		/*! Initializes this instructionBLock with the data of the other.
+			The given InstructionBlock becomes thereby invalid.	*/
+		void emplace(InstructionBlock & other);
 		
 };
 }
