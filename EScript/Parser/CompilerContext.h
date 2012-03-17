@@ -45,14 +45,19 @@ class CompilerContext {
 		size_t getNumLocalVars()const							{	return instructions.getNumLocalVars();	}
 		std::string getStringConstant(const uint32_t index)const{	return instructions.getStringConstant(index);	}
 		int getVarIndex(const StringId name)const;
+		
+		bool isCurrentInstructionBlock( const InstructionBlock & i2 )const	{	return &i2==&instructions;	}
 	
 		void pushLocalVars(const std::set<StringId> & variableNames);
 		void popLocalVars();
+		uint32_t registerInternalFunction(const ObjPtr userFunction)	{	return instructions.registerInternalFunction(userFunction);	}
 		void setLine(int l)										{	currentLine=l;	}
 	
 		/*! (static) \todo // move to Compiler
 			- Replaces the markers inside the assembly by jump addresses.	*/
 		static void finalizeInstructions( InstructionBlock & instructions ); 
+		
+//		const InstructionBlock & getInstructions()const			{	return instructions;	}
 	
 		std::ostringstream out; // temporary
 

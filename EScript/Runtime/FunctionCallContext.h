@@ -111,9 +111,10 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 			
 	public:
 		void stack_dup() {	
-			if(stack_empty())
-				throwError(STACK_EMPTY_ERROR);
-			valueStack.push_back(valueStack.back());
+			StackEntry & entry = stack_top();
+			if(entry.dataType == StackEntry::OBJECT_PTR)
+				Object::addReference(entry.value.value_ObjPtr);
+			valueStack.push_back(entry);
 		}
 		bool stack_empty()const							{	return valueStack.empty();	}
 		void stack_pushBool(const bool value)			{	valueStack.insert(valueStack.end(),StackEntry::BOOL)->value.value_bool = value; }

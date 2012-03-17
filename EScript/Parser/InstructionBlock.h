@@ -32,6 +32,10 @@ class InstructionBlock {
 			instructions.push_back(newInstruction);	
 			instructions.back().setLine(line);
 		}
+		uint32_t registerInternalFunction(const ObjPtr userFunction)	{
+			internalFunctions.push_back(userFunction);
+			return static_cast<uint32_t>(internalFunctions.size()-1);
+		}
 		void clearJumpMarkers()									{	}		//! \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			
 		uint32_t declareString(const std::string & str){

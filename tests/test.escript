@@ -36,8 +36,8 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 	
 	foreach(expressions as var expression ){
 		out("\n","-"*30,"\n[",expression,"]\n");
-		var block = _parse2( expression);
-		out( block._getAsm() );
+		var fun = _parse2( expression);
+		out( fun._asm() );
 	
 	}
 

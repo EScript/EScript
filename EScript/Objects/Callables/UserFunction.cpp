@@ -5,6 +5,7 @@
 #include "UserFunction.h"
 #include "../Internals/Block.h"
 #include "../../EScript.h"
+#include "../../Parser/CompilerContext.h"
 #include <sstream>
 
 using namespace EScript;
@@ -63,6 +64,9 @@ void UserFunction::init(EScript::Namespace & globals) {
 	//! [ESMF] Number UserFunction.getMinParamCount()
 	ESMF_DECLARE(t,UserFunction,"getMinParamCount",0,0, Number::create(self->getMinParamCount()))
 
+	//! [ESMF] String UserFunction._asm()
+	ESMF_DECLARE(t,UserFunction,"_asm",0,0, String::create(self->getInstructions().toString()))
+
 }
 
 //! (ctor)
@@ -70,6 +74,8 @@ UserFunction::UserFunction(parameterList_t * _params,Block * block):
 		ExtObject(getTypeObject()), params(_params),posInFile(0),codeLen(0) {
 
 	setBlock(block);
+	
+	initInstructions();
 	//ctor
 }
 //! (ctor)
@@ -77,6 +83,7 @@ UserFunction::UserFunction(parameterList_t * _params,Block * block,const std::ve
 		ExtObject(getTypeObject()), params(_params),sConstrExpressions(_sConstrExpressions.begin(),_sConstrExpressions.end()),posInFile(0),codeLen(0) {
 
 	setBlock(block);
+	initInstructions();
 	//ctor
 }
 
@@ -88,6 +95,14 @@ UserFunction::~UserFunction() {
 	delete params;
 	//dtor
 }
+
+void UserFunction::initInstructions(){
+	instructions.declareLocalVariable(Consts::IDENTIFIER_this); // thisFn
+	instructions.declareLocalVariable(Consts::IDENTIFIER_thisFn); // thisFn
+	//! \todo init parameters
+
+}
+
 
 void UserFunction::setBlock(Block * _block){
 	blockRef=_block;
@@ -156,4 +171,20 @@ int UserFunction::getMinParamCount()const{
 		++i;
 	}
 	return i;
+}
+
+//! ---|> Object
+void UserFunction::_asm(CompilerContext & ctxt){
+	 // compiling the function itself
+
+	if(ctxt.isCurrentInstructionBlock(getInstructions())){
+		getBlock()->_asm(ctxt);
+		CompilerContext::finalizeInstructions(getInstructions());
+	}else{
+		CompilerContext ctxt2(getInstructions());
+		_asm(ctxt2);
+		CompilerContext::finalizeInstructions(getInstructions());
+		ctxt.registerInternalFunction(this); //! \todo  OUTPUT!!!!!!!!!!!!!
+	}
+		
 }

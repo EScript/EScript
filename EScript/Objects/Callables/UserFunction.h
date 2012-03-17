@@ -86,6 +86,7 @@ class UserFunction : public ExtObject {
 		int getMinParamCount()const;
 
 		const InstructionBlock & getInstructions()const 	{	return instructions;	}
+		InstructionBlock & getInstructions() 				{	return instructions;	}
 		void emplaceInstructions( InstructionBlock & source){	instructions.emplace(source);	}
 	
 	
@@ -94,7 +95,10 @@ class UserFunction : public ExtObject {
 		virtual std::string toDbgString()const;
 		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_USER_FUNCTION;	}
 
+		//! ---|> Object
+		virtual void _asm(CompilerContext & ctxt);
 	private:
+		void initInstructions();
 		ERef<Block> blockRef;
 		parameterList_t * params;
 		std::vector<ObjRef> sConstrExpressions;

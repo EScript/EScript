@@ -32,6 +32,7 @@ std::string Block::toString()const {
 	depth++;
 	for ( cStatementCursor c = statements.begin();  c != statements.end(); ++c) {
 		for (int i=0;i<depth;++i) sprinter << "\t";
+			sprinter <<".";
 //		sprinter <<  c->getObject()->toString() <<  std::endl;
 	}
 	depth--;
