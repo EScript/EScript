@@ -24,7 +24,9 @@ class ConditionalExpr : public Object {
 		/// ---|> [Object]
 		virtual std::string toString()const ;
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_CONDITIONAL; }
-
+		
+		//! ---|> Object
+		virtual void _asm(CompilerContext & ctxt);
 	private:
 		ObjRef condition;
 		ObjRef action;

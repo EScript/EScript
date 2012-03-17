@@ -21,7 +21,7 @@ class IfControl : public Object {
 		const Statement & getAction()const		{	return actionRef;	}
 		const Statement & getElseAction()const	{	return elseActionRef;	}
 
-		//! ---|> Statement
+		//! ---|> Object
 		virtual void _asm(CompilerContext & ctxt);
 	private:
 		ObjRef conditionRef;

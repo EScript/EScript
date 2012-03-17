@@ -3,7 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "ConditionalExpr.h"
-
+#include "../../Parser/CompilerContext.h"
 #include <sstream>
 
 using namespace EScript;
@@ -27,4 +27,31 @@ std::string ConditionalExpr::toString()const {
 		sprinter << " else "<<elseAction.toString();
 	sprinter << " ";
 	return sprinter.str();
+}
+
+//! ---|> Statement
+void ConditionalExpr::_asm(CompilerContext & ctxt){
+	if(condition.isNull()){
+		if(elseAction.isNotNull()){
+			elseAction->_asm(ctxt);
+		}
+	}else{
+		const uint32_t elseMarker = ctxt.createMarker();
+	
+		condition->_asm(ctxt);
+		ctxt.addInstruction(Instruction::createJmpOnFalse(elseMarker));
+		if(action.isNotNull()){
+			action->_asm(ctxt);
+		}
+		
+		if(elseAction.isNotNull()){
+			const uint32_t endMarker = ctxt.createMarker();
+			ctxt.addInstruction(Instruction::createJmp(endMarker));
+			ctxt.addInstruction(Instruction::createSetMarker(elseMarker));
+			elseAction->_asm(ctxt);
+			ctxt.addInstruction(Instruction::createSetMarker(endMarker));
+		}else{
+			ctxt.addInstruction(Instruction::createSetMarker(elseMarker));
+		}
+	}
 }
