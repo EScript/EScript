@@ -4,6 +4,7 @@
 // ------------------------------------------------------
 #include "Runtime.h"
 #include "RuntimeBlock.h"
+#include "FunctionCallContext.h"
 #include "../EScript.h"
 #include "../Objects/Internals/ConditionalExpr.h"
 #include "../Objects/Internals/GetAttribute.h"
@@ -1266,5 +1267,191 @@ std::string Runtime::getStackInfo(){
 	os<<"\n\n----------------------\n";
 	return os.str();
 }
+
+
+// ------------------------------------------------------------------
+Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){
+	
+	
+	_CountedRef<FunctionCallContext> fcc = FunctionCallContext::create(NULL,userFunction);
+	InstructionBlock & instructions = fcc->getInstructions();
+
+	while( true ){
+		// end of function? continue with calling function 
+		if(fcc->getInstructionCursor() >= instructions.getNumInstructions()){
+			if(fcc->getParent()){
+				fcc = fcc->getParent();
+				instructions = fcc->getInstructions();
+				fcc->stack_pushVoid();
+				continue;
+				// push result !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			}else{
+				break;
+			}
+		}
+	
+		//! \todo this could probably improved by using iterators internally!
+		const Instruction & instruction = instructions.getInstruction(fcc->getInstructionCursor());
+		fcc->increaseInstructionCursor();
+
+		std::cout << fcc->stack_toDbgString()<<"\n";
+		std::cout << instruction.toString(instructions)<<"\n";
+
+		
+		switch(instruction.getType()){
+		
+		case Instruction::I_ASSIGN:{
+			//! \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			break;
+		}
+		case Instruction::I_ASSIGN_LOCAL:{
+			fcc->assignToLocalVariable(instruction.getValue_uint32(), fcc->stack_popObject());
+			continue;
+		}
+		case Instruction::I_CALL:{ //! \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			/*	pop numParams * parameters
+				pop function
+				pop object
+				call the function
+				push result (or jump to exception point)	*/
+			const uint32_t numParams = instruction.getValue_uint32();
+			
+			std::vector<ObjRef> paramRefHolder; //! \todo why doesn't the ParameterValues keep a reference?
+			paramRefHolder.reserve(numParams);
+			ParameterValues params(numParams);
+			for(int i=numParams-1;i>=0;--i ){
+				Object * obj = fcc->stack_popObject();
+				paramRefHolder.push_back(obj);
+				params.set(i,obj);
+			}
+			
+			ObjRef fun = fcc->stack_popObject();
+			ObjRef caller = fcc->stack_popObject();
+
+			ObjPtr result = executeFunction(fun,caller,params); //! \todo OLD!
+			fcc->stack_pushObject(result.get());
+			break;
+		}
+		case Instruction::I_DUP:{
+			// push topmost entry on stack
+			fcc->stack_dup();
+			continue;
+		}
+		case Instruction::I_FIND_VARIABLE:{
+			/*	if caller.Identifier -> push (this, this.Identifier)
+				else push (GLOBALS, GLOBALS.Identifier) (or NULL,NULL + Warning) 	*/
+			if(fcc->getCaller().isNotNull()){
+				const Attribute & attr = fcc->getCaller()->getAttribute(instruction.getValue_Identifier());
+				if(attr.isNotNull()){
+					fcc->stack_pushObject(fcc->getCaller());
+					fcc->stack_pushObject(attr.getValue()); //! refOrCopy?
+					continue;
+				}
+			}
+			ObjPtr obj = getGlobalVariable(instruction.getValue_Identifier());
+			if(obj.isNotNull()){
+				fcc->stack_pushObject(globals.get());
+				fcc->stack_pushObject(obj);
+			}else{
+				warn("Variable not found: "); //! \todo proper warning!
+				fcc->stack_pushVoid();
+				fcc->stack_pushVoid();
+			}
+			break;
+		}
+		case Instruction::I_GET_ATTRIBUTE:{ //! \todo check for @(private)
+			/*	pop Object
+				push Object.Identifier (or NULL + Warning)	*/
+			ObjRef obj = fcc->stack_popObject();
+			const Attribute & attr = obj->getAttribute(instruction.getValue_Identifier());
+			if(attr.isNull()) {
+				warn("Attribute not found: "); //! \todo add correct warning
+				fcc->stack_pushVoid();
+			}else{
+				fcc->stack_pushObject( attr.getValue() );
+			}
+			continue;
+		}
+		case Instruction::I_GET_VARIABLE:{
+			//! \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			break;
+		}
+		case Instruction::I_GET_LOCAL_VARIABLE:{
+			fcc->stack_pushObject( fcc->getLocalVariable(instruction.getValue_uint32()).get() );
+			continue;
+		}
+		case Instruction::I_JMP:{
+			fcc->setInstructionCursor( instruction.getValue_uint32() );
+			continue;
+		}
+		case Instruction::I_JMP_ON_TRUE:{
+			if(fcc->stack_popBool())
+				fcc->setInstructionCursor( instruction.getValue_uint32() );
+			continue;
+		}
+		case Instruction::I_JMP_ON_FALSE:{
+			if(!fcc->stack_popBool())
+				fcc->setInstructionCursor( instruction.getValue_uint32() );
+			continue;
+		}
+		case Instruction::I_NOT:{
+			fcc->stack_pushBool( !fcc->stack_popBool() );
+			continue;
+		}
+		case Instruction::I_POP:{
+			// remove entry from stack
+			fcc->stack_pop();
+			continue;
+		}
+		case Instruction::I_PUSH_BOOL:{
+			fcc->stack_pushBool( instruction.getValue_Bool() );
+			continue;
+		}
+		case Instruction::I_PUSH_ID:{
+			fcc->stack_pushIdentifier( instruction.getValue_Identifier() );
+			continue;
+		}
+		case Instruction::I_PUSH_NUMBER:{
+			fcc->stack_pushNumber( instruction.getValue_Number() );
+			continue;
+		}
+		case Instruction::I_PUSH_STRING:{
+			fcc->stack_pushStringIndex( instruction.getValue_uint32() );
+			continue;
+		}
+		case Instruction::I_PUSH_UINT:{
+			fcc->stack_pushUInt32( instruction.getValue_uint32() );
+			continue;
+		}
+		case Instruction::I_PUSH_VOID:{
+			fcc->stack_pushVoid( );
+			continue;
+		}
+		case Instruction::I_RESET_LOCAL_VARIABLE:{
+			fcc->assignToLocalVariable(instruction.getValue_uint32(), NULL);
+			continue;
+		}
+		case Instruction::I_SET_ATTRIBUTE:{
+			//! \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			break;
+		}
+		case Instruction::I_UNDEFINED:
+		case Instruction::I_SET_MARKER:
+		default:{
+			warn("Unknown Instruction");
+		}
+		}
+		
+	}
+
+
+	return Void::get();
+}
+
+
+
+
+
+
 
 }

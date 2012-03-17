@@ -46,10 +46,12 @@ class InstructionBlock {
 			localVariables.push_back(name);
 			return static_cast<uint32_t>(localVariables.size()-1);
 		}
-		std::string toString()const;
+		const Instruction & getInstruction(const size_t index)const	{	return instructions[index];	}
+		
 		StringId getLocalVarName(const int index)const;
 
 		size_t getNumLocalVars()const							{	return localVariables.size();	}
+		size_t getNumInstructions()const						{	return instructions.size();	}
 		std::string getStringConstant(const uint32_t index)const{	return index<=stringConstants.size() ? stringConstants[index] : "";	}
 		int getVarIndex(const StringId name)const;
 		
@@ -61,6 +63,9 @@ class InstructionBlock {
 		/*! Initializes this instructionBLock with the data of the other.
 			The given InstructionBlock becomes thereby invalid.	*/
 		void emplace(InstructionBlock & other);
+		
+		std::string toString()const;
+
 		
 };
 }

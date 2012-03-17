@@ -89,6 +89,14 @@ class Runtime : public ExtObject  {
 
 	// ------------------------------------------------
 
+	/// @name Bytecode execution
+	// 	@{	
+	public:
+		Object * executeUserFunction(EPtr<UserFunction> userFunctions);
+	//	@}
+
+	// ------------------------------------------------
+
 	/// @name Function execution
 	// 	@{
 	public:

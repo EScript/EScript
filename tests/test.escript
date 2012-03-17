@@ -3,7 +3,7 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 
 {
 	var expressions = [
-		"7+8;",
+		"27+17;",
 		"out('Hello HasE!');",
 		"a.b();",
 		"a.b.c();",
@@ -38,6 +38,7 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 		out("\n","-"*30,"\n[",expression,"]\n");
 		var fun = _parse2( expression);
 		out( fun._asm() );
+		out( fun._doCall() );
 	
 	}
 

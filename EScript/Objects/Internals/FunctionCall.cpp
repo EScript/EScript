@@ -83,7 +83,12 @@ void FunctionCall::_asm(CompilerContext & ctxt){
 				break;
 			} // somethingElse.identifier (...) e.g. foo().bla(), 7.bla()
 			else{
-				expRef->_asm(ctxt);
+				gAttr->getObjectExpression()->_asm(ctxt);
+				ctxt.addInstruction(Instruction::createDup());
+				ctxt.addInstruction(Instruction::createGetAttribute(attrId));
+//				
+//				gAttr->getObjectExpression()->
+//				expRef->_asm(ctxt);
 				break;
 			}
 		}else{

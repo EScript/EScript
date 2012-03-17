@@ -56,6 +56,9 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		void setCaller(const ObjPtr & _caller)			{	caller = _caller;	}
 
 		const InstructionBlock & getInstructions()const	{	return userFunction->getInstructions();	}
+		InstructionBlock & getInstructions()			{	return userFunction->getInstructions();	}
+//		const Instruction & getNextInstruction()const	{	instructionCursor._accessInstructions(instructionCursor); }
+//		bool isInstructionAvailable()const				{	instructionCursor<}
 	// @}
 		
 	//	-----------------------------
@@ -79,7 +82,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		
 	//	-----------------------------
 	
-	//! @name Stack operations
+	//! @name Value Stack operations
 	// @{
 	private:
 
@@ -122,9 +125,9 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		void stack_pushUInt32(const uint32_t value)		{	valueStack.insert(valueStack.end(),StackEntry::UINT32)->value.value_uint32 = value; }
 		void stack_pushIdentifier(const StringId & strId){	valueStack.insert(valueStack.end(),StackEntry::IDENTIFIER)->value.value_uint32 = strId.getValue(); }
 		void stack_pushStringIndex(const uint32_t value){	valueStack.insert(valueStack.end(),StackEntry::STRING_IDX)->value.value_stringIndex = value; }
-		void stack_pushObject(Object * obj)	{	
-			Object::addReference(obj);
-			valueStack.insert(valueStack.end(),StackEntry::OBJECT_PTR)->value.value_ObjPtr = obj; 
+		void stack_pushObject(const ObjPtr & obj)	{	
+			Object::addReference(obj.get());
+			valueStack.insert(valueStack.end(),StackEntry::OBJECT_PTR)->value.value_ObjPtr = obj.get(); 
 		}
 		void stack_pushVoid() 							{	valueStack.push_back(StackEntry::VOID);		}
 		
@@ -137,7 +140,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		}
 		bool stack_popBool(){
 			StackEntry & entry = stack_top();
-			bool b;
+			bool b = false;
 			if(entry.dataType == StackEntry::OBJECT_PTR){
 				b = entry.value.value_ObjPtr == NULL ? false : entry.value.value_ObjPtr->toBool();
 				Object::removeReference(entry.value.value_ObjPtr);
@@ -182,6 +185,8 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 			return index;
 		}
 		Object * stack_popObject();
+		
+		std::string stack_toDbgString()const;
 	private:
 		
 		StackEntry & stack_top(){

@@ -146,3 +146,16 @@ std::string FunctionCallContext::StackEntry::toString()const{
 	}
 	return out.str();
 }
+std::string  FunctionCallContext::stack_toDbgString()const{
+	std::ostringstream out;
+	out<<"[";
+	std::vector<StackEntry>::const_iterator it = valueStack.begin();
+	if(it!=valueStack.end()){
+		out << (*it).toString();
+		++it;
+	}
+	for(;it!=valueStack.end();++it)
+		out << ", "<<(*it).toString();
+	out << "]";
+	return out.str();
+}

@@ -42,6 +42,7 @@ class Attribute{
 		bool isConst()const					{	return properties&CONST_BIT;	}
 		bool isInitializable()const 		{	return properties&INIT_BIT;	}
 		bool isNull()const 					{	return value.isNull();	}
+		bool isNotNull()const 				{	return value.isNotNull();	}
 		bool isObjAttribute()const 			{	return !(properties&TYPE_ATTR_BIT);	}
 		bool isTypeAttribute()const 		{	return properties&TYPE_ATTR_BIT;	}
 		bool isPrivate()const				{	return properties&PRIVATE_BIT;	}
