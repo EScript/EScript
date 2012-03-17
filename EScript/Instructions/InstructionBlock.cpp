@@ -62,6 +62,18 @@ std::string InstructionBlock::toString()const{
 		}
 
 	}
+	if(!internalFunctions.empty()){
+		out << "Functions:\n-------\n";
+		for(uint32_t i = 0;i<internalFunctions.size();++i){
+			UserFunction * uFun = getUserFunction(i);
+			if(uFun){
+				out << "<Function #"<<i<<"\n";
+				out << uFun->getInstructions().toString();
+				out << "Function #"<<i<<">\n";
+			}
+		}
+		out << "-------\n\n";
+	}
 	return out.str();
 }
 

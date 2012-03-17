@@ -3,16 +3,26 @@
 
 namespace EScript{
 
+void CompilerContext::initBasicLocalVars(){
+
+	visibleLocalVariableStack.push_back(indexNameMapping_t());
+	const std::vector<StringId> & names = instructions.getLocalVariables();
+	for(size_t i=0;i<names.size();++i){
+		visibleLocalVariableStack.back()[ names[i] ] = i;
+	}
+
+}
+
 void CompilerContext::pushLocalVars(const std::set<StringId> & variableNames){
-	currentLocalVariableStack.push_back(indexNameMapping_t());
+	visibleLocalVariableStack.push_back(indexNameMapping_t());
 	for(std::set<StringId>::const_iterator it = variableNames.begin();it!=variableNames.end();++it){
-		currentLocalVariableStack.back()[ *it ] = instructions.declareLocalVariable(*it);
+		visibleLocalVariableStack.back()[ *it ] = instructions.declareLocalVariable(*it);
 	}
 }
 int CompilerContext::getVarIndex(const StringId name)const{
 
-	for(std::vector<indexNameMapping_t>::const_reverse_iterator it=currentLocalVariableStack.rbegin();
-			it!=currentLocalVariableStack.rend();++it){
+	for(std::vector<indexNameMapping_t>::const_reverse_iterator it=visibleLocalVariableStack.rbegin();
+			it!=visibleLocalVariableStack.rend();++it){
 		const indexNameMapping_t::const_iterator fIt = it->find(name);
 		if(fIt!=it->end()){
 			return fIt->second;
@@ -24,7 +34,7 @@ int CompilerContext::getVarIndex(const StringId name)const{
 
 //		void pushLocalVars(const std::set<StringId> & variableNames);
 void CompilerContext::popLocalVars(){
-	currentLocalVariableStack.pop_back();
+	visibleLocalVariableStack.pop_back();
 }
 
 	

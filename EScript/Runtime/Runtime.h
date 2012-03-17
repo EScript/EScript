@@ -20,6 +20,7 @@ class Block;
 class UserFunction;
 class Exception;
 class FunctionCall;
+class FunctionCallContext;
 class StringData;
 
 
@@ -91,8 +92,11 @@ class Runtime : public ExtObject  {
 
 	/// @name Bytecode execution
 	// 	@{	
+		typedef std::pair<Object *,FunctionCallContext* >  executeFunctionResult_t;
+		executeFunctionResult_t startFunctionExecution(FunctionCallContext & fcc,const ObjPtr & fun,const ObjPtr & callingObject,const ParameterValues & params);
 	public:
 		Object * executeUserFunction(EPtr<UserFunction> userFunctions);
+		
 	//	@}
 
 	// ------------------------------------------------

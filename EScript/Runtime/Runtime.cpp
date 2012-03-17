@@ -1377,8 +1377,16 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){
 			ObjRef fun = fcc->stack_popObject();
 			ObjRef caller = fcc->stack_popObject();
 
-			ObjPtr result = executeFunction(fun,caller,params); //! \todo OLD!
-			fcc->stack_pushObject(result.get());
+			// returnValue , newUserFunctionCallContext
+			executeFunctionResult_t result = startFunctionExecution(*fcc.get(),fun,caller,params); 
+			if(result.second){
+				fcc = result.second;
+				instructions = fcc->getInstructions();
+			}else{
+				fcc->stack_pushObject(result.first);	
+			}
+//			fcc->stack_pushObject( executeFunction(fun,caller,params));	
+			
 			break;
 		}
 		case Instruction::I_DUP:{
@@ -1537,8 +1545,31 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){
 	return Void::get();
 }
 
+//! (internal)
+Runtime::executeFunctionResult_t Runtime::startFunctionExecution(FunctionCallContext & callingFcc,const ObjPtr & fun,const ObjPtr & _callingObject,const ParameterValues & params){
+	ObjPtr result;
+	switch( fun->_getInternalTypeId() ){
+		case _TypeIds::TYPE_USER_FUNCTION:{
+			UserFunction * userFunction = static_cast<UserFunction*>(fun.get());
+			_CountedRef<FunctionCallContext> fcc = FunctionCallContext::create(&callingFcc,userFunction);
+			// init Function call context
+			uint32_t i = 2;
+			for(ParameterValues::const_iterator it = params.begin(); it!= params.end(); ++it){
+				fcc->assignToLocalVariable(i++,*it);
+			}
 
+			return std::make_pair(result.get(),fcc.detachAndDecrease());
+		}
+	
+	
+		default:{
+			result = executeFunction(fun,_callingObject,params);
+		}
+	}
 
+	return std::make_pair(result.get(),static_cast<FunctionCallContext*>(NULL));
+
+}
 
 
 

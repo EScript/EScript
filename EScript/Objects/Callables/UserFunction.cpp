@@ -102,6 +102,9 @@ UserFunction::~UserFunction() {
 void UserFunction::initInstructions(){
 	instructions.declareLocalVariable(Consts::IDENTIFIER_this); // thisFn
 	instructions.declareLocalVariable(Consts::IDENTIFIER_thisFn); // thisFn
+	for(parameterList_t::const_iterator it = params->begin();it!=params->end();++it){
+		instructions.declareLocalVariable( (**it).getName() );
+	}
 	//! \todo init parameters
 
 }
@@ -178,15 +181,21 @@ int UserFunction::getMinParamCount()const{
 
 //! ---|> Object
 void UserFunction::_asm(CompilerContext & ctxt){
-	 // compiling the function itself
 
+	 // compiling the function itself
 	if(ctxt.isCurrentInstructionBlock(getInstructions())){
+		
+		ctxt.initBasicLocalVars(); // make 'this' and parameters available
 		getBlock()->_asm(ctxt);
+		ctxt.popLocalVars();
 		CompilerContext::finalizeInstructions(getInstructions());
 	}else{
 		CompilerContext ctxt2(getInstructions());
+		ctxt2.initBasicLocalVars(); // make 'this' and parameters available
 		_asm(ctxt2);
+		ctxt2.popLocalVars();
 		CompilerContext::finalizeInstructions(getInstructions());
+		
 		
 		ctxt.addInstruction(Instruction::createPushFunction(ctxt.registerInternalFunction(this))); 
 	}

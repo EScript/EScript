@@ -27,7 +27,7 @@ class CompilerContext {
 		InstructionBlock & instructions;
 
 		typedef std::map<StringId,size_t> indexNameMapping_t;
-		std::vector<indexNameMapping_t> currentLocalVariableStack;
+		std::vector<indexNameMapping_t> visibleLocalVariableStack;
 		int currentLine;
 		uint32_t currentMarkerId;
 	public:
@@ -48,6 +48,9 @@ class CompilerContext {
 		
 		bool isCurrentInstructionBlock( const InstructionBlock & i2 )const	{	return &i2==&instructions;	}
 	
+		//! Add the local variables which are already defined in the instructionBlock (e.g. 'this' or the parameters), to the set of visible variables.
+		void initBasicLocalVars();
+		
 		void pushLocalVars(const std::set<StringId> & variableNames);
 		void popLocalVars();
 		uint32_t registerInternalFunction(const ObjPtr userFunction)	{	return instructions.registerInternalFunction(userFunction);	}

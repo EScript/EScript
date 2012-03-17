@@ -49,6 +49,7 @@ class InstructionBlock {
 		const Instruction & getInstruction(const size_t index)const	{	return instructions[index];	}
 		
 		StringId getLocalVarName(const int index)const;
+		const std::vector<StringId> & getLocalVariables()const	{	return localVariables;	}
 
 		size_t getNumLocalVars()const							{	return localVariables.size();	}
 		size_t getNumInstructions()const						{	return instructions.size();	}
