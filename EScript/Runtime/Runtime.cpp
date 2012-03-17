@@ -1296,20 +1296,69 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){
 
 		std::cout << fcc->stack_toDbgString()<<"\n";
 		std::cout << instruction.toString(instructions)<<"\n";
-
 		
 		switch(instruction.getType()){
-		
-		case Instruction::I_ASSIGN:{
-			//! \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			break;
+
+		case Instruction::I_ASSIGN_ATTRIBUTE:{
+			/*	value = popValueObject
+				object = popObject
+				if object.identifier and not const and not private then object.identifier = value	*/
+			
+			ObjRef value = fcc->stack_popObjectValue();
+			ObjRef obj = fcc->stack_popObject();
+			
+			Attribute * attr = obj->_accessAttribute(instruction.getValue_Identifier(),false);
+			
+			if(attr){
+				if(attr->getProperties()&Attribute::ASSIGNMENT_RELEVANT_BITS){
+					if(attr->isConst()){
+						setException("Cannot assign to const attribute.");
+						break;
+					}else if(attr->isPrivate() && fcc->getCaller()!=obj ) {
+						setException("Cannot access private attribute from outside of it owning object.");
+						break;
+					}
+				}
+				attr->setValue(value.get());
+			}else{
+				warn("Attribute not found..."); //! \todo proper warning!
+			}
+			continue;
 		}
 		case Instruction::I_ASSIGN_LOCAL:{
-			fcc->assignToLocalVariable(instruction.getValue_uint32(), fcc->stack_popObject());
+			/* 	assignLocal (uint32_t) variableIndex
+				------------
+				pop value
+				$variableIndex = value	*/
+			fcc->assignToLocalVariable(instruction.getValue_uint32(), fcc->stack_popObjectValue());
+			continue;
+		}
+				
+		case Instruction::I_ASSIGN_VARIABLE:{
+			/*	value = popValueObject
+				if caller.identifier then caller.identifier = value
+				else if globals.identifier then globals.identigier = value
+				else warning */
+			ObjRef value = fcc->stack_popObjectValue();
+			
+			Attribute * attr = fcc->getCaller().isNotNull() ?
+					fcc->getCaller()->_accessAttribute(instruction.getValue_Identifier(),false) :
+					globals->_accessAttribute(instruction.getValue_Identifier(),true);
+			if(attr){
+				if(attr->isConst()){
+					setException("Cannot assign to const attribute.");
+				}else{
+					attr->setValue(value.get());
+				}
+			}else{
+				warn("Attribute not found..."); //! \todo proper warning!
+			}
 			continue;
 		}
 		case Instruction::I_CALL:{ //! \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			/*	pop numParams * parameters
+			/*	call (uint32_t) numParams
+				-------------
+				pop numParams * parameters
 				pop function
 				pop object
 				call the function
@@ -1320,9 +1369,9 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){
 			paramRefHolder.reserve(numParams);
 			ParameterValues params(numParams);
 			for(int i=numParams-1;i>=0;--i ){
-				Object * obj = fcc->stack_popObject();
-				paramRefHolder.push_back(obj);
-				params.set(i,obj);
+				Object * paramValue = fcc->stack_popObjectValue();
+				paramRefHolder.push_back(paramValue);
+				params.set(i,paramValue);
 			}
 			
 			ObjRef fun = fcc->stack_popObject();
@@ -1333,18 +1382,18 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){
 			break;
 		}
 		case Instruction::I_DUP:{
-			// push topmost entry on stack
+			// duplicate topmost stack entry
 			fcc->stack_dup();
 			continue;
 		}
 		case Instruction::I_FIND_VARIABLE:{
-			/*	if caller.Identifier -> push (this, this.Identifier)
+			/*	if caller.Identifier -> push (caller, caller.Identifier)
 				else push (GLOBALS, GLOBALS.Identifier) (or NULL,NULL + Warning) 	*/
 			if(fcc->getCaller().isNotNull()){
 				const Attribute & attr = fcc->getCaller()->getAttribute(instruction.getValue_Identifier());
 				if(attr.isNotNull()){
 					fcc->stack_pushObject(fcc->getCaller());
-					fcc->stack_pushObject(attr.getValue()); //! refOrCopy?
+					fcc->stack_pushObject(attr.getValue()); 
 					continue;
 				}
 			}
@@ -1365,7 +1414,7 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){
 			ObjRef obj = fcc->stack_popObject();
 			const Attribute & attr = obj->getAttribute(instruction.getValue_Identifier());
 			if(attr.isNull()) {
-				warn("Attribute not found: "); //! \todo add correct warning
+				warn("Attribute not found: "); //! \todo add proper warning
 				fcc->stack_pushVoid();
 			}else{
 				fcc->stack_pushObject( attr.getValue() );
@@ -1373,10 +1422,28 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){
 			continue;
 		}
 		case Instruction::I_GET_VARIABLE:{
-			//! \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			/*	if caller.Identifier -> push (caller.Identifier)
+				else push (GLOBALS.Identifier) (or NULL + Warning) 	*/
+			if(fcc->getCaller().isNotNull()){
+				const Attribute & attr = fcc->getCaller()->getAttribute(instruction.getValue_Identifier());
+				if(attr.isNotNull()){
+					fcc->stack_pushObject(attr.getValue()); 
+					continue;
+				}
+			}
+			ObjPtr obj = getGlobalVariable(instruction.getValue_Identifier());
+			if(obj.isNotNull()){
+				fcc->stack_pushObject(obj);
+			}else{
+				warn("Variable not found: "); //! \todo proper warning!
+				fcc->stack_pushVoid();
+			}
 			break;
 		}
 		case Instruction::I_GET_LOCAL_VARIABLE:{
+			/* 	getLocalVariable (uint32_t) variableIndex
+				------------
+				push $variableIndex	*/
 			fcc->stack_pushObject( fcc->getLocalVariable(instruction.getValue_uint32()).get() );
 			continue;
 		}
@@ -1395,6 +1462,10 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){
 			continue;
 		}
 		case Instruction::I_NOT:{
+			/*	not
+				-------
+				bool b = popBool
+				push !b	*/
 			fcc->stack_pushBool( !fcc->stack_popBool() );
 			continue;
 		}
@@ -1428,12 +1499,25 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){
 			continue;
 		}
 		case Instruction::I_RESET_LOCAL_VARIABLE:{
+			// $localVarId = NULL
 			fcc->assignToLocalVariable(instruction.getValue_uint32(), NULL);
 			continue;
 		}
 		case Instruction::I_SET_ATTRIBUTE:{
-			//! \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			break;
+			/*	setAttribute identifierId
+				-------------
+				properies = pop uint32
+				obj = pop object
+				value = pop parameterObj
+				obj.identifier @(properties) := value	*/
+				
+			const uint32_t properties = fcc->stack_popUInt32();
+			ObjRef obj = fcc->stack_popObject();
+			ObjRef value = fcc->stack_popObjectValue();
+			if(!obj->setAttribute(instruction.getValue_Identifier(),Attribute(value,properties))){
+				warn("Could not set Attribute..."); //! \todo proper warning!
+			}
+			continue;
 		}
 		case Instruction::I_UNDEFINED:
 		case Instruction::I_SET_MARKER:
@@ -1442,6 +1526,7 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){
 		}
 		}
 		
+		//! \todo Check state
 	}
 
 

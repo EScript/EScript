@@ -318,9 +318,7 @@ a = var b;
 	[b]
 	dup
 	[b,b]
-	push NULL
-	[b,b,NULL]
-	assign 'a'    // opt: findAndAssign 'a'
+	assignVariable 'a'    // opt: findAndAssign 'a'
 	[b]
 	pop
 	[]
@@ -335,7 +333,7 @@ a.b = 5;
 	[5,5]
 	getVar 'a'
 	[5,5,a]
-	assign 'b'
+	assignAttribute 'b'
 	[5]
 	pop
 	[]

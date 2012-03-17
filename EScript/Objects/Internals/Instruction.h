@@ -17,8 +17,9 @@ class Instruction {
 	public:
 		enum type_t{
 			I_UNDEFINED,
-			I_ASSIGN,
+			I_ASSIGN_ATTRIBUTE,
 			I_ASSIGN_LOCAL,
+			I_ASSIGN_VARIABLE,
 			I_CALL,
 			I_DUP,
 			I_FIND_VARIABLE,
@@ -58,8 +59,9 @@ class Instruction {
 		bool getValue_Bool()const					{	return value_bool;	}
 		void setValue_Bool(bool v)					{	value_bool=v;	}
 
-		static Instruction createAssign(const StringId varName);
+		static Instruction createAssignAttribute(const StringId varName);
 		static Instruction createAssignLocal(const uint32_t localVarIdx);
+		static Instruction createAssignVariable(const StringId varName);
 		static Instruction createCall(const uint32_t numParams);
 		static Instruction createDup()				{	return Instruction(I_DUP);	}
 		static Instruction createFindVariable(const StringId id);

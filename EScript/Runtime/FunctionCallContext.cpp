@@ -95,6 +95,52 @@ Object * FunctionCallContext::stack_popObject(){
 	valueStack.pop_back();
 	return obj ? obj : Void::get();
 }
+Object * FunctionCallContext::stack_popObjectValue(){
+	StackEntry & entry = stack_top();
+	
+	switch(entry.dataType){
+	case StackEntry::VOID:
+		valueStack.pop_back();
+		return Void::get();
+	case StackEntry::OBJECT_PTR:{
+		Object * obj = entry.value.value_ObjPtr;
+		if(obj){
+			obj = obj->getRefOrCopy();
+			Object::decreaseReference(obj);
+		}
+		valueStack.pop_back();
+		return obj;
+	}
+	case StackEntry::BOOL:{
+		const bool b = entry.value.value_bool;
+		valueStack.pop_back();
+		return Bool::create(b);
+	}
+	case StackEntry::UINT32:{
+		const bool value = entry.value.value_uint32;
+		valueStack.pop_back();
+		return Number::create(value);		
+	}
+	case StackEntry::NUMBER:{
+		const double value = entry.value.value_number;
+		valueStack.pop_back();
+		return Number::create(value);		
+	}
+	case StackEntry::IDENTIFIER:{
+		const StringId value(entry.value.value_indentifier);
+		valueStack.pop_back();
+		return Identifier::create(value);
+	}	
+	case StackEntry::STRING_IDX:{
+		const uint32_t value = entry.value.value_stringIndex;
+		valueStack.pop_back();
+		return String::create(getInstructions().getStringConstant(value));
+	}
+	default:;
+	}
+	
+	return Void::get();
+}
 
 void FunctionCallContext::throwError(FunctionCallContext::error_t error)const{
 	static const std::string prefix("Internal error: ");

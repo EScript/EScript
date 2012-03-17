@@ -146,6 +146,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 				Object::removeReference(entry.value.value_ObjPtr);
 			}else if(entry.dataType == StackEntry::BOOL){
 				b = entry.value.value_bool;
+			}else if(entry.dataType == StackEntry::VOID){
 			}else{
 				throwError(STACK_WRONG_DATA_TYPE);
 			}
@@ -185,6 +186,9 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 			return index;
 		}
 		Object * stack_popObject();
+		
+		//! Works like stack_popObject(), but returns an obj->cloneOrReference() if the contained value is already an Object.
+		Object * stack_popObjectValue();
 		
 		std::string stack_toDbgString()const;
 	private:

@@ -10,8 +10,8 @@
 namespace EScript {
 
 //! (static)
-Instruction Instruction::createAssign(const StringId varName){
-	Instruction i(I_ASSIGN);
+Instruction Instruction::createAssignAttribute(const StringId varName){
+	Instruction i(I_ASSIGN_ATTRIBUTE);
 	i.setValue_Identifier(varName);
 	return i;
 }
@@ -22,6 +22,14 @@ Instruction Instruction::createAssignLocal(const uint32_t localVarIdx){
 	i.setValue_uint32(localVarIdx);
 	return i;
 }
+
+//! (static)
+Instruction Instruction::createAssignVariable(const StringId varName){
+	Instruction i(I_ASSIGN_VARIABLE);
+	i.setValue_Identifier(varName);
+	return i;
+}
+
 
 //! (static)
 Instruction Instruction::createCall(const uint32_t numParams){
@@ -152,12 +160,16 @@ Instruction Instruction::createSetMarker(const uint32_t markerId){
 std::string Instruction::toString(const InstructionBlock & ctxt)const{
 	std::ostringstream out;
 	switch(type){
+	case I_ASSIGN_ATTRIBUTE:{
+		out << "assignAttribute '" << getValue_Identifier().toString() << "'";
+		break;
+	}
 	case I_ASSIGN_LOCAL:{
 		out << "assignLocal $" << getValue_uint32() <<" // '" << ctxt.getLocalVarName(getValue_uint32()).toString()<<"'";
 		break;
 	}	
-	case I_ASSIGN:{
-		out << "assign '" << getValue_Identifier().toString() << "'";
+	case I_ASSIGN_VARIABLE:{
+		out << "assignVariable '" << getValue_Identifier().toString() << "'";
 		break;
 	}
 	case I_CALL:{

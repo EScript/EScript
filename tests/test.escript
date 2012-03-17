@@ -1,10 +1,33 @@
 // Testcases for HasEScript Scripting-Language
 out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 
+
+//{
+//	var start = clock();
+//	
+//	{
+//		for(var i=0;i<1000000;++i){		var b = i+1;	}
+//	}
+//	// 1.19s
+//	out(clock()-start,"\n");
+//}
+//{
+//	var fun = _parse2( "for(var i=0;i<1000000;++i){		var b = i+1;	}");
+//	var start = clock();
+//	
+//	{
+//		fun._doCall();
+//	}
+//	// 1.09s
+//	out(clock()-start,"\n");
+//}
+//exit(0);
+
 {
 	var expressions = [
 		"27+17;",
 		"out('Hello HasE!');",
+//		"for(var i=0;i<10;++i){	out('foo',i,'\n'); }",
 		"a.b();",
 		"a.b.c();",
 		"a+b;",
@@ -19,7 +42,7 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 		"var a; { var a; {var a;}} {var a;}",
 		"var a = 1;{var b = 2;}",
 		"var a = var b = 2;",
-		"var a = out; a();",
+		"var a = out; a('Foobel');",
 		"var a=4; { var b=17; }",
 		"a = var b;",
 		"a.b = 5;",
@@ -27,10 +50,10 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 		"a.b := true;",
 		"a.b ::= true;",
 		"a.b @(private) ::= true;",
-		"while(true);",
+		"while(false);",
 		"do{17;}while(false);",
 		"for(var i=0;i<10;++i){	var a = i;}",
-		"foreach(arr as var key,var value){	value; }",
+//		"foreach(arr as var key,var value){	value; }",
 	];
 	
 	
@@ -44,13 +67,6 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 
 	
 	exit(0);
-	
-	
-	
-	
-	
-	
-	
 }
 
 

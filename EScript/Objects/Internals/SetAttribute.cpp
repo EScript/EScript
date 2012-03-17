@@ -65,18 +65,14 @@ void SetAttribute::_asm(CompilerContext & ctxt){
 		if(objExpr.isNull()){
 			// local variable: var a = ...	
 			if(ctxt.getVarIndex(attrId)>=0){
-//				ctxt.out << "assignLocal $"<<ctxt.getVarIndex(attrId)<<"\n";
 				ctxt.addInstruction(Instruction::createAssignLocal(ctxt.getVarIndex(attrId)));
 			}else{
-				valueExpr->_asm(ctxt);
-//				ctxt.out << "assign '" << attrId.toString() << "'\n";
-				ctxt.addInstruction(Instruction::createAssign(attrId));
+				ctxt.addInstruction(Instruction::createAssignVariable(attrId));
 			
 			}
-		}else{
+		}else{ // object.a = 
 			objExpr->_asm(ctxt);
-//			ctxt.out << "assign '" << attrId.toString() << "'\n";
-			ctxt.addInstruction(Instruction::createAssign(attrId));
+			ctxt.addInstruction(Instruction::createAssignAttribute(attrId));
 		}
 		
 	}else{
