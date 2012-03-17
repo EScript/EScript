@@ -187,7 +187,8 @@ void UserFunction::_asm(CompilerContext & ctxt){
 		CompilerContext ctxt2(getInstructions());
 		_asm(ctxt2);
 		CompilerContext::finalizeInstructions(getInstructions());
-		ctxt.registerInternalFunction(this); //! \todo  OUTPUT!!!!!!!!!!!!!
+		
+		ctxt.addInstruction(Instruction::createPushFunction(ctxt.registerInternalFunction(this))); 
 	}
 		
 }

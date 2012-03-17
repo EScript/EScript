@@ -113,6 +113,13 @@ Instruction Instruction::createPushId(const StringId id){
 }
 
 //! (static)
+Instruction Instruction::createPushFunction(const uint32_t functionIndex){
+	Instruction i(I_PUSH_FUNCTION);
+	i.setValue_uint32(functionIndex);
+	return i;
+}
+
+//! (static)
 Instruction Instruction::createPushNumber(const double value){
 	Instruction i(I_PUSH_NUMBER);
 	i.setValue_Number(value);
@@ -236,6 +243,10 @@ std::string Instruction::toString(const InstructionBlock & ctxt)const{
 		out << "call " << getValue_uint32();
 		break;
 	}
+	case I_PUSH_FUNCTION:{
+		out << "push (Function) #" << getValue_uint32();
+		break;
+	}	
 	case I_PUSH_NUMBER:{
 		out << "push (Number) " << getValue_Number();
 		break;

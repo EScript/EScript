@@ -1,4 +1,9 @@
+// InstructionBlock.cpp
+// This file is part of the EScript programming language.
+// See copyright notice in EScript.h
+// ------------------------------------------------------
 #include "InstructionBlock.h"
+#include "../Objects/Callables/UserFunction.h"
 #include <sstream>
 
 namespace EScript{
@@ -9,6 +14,13 @@ StringId InstructionBlock::getLocalVarName(const int index)const{
 		return StringId();
 	return localVariables.at(static_cast<size_t>(index));
 
+}
+UserFunction * InstructionBlock::getUserFunction(const uint32_t index)const{
+	if(index<=internalFunctions.size()){
+		return dynamic_cast<UserFunction*>(internalFunctions.at(index).get());
+	}else{
+		return NULL;
+	}
 }
 
 void InstructionBlock::emplace(InstructionBlock & other){

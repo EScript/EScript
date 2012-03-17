@@ -121,6 +121,11 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		}
 		bool stack_empty()const							{	return valueStack.empty();	}
 		void stack_pushBool(const bool value)			{	valueStack.insert(valueStack.end(),StackEntry::BOOL)->value.value_bool = value; }
+		void stack_pushFunction(const uint32_t functionIndex){	
+			UserFunction * uFun = userFunction->getInstructions().getUserFunction(functionIndex);
+			Object::addReference(uFun);
+			valueStack.insert(valueStack.end(),StackEntry::OBJECT_PTR)->value.value_ObjPtr = uFun; 
+		}
 		void stack_pushNumber(const double & value)		{	valueStack.insert(valueStack.end(),StackEntry::NUMBER)->value.value_number = value; }
 		void stack_pushUInt32(const uint32_t value)		{	valueStack.insert(valueStack.end(),StackEntry::UINT32)->value.value_uint32 = value; }
 		void stack_pushIdentifier(const StringId & strId){	valueStack.insert(valueStack.end(),StackEntry::IDENTIFIER)->value.value_uint32 = strId.getValue(); }

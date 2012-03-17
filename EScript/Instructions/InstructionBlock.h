@@ -53,6 +53,7 @@ class InstructionBlock {
 		size_t getNumLocalVars()const							{	return localVariables.size();	}
 		size_t getNumInstructions()const						{	return instructions.size();	}
 		std::string getStringConstant(const uint32_t index)const{	return index<=stringConstants.size() ? stringConstants[index] : "";	}
+		UserFunction * getUserFunction(const uint32_t index)const;
 		int getVarIndex(const StringId name)const;
 		
 		bool hasJumpMarkers()const								{	return true;	} //! \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

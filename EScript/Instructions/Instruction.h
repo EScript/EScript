@@ -35,6 +35,7 @@ class Instruction {
 			I_POP,
 			I_PUSH_BOOL,
 			I_PUSH_ID,
+			I_PUSH_FUNCTION,
 			I_PUSH_NUMBER,
 			I_PUSH_STRING,
 			I_PUSH_UINT,
@@ -77,6 +78,7 @@ class Instruction {
 		static Instruction createPop();
 		static Instruction createPushBool(const bool value);
 		static Instruction createPushId(const StringId id);
+		static Instruction createPushFunction(const uint32_t functionIdx);
 		static Instruction createPushNumber(const double value);
 		static Instruction createPushString(const uint32_t stringIndex);
 		static Instruction createPushUInt(const uint32_t value);

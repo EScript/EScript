@@ -1481,6 +1481,10 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){
 		case Instruction::I_PUSH_ID:{
 			fcc->stack_pushIdentifier( instruction.getValue_Identifier() );
 			continue;
+		}		
+		case Instruction::I_PUSH_FUNCTION:{
+			fcc->stack_pushFunction( instruction.getValue_uint32() );
+			continue;
 		}
 		case Instruction::I_PUSH_NUMBER:{
 			fcc->stack_pushNumber( instruction.getValue_Number() );
