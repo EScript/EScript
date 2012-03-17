@@ -1274,14 +1274,14 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){
 	
 	
 	_CountedRef<FunctionCallContext> fcc = FunctionCallContext::create(NULL,userFunction);
-	InstructionBlock & instructions = fcc->getInstructions();
+	InstructionBlock * instructions = &fcc->getInstructions();
 
 	while( true ){
 		// end of function? continue with calling function 
-		if(fcc->getInstructionCursor() >= instructions.getNumInstructions()){
+		if(fcc->getInstructionCursor() >= instructions->getNumInstructions()){
 			if(fcc->getParent()){
 				fcc = fcc->getParent();
-				instructions = fcc->getInstructions();
+				instructions = &fcc->getInstructions();
 				fcc->stack_pushVoid();
 				continue;
 				// push result !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -1291,11 +1291,9 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){
 		}
 	
 		//! \todo this could probably improved by using iterators internally!
-		const Instruction & instruction = instructions.getInstruction(fcc->getInstructionCursor());
+		const Instruction & instruction = instructions->getInstruction(fcc->getInstructionCursor());
 		fcc->increaseInstructionCursor();
 
-		std::cout << fcc->stack_toDbgString()<<"\n";
-		std::cout << instruction.toString(instructions)<<"\n";
 		
 		switch(instruction.getType()){
 
@@ -1303,7 +1301,6 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){
 			/*	value = popValueObject
 				object = popObject
 				if object.identifier and not const and not private then object.identifier = value	*/
-			
 			ObjRef value = fcc->stack_popObjectValue();
 			ObjRef obj = fcc->stack_popObject();
 			
@@ -1370,21 +1367,24 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){
 			ParameterValues params(numParams);
 			for(int i=numParams-1;i>=0;--i ){
 				Object * paramValue = fcc->stack_popObjectValue();
-				paramRefHolder.push_back(paramValue);
 				params.set(i,paramValue);
+				paramRefHolder.push_back(paramValue);
 			}
 			
 			ObjRef fun = fcc->stack_popObject();
 			ObjRef caller = fcc->stack_popObject();
 
+			
 			// returnValue , newUserFunctionCallContext
 			executeFunctionResult_t result = startFunctionExecution(*fcc.get(),fun,caller,params); 
 			if(result.second){
 				fcc = result.second;
-				instructions = fcc->getInstructions();
+				instructions = &fcc->getInstructions();
 			}else{
-				fcc->stack_pushObject(result.first);	
+				fcc->stack_pushObject(result.first);
+//				std::cout << "Result: "<<(result.first ? result.first->toString() : "Void")<<"\n";
 			}
+
 //			fcc->stack_pushObject( executeFunction(fun,caller,params));	
 			
 			break;
@@ -1560,7 +1560,7 @@ Runtime::executeFunctionResult_t Runtime::startFunctionExecution(FunctionCallCon
 
 			return std::make_pair(result.get(),fcc.detachAndDecrease());
 		}
-	
+//	
 	
 		default:{
 			result = executeFunction(fun,_callingObject,params);

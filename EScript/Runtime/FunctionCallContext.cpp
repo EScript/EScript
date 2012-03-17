@@ -103,13 +103,13 @@ Object * FunctionCallContext::stack_popObjectValue(){
 		valueStack.pop_back();
 		return Void::get();
 	case StackEntry::OBJECT_PTR:{
-		Object * obj = entry.value.value_ObjPtr;
-		if(obj){
+		ObjRef obj = entry.value.value_ObjPtr; //! \todo optimize!
+		if(obj.isNotNull()){
+			Object::decreaseReference(obj.get());
 			obj = obj->getRefOrCopy();
-			Object::decreaseReference(obj);
 		}
 		valueStack.pop_back();
-		return obj;
+		return obj.detachAndDecrease();
 	}
 	case StackEntry::BOOL:{
 		const bool b = entry.value.value_bool;

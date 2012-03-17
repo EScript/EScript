@@ -26,9 +26,8 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 {
 	var expressions = [
 //		"true ? 'foo' : 'bar'; ",
-//		"var f = fn(b){var a=2+b; out(a);}; f(3);",
+		"var f = fn(b){ var a=2; out('KatzE '*(a*b));}; f(3);",
 //		"var b=17;var a=7+b; out(a);",
-		"var b=9; out(7*b);",
 //		"var f = fn(a){ out(a);}; f( 3*3 );",
 //		"27+17;",
 //		"out('Hello HasE!');",
