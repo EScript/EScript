@@ -15,6 +15,8 @@ set(CMAKECONFIG_INSTALL_DIR ${LIB_INSTALL_DIR}/cmake/EScript)
 set(ESCRIPT_SOURCES
 	EScript/Consts.cpp
 	EScript/EScript.cpp
+	EScript/Instructions/Instruction.cpp
+	EScript/Instructions/InstructionBlock.cpp
 	EScript/Objects/Callables/Delegate.cpp
 	EScript/Objects/Callables/Function.cpp
 	EScript/Objects/Callables/UserFunction.cpp
@@ -25,17 +27,16 @@ set(ESCRIPT_SOURCES
 	EScript/Objects/ExtObject.cpp
 	EScript/Objects/Iterator.cpp
 	EScript/Objects/Identifier.cpp
-	EScript/Objects/Internals/Block.cpp
-	EScript/Objects/Internals/ConditionalExpr.cpp
-	EScript/Objects/Internals/ForeachExpression.cpp
-	EScript/Objects/Internals/FunctionCall.cpp
-	EScript/Objects/Internals/GetAttribute.cpp
-	EScript/Objects/Internals/IfControl.cpp
-	EScript/Objects/Internals/Instruction.cpp
-	EScript/Objects/Internals/LogicOp.cpp
-	EScript/Objects/Internals/LoopExpression.cpp
-	EScript/Objects/Internals/SetAttribute.cpp
-	EScript/Objects/Internals/Statement.cpp
+	EScript/Objects/AST/Block.cpp
+	EScript/Objects/AST/ConditionalExpr.cpp
+	EScript/Objects/AST/ForeachExpression.cpp
+	EScript/Objects/AST/FunctionCall.cpp
+	EScript/Objects/AST/GetAttribute.cpp
+	EScript/Objects/AST/IfControl.cpp
+	EScript/Objects/AST/LogicOp.cpp
+	EScript/Objects/AST/LoopExpression.cpp
+	EScript/Objects/AST/SetAttribute.cpp
+	EScript/Objects/AST/Statement.cpp
 	EScript/Objects/Namespace.cpp
 	EScript/Objects/Object.cpp
 	EScript/Objects/Type.cpp
@@ -46,7 +47,6 @@ set(ESCRIPT_SOURCES
 	EScript/Objects/Values/Void.cpp
 	EScript/Objects/YieldIterator.cpp
 	EScript/Parser/CompilerContext.cpp
-	EScript/Parser/InstructionBlock.cpp
 	EScript/Parser/Operators.cpp
 	EScript/Parser/Parser.cpp
 	EScript/Parser/Token.cpp
@@ -81,12 +81,14 @@ set_target_properties(EScript PROPERTIES VERSION ${ESCRIPT_VERSION}
                                          SOVERSION ${ESCRIPT_VERSION_MAJOR})
 
 # Install the header files
+file(GLOB ESCRIPT_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/EScript/Instructions/*.h")
+install(FILES ${ESCRIPT_HEADERS} DESTINATION ${INCLUDE_INSTALL_DIR}/EScript/Instructions)
 file(GLOB ESCRIPT_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/EScript/Objects/Callables/*.h")
 install(FILES ${ESCRIPT_HEADERS} DESTINATION ${INCLUDE_INSTALL_DIR}/EScript/Objects/Callables)
 file(GLOB ESCRIPT_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/EScript/Objects/Collections/*.h")
 install(FILES ${ESCRIPT_HEADERS} DESTINATION ${INCLUDE_INSTALL_DIR}/EScript/Objects/Collections)
-file(GLOB ESCRIPT_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/EScript/Objects/Internals/*.h")
-install(FILES ${ESCRIPT_HEADERS} DESTINATION ${INCLUDE_INSTALL_DIR}/EScript/Objects/Internals)
+file(GLOB ESCRIPT_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/EScript/Objects/AST/*.h")
+install(FILES ${ESCRIPT_HEADERS} DESTINATION ${INCLUDE_INSTALL_DIR}/EScript/Objects/AST)
 file(GLOB ESCRIPT_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/EScript/Objects/Values/*.h")
 install(FILES ${ESCRIPT_HEADERS} DESTINATION ${INCLUDE_INSTALL_DIR}/EScript/Objects/Values)
 file(GLOB ESCRIPT_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/EScript/Objects/*.h")

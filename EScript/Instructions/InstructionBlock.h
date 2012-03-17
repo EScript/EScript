@@ -5,8 +5,8 @@
 #ifndef INSTRUCTION_BLOCK_H
 #define INSTRUCTION_BLOCK_H
 
+#include "Instruction.h"
 #include "../Utils/StringId.h"
-#include "../Objects/Internals/Instruction.h"
 #include "../Objects/Object.h"
 
 #include <string>

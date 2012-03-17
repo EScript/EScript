@@ -3,7 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Instruction.h"
-#include "../../Parser/CompilerContext.h"
+#include "InstructionBlock.h"
 #include <iostream>
 #include <sstream>
 

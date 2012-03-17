@@ -5,7 +5,9 @@
 #ifndef INSTRUCTION_H
 #define INSTRUCTION_H
 
-#include "Statement.h"
+#include "../Utils/StringId.h"
+#include <string>
+#include <cstddef>
 
 namespace EScript {
 	

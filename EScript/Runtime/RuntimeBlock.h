@@ -5,7 +5,7 @@
 #ifndef RUNTIMEBLOCK_H
 #define RUNTIMEBLOCK_H
 
-#include "../Objects/Internals/Block.h"
+#include "../Objects/AST/Block.h"
 #include "../Utils/ObjRef.h"
 #include "../Utils/LocalVarMap.h"
 #include <stack>

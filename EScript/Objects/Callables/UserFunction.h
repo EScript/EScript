@@ -6,7 +6,7 @@
 #define USERFUNCTION_H
 
 #include "../ExtObject.h"
-#include "../../Parser/InstructionBlock.h"
+#include "../../Instructions/InstructionBlock.h"
 #include <vector>
 
 namespace EScript {

@@ -6,8 +6,8 @@
 #define COMPILER_CONTEXT_H
 
 #include "../Utils/StringId.h"
-#include "../Objects/Internals/Instruction.h"
-#include "InstructionBlock.h"
+#include "../Instructions/Instruction.h"
+#include "../Instructions/InstructionBlock.h"
 #include <map>
 #include <set>
 #include <string>
