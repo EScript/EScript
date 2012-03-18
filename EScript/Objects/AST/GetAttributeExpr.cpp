@@ -41,7 +41,7 @@ void GetAttributeExpr::_asm(CompilerContext & ctxt){
 		objRef->_asm(ctxt);
 		ctxt.addInstruction(Instruction::createGetAttribute(attrId));
 	}else{
-		const int localVarIndex = ctxt.getVarIndex(attrId);
+		const int localVarIndex = ctxt.getCurrentVarIndex(attrId);
 		if(localVarIndex>=0){
 			ctxt.addInstruction(Instruction::createGetLocalVariable(localVarIndex));
 		}else{

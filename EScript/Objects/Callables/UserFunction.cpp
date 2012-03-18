@@ -185,15 +185,15 @@ void UserFunction::_asm(CompilerContext & ctxt){
 	 // compiling the function itself
 	if(ctxt.isCurrentInstructionBlock(getInstructions())){
 		
-		ctxt.initBasicLocalVars(); // make 'this' and parameters available
+		ctxt.pushSetting_basicLocalVars(); // make 'this' and parameters available
 		getBlock()->_asm(ctxt);
-		ctxt.popLocalVars();
+		ctxt.popSetting();
 		CompilerContext::finalizeInstructions(getInstructions());
 	}else{
 		CompilerContext ctxt2(getInstructions());
-		ctxt2.initBasicLocalVars(); // make 'this' and parameters available
+		ctxt2.pushSetting_basicLocalVars(); // make 'this' and parameters available
 		_asm(ctxt2);
-		ctxt2.popLocalVars();
+		ctxt2.popSetting();
 		CompilerContext::finalizeInstructions(getInstructions());
 		
 		

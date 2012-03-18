@@ -15,6 +15,7 @@
 #include "../Objects/AST/LogicOpExpr.h"
 #include "../Objects/AST/LoopStatement.h"
 #include "../Objects/AST/Statement.h"
+#include "../Objects/AST/TryCatchStatement.h"
 
 #include "../Objects/Values/Number.h"
 #include "../Objects/Values/String.h"
@@ -1543,7 +1544,10 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		} A:
 	*/
 	else if(cId==Consts::IDENTIFIER_try) {
-		Object * tryBlock=getExpression(ctxt,cursor); // TODO should be a block
+		BlockStatement * tryBlock=dynamic_cast<BlockStatement*>(getExpression(ctxt,cursor)); 
+		if(!tryBlock){
+			throwError("[try-catch] expects an try block. ",tokens.at(cursor));
+		}
 		++cursor;
 		tc=Token::cast<TControl>(tokens.at(cursor));
 		if (!tc || tc->getId()!=Consts::IDENTIFIER_catch)
@@ -1573,37 +1577,39 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		}
 
 		BlockStatement * catchBlock=tStartCatchBlock->getBlock();
-		if(hasVarName){
-			catchBlock->declareVar(varName);
-			std::vector<ObjRef> paramExp;
+		if(_produceBytecode){
+			getExpression(ctxt,cursor); // fill rest of catch block
+			return Statement(Statement::TYPE_STATEMENT,new TryCatchStatement(tryBlock,catchBlock,varName));
+		}else{
+			if(hasVarName){
+				catchBlock->declareVar(varName);
+				std::vector<ObjRef> paramExp;
 
-			struct fnWrapper {
-				ES_FUNCTION(extractExceptionValue){
-					ObjRef exceptionValue=runtime.getResult();
-					runtime.resetState();
-					return exceptionValue.detachAndDecrease();
-				}
-			};
-			catchBlock->addStatement( Statement( Statement::TYPE_EXPRESSION,
-					SetAttributeExpr::createAssignment(NULL,varName,
-						new FunctionCallExpr(
-							new Function(fnWrapper::extractExceptionValue),
-							paramExp,false,currentFilename,tStartCatchBlock->getLine()),
-						tStartCatchBlock->getLine())));
+				struct fnWrapper {
+					ES_FUNCTION(extractExceptionValue){
+						ObjRef exceptionValue=runtime.getResult();
+						runtime.resetState();
+						return exceptionValue.detachAndDecrease();
+					}
+				};
+				catchBlock->addStatement( Statement( Statement::TYPE_EXPRESSION,
+						SetAttributeExpr::createAssignment(NULL,varName,
+							new FunctionCallExpr(
+								new Function(fnWrapper::extractExceptionValue),
+								paramExp,false,currentFilename,tStartCatchBlock->getLine()),
+							tStartCatchBlock->getLine())));
 
+			}
+			getExpression(ctxt,cursor); // fill rest of catch block
+
+			BlockStatement * wrappingBlock = new BlockStatement();
+			wrappingBlock->addStatement( createStatement(tryBlock) );
+			wrappingBlock->addStatement( Statement(Statement::TYPE_JUMP_TO_A) );
+			wrappingBlock->setExceptionPos( wrappingBlock->getNextPos() );
+			wrappingBlock->addStatement( Statement(Statement::TYPE_BLOCK,catchBlock) );
+			wrappingBlock->setJumpPosA(  BlockStatement::POS_HANDLE_AND_LEAVE );
+			return Statement(Statement::TYPE_BLOCK,wrappingBlock);
 		}
-		getExpression(ctxt,cursor); // fill rest of catch block
-
-		BlockStatement * wrappingBlock = new BlockStatement();
-		wrappingBlock->addStatement( createStatement(tryBlock) );
-		wrappingBlock->addStatement( Statement(Statement::TYPE_JUMP_TO_A) );
-		wrappingBlock->setExceptionPos( wrappingBlock->getNextPos() );
-		wrappingBlock->addStatement( Statement(Statement::TYPE_BLOCK,catchBlock) );
-		wrappingBlock->setJumpPosA(  BlockStatement::POS_HANDLE_AND_LEAVE );
-		return Statement(Statement::TYPE_BLOCK,wrappingBlock);
-//		if (hasVarName)
-//			dynamic_cast<BlockStatement *>(catchBlock)->declareVar(varName);
-//		return createStatement(new TryCatchControl(tryBlock,dynamic_cast<BlockStatement *>(catchBlock),varName));
 	}
 	/// continue-Control
 	else if(cId==Consts::IDENTIFIER_continue) {

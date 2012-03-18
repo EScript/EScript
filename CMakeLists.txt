@@ -37,6 +37,7 @@ set(ESCRIPT_SOURCES
 	EScript/Objects/AST/LoopStatement.cpp
 	EScript/Objects/AST/SetAttributeExpr.cpp
 	EScript/Objects/AST/Statement.cpp
+	EScript/Objects/AST/TryCatchStatement.cpp
 	EScript/Objects/Namespace.cpp
 	EScript/Objects/Object.cpp
 	EScript/Objects/Type.cpp

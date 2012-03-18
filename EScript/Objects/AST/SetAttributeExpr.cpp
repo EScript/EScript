@@ -65,8 +65,8 @@ void SetAttributeExpr::_asm(CompilerContext & ctxt){
 		// no object given: a = ...
 		if(objExpr.isNull()){
 			// local variable: var a = ...	
-			if(ctxt.getVarIndex(attrId)>=0){
-				ctxt.addInstruction(Instruction::createAssignLocal(ctxt.getVarIndex(attrId)));
+			if(ctxt.getCurrentVarIndex(attrId)>=0){
+				ctxt.addInstruction(Instruction::createAssignLocal(ctxt.getCurrentVarIndex(attrId)));
 			}else{
 				ctxt.addInstruction(Instruction::createAssignVariable(attrId));
 			

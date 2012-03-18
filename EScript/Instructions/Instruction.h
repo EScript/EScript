@@ -45,6 +45,7 @@ class Instruction {
 			I_SET_MARKER,
 		};
 		static const uint32_t JMP_TO_MARKER_OFFSET = 0x100000; //! if a jump target is >= JMP_TO_MARKER_OFFSET, the target is a marker and not an address.
+		static const uint32_t INVALID_JUMP_ADDRESS = 0x0FFFFF; //! A jump to this address always ends the current function. \todo assure that no IntructionBlock can have so many Instructions
 
 		std::string toString(const InstructionBlock & ctxt)const;
 
@@ -90,7 +91,7 @@ class Instruction {
 		void setLine(int l)	{	line = l;	}
 
 	private:
-		Instruction( type_t _type) : type(_type),line(-1){}//,stmt(_stmt){}
+		Instruction( type_t _type) : type(_type),line(-1){}
 		
 
 		type_t type;
@@ -102,7 +103,6 @@ class Instruction {
 			bool value_bool;
 		};
 		int line;
-//		Statement stmt; // to be removed!!!!!!!
 };
 }
 

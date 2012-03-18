@@ -25,8 +25,9 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 
 {
 	var expressions = [
-		"var a=1; try{ var b=2;{var c=3/0; {var d=4;} }}catch(e){out(a,e);}",
-		"while(true){ try{ var a=0; continue; }catch(e){out(e);} }",
+		"for(var i=0;i<10;++i){ var a=i%2; if( a==0 ) continue; {var b = i; out (b); if(i>5) break;  } }"
+//		"var a=1; try{ var b=2;{var c=3/0; {var d=4;} }}catch(e){out(a,e);}",
+//		"while(true){ try{ var a=0; continue; }catch(e){out(e);} }",
 //		"true ? 'foo' : 'bar'; ",
 //		"var f = fn(b){ var a=2; out('KatzE '*(a*b));}; f(3);",
 //		"var b=17;var a=7+b; out(a);",

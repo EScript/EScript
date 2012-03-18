@@ -63,7 +63,7 @@ void FunctionCallExpr::_asm(CompilerContext & ctxt){
 			const StringId attrId = gAttr->getAttrId();
 
 			if(gAttr->getObjectExpression()==NULL){ // singleIdentifier (...)
-				const int localVarIndex = ctxt.getVarIndex(attrId);
+				const int localVarIndex = ctxt.getCurrentVarIndex(attrId);
 				if(localVarIndex>=0){
 					ctxt.addInstruction(Instruction::createPushVoid());
 //					ctxt.out << "push NULL\n";

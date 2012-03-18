@@ -3,40 +3,66 @@
 
 namespace EScript{
 
-void CompilerContext::initBasicLocalVars(){
 
-	visibleLocalVariableStack.push_back(indexNameMapping_t());
+uint32_t CompilerContext::getCurrentMarker(setting_t type)const{
+	for(std::vector<SettingsStackEntry>::const_reverse_iterator it=settingsStack.rbegin();it!=settingsStack.rend();++it){
+		const SettingsStackEntry & entry = *it;
+		if(entry.type == type)
+			return entry.marker;
+	}
+	return Instruction::INVALID_JUMP_ADDRESS;
+}
+
+
+
+void CompilerContext::pushSetting_basicLocalVars(){
+	settingsStack.push_back(SettingsStackEntry(VISIBLE_LOCAL_VARIABLES));
+	SettingsStackEntry & entry = settingsStack.back();
+	
 	const std::vector<StringId> & names = instructions.getLocalVariables();
 	for(size_t i=0;i<names.size();++i){
-		visibleLocalVariableStack.back()[ names[i] ] = i;
+		entry.localVariables[ names[i] ] = i;
 	}
-
 }
 
-void CompilerContext::pushLocalVars(const std::set<StringId> & variableNames){
-	visibleLocalVariableStack.push_back(indexNameMapping_t());
+void CompilerContext::pushSetting_localVars(const std::set<StringId> & variableNames){
+	settingsStack.push_back(SettingsStackEntry(VISIBLE_LOCAL_VARIABLES));
+	SettingsStackEntry & entry = settingsStack.back();
+	
 	for(std::set<StringId>::const_iterator it = variableNames.begin();it!=variableNames.end();++it){
-		visibleLocalVariableStack.back()[ *it ] = instructions.declareLocalVariable(*it);
+		entry.localVariables[ *it ] = instructions.declareLocalVariable(*it);
 	}
 }
-int CompilerContext::getVarIndex(const StringId name)const{
-
-	for(std::vector<indexNameMapping_t>::const_reverse_iterator it=visibleLocalVariableStack.rbegin();
-			it!=visibleLocalVariableStack.rend();++it){
-		const indexNameMapping_t::const_iterator fIt = it->find(name);
-		if(fIt!=it->end()){
+int CompilerContext::getCurrentVarIndex(const StringId name)const{
+	for(std::vector<SettingsStackEntry>::const_reverse_iterator it=settingsStack.rbegin();it!=settingsStack.rend();++it){
+		const SettingsStackEntry & entry = *it;
+		if(entry.type != VISIBLE_LOCAL_VARIABLES)
+			continue;
+		const nameToIndexMapping_t::const_iterator fIt = entry.localVariables.find(name);
+		if(fIt!=entry.localVariables.end()){
 			return fIt->second;
 		}
 	}
 	return -1;
 }
 
+bool CompilerContext::collectLocalVariables(setting_t entryType,std::vector<size_t> & variableIndices){
+	variableIndices.clear();
+	for(std::vector<SettingsStackEntry>::const_reverse_iterator it=settingsStack.rbegin();it!=settingsStack.rend();++it){
+		const SettingsStackEntry & entry = *it;
+		if(entry.type == VISIBLE_LOCAL_VARIABLES){
+			for(nameToIndexMapping_t::const_iterator varIt = entry.localVariables.begin();varIt!=entry.localVariables.end();++varIt){
+				variableIndices.push_back(varIt->second);
+			}
+		}
+		if(entry.type == entryType)
+			return true;
+	}
+	return false;
 
-//		void pushLocalVars(const std::set<StringId> & variableNames);
-void CompilerContext::popLocalVars(){
-	visibleLocalVariableStack.pop_back();
 }
 
+//------------------------------------------
 	
 //! (static) \todo // move to Compiler
 void CompilerContext::finalizeInstructions( InstructionBlock & instructionBlock ){

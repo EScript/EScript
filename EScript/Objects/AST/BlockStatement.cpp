@@ -57,23 +57,18 @@ void BlockStatement::addStatement(const Statement & s) {
 
 //! ---|> Object
 void BlockStatement::_asm(CompilerContext & ctxt){
-	
-//	ctxt.out<<"{\n";
+
 	if(vars) 
-		ctxt.pushLocalVars(*vars);
+		ctxt.pushSetting_localVars(*vars);
 
 	for ( statementCursor c = statements.begin();  c != statements.end(); ++c) {
 		c->_asm(ctxt);
-//		out<<"\n";
 	}
 	if(vars){
 		for(std::set<StringId>::const_iterator it = vars->begin();it!=vars->end();++it){
-			ctxt.addInstruction(Instruction::createResetLocalVariable(ctxt.getVarIndex(*it)));
-//			ctxt.out << "reset $" << ctxt.getVarIndex(*it) << "\n";
+			ctxt.addInstruction(Instruction::createResetLocalVariable(ctxt.getCurrentVarIndex(*it)));
 		}
-		ctxt.popLocalVars();
+		ctxt.popSetting();
 	}
-
-//	ctxt.out<<"}\n";
 
 }
