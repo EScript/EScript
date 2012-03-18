@@ -5,7 +5,7 @@
 #ifndef RUNTIMEBLOCK_H
 #define RUNTIMEBLOCK_H
 
-#include "../Objects/AST/Block.h"
+#include "../Objects/AST/BlockStatement.h"
 #include "../Utils/ObjRef.h"
 #include "../Utils/LocalVarMap.h"
 #include <stack>
@@ -21,19 +21,19 @@ class RuntimeBlock:public EReferenceCounter<RuntimeBlock,RuntimeBlock> {
 	public:
 		typedef _CountedRef<RuntimeBlock> RTBRef;
 
-		static RuntimeBlock * create(RuntimeContext * _ctxt,const Block * staticBlock,RuntimeBlock * parentRTB=NULL);
+		static RuntimeBlock * create(RuntimeContext * _ctxt,const AST::BlockStatement * staticBlock,RuntimeBlock * parentRTB=NULL);
 		static void release(RuntimeBlock *rtb);
 
 		// ----
 
-		Block * getStaticBlock()const		{   return staticBlock; }
+		AST::BlockStatement * getStaticBlock()const		{   return staticBlock; }
 
 		bool assignToVariable(Runtime & rt,const StringId id,Object * val);
 		void initLocalVariable(const StringId id,Object * val)		{	localVariables.declare(id,val);	}
 		Object * getLocalVariable(const StringId id)				{	return localVariables.find(id);	}
 
 		void resetStatementCursor()	{	currentStatement=staticBlock->getStatements().begin();	}
-		Statement * nextStatement()	{
+		AST::Statement * nextStatement()	{
 			return currentStatement==staticBlock->getStatements().end() ? NULL : &(*currentStatement++);
 		}
 		void gotoStatement(int pos);
@@ -44,11 +44,11 @@ class RuntimeBlock:public EReferenceCounter<RuntimeBlock,RuntimeBlock> {
 	private:
 		RuntimeBlock();
 		~RuntimeBlock();
-		void init(RuntimeContext * _ctxt,const Block * staticBlock,RuntimeBlock * parentRTB);
+		void init(RuntimeContext * _ctxt,const AST::BlockStatement * staticBlock,RuntimeBlock * parentRTB);
 
-		Block * staticBlock;
+		AST::BlockStatement * staticBlock;
 		LocalVarMap localVariables;
-		Block::statementCursor currentStatement;
+		AST::BlockStatement::statementCursor currentStatement;
 		RuntimeContext * ctxt;
 };
 

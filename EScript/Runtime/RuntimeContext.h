@@ -22,7 +22,7 @@ class RuntimeContext:public EReferenceCounter<RuntimeContext,RuntimeContext> {
 		static void release(RuntimeContext *rts);
 
 		// ----
-		RuntimeBlock * createAndPushRTB(const Block * staticBlock);
+		RuntimeBlock * createAndPushRTB(const AST::BlockStatement * staticBlock);
 
 		Object * getCaller()const    				{   return caller.get(); }
 		RuntimeBlock * getCurrentRTB()const			{	return runtimeBlockStack.top().get();	}

@@ -15,11 +15,12 @@
 #include <string>
 
 namespace EScript {
-
-class Block;
+namespace AST{
+class BlockStatement;
+class FunctionCallExpr;
+}
 class UserFunction;
 class Exception;
-class FunctionCall;
 class FunctionCallContext;
 class StringData;
 
@@ -81,7 +82,7 @@ class Runtime : public ExtObject  {
 		void setStackSizeLimit(size_t s)				{	stackSizeLimit = s;	}
 
 	private:
-		Object * executeBlock(Block * block);
+		Object * executeBlock(AST::BlockStatement * block);
 
 		ObjRef callingObject;
 		std::stack<RuntimeContext::RTBRef> contextStack;
@@ -104,7 +105,7 @@ class Runtime : public ExtObject  {
 	/// @name Function execution
 	// 	@{
 	public:
-		Object * executeFunctionCall(FunctionCall * fCall);
+		Object * executeFunctionCall(AST::FunctionCallExpr * fCall);
 		Object * executeFunction(const ObjPtr & fun,const ObjPtr & callingObject,const ParameterValues & params,bool isConstructor=false);
 	private:
 		RuntimeContext * createAndPushFunctionCallContext(const ObjPtr & callingObject,UserFunction * ufun,const ParameterValues & paramValues);
@@ -112,12 +113,12 @@ class Runtime : public ExtObject  {
 		bool checkType(const StringId & name,Object * obj,Object *typeExpression);
 		/*! (internal) Used to track the status of the active function calls (for stack traces) */
 		struct FunctionCallInfo{
-			FunctionCall * funCall;
+			AST::FunctionCallExpr * funCall;
 			Object * callingObject;
 			Object * function;
 			ParameterValues * parameterValues;
 
-			FunctionCallInfo(FunctionCall * _funCall,Object * _callingObject,Object * _function,ParameterValues * _pValues):
+			FunctionCallInfo(AST::FunctionCallExpr * _funCall,Object * _callingObject,Object * _function,ParameterValues * _pValues):
 				funCall(_funCall),callingObject(_callingObject),function(_function),parameterValues(_pValues) { }
 		};
 		std::vector<FunctionCallInfo> functionCallStack;

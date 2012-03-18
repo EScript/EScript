@@ -7,6 +7,7 @@
 #include <sstream>
 
 using namespace EScript;
+using namespace EScript::AST;
 
 //! (ctor)
 ConditionalExpr::ConditionalExpr(ObjPtr _condition,ObjPtr _action,ObjPtr _elseAction):

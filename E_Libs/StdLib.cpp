@@ -117,7 +117,7 @@ static std::string findFile(Runtime & runtime, const std::string & filename){
 
 //! (static)
 Object * StdLib::load(Runtime & runtime,const std::string & filename){
-	ERef<Block> block;
+	ERef<AST::BlockStatement> block;
 	try {
 		block=EScript::loadScriptFile(findFile(runtime,filename),runtime.getLogger());
 	} catch (Exception * e) {
@@ -128,7 +128,7 @@ Object * StdLib::load(Runtime & runtime,const std::string & filename){
 		return NULL;
 
 	ObjRef resultRef(runtime.executeObj(block.get()));
-	/* reset the Block at this point is important as it might hold a reference to the result, which may then
+	/* reset the BlockStatement at this point is important as it might hold a reference to the result, which may then
 		be destroyed when the function is left after the resultRef-reference has already been decreased. */
 	block = NULL;
 	if(runtime.getState() == Runtime::STATE_RETURNING){
@@ -267,10 +267,10 @@ void StdLib::init(EScript::Namespace * globals) {
 		return NULL;
 	})
 
-	//!	[ESF]  Block parse(string) @deprecated
+	//!	[ESF]  BlockStatement parse(string) @deprecated
 	ES_FUNCTION_DECLARE(globals,"parse",1,1, {
 		assertParamCount(runtime,parameter.count(),1,1);
-		ERef<Block> block(new Block());
+		ERef<AST::BlockStatement> block(new AST::BlockStatement);
 		static const StringId inline_id("[inline]");
 		block->setFilename(inline_id);
 		try{
@@ -282,12 +282,12 @@ void StdLib::init(EScript::Namespace * globals) {
 		}
 		return block.detachAndDecrease();
 	})
-	//!	[ESF]  Block _parse2(string) 
+	//!	[ESF]  BlockStatement _parse2(string) 
 	ES_FUNCTION_DECLARE(globals,"_parse2",1,1, {
 		assertParamCount(runtime,parameter.count(),1,1);
 		
 		// 1. parse
-		ERef<Block> block(new Block());
+		ERef<AST::BlockStatement> block(new AST::BlockStatement);
 		static const StringId inline_id("[inline]");
 		block->setFilename(inline_id);
 		ERef<UserFunction> fun = new UserFunction(new UserFunction::parameterList_t,block.get());

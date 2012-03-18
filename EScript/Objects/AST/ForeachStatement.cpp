@@ -1,14 +1,15 @@
-// ForeachExpression.cpp
+// ForeachStatement.cpp
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
-#include "ForeachExpression.h"
+#include "ForeachStatement.h"
 #include "../../Parser/CompilerContext.h"
 
 using namespace EScript;
+using namespace EScript::AST;
 
 //! (ctor)
-ForeachExpression::ForeachExpression( Object * _collectionExpression,
+ForeachStatement::ForeachStatement( Object * _collectionExpression,
 						const StringId _keyId,
 						const StringId _valueId,
 						const Statement & _action ) : 
@@ -17,7 +18,7 @@ ForeachExpression::ForeachExpression( Object * _collectionExpression,
 }
 
 //! ---|> Statement
-void ForeachExpression::_asm(CompilerContext & ctxt){
+void ForeachStatement::_asm(CompilerContext & ctxt){
 	const uint32_t loopBegin = ctxt.createMarker();
 	const uint32_t loopEndMarker = ctxt.createMarker();
 	
@@ -33,7 +34,7 @@ void ForeachExpression::_asm(CompilerContext & ctxt){
 ////		}
 ////		
 ////	*/
-	ctxt.out << "//<ForeachExpression '"<<toString()<<"'\n";
+	ctxt.out << "//<ForeachStatement '"<<toString()<<"'\n";
 //	if(initStmt.isValid()){
 //		initStmt._asm(ctxt);
 //	}
@@ -57,6 +58,6 @@ void ForeachExpression::_asm(CompilerContext & ctxt){
 //
 //	ctxt.out << loopEndMarker << ":\n";
 
-	ctxt.out << "//ForeachExpression>\n";
+	ctxt.out << "//ForeachStatement>\n";
 
 }

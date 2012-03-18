@@ -1,4 +1,4 @@
-// ForeachExpression.h
+// ForeachStatement.h
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
@@ -9,18 +9,19 @@
 #include "Statement.h"
 
 namespace EScript {
-
-/*! [ForeachExpression]  ---|> [Object] */
-class ForeachExpression : public Object {
-		ES_PROVIDES_TYPE_NAME(ForeachExpression)
+namespace AST {
+	
+/*! [ForeachStatement]  ---|> [Object] */
+class ForeachStatement : public Object {
+		ES_PROVIDES_TYPE_NAME(ForeachStatement)
 	public:
 
-		ForeachExpression( Object * collectionExpression,
+		ForeachStatement( Object * collectionExpression,
 						const StringId keyId,
 						const StringId valueId,
 						const Statement & action );
 						
-		virtual ~ForeachExpression(){}
+		virtual ~ForeachStatement(){}
 
 
 
@@ -33,6 +34,7 @@ class ForeachExpression : public Object {
 		StringId valueName;
 		Statement action;
 };
+}
 }
 
 #endif // FOREACH_EXPRESSION_H

@@ -120,7 +120,7 @@
 }
 {// MEMLEAK
 
-	// this should create a runtime error (Block.+ not found) OR a syntax error .
+	// this should create a runtime error (BlockStatement.+ not found) OR a syntax error .
 	// (Not shure about what's better...)
 	var errorFound=false;
 	Runtime.setTreatWarningsAsError(true);

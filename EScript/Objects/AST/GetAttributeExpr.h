@@ -1,4 +1,4 @@
-// GetAttribute.h
+// GetAttributeExpr.h
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
@@ -9,14 +9,15 @@
 #include <string>
 
 namespace EScript {
-
-/*! [GetAttribute]  ---|> [Object]  */
-class GetAttribute : public Object {
-		ES_PROVIDES_TYPE_NAME(GetAttribute)
+namespace AST {
+	
+/*! [GetAttributeExpr]  ---|> [Object]  */
+class GetAttributeExpr : public Object {
+		ES_PROVIDES_TYPE_NAME(GetAttributeExpr)
 	public:
-		GetAttribute(Object * obj,StringId attrId);
-		GetAttribute(Object * obj,const std::string & attrName);
-		virtual ~GetAttribute();
+		GetAttributeExpr(Object * obj,StringId attrId);
+		GetAttributeExpr(Object * obj,const std::string & attrName);
+		virtual ~GetAttributeExpr();
 
 		StringId getAttrId()const				{   return attrId;  }
 		const std::string & getAttrName()const	{   return attrId.toString();    }
@@ -32,6 +33,7 @@ class GetAttribute : public Object {
 		ObjRef objRef;
 		StringId attrId;
 };
+}
 }
 
 #endif // GETATTRIBUTE_H

@@ -16,7 +16,9 @@
 
 namespace EScript {
 // Forward declarations.
-class Block;
+namespace AST{
+class BlockStatement;
+}
 class Namespace;
 class Object;
 class Runtime;
@@ -83,10 +85,10 @@ Object * callFunction(Runtime & rt, Object * function, const ParameterValues & p
 
 void out(Object * obj);
 
-Block * loadScriptFile(const std::string & filename,Logger * logger=NULL);
+AST::BlockStatement * loadScriptFile(const std::string & filename,Logger * logger=NULL);
 
 //! @return (success, result)
-std::pair<bool, ObjRef> execute(Runtime & runtime, Block * block);
+std::pair<bool, ObjRef> execute(Runtime & runtime, AST::BlockStatement * block);
 
 //! @return (success, result)
 std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & filename);

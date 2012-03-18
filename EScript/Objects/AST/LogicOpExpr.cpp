@@ -1,27 +1,28 @@
-// LogicOp.cpp
+// LogicOpExpr.cpp
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
-#include "LogicOp.h"
+#include "LogicOpExpr.h"
 #include "../../Parser/CompilerContext.h"
 
 #include <sstream>
 
 using namespace EScript;
+using namespace EScript::AST;
 
 //! (ctor)
-LogicOp::LogicOp(Object * _left,Object * _right,opType_T _op):
+LogicOpExpr::LogicOpExpr(Object * _left,Object * _right,opType_T _op):
 		leftRef(_left),rightRef(_right),op(_op) {
 	//ctor
 }
 
 //! (dtor)
-LogicOp::~LogicOp() {
+LogicOpExpr::~LogicOpExpr() {
 	//dtor
 }
 
 //! ---|> [Object]
-std::string LogicOp::toString()const {
+std::string LogicOpExpr::toString()const {
 	std::ostringstream sprinter;
 	if (op==NOT)
 		sprinter<<"!";
@@ -37,7 +38,7 @@ std::string LogicOp::toString()const {
 }
 
 //! ---|> Object
-void LogicOp::_asm(CompilerContext & ctxt){
+void LogicOpExpr::_asm(CompilerContext & ctxt){
 	switch(op){
 	case NOT:{
 		leftRef->_asm(ctxt);

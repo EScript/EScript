@@ -20,9 +20,10 @@
 #endif
 
 namespace EScript {
-
-class Block;
+namespace AST{
+class BlockStatement;
 class Statement;
+}
 
 /*! [Parser] ---|> [Object] */
 class Parser : public Object {
@@ -50,8 +51,8 @@ class Parser : public Object {
 		Parser(Logger * logger=NULL, Type * type=NULL);
 		virtual ~Parser();
 
-		Object * parse(Block * rootBlock,const StringData & code);
-		Block * parseFile(const std::string & filename);
+		Object * parse(AST::BlockStatement * rootBlock,const StringData & code);
+		AST::BlockStatement * parseFile(const std::string & filename);
 
 		/// ---|> [Object]
 		virtual Object * clone()const;
@@ -59,8 +60,8 @@ class Parser : public Object {
 		//! (internal)
 		struct ParsingContext{
 			Tokenizer::tokenList_t & tokens;
-			Block * rootBlock;
-			std::deque<Block*> blocks; // used as a stack
+			AST::BlockStatement * rootBlock;
+			std::deque<AST::BlockStatement*> blocks; // used as a stack
 			ERef<String> code;
 			ParsingContext(Tokenizer::tokenList_t & _tokens,const EPtr<String> & _code ) : tokens(_tokens),rootBlock(NULL),code(_code){}
 		};
@@ -76,11 +77,11 @@ class Parser : public Object {
 		Tokenizer tokenizer;
 		void pass_1(ParsingContext & ctxt);
 		void pass_2(ParsingContext & ctxt, Tokenizer::tokenList_t  & enrichedTokens)const;
-		Statement getControl(ParsingContext & ctxt,int & cursor)const;
-		Statement getStatement(ParsingContext & ctxt,int & cursor,int to=-1)const;
+		AST::Statement getControl(ParsingContext & ctxt,int & cursor)const;
+		AST::Statement getStatement(ParsingContext & ctxt,int & cursor,int to=-1)const;
 		Object * getExpression(ParsingContext & ctxt,int & cursor,int to=-1)const;
 		Object * getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)const;
-		Block * getBlock(ParsingContext & ctxt,int & cursor)const ;
+		AST::BlockStatement * getBlock(ParsingContext & ctxt,int & cursor)const ;
 		Object * getMap(ParsingContext & ctxt,int & cursor)const;
 		Object * getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const;
 		UserFunction::parameterList_t * getFunctionParameters(ParsingContext & ctxt,int & cursor)const;
@@ -89,7 +90,7 @@ class Parser : public Object {
 		typedef std::vector<std::pair<StringId,int> > properties_t; //  (property's id, position of option bracket or -1)*
 		void readProperties(ParsingContext & ctxt,int from,int to,properties_t & properties)const;
 
-		Statement createStatement(Object * obj)const;
+		AST::Statement createStatement(Object * obj)const;
 
 		enum lValue_t { LVALUE_NONE, LVALUE_INDEX, LVALUE_MEMBER};
 		lValue_t getLValue(ParsingContext & ctxt,int from,int to,Object * & obj,StringId & identifier,Object * &indexExpression)const;

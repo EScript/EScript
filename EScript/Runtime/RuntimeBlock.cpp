@@ -14,7 +14,7 @@ using namespace EScript;
 std::stack<RuntimeBlock *> RuntimeBlock::pool;
 
 //! (static) Factory
-RuntimeBlock * RuntimeBlock::create(RuntimeContext * _ctxt,const Block * staticBlock,RuntimeBlock * _parentRTB){
+RuntimeBlock * RuntimeBlock::create(RuntimeContext * _ctxt,const AST::BlockStatement * staticBlock,RuntimeBlock * _parentRTB){
 	RuntimeBlock * rtb=NULL;
 #ifdef ES_DEBUG_MEMORY
 	rtb = new RuntimeBlock();
@@ -53,8 +53,8 @@ RuntimeBlock::~RuntimeBlock() {
 	//dtor
 }
 
-void RuntimeBlock::init(RuntimeContext * _ctxt,const Block * _staticBlock,RuntimeBlock * parentRTB){
-	staticBlock = const_cast<Block *>(_staticBlock);
+void RuntimeBlock::init(RuntimeContext * _ctxt,const AST::BlockStatement * _staticBlock,RuntimeBlock * parentRTB){
+	staticBlock = const_cast<AST::BlockStatement *>(_staticBlock);
 	currentStatement = staticBlock->getStatements().begin();
 	ctxt = _ctxt;
 
@@ -65,10 +65,10 @@ void RuntimeBlock::init(RuntimeContext * _ctxt,const Block * _staticBlock,Runtim
 		localVariables.init();
 	}
 
-	 // Initialize the variables declared in the static Block.
-	const Block::declaredVariableMap_t * staticVars= staticBlock->getVars();
+	 // Initialize the variables declared in the static BlockStatement.
+	const AST::BlockStatement::declaredVariableMap_t * staticVars= staticBlock->getVars();
 	if(staticVars!=NULL){
-		for ( Block::declaredVariableMap_t::const_iterator it = staticVars->begin();  it != staticVars->end(); ++it) {
+		for ( AST::BlockStatement::declaredVariableMap_t::const_iterator it = staticVars->begin();  it != staticVars->end(); ++it) {
 			localVariables.declare((*it),Void::get());
 		}
 	}
@@ -91,9 +91,9 @@ bool RuntimeBlock::assignToVariable(Runtime & rt,const StringId id,Object * val)
 void RuntimeBlock::gotoStatement(int pos){
 	if(pos>=0){
 		currentStatement=staticBlock->getStatements().begin()+static_cast<size_t>(pos);
-	}else if(pos==Block::POS_HANDLE_AND_LEAVE){
+	}else if(pos==AST::BlockStatement::POS_HANDLE_AND_LEAVE){
 		currentStatement = staticBlock->getStatements().end();
-	}else if(pos==Block::POS_DONT_HANDLE){
+	}else if(pos==AST::BlockStatement::POS_DONT_HANDLE){
 		currentStatement = staticBlock->getStatements().end();
 	}
 

@@ -1,31 +1,32 @@
-// GetAttribute.cpp
+// GetAttributeExpr.cpp
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
-#include "GetAttribute.h"
+#include "GetAttributeExpr.h"
 #include "../../Parser/CompilerContext.h"
 
 using namespace EScript;
+using namespace EScript::AST;
 
 //! (ctor)
-GetAttribute::GetAttribute(Object * obj,StringId _attrId):
+GetAttributeExpr::GetAttributeExpr(Object * obj,StringId _attrId):
 		objRef(obj),attrId(_attrId) {
 	//ctor
 }
 
 //! (ctor)
-GetAttribute::GetAttribute(Object * obj,const std::string & attrName):
+GetAttributeExpr::GetAttributeExpr(Object * obj,const std::string & attrName):
 		objRef(obj),attrId(StringId(attrName)) {
 	//ctor
 }
 
 //! (dtor)
-GetAttribute::~GetAttribute() {
+GetAttributeExpr::~GetAttributeExpr() {
 	//dtor
 }
 
 /*!	---|> [Object]	*/
-std::string GetAttribute::toString()const {
+std::string GetAttributeExpr::toString()const {
 	std::string s;
 	if (!objRef.isNull()) {
 		s+=objRef.toString()+'.';
@@ -35,7 +36,7 @@ std::string GetAttribute::toString()const {
 }
 
 //! ---|> Statement
-void GetAttribute::_asm(CompilerContext & ctxt){
+void GetAttributeExpr::_asm(CompilerContext & ctxt){
 	if(objRef.isNotNull()){
 		objRef->_asm(ctxt);
 		ctxt.addInstruction(Instruction::createGetAttribute(attrId));

@@ -7,12 +7,12 @@
 #include "FunctionCallContext.h"
 #include "../EScript.h"
 #include "../Objects/AST/ConditionalExpr.h"
-#include "../Objects/AST/GetAttribute.h"
-#include "../Objects/AST/SetAttribute.h"
-#include "../Objects/AST/Block.h"
-#include "../Objects/AST/IfControl.h"
-#include "../Objects/AST/FunctionCall.h"
-#include "../Objects/AST/LogicOp.h"
+#include "../Objects/AST/GetAttributeExpr.h"
+#include "../Objects/AST/SetAttributeExpr.h"
+#include "../Objects/AST/BlockStatement.h"
+#include "../Objects/AST/IfStatement.h"
+#include "../Objects/AST/FunctionCallExpr.h"
+#include "../Objects/AST/LogicOpExpr.h"
 #include "../Objects/AST/Statement.h"
 #include "../Objects/Values/Void.h"
 #include "../Objects/Exception.h"
@@ -252,7 +252,7 @@ bool Runtime::assignToAttribute(ObjPtr obj,StringId attrId,ObjPtr value){
 // ---- General execution
 
 Object * Runtime::eval(const StringData & code){
-	ERef<Block> block(new Block());
+	ERef<AST::BlockStatement> block(new AST::BlockStatement());
 	static const StringId inline_id("[inline]");
 	block->setFilename(inline_id);
 	try{
@@ -275,6 +275,8 @@ Object * Runtime::eval(const StringData & code){
 	- dispatch if object is an expression ( 0x20 >= id <0x30 )
 	- return ref or copy otherwise. */
 Object * Runtime::executeObj(Object * obj){
+	using namespace AST;
+	
 	int type=obj->_getInternalTypeId();
 	if(type<0x020 || type>0x2f){
 		return obj->getRefOrCopy();
@@ -283,7 +285,7 @@ Object * Runtime::executeObj(Object * obj){
 
 	switch(type){
 	case _TypeIds::TYPE_GET_ATTRIBUTE:{
-		GetAttribute * ga=static_cast<GetAttribute *>(exp);
+		AST::GetAttributeExpr * ga=static_cast<AST::GetAttributeExpr *>(exp);
 		ObjRef resultRef;
 		// _.ident
 		if (ga->getObjectExpression()==NULL) {
@@ -310,11 +312,11 @@ Object * Runtime::executeObj(Object * obj){
 		return resultRef.detachAndDecrease();
 	}
 	case _TypeIds::TYPE_FUNCTION_CALL:{
-		return executeFunctionCall(static_cast<FunctionCall*>(exp));
+		return executeFunctionCall(static_cast<AST::FunctionCallExpr*>(exp));
 	}
 
 	case _TypeIds::TYPE_SET_ATTRIBUTE:{
-		SetAttribute * sa=static_cast<SetAttribute *>(exp);
+		AST::SetAttributeExpr * sa=static_cast<AST::SetAttributeExpr *>(exp);
 		ObjRef value;
 		if (!sa->valueExpr.isNull()) {
 			value=executeObj(sa->valueExpr.get());
@@ -390,20 +392,20 @@ Object * Runtime::executeObj(Object * obj){
 		return value.detachAndDecrease();
 	}
 	case _TypeIds::TYPE_LOGIC_OP:{
-		LogicOp * lop=static_cast<LogicOp *>(exp);
+		LogicOpExpr * lop=static_cast<LogicOpExpr *>(exp);
 		ObjRef resultRef( executeObj(lop->getLeft()) );
 		if(!assertNormalState(lop))
 			return NULL;
 
 		bool b=resultRef.toBool();
 
-		if (lop->getOperator() == LogicOp::NOT) {
+		if (lop->getOperator() == LogicOpExpr::NOT) {
 			resultRef = Bool::create(!b);
 			return resultRef.detachAndDecrease();
-		} else if (b && lop->getOperator()==LogicOp::OR) {
+		} else if (b && lop->getOperator()==LogicOpExpr::OR) {
 			resultRef = Bool::create(true);
 			return resultRef.detachAndDecrease();
-		} else if (!b && lop->getOperator()==LogicOp::AND) {
+		} else if (!b && lop->getOperator()==LogicOpExpr::AND) {
 			resultRef = Bool::create(false);
 			return resultRef.detachAndDecrease();
 		}
@@ -427,7 +429,7 @@ Object * Runtime::executeObj(Object * obj){
 		return cond->getElseAction()==NULL ? NULL : executeObj(cond->getElseAction());
 	}
 	case _TypeIds::TYPE_BLOCK:{
-		return executeBlock(static_cast<Block*>(exp));
+		return executeBlock(static_cast<BlockStatement*>(exp));
 	}
 	default:{
 		break;
@@ -437,7 +439,7 @@ Object * Runtime::executeObj(Object * obj){
 }
 
 //! (internal)
-Object * Runtime::executeBlock(Block * block) {
+Object * Runtime::executeBlock(AST::BlockStatement * block) {
 	getCurrentContext()->createAndPushRTB(block);
 	ObjRef resultRef = executeCurrentContext(true);
 	getCurrentContext()->popRTB();
@@ -446,6 +448,7 @@ Object * Runtime::executeBlock(Block * block) {
 
 //! (internal) used by executeBlock(...), executeCatchBlock(...) and executeContext(...)
 Object * Runtime::executeCurrentContext(bool markEntry) {
+	using namespace AST;
 	int localRTBs=0;
 
 	RuntimeContext * ctxt=getCurrentContext();
@@ -474,14 +477,14 @@ Object * Runtime::executeCurrentContext(bool markEntry) {
 				break;
 			}
 			case Statement::TYPE_BLOCK:{
-				Block * block=static_cast<Block*>(stmt->getExpression());
+				BlockStatement * block=static_cast<BlockStatement*>(stmt->getExpression());
 				rtb = ctxt->createAndPushRTB(block);
 				++localRTBs;
 				stmt = rtb->nextStatement();
 				break;
 			}
 			case Statement::TYPE_IF:{
-				IfControl * ifControl = static_cast<IfControl*>(stmt->getExpression());
+				IfStatement * ifControl = static_cast<IfStatement*>(stmt->getExpression());
 				resultRef = executeObj( ifControl->getCondition() );
 				assertNormalState(ifControl);
 				stmt = resultRef.toBool() ? &ifControl->getAction() : &ifControl->getElseAction();
@@ -554,7 +557,7 @@ Object * Runtime::executeCurrentContext(bool markEntry) {
 		if(!checkNormalState()){
 			switch(getState()){
 			case STATE_BREAKING:{
-				while( rtb->getStaticBlock()->getBreakPos() == Block::POS_DONT_HANDLE ){
+				while( rtb->getStaticBlock()->getBreakPos() == BlockStatement::POS_DONT_HANDLE ){
 					if( markEntry && (--localRTBs)<0 ){
 						setException("No break here!");
 						return NULL;
@@ -572,7 +575,7 @@ Object * Runtime::executeCurrentContext(bool markEntry) {
 				break;
 			}
 			case STATE_CONTINUING:{
-				while( rtb->getStaticBlock()->getContinuePos() == Block::POS_DONT_HANDLE ){
+				while( rtb->getStaticBlock()->getContinuePos() == BlockStatement::POS_DONT_HANDLE ){
 					if( markEntry && (--localRTBs)<0 ){
 						setException("No continue here!");
 						return NULL;
@@ -594,7 +597,7 @@ Object * Runtime::executeCurrentContext(bool markEntry) {
 				return NULL;
 			}
 			case STATE_EXCEPTION:{
-				while( rtb->getStaticBlock()->getExceptionPos() == Block::POS_DONT_HANDLE ){
+				while( rtb->getStaticBlock()->getExceptionPos() == BlockStatement::POS_DONT_HANDLE ){
 					if( markEntry && (--localRTBs)<0 )
 						return NULL;
 					ctxt->popRTB();
@@ -640,7 +643,7 @@ Object * Runtime::executeCurrentContext(bool markEntry) {
  - collect parameters by executing parameter expression
  - execute function by calling executeFunction(...)
 */
-Object * Runtime::executeFunctionCall(FunctionCall * fCall){
+Object * Runtime::executeFunctionCall(AST::FunctionCallExpr * fCall){
 	size_t numParams=0;
 	setCallingObject(NULL);
 
@@ -1125,7 +1128,7 @@ void Runtime::warn(const std::string & s) {
 	std::ostringstream os;
 	os << s;
 	if(getCurrentContext()->getCurrentRTB()!=NULL){
-		Block * b=getCurrentContext()->getCurrentRTB()->getStaticBlock();
+		AST::BlockStatement * b=getCurrentContext()->getCurrentRTB()->getStaticBlock();
 		if(b!=NULL)
 			os<<" ('"<<b->getFilename()<<"':~"<<getCurrentLine()<<")";
 	}
@@ -1217,7 +1220,7 @@ uint32_t Runtime::getLogCounter(Logger::level_t level)const{
 
 std::string Runtime::getCurrentFile()const{
 	if(getCurrentContext()->getCurrentRTB()!=NULL){
-		Block * b=getCurrentContext()->getCurrentRTB()->getStaticBlock();
+		AST::BlockStatement * b=getCurrentContext()->getCurrentRTB()->getStaticBlock();
 		if(b)
 			 return b->getFilename();
 	}

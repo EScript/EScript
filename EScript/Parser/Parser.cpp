@@ -6,14 +6,14 @@
 #include "Tokenizer.h"
 #include "Operators.h"
 #include "../EScript.h"
-#include "../Objects/AST/FunctionCall.h"
-#include "../Objects/AST/GetAttribute.h"
-#include "../Objects/AST/SetAttribute.h"
-#include "../Objects/AST/IfControl.h"
+#include "../Objects/AST/FunctionCallExpr.h"
+#include "../Objects/AST/GetAttributeExpr.h"
+#include "../Objects/AST/SetAttributeExpr.h"
+#include "../Objects/AST/IfStatement.h"
 #include "../Objects/AST/ConditionalExpr.h"
-#include "../Objects/AST/ForeachExpression.h"
-#include "../Objects/AST/LogicOp.h"
-#include "../Objects/AST/LoopExpression.h"
+#include "../Objects/AST/ForeachStatement.h"
+#include "../Objects/AST/LogicOpExpr.h"
+#include "../Objects/AST/LoopStatement.h"
 #include "../Objects/AST/Statement.h"
 
 #include "../Objects/Values/Number.h"
@@ -29,6 +29,7 @@
 #include <sstream>
 
 namespace EScript {
+using namespace AST;
 using std::string;
 // -------------------------------------------------------------------------------------------------------------------
 // helper
@@ -76,9 +77,9 @@ void Parser::init(EScript::Namespace & globals) {
 	//!	[ESMF] Parser new Parser();  @deprecated
 	ESF_DECLARE(typeObject,"_constructor",0,0,new Parser(runtime.getLogger()))
 
-	//!	[ESMF] Block Parser.parse(String) @deprecated
+	//!	[ESMF] BlockStatement Parser.parse(String) @deprecated
 	ES_MFUNCTION_DECLARE(typeObject,Parser,"parse",1,1,{
-		ERef<Block> block(new Block());
+		ERef<BlockStatement> block(new BlockStatement());
 		static const StringId inline_id("[inline]");
 		block->setFilename(inline_id);
 		try {
@@ -90,7 +91,7 @@ void Parser::init(EScript::Namespace & globals) {
 		return block.detachAndDecrease();
 	})
 
-	//!	[ESMF] Block Parser.parseFile(String filename) @deprecated
+	//!	[ESMF] BlockStatement Parser.parseFile(String filename) @deprecated
 	ESMF_DECLARE(typeObject,Parser,"parseFile",1,1, self->parseFile(parameter[0]->toString()))
 }
 
@@ -123,7 +124,7 @@ void Parser::log(Logger::level_t messageLevel, const std::string & msg,const _Co
 }
 
 //! Loads and parses a File.
-Block * Parser::parseFile(const std::string & filename) {
+BlockStatement * Parser::parseFile(const std::string & filename) {
 	StringData content;
 	try{
 		content = IO::loadFile(filename);
@@ -131,14 +132,14 @@ Block * Parser::parseFile(const std::string & filename) {
 		throwError(e.what());
 	}
 
-	ERef<Block> rootBlock(new Block);
+	ERef<BlockStatement> rootBlock(new BlockStatement);
 	rootBlock->setFilename(filename);
 	parse(rootBlock.get(),content);
 	return rootBlock.detachAndDecrease();
 }
 
 //! Parse a CString.
-Object * Parser::parse(Block * rootBlock,const StringData & c) {
+Object * Parser::parse(BlockStatement * rootBlock,const StringData & c) {
 	tokenizer.defineToken("__FILE__",new TObject(String::create(rootBlock->getFilename())));
 	tokenizer.defineToken("__DIR__",new TObject(String::create(IO::dirname(rootBlock->getFilename()))));
 
@@ -196,7 +197,7 @@ struct _BlockInfo {
  * Pass 1
  * =========
  * - check Syntax of Brackets () [] {}
- * - disambiguate Map/Block
+ * - disambiguate Map/BlockStatement
  * - colon ( Mapdelimiter / shortIf ?:)
  */
 void Parser::pass_1(ParsingContext & ctxt) {
@@ -235,7 +236,7 @@ void Parser::pass_1(ParsingContext & ctxt) {
 				if (!cbi.isCommandBlock) {
 					throwError("Syntax Error: '}'",token);
 				}
-				/// Block is Map Constructor
+				/// BlockStatement is Map Constructor
 				if ( cbi.containsColon) {
 					unsigned int startIndex=cbi.index;
 
@@ -268,7 +269,7 @@ void Parser::pass_1(ParsingContext & ctxt) {
 				if (cbi.shortIf>0) {
 					cbi.shortIf--;
 				} else if (cbi.containsCommands) {
-					throwError("Syntax Error in Block: ':'",token);
+					throwError("Syntax Error in BlockStatement: ':'",token);
 				} else {
 					cbi.containsColon=true;
 					Token * t=new TMapDelimiter();
@@ -301,7 +302,7 @@ void Parser::pass_1(ParsingContext & ctxt) {
 /**
  * Pass 2
  * =========
- * - Create Block-Objects
+ * - Create BlockStatement-Objects
  * - Parse declarations (var)
  * - Wrap parts of "fn" in brackets for easier processing: fn(foo,bar){...}  --->  fn( (foo,bar){} )
  * - Change loop brackets to blocks to handle loop wide scope handling: while(...) ---> while{...}
@@ -311,7 +312,7 @@ void Parser::pass_1(ParsingContext & ctxt) {
 void Parser::pass_2(ParsingContext & ctxt,
 					Tokenizer::tokenList_t & enrichedTokens)const  {
 
-	std::stack<Block *> blockStack;
+	std::stack<BlockStatement *> blockStack;
 	blockStack.push(ctxt.rootBlock);
 
 	/// Counts the currently open brackets and blocks for the current function declaration.
@@ -367,7 +368,7 @@ void Parser::pass_2(ParsingContext & ctxt,
 
 					enrichedTokens.push_back(token);
 					++cursor;
-					Block * loopConditionBlock=new Block(tc->getLine());
+					BlockStatement * loopConditionBlock=new BlockStatement(tc->getLine());
 					loopConditionBlock->setFilename(currentFilename); /// debugging information:
 					blockStack.push(loopConditionBlock);
 
@@ -385,10 +386,10 @@ void Parser::pass_2(ParsingContext & ctxt,
 				continue;
 				/// name='static' ??????
 			}
-			/// Open new Block
+			/// Open new BlockStatement
 			case TStartBlock::TYPE_ID:{
 				TStartBlock * sb=Token::cast<TStartBlock>(token);
-				Block * currentBlock=new Block(sb->getLine());//currentBlock);
+				BlockStatement * currentBlock=new BlockStatement(sb->getLine());//currentBlock);
 
 				/// debugging information:
 				currentBlock->setFilename(currentFilename);
@@ -402,7 +403,7 @@ void Parser::pass_2(ParsingContext & ctxt,
 
 				continue;
 			}
-			/// Close Block
+			/// Close BlockStatement
 			case TEndBlock::TYPE_ID:{
 				enrichedTokens.push_back(token);
 
@@ -500,7 +501,7 @@ Object * Parser::getExpression(ParsingContext & ctxt,int & cursor,int to)const  
 	else if (Token::isA<TControl>(tokens.at(cursor))) {
 		log(Logger::LOG_WARNING, "No control statement here!",tokens.at(cursor));
 		return NULL;
-	} /// Block: {...}
+	} /// BlockStatement: {...}
 	else if (Token::isA<TStartBlock>(tokens.at(cursor))) {
 		return getBlock(ctxt,cursor);
 	}
@@ -533,7 +534,7 @@ Object * Parser::getExpression(ParsingContext & ctxt,int & cursor,int to)const  
 		else if (TIdentifier * ident=Token::cast<TIdentifier>(t)) {
 		// is local variable?
 			for(int i=ctxt.blocks.size()-1;i>=0;--i){
-				Block * b=ctxt.blocks.at(i);
+				BlockStatement * b=ctxt.blocks.at(i);
 				if(b==NULL)
 					break;
 				 else if(b->isLocalVar(ident->getId())){
@@ -541,7 +542,7 @@ Object * Parser::getExpression(ParsingContext & ctxt,int & cursor,int to)const  
 					break;
 				 }
 		}
-			return new GetAttribute(NULL,ident->getId());  // ID
+			return new GetAttributeExpr(NULL,ident->getId());  // ID
 		}
 		throwError("Unknown (or unimplemented) Token",t);
 	}
@@ -596,9 +597,9 @@ Object * Parser::getExpression(ParsingContext & ctxt,int & cursor,int to)const  
 Statement Parser::createStatement(Object *exp)const{
 	if(exp==NULL)
 		return Statement(Statement::TYPE_UNDEFINED);
-	if( dynamic_cast<Block*>(exp) ){
+	if( dynamic_cast<BlockStatement*>(exp) ){
 		return Statement(Statement::TYPE_BLOCK,exp);
-	}else if( dynamic_cast<IfControl*>(exp) ){
+	}else if( dynamic_cast<IfStatement*>(exp) ){
 		return Statement(Statement::TYPE_IF,exp);
 	}
 	return Statement(Statement::TYPE_EXPRESSION,exp);
@@ -610,7 +611,7 @@ Statement Parser::getStatement(ParsingContext & ctxt,int & cursor,int to)const{
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	if (Token::isA<TControl>(tokens.at(cursor))) {
 		return getControl(ctxt,cursor);
-	} /// sub-Block: {...}
+	} /// sub-BlockStatement: {...}
 	else if (Token::isA<TStartBlock>(tokens.at(cursor))) {
 		return Statement(Statement::TYPE_BLOCK, getBlock(ctxt,cursor));
 	}else{
@@ -626,22 +627,22 @@ Statement Parser::getStatement(ParsingContext & ctxt,int & cursor,int to)const{
  * Get block of statements
  * {out("foo");exit;}
  */
-Block * Parser::getBlock(ParsingContext & ctxt,int & cursor)const {
+BlockStatement * Parser::getBlock(ParsingContext & ctxt,int & cursor)const {
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	TStartBlock * tsb=Token::cast<TStartBlock>(tokens.at(cursor));
-	Block * b=tsb?reinterpret_cast<Block *>(tsb->getBlock()):NULL;
+	BlockStatement * b=tsb?reinterpret_cast<BlockStatement *>(tsb->getBlock()):NULL;
 	if (b==NULL)
-		throwError("No Block!",tokens.at(cursor));
+		throwError("No BlockStatement!",tokens.at(cursor));
 
 	/// Check for shadowed local variables
 	if(!ctxt.blocks.empty()){
-		const Block::declaredVariableMap_t * vars = b->getVars();
+		const BlockStatement::declaredVariableMap_t * vars = b->getVars();
 		if(vars!=NULL){
 			for(int i = ctxt.blocks.size()-1; i>=0 && ctxt.blocks[i]!=NULL; --i ){
-				const Block::declaredVariableMap_t * vars2 = ctxt.blocks[i]->getVars();
+				const BlockStatement::declaredVariableMap_t * vars2 = ctxt.blocks[i]->getVars();
 				if(vars2==NULL)
 					continue;
-				for(Block::declaredVariableMap_t::const_iterator it=vars->begin();it!=vars->end();++it){
+				for(BlockStatement::declaredVariableMap_t::const_iterator it=vars->begin();it!=vars->end();++it){
 					if(vars2->count(*it)>0){
 						log(Logger::LOG_PEDANTIC_WARNING,"Shadowed local variable  '"+(*it).toString()+"' in block.",tokens.at(cursor));
 					}
@@ -659,7 +660,7 @@ Block * Parser::getBlock(ParsingContext & ctxt,int & cursor)const {
 	/// Read commands.
 	while (!Token::isA<TEndBlock>(tokens.at(cursor))) {
 		if (Token::isA<TEndScript>(tokens.at(cursor)))
-			throwError("Unclosed Block {...",tsb);
+			throwError("Unclosed BlockStatement {...",tsb);
 
 		int line=tokens.at(cursor)->getLine();
 		Statement stmt=getStatement(ctxt,cursor);
@@ -672,7 +673,7 @@ Block * Parser::getBlock(ParsingContext & ctxt,int & cursor)const {
 		/// Commands have to end on ";" or "}".
 		if (!(Token::isA<TEndCommand>(tokens.at(cursor)) || Token::isA<TEndBlock>(tokens.at(cursor)))) {
 			log(Logger::LOG_DEBUG, tokens.at(cursor)->toString(),tokens.at(cursor));
-			throwError("Syntax Error in Block.",tokens.at(cursor));
+			throwError("Syntax Error in BlockStatement.",tokens.at(cursor));
 		}
 		++cursor;
 	}
@@ -739,7 +740,7 @@ Object * Parser::getMap(ParsingContext & ctxt,int & cursor)const  {
 			throwError("Map Syntax Error",tokens.at(cursor));
 	}
 
-	FunctionCall * funcCall = new FunctionCall(
+	FunctionCallExpr * funcCall = new FunctionCallExpr(
 					Map::getTypeObject()->getAttribute(Consts::IDENTIFIER_fn_constructor).getValue(),
 					paramExp,false,currentFilename,currentLine);
 	return funcCall;
@@ -808,14 +809,14 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 
 		/// a=2 => _.[a] = 2
 		if (lValueType== LVALUE_MEMBER) {
-			return SetAttribute::createAssignment(obj,memberIdentifier,rightExpression,currentLine);
+			return SetAttributeExpr::createAssignment(obj,memberIdentifier,rightExpression,currentLine);
 		}
 		/// a[1]=2 =>  _.a._set(1, 2)
 		else if (lValueType == LVALUE_INDEX) {
 			std::vector<ObjRef> paramExp;
 			paramExp.push_back(indexExp);
 			paramExp.push_back(rightExpression);
-			return new FunctionCall(new GetAttribute(obj,Consts::IDENTIFIER_fn_set),paramExp,false,currentFilename,currentLine);
+			return new FunctionCallExpr(new GetAttributeExpr(obj,Consts::IDENTIFIER_fn_set),paramExp,false,currentFilename,currentLine);
 		} else {
 //			std::cout << "\n Error = "<<cursor<<" - "<<to<<" :" << lValueType;
 			throwError("No valid LValue before '=' ",tokens[opPosition]);
@@ -895,9 +896,9 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 		}
 		if(obj==NULL){
 			log(Logger::LOG_WARNING,"Use '=' for assigning to local variables instead of '"+op->getString()+"' ",tokens[opPosition]);
-			return SetAttribute::createAssignment(obj,memberIdentifier,rightExpression,currentLine);
+			return SetAttributeExpr::createAssignment(obj,memberIdentifier,rightExpression,currentLine);
 		}
-		return new SetAttribute(obj,memberIdentifier,rightExpression,flags,currentLine);
+		return new SetAttributeExpr(obj,memberIdentifier,rightExpression,flags,currentLine);
 	}
 
 
@@ -914,20 +915,20 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 
 		/// "a.b"
 		if (Token::isA<TIdentifier>(tokens[rightExprFrom])){
-			return new GetAttribute(leftExpression,Token::cast<TIdentifier>(tokens[rightExprFrom])->getId());
+			return new GetAttributeExpr(leftExpression,Token::cast<TIdentifier>(tokens[rightExprFrom])->getId());
 		}
 		/// "a.+"
 		else if (Token::isA<TOperator>(tokens[rightExprFrom])) {
-			return new GetAttribute(leftExpression,Token::cast<TOperator>(tokens[rightExprFrom])->toString());
+			return new GetAttributeExpr(leftExpression,Token::cast<TOperator>(tokens[rightExprFrom])->toString());
 		}
 		else if(Token::isA<TObject>(tokens[rightExprFrom])){
 			Object * obj=Token::cast<TObject>(tokens[rightExprFrom])->obj.get();
 			/// "a.'+'"
 			if (String * s=dynamic_cast<String *>(obj)) {
-				return new GetAttribute(leftExpression,s->toString());
+				return new GetAttributeExpr(leftExpression,s->toString());
 			}/// "a.$b"
 			else if (Identifier * i=dynamic_cast<Identifier *>(obj)) {
-				return new GetAttribute(leftExpression,i->getId());
+				return new GetAttributeExpr(leftExpression,i->getId());
 			}
 		}
 		log(Logger::LOG_DEBUG, "Error .2 ",tokens[opPosition]);
@@ -943,7 +944,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 		if(cursor!=to){
 			throwError("Error after function call. Forgotten ';' ?",tokens.at(cursor));
 		}
-		FunctionCall * funcCall = new FunctionCall(leftExpression,paramExp,false,currentFilename,currentLine);
+		FunctionCallExpr * funcCall = new FunctionCallExpr(leftExpression,paramExp,false,currentFilename,currentLine);
 		return funcCall;
 	}
 	///  Index Exression | Array
@@ -966,7 +967,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 			}
 			cursor=to;
 
-			FunctionCall * funcCall = new FunctionCall( Array::getTypeObject()->getAttribute(Consts::IDENTIFIER_fn_constructor).getValue(),
+			FunctionCallExpr * funcCall = new FunctionCallExpr( Array::getTypeObject()->getAttribute(Consts::IDENTIFIER_fn_constructor).getValue(),
 													paramExp,false,currentFilename,currentLine);
 			return funcCall;
 		}
@@ -976,7 +977,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 		std::vector<ObjRef> paramExp;
 		paramExp.push_back(getExpression(ctxt,cursor));
 		cursor=to;
-		FunctionCall * funcCall = new FunctionCall(new GetAttribute(leftExpression,Consts::IDENTIFIER_fn_get),paramExp,
+		FunctionCallExpr * funcCall = new FunctionCallExpr(new GetAttributeExpr(leftExpression,Consts::IDENTIFIER_fn_get),paramExp,
 										false,currentFilename,currentLine);
 		return funcCall;
 
@@ -1015,7 +1016,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 		Object * obj=getExpression(ctxt,cursor,objExprTo);
 		cursor=to;
 
-		return new FunctionCall(new GetAttribute(obj,Consts::IDENTIFIER_fn_constructor),paramExp,true,
+		return new FunctionCallExpr(new GetAttributeExpr(obj,Consts::IDENTIFIER_fn_constructor),paramExp,true,
 									currentFilename,currentLine);
 		// TODO: !!! Return this-reference !!! ???? What does this mean?
 	}
@@ -1057,12 +1058,12 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 //                return newNum ;
 //            }
 		} else if (op->getString()=="!") {
-			return new LogicOp(rightExpression,0,LogicOp::NOT);
+			return new LogicOpExpr(rightExpression,0,LogicOpExpr::NOT);
 		}
 
-		//if (GetAttribute * ga=dynamic_cast<GetAttribute *>(rightExpression)) {
-		FunctionCall * fc=new FunctionCall(
-			new GetAttribute(rightExpression,
+		//if (GetAttributeExpr * ga=dynamic_cast<GetAttributeExpr *>(rightExpression)) {
+		FunctionCallExpr * fc=new FunctionCallExpr(
+			new GetAttributeExpr(rightExpression,
 							 string(op->getString())+"_pre"),std::vector<ObjRef>(),false,currentFilename,currentLine);
 		return  fc;
 
@@ -1071,9 +1072,9 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 		/// a++, a--, a!
 		/// Bsp: a++ => _.a.++post()
 		if (!rightExpression) {
-			//  if (GetAttribute * ga=dynamic_cast<GetAttribute *>(leftExpression)) {
-			FunctionCall * fc=new FunctionCall(
-				new GetAttribute(leftExpression,
+			//  if (GetAttributeExpr * ga=dynamic_cast<GetAttributeExpr *>(leftExpression)) {
+			FunctionCallExpr * fc=new FunctionCallExpr(
+				new GetAttributeExpr(leftExpression,
 								 string(op->getString())+"_post"),std::vector<ObjRef>(),false,currentFilename,currentLine);
 			cursor--;
 
@@ -1081,18 +1082,18 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 		}
 	/// ||
 		else if (op->getString()=="||") {
-			return new LogicOp(leftExpression,rightExpression,LogicOp::OR);
+			return new LogicOpExpr(leftExpression,rightExpression,LogicOpExpr::OR);
 		}
 	/// &&
 		else if (op->getString()=="&&") {
-			return new LogicOp(leftExpression,rightExpression,LogicOp::AND);
+			return new LogicOpExpr(leftExpression,rightExpression,LogicOpExpr::AND);
 		}
 	/// normal binary expression
 	/// 1+2 -> 1.+(2)
 		else {
 			std::vector<ObjRef> paramExp;
 			paramExp.push_back(rightExpression);
-			FunctionCall * funcCall = new FunctionCall(new GetAttribute(leftExpression, op->getString()),paramExp,
+			FunctionCallExpr * funcCall = new FunctionCallExpr(new GetAttributeExpr(leftExpression, op->getString()),paramExp,
 													false,currentFilename,currentLine);
 			return funcCall;
 		}
@@ -1164,11 +1165,11 @@ Object * Parser::getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const
 
 
 	ctxt.blocks.push_back(NULL); // mark beginning of new local namespace
-	Block * block=dynamic_cast<Block*>(getExpression(ctxt,cursor));
+	BlockStatement * block=dynamic_cast<BlockStatement*>(getExpression(ctxt,cursor));
 	if (block==NULL) {
 //
 //		out(tokens.at(cursor));
-		throwError("[fn] Expects Block of statements.",tokens.at(cursor));
+		throwError("[fn] Expects BlockStatement of statements.",tokens.at(cursor));
 	}
 	ctxt.blocks.pop_back(); // remove marking for local namespace
 
@@ -1221,7 +1222,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 			}
 		}
 		return Statement(Statement::TYPE_IF,
-							new IfControl(condition,
+							new IfStatement(condition,
 												action,
 												elseAction));
 	}
@@ -1244,7 +1245,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		if (!Token::isA<TStartBlock>(tokens.at(cursor))) // for{...;...;...}
 			throwError("[for] expects (",tokens.at(cursor));
 		// this block stores the running variables, defined in the loop condition
-		Block * loopWrappingBlock = Token::cast<TStartBlock>(tokens.at(cursor))->getBlock();
+		BlockStatement * loopWrappingBlock = Token::cast<TStartBlock>(tokens.at(cursor))->getBlock();
 		++cursor;
 		Statement initExp=createStatement(getExpression(ctxt,cursor));
 		if (!Token::isA<TEndCommand>(tokens.at(cursor))) {
@@ -1266,8 +1267,8 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		Statement action=getStatement(ctxt,cursor);
 
 		if(_produceBytecode){
-			loopWrappingBlock->addStatement( Statement(Statement::TYPE_LOOP, 
-														LoopExpression::createForLoop(initExp,condition,incr,action) ) );
+			loopWrappingBlock->addStatement( Statement(Statement::TYPE_STATEMENT, 
+														LoopStatement::createForLoop(initExp,condition,incr,action) ) );
 			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
 		}else{
 			loopWrappingBlock->addStatement( initExp );
@@ -1275,14 +1276,14 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 			if(condition!=NULL)
 				loopWrappingBlock->addStatement( Statement(
 							Statement::TYPE_IF,
-							new IfControl(condition,action,Statement(Statement::TYPE_BREAK))));
+							new IfStatement(condition,action,Statement(Statement::TYPE_BREAK))));
 			else if(action.isValid())
 				loopWrappingBlock->addStatement(action);
 
 			loopWrappingBlock->setContinuePos( loopWrappingBlock->getNextPos() );
 			loopWrappingBlock->addStatement( incr );
 			loopWrappingBlock->addStatement( Statement( Statement::TYPE_JUMP_TO_A ) );
-			loopWrappingBlock->setBreakPos( Block::POS_HANDLE_AND_LEAVE );
+			loopWrappingBlock->setBreakPos( BlockStatement::POS_HANDLE_AND_LEAVE );
 
 			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
 		}
@@ -1303,7 +1304,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		if (!Token::isA<TStartBlock>(tokens.at(cursor))) // while{...}
 			throwError("[while] expects (",tokens.at(cursor));
 		// this block stores the running variables, defined in the loop condition
-		Block * loopWrappingBlock = Token::cast<TStartBlock>(tokens.at(cursor))->getBlock();
+		BlockStatement * loopWrappingBlock = Token::cast<TStartBlock>(tokens.at(cursor))->getBlock();
 		++cursor;
 		Object * condition=getExpression(ctxt,cursor);
 		++cursor;
@@ -1313,18 +1314,18 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		++cursor;
 		Statement action=getStatement(ctxt,cursor);
 		if(_produceBytecode){
-			loopWrappingBlock->addStatement( Statement(Statement::TYPE_LOOP, LoopExpression::createWhileLoop(condition,action) ) );
+			loopWrappingBlock->addStatement( Statement(Statement::TYPE_STATEMENT, LoopStatement::createWhileLoop(condition,action) ) );
 			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
 			
 		}else{
-			loopWrappingBlock->setContinuePos( Block::POS_HANDLE_AND_RESTART );
-			loopWrappingBlock->setJumpPosA( Block::POS_HANDLE_AND_RESTART );
+			loopWrappingBlock->setContinuePos( BlockStatement::POS_HANDLE_AND_RESTART );
+			loopWrappingBlock->setJumpPosA( BlockStatement::POS_HANDLE_AND_RESTART );
 			loopWrappingBlock->addStatement( Statement(
 							Statement::TYPE_IF,
-							new IfControl(condition,action,Statement(Statement::TYPE_BREAK))));
+							new IfStatement(condition,action,Statement(Statement::TYPE_BREAK))));
 			loopWrappingBlock->addStatement( Statement(Statement::TYPE_JUMP_TO_A));
 
-			loopWrappingBlock->setBreakPos( Block::POS_HANDLE_AND_LEAVE );
+			loopWrappingBlock->setBreakPos( BlockStatement::POS_HANDLE_AND_LEAVE );
 
 			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
 		}
@@ -1351,7 +1352,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		if (!Token::isA<TStartBlock>(tokens.at(cursor))) // do{} while{...};
 			throwError("[do-while] expects (",tokens.at(cursor));
 		// this block stores the running variables, defined in the loop condition
-		Block * loopWrappingBlock = Token::cast<TStartBlock>(tokens.at(cursor))->getBlock();
+		BlockStatement * loopWrappingBlock = Token::cast<TStartBlock>(tokens.at(cursor))->getBlock();
 		++cursor;
 		Object * condition=getExpression(ctxt,cursor);
 		++cursor;
@@ -1363,17 +1364,17 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 			throwError("[do-while] expects ;",tokens.at(cursor));
 		}
 		if(_produceBytecode){
-			loopWrappingBlock->addStatement( Statement(Statement::TYPE_LOOP, LoopExpression::createDoWhileLoop(condition,action) ) );
+			loopWrappingBlock->addStatement( Statement(Statement::TYPE_STATEMENT, LoopStatement::createDoWhileLoop(condition,action) ) );
 			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
 			
 		}else{
-			loopWrappingBlock->setJumpPosA( Block::POS_HANDLE_AND_RESTART );
+			loopWrappingBlock->setJumpPosA( BlockStatement::POS_HANDLE_AND_RESTART );
 			loopWrappingBlock->addStatement( action );
 			loopWrappingBlock->setContinuePos( loopWrappingBlock->getNextPos() );
 			loopWrappingBlock->addStatement( Statement(
 							Statement::TYPE_IF,
-							new IfControl(condition, Statement(Statement::TYPE_JUMP_TO_A),Statement())));
-			loopWrappingBlock->setBreakPos( Block::POS_HANDLE_AND_LEAVE );
+							new IfStatement(condition, Statement(Statement::TYPE_JUMP_TO_A),Statement())));
+			loopWrappingBlock->setBreakPos( BlockStatement::POS_HANDLE_AND_LEAVE );
 
 			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
 		}
@@ -1401,7 +1402,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		if (!Token::isA<TStartBlock>(tokens.at(cursor)))  // foreach{...as...}
 			throwError("[foreach] expects (",tokens.at(cursor));
 		// this block stores the running variables, defined in the loop condition
-		Block * loopWrappingBlock = Token::cast<TStartBlock>(tokens.at(cursor))->getBlock();
+		BlockStatement * loopWrappingBlock = Token::cast<TStartBlock>(tokens.at(cursor))->getBlock();
 		++cursor;
 		Object * arrayExpression=getExpression(ctxt,cursor);
 		++cursor;
@@ -1430,7 +1431,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		Statement action=getStatement(ctxt,cursor);
 
 		if(_produceBytecode){
-			loopWrappingBlock->addStatement( Statement(Statement::TYPE_LOOP, new ForeachExpression(
+			loopWrappingBlock->addStatement( Statement(Statement::TYPE_STATEMENT, new ForeachStatement(
 					arrayExpression,keyIdent?keyIdent->getId():StringId(), valueIdent?valueIdent->getId():StringId(), action) ) );
 			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
 		}else{
@@ -1486,25 +1487,25 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 			{
 				std::vector<ObjRef> paramExp;
 				paramExp.push_back(arrayExpression);
-				Object * getIterator = new FunctionCall(new Function(fnWrapper::esf_getIterator), paramExp);
+				Object * getIterator = new FunctionCallExpr(new Function(fnWrapper::esf_getIterator), paramExp);
 				loopWrappingBlock->addStatement( createStatement(getIterator));
 			}
 
 			loopWrappingBlock->setJumpPosA( loopWrappingBlock->getNextPos() );
 			// if( __it.end() )	break;
 			static const StringId endId("end");
-			Object * condition = new FunctionCall(
-									new GetAttribute(new GetAttribute(NULL,itId),endId ),std::vector<ObjRef>());
+			Object * condition = new FunctionCallExpr(
+									new GetAttributeExpr(new GetAttributeExpr(NULL,itId),endId ),std::vector<ObjRef>());
 			loopWrappingBlock->addStatement( Statement(
 							Statement::TYPE_IF,
-							new IfControl(condition,Statement(Statement::TYPE_BREAK),Statement())));
+							new IfStatement(condition,Statement(Statement::TYPE_BREAK),Statement())));
 
 			{ // key == __it.key(), value==__it.value()
 				std::vector<ObjRef> paramExp;
 				paramExp.push_back( Identifier::create(valueIdent->getId()));
 				if(keyIdent!=NULL)
 					paramExp.push_back( Identifier::create(keyIdent->getId()));
-				loopWrappingBlock->addStatement( createStatement(new FunctionCall(new Function(fnWrapper::esf_setValues), paramExp)));
+				loopWrappingBlock->addStatement( createStatement(new FunctionCallExpr(new Function(fnWrapper::esf_setValues), paramExp)));
 
 			}
 			// [action]
@@ -1514,12 +1515,12 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 			// __it.next();
 			static const StringId nextFnId("next");
 			loopWrappingBlock->addStatement( createStatement(
-							new FunctionCall(
-								new GetAttribute(new GetAttribute(NULL,itId),nextFnId ),std::vector<ObjRef>())));
+							new FunctionCallExpr(
+								new GetAttributeExpr(new GetAttributeExpr(NULL,itId),nextFnId ),std::vector<ObjRef>())));
 			// goto :second
 			loopWrappingBlock->addStatement( Statement(Statement::TYPE_JUMP_TO_A) );
 
-			loopWrappingBlock->setBreakPos( Block::POS_HANDLE_AND_LEAVE );
+			loopWrappingBlock->setBreakPos( BlockStatement::POS_HANDLE_AND_LEAVE );
 
 			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
 		
@@ -1568,10 +1569,10 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 
 		TStartBlock * tStartCatchBlock = Token::cast<TStartBlock>(tokens.at(cursor));
 		if(tStartCatchBlock==NULL){
-			throwError("[catch] expects Block {...}",tokens.at(cursor));
+			throwError("[catch] expects BlockStatement {...}",tokens.at(cursor));
 		}
 
-		Block * catchBlock=tStartCatchBlock->getBlock();
+		BlockStatement * catchBlock=tStartCatchBlock->getBlock();
 		if(hasVarName){
 			catchBlock->declareVar(varName);
 			std::vector<ObjRef> paramExp;
@@ -1584,8 +1585,8 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 				}
 			};
 			catchBlock->addStatement( Statement( Statement::TYPE_EXPRESSION,
-					SetAttribute::createAssignment(NULL,varName,
-						new FunctionCall(
+					SetAttributeExpr::createAssignment(NULL,varName,
+						new FunctionCallExpr(
 							new Function(fnWrapper::extractExceptionValue),
 							paramExp,false,currentFilename,tStartCatchBlock->getLine()),
 						tStartCatchBlock->getLine())));
@@ -1593,16 +1594,16 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		}
 		getExpression(ctxt,cursor); // fill rest of catch block
 
-		Block * wrappingBlock = new Block();
+		BlockStatement * wrappingBlock = new BlockStatement();
 		wrappingBlock->addStatement( createStatement(tryBlock) );
 		wrappingBlock->addStatement( Statement(Statement::TYPE_JUMP_TO_A) );
 		wrappingBlock->setExceptionPos( wrappingBlock->getNextPos() );
 		wrappingBlock->addStatement( Statement(Statement::TYPE_BLOCK,catchBlock) );
-		wrappingBlock->setJumpPosA(  Block::POS_HANDLE_AND_LEAVE );
+		wrappingBlock->setJumpPosA(  BlockStatement::POS_HANDLE_AND_LEAVE );
 		return Statement(Statement::TYPE_BLOCK,wrappingBlock);
 //		if (hasVarName)
-//			dynamic_cast<Block *>(catchBlock)->declareVar(varName);
-//		return createStatement(new TryCatchControl(tryBlock,dynamic_cast<Block *>(catchBlock),varName));
+//			dynamic_cast<BlockStatement *>(catchBlock)->declareVar(varName);
+//		return createStatement(new TryCatchControl(tryBlock,dynamic_cast<BlockStatement *>(catchBlock),varName));
 	}
 	/// continue-Control
 	else if(cId==Consts::IDENTIFIER_continue) {

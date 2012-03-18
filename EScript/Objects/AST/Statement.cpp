@@ -6,6 +6,7 @@
 #include "../../Parser/CompilerContext.h"
 
 namespace EScript {
+using namespace EScript::AST;
 
 //! (ctor)
 Statement::Statement( const Statement & other):

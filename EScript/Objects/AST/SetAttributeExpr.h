@@ -1,4 +1,4 @@
-// SetAttribute.h
+// SetAttributeExpr.h
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
@@ -10,15 +10,16 @@
 #include <string>
 
 namespace EScript {
-
-/*! [SetAttribute]  ---|> [Object]  */
-class SetAttribute : public Object {
-		ES_PROVIDES_TYPE_NAME(SetAttribute)
+namespace AST {
+	
+/*! [SetAttributeExpr]  ---|> [Object]  */
+class SetAttributeExpr : public Object {
+		ES_PROVIDES_TYPE_NAME(SetAttributeExpr)
 	public:
-		static SetAttribute * createAssignment(Object * obj,StringId attrId,Object * valueExp,int _line=-1);
+		static SetAttributeExpr * createAssignment(Object * obj,StringId attrId,Object * valueExp,int _line=-1);
 
-		SetAttribute(Object * obj,StringId attrId,Object * valueExp,Attribute::flag_t _attrFlags,int _line=-1);
-		virtual ~SetAttribute();
+		SetAttributeExpr(Object * obj,StringId attrId,Object * valueExp,Attribute::flag_t _attrFlags,int _line=-1);
+		virtual ~SetAttributeExpr();
 
 		StringId getAttrId()const   					{   return attrId;  }
 		Object * getObjectExpression()const				{   return objExpr.get();    }
@@ -35,7 +36,7 @@ class SetAttribute : public Object {
 		//! ---|> Object
 		virtual void _asm(CompilerContext & ctxt);
 	private:
-		friend class Runtime;
+		friend class EScript::Runtime;
 		ObjRef objExpr;
 		ObjRef valueExpr;
 		StringId attrId;
@@ -43,6 +44,7 @@ class SetAttribute : public Object {
 		int line;
 		bool assign;
 };
+}
 }
 
 #endif // SETATTRIBUTE_H

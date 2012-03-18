@@ -1,14 +1,15 @@
-// LoopExpression.cpp
+// LoopStatement.cpp
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
-#include "LoopExpression.h"
+#include "LoopStatement.h"
 #include "../../Parser/CompilerContext.h"
 
 using namespace EScript;
+using namespace EScript::AST;
 
 //! (ctor)
-LoopExpression::LoopExpression( 	const Statement & _initStmt,
+LoopStatement::LoopStatement( 	const Statement & _initStmt,
 									Object * _preConditionExpression,
 									const Statement & _action,
 									Object * _postConditionExpression,
@@ -19,41 +20,32 @@ LoopExpression::LoopExpression( 	const Statement & _initStmt,
 }
 
 //! ---|> Statement
-void LoopExpression::_asm(CompilerContext & ctxt){
+void LoopStatement::_asm(CompilerContext & ctxt){
 	const uint32_t loopBegin = ctxt.createMarker();
 	const uint32_t loopEndMarker = ctxt.createMarker();
 	
-//	ctxt.out << "//<LoopExpression '"<<toString()<<"'\n";
 	if(initStmt.isValid()){
 		ctxt.setLine(initStmt.getLine());
 		initStmt._asm(ctxt);
 	}
-
-//	ctxt.out << loopBegin<<":\n";
 	ctxt.addInstruction(Instruction::createSetMarker(loopBegin));
 	
 	if(preConditionExpression.isNotNull()){
 		preConditionExpression->_asm(ctxt);
 		ctxt.addInstruction(Instruction::createJmpOnFalse(loopEndMarker));
-//		ctxt.out << "jmpOnFalse " << loopEndMarker << ":\n";
 	}
 	action._asm(ctxt);
 	
 	if(postConditionExpression.isNotNull()){ // increaseStmt is ignored!
 		postConditionExpression->_asm(ctxt);
 		ctxt.addInstruction(Instruction::createJmpOnTrue(loopBegin));
-//		ctxt.out << "jmpOnTrue " << loopBegin << ":\n";
 	}else{
 		if(increaseStmt.isValid()){
 			increaseStmt._asm(ctxt);
 		}
-//		ctxt.out << "jmp " << loopBegin << ":\n";
 		ctxt.addInstruction(Instruction::createJmp(loopBegin));
 	}
 	
 	ctxt.addInstruction(Instruction::createSetMarker(loopEndMarker));
-//	ctxt.out << loopEndMarker << ":\n";
-
-//	ctxt.out << "//LoopExpression>\n";
 
 }

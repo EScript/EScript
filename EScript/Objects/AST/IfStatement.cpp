@@ -1,25 +1,26 @@
-// IfControl.cpp
+// IfStatement.cpp
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
-#include "IfControl.h"
+#include "IfStatement.h"
 #include "../../Parser/CompilerContext.h"
 
 using namespace EScript;
+using namespace EScript::AST;
 
 //! (ctor)
-IfControl::IfControl(Object * condition,const Statement & action,const Statement & elseAction):
+IfStatement::IfStatement(Object * condition,const Statement & action,const Statement & elseAction):
 		conditionRef(condition),actionRef(action),elseActionRef(elseAction) {
 	//ctor
 }
 
 //! (dtor)
-IfControl::~IfControl() {
+IfStatement::~IfStatement() {
 	//dtor
 }
 
 //! ---|> Statement
-void IfControl::_asm(CompilerContext & ctxt){
+void IfStatement::_asm(CompilerContext & ctxt){
 	if(conditionRef.isNull()){
 		if(elseActionRef.isValid()){
 			elseActionRef._asm(ctxt);

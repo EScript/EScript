@@ -3,7 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "UserFunction.h"
-#include "../AST/Block.h"
+#include "../AST/BlockStatement.h"
 #include "../../EScript.h"
 #include "../../Parser/CompilerContext.h"
 #include <sstream>
@@ -73,7 +73,7 @@ void UserFunction::init(EScript::Namespace & globals) {
 }
 
 //! (ctor)
-UserFunction::UserFunction(parameterList_t * _params,Block * block):
+UserFunction::UserFunction(parameterList_t * _params,AST::BlockStatement * block):
 		ExtObject(getTypeObject()), params(_params),posInFile(0),codeLen(0) {
 
 	setBlock(block);
@@ -82,7 +82,7 @@ UserFunction::UserFunction(parameterList_t * _params,Block * block):
 	//ctor
 }
 //! (ctor)
-UserFunction::UserFunction(parameterList_t * _params,Block * block,const std::vector<ObjRef> & _sConstrExpressions):
+UserFunction::UserFunction(parameterList_t * _params,AST::BlockStatement * block,const std::vector<ObjRef> & _sConstrExpressions):
 		ExtObject(getTypeObject()), params(_params),sConstrExpressions(_sConstrExpressions.begin(),_sConstrExpressions.end()),posInFile(0),codeLen(0) {
 
 	setBlock(block);
@@ -110,7 +110,7 @@ void UserFunction::initInstructions(){
 }
 
 
-void UserFunction::setBlock(Block * _block){
+void UserFunction::setBlock(AST::BlockStatement * _block){
 	blockRef=_block;
 }
 

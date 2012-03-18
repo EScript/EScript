@@ -53,7 +53,7 @@ void RuntimeContext::init(){
 	pushRTB(NULL); // push endMarking, so that getCurrentRTB() never accesses an invalid entry.
 }
 
-RuntimeBlock * RuntimeContext::createAndPushRTB(const Block * staticBlock){
+RuntimeBlock * RuntimeContext::createAndPushRTB(const AST::BlockStatement * staticBlock){
 	RuntimeBlock * newRTB = RuntimeBlock::create(this,staticBlock,getCurrentRTB());
 	pushRTB(newRTB);
 	return newRTB;

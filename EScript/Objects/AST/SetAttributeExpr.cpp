@@ -1,32 +1,33 @@
-// SetAttribute.cpp
+// SetAttributeExpr.cpp
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
-#include "SetAttribute.h"
+#include "SetAttributeExpr.h"
 #include "../../Parser/CompilerContext.h"
 
 using namespace EScript;
+using namespace EScript::AST;
 
 //! static
-SetAttribute * SetAttribute::createAssignment(Object * obj,StringId attrId,Object * valueExp,int _line){
-	SetAttribute * sa  = new SetAttribute(obj,attrId,valueExp,0,_line) ;
+SetAttributeExpr * SetAttributeExpr::createAssignment(Object * obj,StringId attrId,Object * valueExp,int _line){
+	SetAttributeExpr * sa  = new SetAttributeExpr(obj,attrId,valueExp,0,_line) ;
 	sa->assign = true;
 	return sa;
 }
 
 //! (ctor)
-SetAttribute::SetAttribute(Object * obj,StringId _attrId,Object * _valueExp,Attribute::flag_t _attrFlags,int _line):
+SetAttributeExpr::SetAttributeExpr(Object * obj,StringId _attrId,Object * _valueExp,Attribute::flag_t _attrFlags,int _line):
 		objExpr(obj),valueExpr(_valueExp),attrId(_attrId),attrFlags(_attrFlags),line(_line),assign(false) {
 	//ctor
 }
 
 //! (dtor)
-SetAttribute::~SetAttribute() {
+SetAttributeExpr::~SetAttributeExpr() {
 	//dtor
 }
 
 //! ---|> [Object]
-std::string SetAttribute::toString()const {
+std::string SetAttributeExpr::toString()const {
 	std::string s;
 	if (!objExpr.isNull()) {
 		s+=objExpr.toString();
@@ -52,7 +53,7 @@ std::string SetAttribute::toString()const {
 }
 
 //! ---|> Object
-void SetAttribute::_asm(CompilerContext & ctxt){
+void SetAttributeExpr::_asm(CompilerContext & ctxt){
 	valueExpr->_asm(ctxt);
 //	ctxt.out << "dup\n";
 	

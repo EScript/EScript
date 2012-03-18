@@ -1,4 +1,4 @@
-// FunctionCall.h
+// FunctionCallExpr.h
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
@@ -9,14 +9,15 @@
 #include <vector>
 
 namespace EScript {
-
-/*! [FunctionCall]  ---|> [Object]  */
-class FunctionCall : public Object {
-		ES_PROVIDES_TYPE_NAME(FunctionCall)
+namespace AST {
+	
+/*! [FunctionCallExpr]  ---|> [Object]  */
+class FunctionCallExpr : public Object {
+		ES_PROVIDES_TYPE_NAME(FunctionCallExpr)
 	public:
-		FunctionCall(Object * exp,const std::vector<ObjRef> & parameter,bool isConstructorCall=false,
+		FunctionCallExpr(Object * exp,const std::vector<ObjRef> & parameter,bool isConstructorCall=false,
 					StringId filename=StringId(), int line=-1);
-		virtual ~FunctionCall() {}
+		virtual ~FunctionCallExpr() {}
 
 		Object * getStatement()const    				{   return expRef.get();    }
 
@@ -43,6 +44,7 @@ class FunctionCall : public Object {
 		int lineNumber; // for debugging
 		StringId filenameId; // for debugging
 };
+}
 }
 
 #endif // FUNCTIONCALL_H

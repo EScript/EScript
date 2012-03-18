@@ -11,11 +11,12 @@
 namespace EScript {
 class CompilerContext;
 
+namespace AST {
 /*! [Statement]  */
 class Statement {
 	public:
 		enum type_t{
-			TYPE_EXPRESSION,
+			TYPE_EXPRESSION, // contained expression adds to the stack
 			TYPE_BLOCK,
 			TYPE_IF,
 			TYPE_BREAK,
@@ -28,7 +29,8 @@ class Statement {
 			TYPE_EXCEPTION,
 			TYPE_EXIT,
 			TYPE_UNDEFINED,
-			TYPE_LOOP   // temporary used for new parser
+			
+			TYPE_STATEMENT,   //  does not add to the stack
 		};
 
 		Statement( const Statement & other);
@@ -62,6 +64,7 @@ class Statement {
 		ObjRef expression;
 		int line;
 };
+}
 }
 
 #endif // STATEMENT_H

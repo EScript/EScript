@@ -139,13 +139,13 @@ void out(Object * obj) {
 }
 
 //! (static)
-Block * loadScriptFile(const std::string & filename,Logger * logger){
+AST::BlockStatement * loadScriptFile(const std::string & filename,Logger * logger){
 	Parser parser(logger);
 	return parser.parseFile(filename);
 }
 
 //! (static)
-std::pair<bool, ObjRef> execute(Runtime & runtime, Block * block) {
+std::pair<bool, ObjRef> execute(Runtime & runtime, AST::BlockStatement * block) {
 	bool success = true;
 	ObjRef result;
 	try {
@@ -168,7 +168,7 @@ std::pair<bool, ObjRef> execute(Runtime & runtime, Block * block) {
 
 //! (static)
 std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & filename) {
-	ERef<Block> script;
+	ERef<AST::BlockStatement> script;
 	try {
 		script = loadScriptFile(filename,runtime.getLogger());
 	} catch (Exception * error) {
@@ -180,7 +180,7 @@ std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & fi
 
 //! (static)
 std::pair<bool, ObjRef> executeStream(Runtime & runtime, std::istream & stream) {
-	ERef<Block> rootBlock = new Block;
+	ERef<AST::BlockStatement> rootBlock = new AST::BlockStatement;
 	rootBlock->setFilename(StringId("stdin"));
 
 	std::string streamData;

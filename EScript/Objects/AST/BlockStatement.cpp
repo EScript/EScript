@@ -1,31 +1,32 @@
-// Block.cpp
+// BlockStatement.cpp
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
-#include "Block.h"
+#include "BlockStatement.h"
 #include "../../Parser/CompilerContext.h"
 
 #include <sstream>
 #include <utility>
 
 using namespace EScript;
+using namespace EScript::AST;
 
 //! (ctor)
-Block::Block(int lineNr):
+BlockStatement::BlockStatement(int lineNr):
 		filenameId(0),vars(NULL),line(lineNr),
 		continuePos(POS_DONT_HANDLE),breakPos(POS_DONT_HANDLE),exceptionPos(POS_DONT_HANDLE),jumpPosA(0) {
 	//ctor
 }
 
 //! (dtor)
-Block::~Block() {
+BlockStatement::~BlockStatement() {
 
 	delete vars;
 	//dtor
 }
 
 //! ---|> [Object]
-std::string Block::toString()const {
+std::string BlockStatement::toString()const {
 	static int depth=0;
 	std::ostringstream sprinter;
 	sprinter << "{" <<  std::endl;
@@ -41,7 +42,7 @@ std::string Block::toString()const {
 	return sprinter.str();
 }
 
-bool Block::declareVar(StringId id) {
+bool BlockStatement::declareVar(StringId id) {
 	if(vars==NULL){
 		vars=new declaredVariableMap_t();
 	}
@@ -49,13 +50,13 @@ bool Block::declareVar(StringId id) {
 	return result.second;
 }
 
-void Block::addStatement(const Statement & s) {
+void BlockStatement::addStatement(const Statement & s) {
 	if(s.isValid())
 		statements.push_back(s);
 }
 
 //! ---|> Object
-void Block::_asm(CompilerContext & ctxt){
+void BlockStatement::_asm(CompilerContext & ctxt){
 	
 //	ctxt.out<<"{\n";
 	if(vars) 

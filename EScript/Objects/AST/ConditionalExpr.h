@@ -8,7 +8,7 @@
 #include "../Object.h"
 
 namespace EScript {
-
+namespace AST {
 
 /*! [ConditionalExpr]  ---|> [Object] */
 class ConditionalExpr : public Object {
@@ -32,6 +32,7 @@ class ConditionalExpr : public Object {
 		ObjRef action;
 		ObjRef elseAction;
 };
+}
 }
 
 #endif // ES_CONDITIONAL_EXPRESSION_H

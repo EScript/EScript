@@ -1,4 +1,4 @@
-// IfControl.h
+// IfStatement.h
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
@@ -9,13 +9,14 @@
 #include "Statement.h"
 
 namespace EScript {
-
-/*! [IfControl]  ---|> [Object] */
-class IfControl : public Object {
-		ES_PROVIDES_TYPE_NAME(IfControl)
+namespace AST {
+	
+/*! [IfStatement]  ---|> [Object] */
+class IfStatement : public Object {
+		ES_PROVIDES_TYPE_NAME(IfStatement)
 	public:
-		IfControl( Object * condition, const Statement & action,const Statement & elseAction);
-		virtual ~IfControl();
+		IfStatement( Object * condition, const Statement & action,const Statement & elseAction);
+		virtual ~IfStatement();
 
 		Object * getCondition()const			{	return conditionRef.get();	}
 		const Statement & getAction()const		{	return actionRef;	}
@@ -28,6 +29,7 @@ class IfControl : public Object {
 		Statement actionRef;
 		Statement elseActionRef;
 };
+}
 }
 
 #endif // IFCONTROL_H

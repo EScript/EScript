@@ -10,8 +10,9 @@
 #include <vector>
 
 namespace EScript {
-
-class Block;
+namespace AST{
+class BlockStatement;
+}
 class String;
 
 /*! [UserFunction]  ---|> [ExtObject]	*/
@@ -68,12 +69,12 @@ class UserFunction : public ExtObject {
 	/*! @name Main */
 	//	@{
 
-		UserFunction(parameterList_t * params,Block * block);
-		UserFunction(parameterList_t * params,Block * block,const std::vector<ObjRef> & _sConstrExpressions);
+		UserFunction(parameterList_t * params,AST::BlockStatement * block);
+		UserFunction(parameterList_t * params,AST::BlockStatement * block,const std::vector<ObjRef> & _sConstrExpressions);
 		virtual ~UserFunction();
 
-		void setBlock(Block * block);
-		Block * getBlock()const								{	return blockRef.get();	}
+		void setBlock(AST::BlockStatement * block);
+		AST::BlockStatement * getBlock()const				{	return blockRef.get();	}
 		parameterList_t * getParamList()const				{	return params;	}
 		std::string getFilename()const;
 		int getLine()const;
@@ -99,7 +100,7 @@ class UserFunction : public ExtObject {
 		virtual void _asm(CompilerContext & ctxt);
 	private:
 		void initInstructions();
-		ERef<Block> blockRef;
+		ERef<AST::BlockStatement> blockRef;
 		parameterList_t * params;
 		std::vector<ObjRef> sConstrExpressions;
 

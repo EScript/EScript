@@ -1,20 +1,21 @@
-// FunctionCall.cpp
+// FunctionCallExpr.cpp
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
-#include "FunctionCall.h"
-#include "GetAttribute.h"
+#include "FunctionCallExpr.h"
+#include "GetAttributeExpr.h"
 #include "../../Parser/CompilerContext.h"
 
 #include <iterator>
 #include <sstream>
 
 using namespace EScript;
+using namespace EScript::AST;
 
 // \todo change the type of the used array ?
 
 //! (ctor)
-FunctionCall::FunctionCall(Object * exp,const std::vector<ObjRef> & parameterVec,bool _isConstructorCall,
+FunctionCallExpr::FunctionCallExpr(Object * exp,const std::vector<ObjRef> & parameterVec,bool _isConstructorCall,
 						StringId filename,int line/*=-1*/):
 		expRef(exp),parameters(parameterVec.begin(), parameterVec.end()),constructorCall(_isConstructorCall),
 		lineNumber(line),filenameId(filename){
@@ -22,7 +23,7 @@ FunctionCall::FunctionCall(Object * exp,const std::vector<ObjRef> & parameterVec
 }
 
 //! ---|> [Object]
-std::string FunctionCall::toString() const {
+std::string FunctionCallExpr::toString() const {
 	std::ostringstream sprinter;
 	sprinter << expRef.toString() << "(";
 	if(!parameters.empty()){
@@ -36,7 +37,7 @@ std::string FunctionCall::toString() const {
 }
 
 //! ---|> [Object]
-std::string FunctionCall::toDbgString() const {
+std::string FunctionCallExpr::toDbgString() const {
 	std::ostringstream sprinter;
 	sprinter << expRef.toString() << "(";
 	if(!parameters.empty()){
@@ -51,11 +52,11 @@ std::string FunctionCall::toDbgString() const {
 }
 
 //! ---|> Statement
-void FunctionCall::_asm(CompilerContext & ctxt){
-//	ctxt.out << "//<FunctionCall '"<<toString()<<"'\n";
+void FunctionCallExpr::_asm(CompilerContext & ctxt){
+//	ctxt.out << "//<FunctionCallExpr '"<<toString()<<"'\n";
 
 	do{
-		GetAttribute * gAttr = expRef.toType<GetAttribute>();
+		GetAttributeExpr * gAttr = expRef.toType<GetAttributeExpr>();
 
 		// getAttributeExpression (...)
 		if( gAttr ){
@@ -74,7 +75,7 @@ void FunctionCall::_asm(CompilerContext & ctxt){
 				}
 				break;
 			} // getAttributeExpression.identifier (...)
-			else if(GetAttribute * gAttrGAttr = dynamic_cast<GetAttribute *>(gAttr->getObjectExpression() )){
+			else if(GetAttributeExpr * gAttrGAttr = dynamic_cast<GetAttributeExpr *>(gAttr->getObjectExpression() )){
 				gAttrGAttr->_asm(ctxt);
 				ctxt.addInstruction(Instruction::createDup());
 //				ctxt.out << "dup\n";
@@ -109,7 +110,7 @@ void FunctionCall::_asm(CompilerContext & ctxt){
 	ctxt.addInstruction(Instruction::createCall(parameters.size()));
 //	ctxt.out << "call "<<parameters.size()<<"\n";
 	
-//	ctxt.out << "//FunctionCall >\n";
+//	ctxt.out << "//FunctionCallExpr >\n";
 
 
 }

@@ -27,15 +27,15 @@ set(ESCRIPT_SOURCES
 	EScript/Objects/ExtObject.cpp
 	EScript/Objects/Iterator.cpp
 	EScript/Objects/Identifier.cpp
-	EScript/Objects/AST/Block.cpp
+	EScript/Objects/AST/BlockStatement.cpp
 	EScript/Objects/AST/ConditionalExpr.cpp
-	EScript/Objects/AST/ForeachExpression.cpp
-	EScript/Objects/AST/FunctionCall.cpp
-	EScript/Objects/AST/GetAttribute.cpp
-	EScript/Objects/AST/IfControl.cpp
-	EScript/Objects/AST/LogicOp.cpp
-	EScript/Objects/AST/LoopExpression.cpp
-	EScript/Objects/AST/SetAttribute.cpp
+	EScript/Objects/AST/ForeachStatement.cpp
+	EScript/Objects/AST/FunctionCallExpr.cpp
+	EScript/Objects/AST/GetAttributeExpr.cpp
+	EScript/Objects/AST/IfStatement.cpp
+	EScript/Objects/AST/LogicOpExpr.cpp
+	EScript/Objects/AST/LoopStatement.cpp
+	EScript/Objects/AST/SetAttributeExpr.cpp
 	EScript/Objects/AST/Statement.cpp
 	EScript/Objects/Namespace.cpp
 	EScript/Objects/Object.cpp
