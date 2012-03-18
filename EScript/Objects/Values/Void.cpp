@@ -3,7 +3,6 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Void.h"
-#include "../../Parser/CompilerContext.h"
 
 using namespace EScript;
 
@@ -43,8 +42,4 @@ bool Void::toBool()const{
 //! ---|> [Object]
 std::string Void::toString()const{
 	return "void";
-}
-//! ---|> Object
-void Void::_asm(CompilerContext & ctxt){
-	ctxt.addInstruction(Instruction::createPushVoid());
 }

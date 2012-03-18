@@ -76,8 +76,6 @@ class Number : public Object {
 		virtual bool rt_isEqual(Runtime & rt,const ObjPtr o);
 		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_NUMBER;	}
 
-		//! ---|> Object
-		void _asm(CompilerContext & ctxt);
 	protected:
 		union{
 			void * valuePtr;

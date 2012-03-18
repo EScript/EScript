@@ -35,9 +35,6 @@ class Bool : public Object {
 		virtual bool rt_isEqual(Runtime & rt,const ObjPtr o);
 		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_BOOL;	}
 
-		//! ---|> Object
-		void _asm(CompilerContext & ctxt);
-		
 	protected:
 		bool value;
 };

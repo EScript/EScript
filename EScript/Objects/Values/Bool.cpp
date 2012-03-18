@@ -5,7 +5,6 @@
 #include "Bool.h"
 
 #include "../../EScript.h"
-#include "../../Parser/CompilerContext.h"
 
 #include <iostream>
 #include <stack>
@@ -136,10 +135,6 @@ bool Bool::toBool()const {
 //! ---|> [Object]
 bool Bool::rt_isEqual(Runtime &,const ObjPtr o){
 	return  value==o.toBool(false);
-}
-//! ---|> Object
-void Bool::_asm(CompilerContext & ctxt){
-	ctxt.addInstruction(Instruction::createPushBool(value));
 }
 
 } // namespace EScript

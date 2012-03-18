@@ -28,7 +28,7 @@ class LogicOpExpr : public Object {
 
 		/// ---|> [Object]
 		virtual std::string toString()const;
-		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_LOGIC_OP; }
+		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_LOGIC_OP_EXPRESSION; }
 
 		//! ---|> Object
 		virtual void _asm(CompilerContext & ctxt);

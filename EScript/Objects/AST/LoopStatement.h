@@ -35,8 +35,10 @@ class LoopStatement : public Object {
 
 
 
-		//! ---|> Statement
+		//! ---|> Object
 		virtual void _asm(CompilerContext & ctxt);
+		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_LOOP_STATEMENT; }
+
 	private:
 		LoopStatement( const Statement & initStmt,
 						Object * preConditionExpression,

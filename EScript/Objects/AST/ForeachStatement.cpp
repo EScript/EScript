@@ -34,7 +34,7 @@ void ForeachStatement::_asm(CompilerContext & ctxt){
 ////		}
 ////		
 ////	*/
-	ctxt.out << "//<ForeachStatement '"<<toString()<<"'\n";
+
 //	if(initStmt.isValid()){
 //		initStmt._asm(ctxt);
 //	}
@@ -58,6 +58,6 @@ void ForeachStatement::_asm(CompilerContext & ctxt){
 //
 //	ctxt.out << loopEndMarker << ":\n";
 
-	ctxt.out << "//ForeachStatement>\n";
+
 
 }

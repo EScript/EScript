@@ -4,7 +4,6 @@
 // ------------------------------------------------------
 #include "String.h"
 #include "../../EScript.h"
-#include "../../Parser/CompilerContext.h"
 #include "../../Utils/StringUtils.h"
 
 #include <sstream>
@@ -340,8 +339,4 @@ bool String::toBool()const {
 //! ---|> [Object]
 bool String::rt_isEqual(Runtime &, const ObjPtr o){
 	return o.isNull()?false:sData==objToStringData(o.get());
-}
-//! ---|> Object
-void String::_asm(CompilerContext & ctxt){
-	ctxt.addInstruction(Instruction::createPushString(ctxt.declareString(toString())));
 }

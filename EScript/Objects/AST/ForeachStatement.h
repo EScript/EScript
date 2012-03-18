@@ -25,8 +25,9 @@ class ForeachStatement : public Object {
 
 
 
-		//! ---|> Statement
+		//! ---|> Object
 		virtual void _asm(CompilerContext & ctxt);
+		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_FOREACH_STATEMENT; }
 	private:
 
 		ObjRef collectionExpression;

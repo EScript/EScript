@@ -5,6 +5,7 @@
 #include "Object.h"
 #include "../EScript.h"
 #include "../Consts.h"
+#include "../Parser/Compiler.h"
 #include "../Parser/CompilerContext.h"
 #include <sstream>
 
@@ -115,19 +116,6 @@ void Object::init(EScript::Namespace & globals) {
 	//! Delegate Object -> function
 	ESF_DECLARE(typeObject,"->",1,1,new Delegate(caller,parameter[0]))
 	
-	//! String Object._getAsm()
-	ES_FUNCTION_DECLARE(typeObject,"_getAsm",0,0,{
-		std::ostringstream out;
-		InstructionBlock ib;
-		ib.declareLocalVariable(Consts::IDENTIFIER_this); // thisFn
-		ib.declareLocalVariable(Consts::IDENTIFIER_thisFn); // thisFn
-		
-		CompilerContext ctxt(ib);
-		caller->_asm(ctxt);
-		CompilerContext::finalizeInstructions(ib);
-		
-		return String::create(ctxt.out.str() + "\n-----\n" + ctxt.getInstructionsAsString());
-	})
 }
 
 
@@ -329,8 +317,10 @@ bool Object::setAttribute(const StringId /*id*/,const Attribute & /*val*/){
 // -----------------------------------------------------------------------------------------------
 
 void Object::_asm(CompilerContext & ctxt){
-	std::ostringstream & out = ctxt.out;
-	out << toString();
+	Compiler c;
+	c.compileExpression(ctxt,this);
+//	std::ostringstream & out = ctxt.out;
+//	out << toString();
 }
 
 //void Object::tmp_toByteCode(ostream &s){

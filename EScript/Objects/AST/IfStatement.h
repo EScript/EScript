@@ -24,6 +24,8 @@ class IfStatement : public Object {
 
 		//! ---|> Object
 		virtual void _asm(CompilerContext & ctxt);
+		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_IF_STATEMENT; }
+
 	private:
 		ObjRef conditionRef;
 		Statement actionRef;

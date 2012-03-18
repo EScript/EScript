@@ -46,7 +46,7 @@ class BlockStatement : public Object {
 
 		/// ---|> [Object]
 		virtual std::string toString()const ;
-		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_BLOCK; }
+		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_BLOCK_STATEMENT; }
 	private:
 		StringId filenameId; // for debugging
 		declaredVariableMap_t * vars;

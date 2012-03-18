@@ -25,6 +25,8 @@ class TryCatchStatement : public Object {
 
 		//! ---|> Object
 		virtual void _asm(CompilerContext & ctxt);
+		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_TRY_CATCH_STATEMENT; }
+
 	private:
 		ObjRef conditionRef;
 		ERef<BlockStatement> tryBlock;

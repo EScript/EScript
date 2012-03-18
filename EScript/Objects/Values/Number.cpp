@@ -5,7 +5,6 @@
 #include "Number.h"
 #include "../../EScript.h"
 #include "Bool.h"
-#include "../../Parser/CompilerContext.h"
 
 #include <sstream>
 
@@ -386,8 +385,4 @@ bool Number::toBool()const {
 //! ---|> [Object]
 bool Number::rt_isEqual(Runtime & ,const ObjPtr o){
 	return getValue()==o.toDouble();
-}
-//! ---|> Object
-void Number::_asm(CompilerContext & ctxt){
-	ctxt.addInstruction(Instruction::createPushNumber(toDouble()));
 }

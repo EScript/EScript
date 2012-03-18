@@ -20,9 +20,7 @@ class Void : public Type {
 		virtual bool toBool()const;
 		virtual bool rt_isEqual(Runtime & rt,const ObjPtr o);
 		virtual std::string toString()const;
-
-		//! ---|> Object
-		void _asm(CompilerContext & ctxt);
+		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_VOID;	}
 		
 	protected:
 		virtual ~Void();

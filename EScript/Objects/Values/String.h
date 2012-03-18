@@ -51,8 +51,7 @@ class String : public Object {
 		virtual bool rt_isEqual(Runtime &rt,const ObjPtr o);
 		virtual std::string toDbgString()const;
 		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_STRING;	}
-		//! ---|> Object
-		void _asm(CompilerContext & ctxt);
+
 	private:
 		StringData sData;
 };

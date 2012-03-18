@@ -25,7 +25,7 @@ class GetAttributeExpr : public Object {
 
 		/// ---|> [Object]
 		virtual std::string toString()const;
-		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_GET_ATTRIBUTE; }
+		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_GET_ATTRIBUTE_EXPRESSION; }
 
 		//! ---|> Statement
 		virtual void _asm(CompilerContext & ctxt);

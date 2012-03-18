@@ -23,7 +23,7 @@ class ConditionalExpr : public Object {
 
 		/// ---|> [Object]
 		virtual std::string toString()const ;
-		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_CONDITIONAL; }
+		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_CONDITIONAL_EXPRESSION; }
 		
 		//! ---|> Object
 		virtual void _asm(CompilerContext & ctxt);

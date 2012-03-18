@@ -33,7 +33,7 @@ class FunctionCallExpr : public Object {
 		/// ---|> [Object]
 		virtual std::string toString()const;
 		virtual std::string toDbgString()const;
-		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_FUNCTION_CALL; }
+		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_FUNCTION_CALL_EXPRESSION; }
 		
 		//! ---|> Statement
 		virtual void _asm(CompilerContext & ctxt);

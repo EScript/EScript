@@ -284,7 +284,7 @@ Object * Runtime::executeObj(Object * obj){
 	Object * exp=obj;
 
 	switch(type){
-	case _TypeIds::TYPE_GET_ATTRIBUTE:{
+	case _TypeIds::TYPE_GET_ATTRIBUTE_EXPRESSION:{
 		AST::GetAttributeExpr * ga=static_cast<AST::GetAttributeExpr *>(exp);
 		ObjRef resultRef;
 		// _.ident
@@ -311,11 +311,11 @@ Object * Runtime::executeObj(Object * obj){
 		}
 		return resultRef.detachAndDecrease();
 	}
-	case _TypeIds::TYPE_FUNCTION_CALL:{
+	case _TypeIds::TYPE_FUNCTION_CALL_EXPRESSION:{
 		return executeFunctionCall(static_cast<AST::FunctionCallExpr*>(exp));
 	}
 
-	case _TypeIds::TYPE_SET_ATTRIBUTE:{
+	case _TypeIds::TYPE_SET_ATTRIBUTE_EXPRESSION:{
 		AST::SetAttributeExpr * sa=static_cast<AST::SetAttributeExpr *>(exp);
 		ObjRef value;
 		if (!sa->valueExpr.isNull()) {
@@ -391,7 +391,7 @@ Object * Runtime::executeObj(Object * obj){
 		}
 		return value.detachAndDecrease();
 	}
-	case _TypeIds::TYPE_LOGIC_OP:{
+	case _TypeIds::TYPE_LOGIC_OP_EXPRESSION:{
 		LogicOpExpr * lop=static_cast<LogicOpExpr *>(exp);
 		ObjRef resultRef( executeObj(lop->getLeft()) );
 		if(!assertNormalState(lop))
@@ -416,7 +416,7 @@ Object * Runtime::executeObj(Object * obj){
 		resultRef=Bool::create( resultRef.toBool() );
 		return resultRef.detachAndDecrease();
 	}
-	case _TypeIds::TYPE_CONDITIONAL:{
+	case _TypeIds::TYPE_CONDITIONAL_EXPRESSION:{
 		ConditionalExpr * cond=static_cast<ConditionalExpr *>(exp);
 		if (cond->getCondition()!=NULL) {
 			ObjRef conResult = executeObj(cond->getCondition());
@@ -428,7 +428,7 @@ Object * Runtime::executeObj(Object * obj){
 		}
 		return cond->getElseAction()==NULL ? NULL : executeObj(cond->getElseAction());
 	}
-	case _TypeIds::TYPE_BLOCK:{
+	case _TypeIds::TYPE_BLOCK_STATEMENT:{
 		return executeBlock(static_cast<BlockStatement*>(exp));
 	}
 	default:{

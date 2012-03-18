@@ -59,6 +59,9 @@ class Statement {
 		}
 		//! ---o EXPERIMENTAL !!!!!
 		virtual void _asm(CompilerContext & ctxt);
+		
+		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_STATEMENT; }
+
 	private:
 		type_t type;
 		ObjRef expression;

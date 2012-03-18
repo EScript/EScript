@@ -47,6 +47,7 @@ set(ESCRIPT_SOURCES
 	EScript/Objects/Values/String.cpp
 	EScript/Objects/Values/Void.cpp
 	EScript/Objects/YieldIterator.cpp
+	EScript/Parser/Compiler.cpp
 	EScript/Parser/CompilerContext.cpp
 	EScript/Parser/Operators.cpp
 	EScript/Parser/Parser.cpp

@@ -17,10 +17,6 @@
 
 namespace EScript {
 
-/*! Compiler
-	Input: Syntax tree made of Expressions
-	Output: Byte Code made of EAssembler-Instructions */
-
 /*! Collection of "things" used during the compilation process.
 	As the compilation process is currently under development, it is not clear how this class changes 
 	in the near future.	*/
@@ -104,10 +100,6 @@ class CompilerContext {
 			- Replaces the markers inside the assembly by jump addresses.	*/
 		static void finalizeInstructions( InstructionBlock & instructions ); 
 		
-//		const InstructionBlock & getInstructions()const			{	return instructions;	}
-	
-		std::ostringstream out; // temporary
-
 };
 }
 

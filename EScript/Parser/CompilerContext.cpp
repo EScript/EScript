@@ -1,3 +1,7 @@
+// CompilerContext.h
+// This file is part of the EScript programming language.
+// See copyright notice in EScript.h
+// ------------------------------------------------------
 #include "CompilerContext.h"
 #include <sstream>
 
@@ -12,8 +16,6 @@ uint32_t CompilerContext::getCurrentMarker(setting_t type)const{
 	}
 	return Instruction::INVALID_JUMP_ADDRESS;
 }
-
-
 
 void CompilerContext::pushSetting_basicLocalVars(){
 	settingsStack.push_back(SettingsStackEntry(VISIBLE_LOCAL_VARIABLES));
@@ -74,6 +76,7 @@ bool CompilerContext::collectLocalVariables(setting_t entryType,std::vector<size
 	
 //! (static) \todo // move to Compiler
 void CompilerContext::finalizeInstructions( InstructionBlock & instructionBlock ){
+
 	std::vector<Instruction> & instructions = instructionBlock._accessInstructions();
 	
 	if(instructionBlock.hasJumpMarkers()){
