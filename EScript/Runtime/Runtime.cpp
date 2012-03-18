@@ -1534,14 +1534,26 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){
 			}
 			continue;
 		}
+		case Instruction::I_SET_EXCEPTION_HANDLER:{
+			fcc->setExceptionHandlerPos(instruction.getValue_uint32());
+			continue;
+		}
 		case Instruction::I_UNDEFINED:
 		case Instruction::I_SET_MARKER:
 		default:{
 			warn("Unknown Instruction");
 		}
 		}
+		if(getState()==STATE_EXCEPTION){
+			if(fcc->getExceptionHandlerPos()!=Instruction::INVALID_JUMP_ADDRESS){
+				fcc->assignToLocalVariable(2,getResult()); // ___result = exceptionResult
+				resetState();
+				fcc->setInstructionCursor(fcc->getExceptionHandlerPos());
+			}else{
+				warn("Unhandled exception! TODO!!!!!!!!!"); //! \todo propagate exception !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			}
+		}
 		
-		//! \todo Check state
 	}
 
 

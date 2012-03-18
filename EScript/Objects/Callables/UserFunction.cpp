@@ -100,8 +100,9 @@ UserFunction::~UserFunction() {
 }
 
 void UserFunction::initInstructions(){
-	instructions.declareLocalVariable(Consts::IDENTIFIER_this); // thisFn
-	instructions.declareLocalVariable(Consts::IDENTIFIER_thisFn); // thisFn
+	instructions.declareLocalVariable(Consts::IDENTIFIER_this); // $0
+	instructions.declareLocalVariable(Consts::IDENTIFIER_thisFn); // $1
+	instructions.declareLocalVariable(Consts::IDENTIFIER_internalResult); // $2
 	for(parameterList_t::const_iterator it = params->begin();it!=params->end();++it){
 		instructions.declareLocalVariable( (**it).getName() );
 	}

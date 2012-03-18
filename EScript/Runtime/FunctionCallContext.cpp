@@ -43,6 +43,7 @@ void FunctionCallContext::init(FunctionCallContext * _parent,const EPtr<UserFunc
 	parent = _parent;
 	userFunction = _userFunction;
 	instructionCursor = 0;
+	exceptionHandlerPos = Instruction::INVALID_JUMP_ADDRESS;
 	
 	localVariables.resize(userFunction->getInstructions().getNumLocalVars());
 //	std::fill(localVariables.begin(),localVariables.end(),NULL);

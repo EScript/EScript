@@ -37,6 +37,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		ObjRef caller;
 		_CountedRef<FunctionCallContext> parent;
 		ERef<UserFunction> userFunction;
+		size_t exceptionHandlerPos;
 		size_t instructionCursor;
 
 		FunctionCallContext() : instructionCursor(0) {}
@@ -49,8 +50,10 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		FunctionCallContext * getParent()const			{	return parent.get();	}
 		ERef<UserFunction> getUserFunction()const		{	return userFunction;	}
 		
+		size_t getExceptionHandlerPos()const			{	return exceptionHandlerPos;	}
 		size_t getInstructionCursor()const				{	return instructionCursor;	}
-		void setInstructionCursor(const size_t p)		{	instructionCursor=p;	}
+		void setExceptionHandlerPos(const size_t p)		{	exceptionHandlerPos = p;	}
+		void setInstructionCursor(const size_t p)		{	instructionCursor = p;	}
 		void increaseInstructionCursor()				{	++instructionCursor;	}
 
 		void setCaller(const ObjPtr & _caller)			{	caller = _caller;	}

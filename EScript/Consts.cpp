@@ -10,6 +10,7 @@ const StringId Consts::IDENTIFIER_attr_printableName("_printableName");
 const StringId Consts::IDENTIFIER_this("this");
 //const StringId Indentifier::IDENTIFIER_parent("_parent");
 const StringId Consts::IDENTIFIER_thisFn("thisFn");
+const StringId Consts::IDENTIFIER_internalResult("___result");
 const StringId Consts::IDENTIFIER_fn_call("_call");
 const StringId Consts::IDENTIFIER_fn_constructor("_constructor");
 const StringId Consts::IDENTIFIER_fn_less("<");

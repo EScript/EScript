@@ -13,6 +13,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <stack>
 
 namespace EScript {
 
@@ -47,6 +48,9 @@ class CompilerContext {
 		};
 
 		std::vector<SettingsStackEntry> settingsStack;
+
+		//! Local variable collections needed for determining which variables have been declared inside a 'try'-block
+		std::stack<std::vector<size_t> *> variableCollectorStack;
 
 		int currentLine;
 		uint32_t currentMarkerId;
@@ -91,6 +95,10 @@ class CompilerContext {
 
 		uint32_t registerInternalFunction(const ObjPtr userFunction)	{	return instructions.registerInternalFunction(userFunction);	}
 		void setLine(int l)												{	currentLine=l;	}
+		
+		//! All newly defined variables are also added to the topmost collection.
+		void pushLocalVarsCollector(std::vector<size_t> * collection)	{	variableCollectorStack.push(collection);	}
+		void popLocalVarsCollector()									{	variableCollectorStack.pop();	}
 	
 		/*! (static) \todo // move to Compiler
 			- Replaces the markers inside the assembly by jump addresses.	*/

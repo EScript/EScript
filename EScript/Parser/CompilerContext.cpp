@@ -22,6 +22,9 @@ void CompilerContext::pushSetting_basicLocalVars(){
 	const std::vector<StringId> & names = instructions.getLocalVariables();
 	for(size_t i=0;i<names.size();++i){
 		entry.localVariables[ names[i] ] = i;
+		if(!variableCollectorStack.empty()){
+			variableCollectorStack.top()->push_back(i);
+		}
 	}
 }
 
@@ -30,7 +33,12 @@ void CompilerContext::pushSetting_localVars(const std::set<StringId> & variableN
 	SettingsStackEntry & entry = settingsStack.back();
 	
 	for(std::set<StringId>::const_iterator it = variableNames.begin();it!=variableNames.end();++it){
-		entry.localVariables[ *it ] = instructions.declareLocalVariable(*it);
+		const size_t varIndex = instructions.declareLocalVariable(*it);
+		entry.localVariables[ *it ] = varIndex;
+		if(!variableCollectorStack.empty()){
+			variableCollectorStack.top()->push_back(varIndex);
+		}
+		
 	}
 }
 int CompilerContext::getCurrentVarIndex(const StringId name)const{
@@ -88,7 +96,8 @@ void CompilerContext::finalizeInstructions( InstructionBlock & instructionBlock 
 			for(std::vector<Instruction>::iterator it=instructions.begin();it!=instructions.end();++it){
 				if( it->getType() == Instruction::I_JMP 
 						|| it->getType() == Instruction::I_JMP_ON_TRUE 
-						|| it->getType() == Instruction::I_JMP_ON_FALSE){
+						|| it->getType() == Instruction::I_JMP_ON_FALSE
+						|| it->getType() == Instruction::I_SET_EXCEPTION_HANDLER){
 					const uint32_t markerId = it->getValue_uint32();
 					
 					// is name of a marker (and not already a jump position)

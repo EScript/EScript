@@ -42,6 +42,7 @@ class Instruction {
 			I_PUSH_VOID,
 			I_RESET_LOCAL_VARIABLE,
 			I_SET_ATTRIBUTE,
+			I_SET_EXCEPTION_HANDLER,
 			I_SET_MARKER,
 		};
 		static const uint32_t JMP_TO_MARKER_OFFSET = 0x100000; //! if a jump target is >= JMP_TO_MARKER_OFFSET, the target is a marker and not an address.
@@ -86,6 +87,7 @@ class Instruction {
 		static Instruction createPushVoid();
 		static Instruction createResetLocalVariable(const uint32_t localVarIdx);
 		static Instruction createSetAttribute(const StringId id);
+		static Instruction createSetExceptionHandler(const uint32_t markerId);
 		static Instruction createSetMarker(const uint32_t markerId);
 
 		void setLine(int l)	{	line = l;	}

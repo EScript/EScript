@@ -158,6 +158,12 @@ Instruction Instruction::createSetAttribute(const StringId id){
 	return i;
 }
 //! (static)
+Instruction Instruction::createSetExceptionHandler(const uint32_t markerId){
+	Instruction i(I_SET_EXCEPTION_HANDLER);
+	i.setValue_uint32(markerId);
+	return i;
+}
+//! (static)
 Instruction Instruction::createSetMarker(const uint32_t markerId){
 	Instruction i(I_SET_MARKER);
 	i.setValue_uint32(markerId);
@@ -269,6 +275,14 @@ std::string Instruction::toString(const InstructionBlock & ctxt)const{
 	}
 	case I_SET_ATTRIBUTE:{
 		out << "setAttribute '" << getValue_Identifier().toString() << "'";
+		break;
+	}		
+	case I_SET_EXCEPTION_HANDLER:{
+		out << "setExceptionHandler ";
+		if( getValue_uint32()<JMP_TO_MARKER_OFFSET) 
+			out << "-> "<<getValue_uint32();
+		else 
+			out << "MARKER_" << getValue_uint32()-JMP_TO_MARKER_OFFSET<< ":";
 		break;
 	}	
 	case I_SET_MARKER:{

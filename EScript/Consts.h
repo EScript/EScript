@@ -15,6 +15,7 @@ struct Consts{
 	static const StringId IDENTIFIER_attr_printableName;
 	static const StringId IDENTIFIER_this;
 	static const StringId IDENTIFIER_thisFn;
+	static const StringId IDENTIFIER_internalResult;
 	static const StringId IDENTIFIER_fn_call;
 	static const StringId IDENTIFIER_fn_constructor;
 	static const StringId IDENTIFIER_fn_greater;
