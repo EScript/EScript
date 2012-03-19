@@ -19,22 +19,19 @@ class LogicOpExpr : public Object {
 			OR,AND,NOT
 		};
 
-		LogicOpExpr(Object * left,Object * right,opType_T op);
-		virtual ~LogicOpExpr();
+		LogicOpExpr(Object * _left,Object * _right,opType_T _op) : left(_left),right(_right),op(_op) {}
+		virtual ~LogicOpExpr(){}
 
-		Object * getLeft()const  		{   return leftRef.get();   }
-		Object * getRight()const 		{   return rightRef.get();  }
+		ObjPtr getLeft()const  			{   return left;   }
+		ObjPtr getRight()const 			{   return right;  }
 		opType_T getOperator()const   	{   return op;  }
 
 		/// ---|> [Object]
-		virtual std::string toString()const;
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_LOGIC_OP_EXPRESSION; }
 
-		//! ---|> Object
-		virtual void _asm(CompilerContext & ctxt);
 	private:
-		ObjRef leftRef;
-		ObjRef rightRef;
+		ObjRef left;
+		ObjRef right;
 		opType_T op;
 };
 }

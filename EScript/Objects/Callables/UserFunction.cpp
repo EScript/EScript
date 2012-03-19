@@ -6,6 +6,7 @@
 #include "../AST/BlockStatement.h"
 #include "../../EScript.h"
 #include "../../Parser/CompilerContext.h"
+#include "../../Parser/Compiler.h"
 #include <sstream>
 
 using namespace EScript;
@@ -100,9 +101,9 @@ UserFunction::~UserFunction() {
 }
 
 void UserFunction::initInstructions(){
-	instructions.declareLocalVariable(Consts::IDENTIFIER_this); // $0
-	instructions.declareLocalVariable(Consts::IDENTIFIER_thisFn); // $1
-	instructions.declareLocalVariable(Consts::IDENTIFIER_internalResult); // $2
+	instructions.declareLocalVariable(Consts::IDENTIFIER_this); // $0 : LOCAL_VAR_INDEX_this
+	instructions.declareLocalVariable(Consts::IDENTIFIER_thisFn); // $1 : LOCAL_VAR_INDEX_thisFn
+	instructions.declareLocalVariable(Consts::IDENTIFIER_internalResult); // $2 : LOCAL_VAR_INDEX_internalResult
 	for(parameterList_t::const_iterator it = params->begin();it!=params->end();++it){
 		instructions.declareLocalVariable( (**it).getName() );
 	}
@@ -180,25 +181,3 @@ int UserFunction::getMinParamCount()const{
 	return i;
 }
 
-//! ---|> Object
-void UserFunction::_asm(CompilerContext & ctxt){
-
-	 // compiling the function itself
-	if(ctxt.isCurrentInstructionBlock(getInstructions())){
-		
-		ctxt.pushSetting_basicLocalVars(); // make 'this' and parameters available
-		getBlock()->_asm(ctxt);
-		ctxt.popSetting();
-		CompilerContext::finalizeInstructions(getInstructions());
-	}else{
-		CompilerContext ctxt2(getInstructions());
-		ctxt2.pushSetting_basicLocalVars(); // make 'this' and parameters available
-		_asm(ctxt2);
-		ctxt2.popSetting();
-		CompilerContext::finalizeInstructions(getInstructions());
-		
-		
-		ctxt.addInstruction(Instruction::createPushFunction(ctxt.registerInternalFunction(this))); 
-	}
-		
-}

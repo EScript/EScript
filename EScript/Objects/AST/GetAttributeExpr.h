@@ -21,14 +21,13 @@ class GetAttributeExpr : public Object {
 
 		StringId getAttrId()const				{   return attrId;  }
 		const std::string & getAttrName()const	{   return attrId.toString();    }
-		Object * getObjectExpression()			{   return objRef.get();    }
+		ObjPtr getObjectExpression()const		{   return objRef;    }
 
 		/// ---|> [Object]
 		virtual std::string toString()const;
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_GET_ATTRIBUTE_EXPRESSION; }
 
-		//! ---|> Statement
-		virtual void _asm(CompilerContext & ctxt);
+
 	private:
 		ObjRef objRef;
 		StringId attrId;

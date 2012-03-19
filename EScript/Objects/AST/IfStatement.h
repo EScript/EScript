@@ -15,21 +15,21 @@ namespace AST {
 class IfStatement : public Object {
 		ES_PROVIDES_TYPE_NAME(IfStatement)
 	public:
-		IfStatement( Object * condition, const Statement & action,const Statement & elseAction);
-		virtual ~IfStatement();
+		IfStatement( Object * _condition, const Statement & _action,const Statement & _elseAction):
+			condition(_condition),action(_action),elseAction(_elseAction) {}
+		virtual ~IfStatement() {}
 
-		Object * getCondition()const			{	return conditionRef.get();	}
-		const Statement & getAction()const		{	return actionRef;	}
-		const Statement & getElseAction()const	{	return elseActionRef;	}
+		ObjPtr getCondition()const				{	return condition;	}
+		const Statement & getAction()const		{	return action;	}
+		const Statement & getElseAction()const	{	return elseAction;	}
 
 		//! ---|> Object
-		virtual void _asm(CompilerContext & ctxt);
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_IF_STATEMENT; }
 
 	private:
-		ObjRef conditionRef;
-		Statement actionRef;
-		Statement elseActionRef;
+		ObjRef condition;
+		Statement action;
+		Statement elseAction;
 };
 }
 }

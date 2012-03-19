@@ -26,10 +26,8 @@ class BlockStatement : public Object {
 		BlockStatement(int lineNr=-1);
 		virtual ~BlockStatement();
 
-		//! ---|> Object
-		virtual void _asm(CompilerContext & ctxt);
-
 		statementList & getStatements()                 {   return statements;  }
+		const statementList & getStatements()const      {   return statements;  }
 		void setFilename(StringId filename)  			{   filenameId=filename;  }
 		std::string getFilename()const                  {   return filenameId.toString();    }
 		int getLine()const								{	return line;	}
@@ -45,7 +43,6 @@ class BlockStatement : public Object {
 		size_t getNumLocalVars()const					{	return vars==NULL ? 0 : vars->size(); }
 
 		/// ---|> [Object]
-		virtual std::string toString()const ;
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_BLOCK_STATEMENT; }
 	private:
 		StringId filenameId; // for debugging
@@ -53,7 +50,7 @@ class BlockStatement : public Object {
 		statementList statements;
 		int line;
 
-
+		//! \todo remove this: 
 	public:
 		static const int POS_DONT_HANDLE = -1;
 		static const int POS_HANDLE_AND_LEAVE = -2;

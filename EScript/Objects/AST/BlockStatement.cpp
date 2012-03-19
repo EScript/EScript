@@ -20,26 +20,8 @@ BlockStatement::BlockStatement(int lineNr):
 
 //! (dtor)
 BlockStatement::~BlockStatement() {
-
 	delete vars;
 	//dtor
-}
-
-//! ---|> [Object]
-std::string BlockStatement::toString()const {
-	static int depth=0;
-	std::ostringstream sprinter;
-	sprinter << "{" <<  std::endl;
-	depth++;
-	for ( cStatementCursor c = statements.begin();  c != statements.end(); ++c) {
-		for (int i=0;i<depth;++i) sprinter << "\t";
-			sprinter <<".";
-//		sprinter <<  c->getObject()->toString() <<  std::endl;
-	}
-	depth--;
-	for (int i=0;i<depth;++i) sprinter << "\t";
-	sprinter << "}";
-	return sprinter.str();
 }
 
 bool BlockStatement::declareVar(StringId id) {
@@ -55,20 +37,3 @@ void BlockStatement::addStatement(const Statement & s) {
 		statements.push_back(s);
 }
 
-//! ---|> Object
-void BlockStatement::_asm(CompilerContext & ctxt){
-
-	if(vars) 
-		ctxt.pushSetting_localVars(*vars);
-
-	for ( statementCursor c = statements.begin();  c != statements.end(); ++c) {
-		c->_asm(ctxt);
-	}
-	if(vars){
-		for(std::set<StringId>::const_iterator it = vars->begin();it!=vars->end();++it){
-			ctxt.addInstruction(Instruction::createResetLocalVariable(ctxt.getCurrentVarIndex(*it)));
-		}
-		ctxt.popSetting();
-	}
-
-}

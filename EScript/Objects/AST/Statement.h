@@ -58,7 +58,7 @@ class Statement {
 			return *this;
 		}
 		//! ---o EXPERIMENTAL !!!!!
-		virtual void _asm(CompilerContext & ctxt);
+		virtual void _asm(CompilerContext & ctxt)const;
 		
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_STATEMENT; }
 

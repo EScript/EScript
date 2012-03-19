@@ -24,7 +24,6 @@ class TryCatchStatement : public Object {
 		EPtr<BlockStatement> getCatchBlock()const		{	return catchBlock;	}
 
 		//! ---|> Object
-		virtual void _asm(CompilerContext & ctxt);
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_TRY_CATCH_STATEMENT; }
 
 	private:

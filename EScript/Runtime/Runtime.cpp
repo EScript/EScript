@@ -296,7 +296,7 @@ Object * Runtime::executeObj(Object * obj){
 
 		}// obj.ident
 		else {
-			ObjRef obj2Ref=executeObj(ga->getObjectExpression());
+			ObjRef obj2Ref=executeObj(ga->getObjectExpression().get());
 			if(!assertNormalState(ga))
 				return NULL;
 
@@ -393,7 +393,7 @@ Object * Runtime::executeObj(Object * obj){
 	}
 	case _TypeIds::TYPE_LOGIC_OP_EXPRESSION:{
 		LogicOpExpr * lop=static_cast<LogicOpExpr *>(exp);
-		ObjRef resultRef( executeObj(lop->getLeft()) );
+		ObjRef resultRef( executeObj(lop->getLeft().get()) );
 		if(!assertNormalState(lop))
 			return NULL;
 
@@ -409,7 +409,7 @@ Object * Runtime::executeObj(Object * obj){
 			resultRef = Bool::create(false);
 			return resultRef.detachAndDecrease();
 		}
-		resultRef = executeObj(lop->getRight());
+		resultRef = executeObj(lop->getRight().get());
 		if(!assertNormalState(lop))
 			return NULL;
 
@@ -419,14 +419,14 @@ Object * Runtime::executeObj(Object * obj){
 	case _TypeIds::TYPE_CONDITIONAL_EXPRESSION:{
 		ConditionalExpr * cond=static_cast<ConditionalExpr *>(exp);
 		if (cond->getCondition()!=NULL) {
-			ObjRef conResult = executeObj(cond->getCondition());
+			ObjRef conResult = executeObj(cond->getCondition().get());
 			if(! assertNormalState(cond))
 				return NULL;
 
 			else if (conResult.toBool())
-				return cond->getAction()==NULL ? NULL : executeObj(cond->getAction());
+				return cond->getAction().isNull() ? NULL : executeObj(cond->getAction().get());
 		}
-		return cond->getElseAction()==NULL ? NULL : executeObj(cond->getElseAction());
+		return cond->getElseAction().isNull() ? NULL : executeObj(cond->getElseAction().get());
 	}
 	case _TypeIds::TYPE_BLOCK_STATEMENT:{
 		return executeBlock(static_cast<BlockStatement*>(exp));
@@ -485,7 +485,7 @@ Object * Runtime::executeCurrentContext(bool markEntry) {
 			}
 			case Statement::TYPE_IF:{
 				IfStatement * ifControl = static_cast<IfStatement*>(stmt->getExpression());
-				resultRef = executeObj( ifControl->getCondition() );
+				resultRef = executeObj( ifControl->getCondition().get() );
 				assertNormalState(ifControl);
 				stmt = resultRef.toBool() ? &ifControl->getAction() : &ifControl->getElseAction();
 				if(stmt==NULL || !stmt->isValid())
@@ -648,7 +648,7 @@ Object * Runtime::executeFunctionCall(AST::FunctionCallExpr * fCall){
 	setCallingObject(NULL);
 
 	// get calling object
-	ObjRef funRef=executeObj(fCall->getStatement()); // this sets the new calling object
+	ObjRef funRef=executeObj(fCall->getGetFunctionExpression().get()); // this sets the new calling object
 	if(!assertNormalState(fCall))
 		return NULL;
 
@@ -1296,7 +1296,9 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){
 		//! \todo this could probably improved by using iterators internally!
 		const Instruction & instruction = instructions->getInstruction(fcc->getInstructionCursor());
 		fcc->increaseInstructionCursor();
-
+		
+		std::cout << fcc->stack_toDbgString()<<"\n";
+		std::cout << instruction.toString(*instructions)<<"\n";
 		
 		switch(instruction.getType()){
 
@@ -1545,8 +1547,9 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){
 		}
 		}
 		if(getState()==STATE_EXCEPTION){
+			fcc->stack_clear(); // remove current stack content
 			if(fcc->getExceptionHandlerPos()!=Instruction::INVALID_JUMP_ADDRESS){
-				fcc->assignToLocalVariable(2,getResult()); // ___result = exceptionResult
+				fcc->assignToLocalVariable(UserFunction::LOCAL_VAR_INDEX_internalResult,getResult()); // ___result = exceptionResult
 				resetState();
 				fcc->setInstructionCursor(fcc->getExceptionHandlerPos());
 			}else{
@@ -1567,8 +1570,14 @@ Runtime::executeFunctionResult_t Runtime::startFunctionExecution(FunctionCallCon
 		case _TypeIds::TYPE_USER_FUNCTION:{
 			UserFunction * userFunction = static_cast<UserFunction*>(fun.get());
 			_CountedRef<FunctionCallContext> fcc = FunctionCallContext::create(&callingFcc,userFunction);
+			
 			// init Function call context
-			uint32_t i = 2;
+			if(_callingObject.isNotNull())
+				fcc->assignToLocalVariable(UserFunction::LOCAL_VAR_INDEX_this,_callingObject);
+			
+			fcc->assignToLocalVariable(UserFunction::LOCAL_VAR_INDEX_thisFn,fun);
+			
+			uint32_t i = UserFunction::LOCAL_VAR_INDEX_firstParameter;
 			for(ParameterValues::const_iterator it = params.begin(); it!= params.end(); ++it){
 				fcc->assignToLocalVariable(i++,*it);
 			}

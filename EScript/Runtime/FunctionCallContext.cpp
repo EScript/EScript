@@ -50,7 +50,6 @@ void FunctionCallContext::init(FunctionCallContext * _parent,const EPtr<UserFunc
 }
 
 void FunctionCallContext::reset(){
-	caller = NULL;
 	parent = NULL;
 	userFunction = NULL;
 	localVariables.clear();

@@ -34,7 +34,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		};
 		void throwError(error_t error)const;
 				
-		ObjRef caller;
+//		ObjRef caller;
 		_CountedRef<FunctionCallContext> parent;
 		ERef<UserFunction> userFunction;
 		size_t exceptionHandlerPos;
@@ -46,7 +46,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		void init(FunctionCallContext * _parent,const EPtr<UserFunction> & userFunction);
 
 	public:
-		ObjPtr getCaller()const    						{   return caller; }
+		ObjPtr getCaller()const    						{   return localVariables[UserFunction::LOCAL_VAR_INDEX_this]; }
 		FunctionCallContext * getParent()const			{	return parent.get();	}
 		ERef<UserFunction> getUserFunction()const		{	return userFunction;	}
 		
@@ -56,7 +56,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		void setInstructionCursor(const size_t p)		{	instructionCursor = p;	}
 		void increaseInstructionCursor()				{	++instructionCursor;	}
 
-		void setCaller(const ObjPtr & _caller)			{	caller = _caller;	}
+		void setCaller(const ObjPtr & _caller)			{	localVariables[UserFunction::LOCAL_VAR_INDEX_this] = _caller;	}
 
 		const InstructionBlock & getInstructions()const	{	return userFunction->getInstructions();	}
 		InstructionBlock & getInstructions()			{	return userFunction->getInstructions();	}
@@ -116,6 +116,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		std::vector<StackEntry> valueStack;
 			
 	public:
+		void stack_clear() 								{	valueStack.clear();	}
 		void stack_dup() {	
 			StackEntry & entry = stack_top();
 			if(entry.dataType == StackEntry::OBJECT_PTR)

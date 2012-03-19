@@ -3,10 +3,14 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "CompilerContext.h"
+#include "Compiler.h"
 #include <sstream>
 
 namespace EScript{
-
+	
+void CompilerContext::compile(ObjPtr expression){
+	compiler.compileExpression(*this,expression);
+}
 
 uint32_t CompilerContext::getCurrentMarker(setting_t type)const{
 	for(std::vector<SettingsStackEntry>::const_reverse_iterator it=settingsStack.rbegin();it!=settingsStack.rend();++it){

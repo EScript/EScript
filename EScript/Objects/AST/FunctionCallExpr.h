@@ -19,7 +19,7 @@ class FunctionCallExpr : public Object {
 					StringId filename=StringId(), int line=-1);
 		virtual ~FunctionCallExpr() {}
 
-		Object * getStatement()const    				{   return expRef.get();    }
+		ObjPtr getGetFunctionExpression()const    		{   return expRef;    }
 
 		int getLine()const        						{   return lineNumber;  }
 		void setLine(int i)      						{   lineNumber = i;   }
@@ -27,6 +27,7 @@ class FunctionCallExpr : public Object {
 		std::string getFilename()const                  {   return filenameId.toString();    }
 
 		bool isConstructorCall()const					{	return constructorCall; }
+		const std::vector<ObjRef> & getParams()const	{	return parameters; }
 		size_t getNumParams()const						{	return parameters.size(); }
 		Object * getParamExpression(size_t i)const		{	return parameters[i].get();	}
 
@@ -35,8 +36,6 @@ class FunctionCallExpr : public Object {
 		virtual std::string toDbgString()const;
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_FUNCTION_CALL_EXPRESSION; }
 		
-		//! ---|> Statement
-		virtual void _asm(CompilerContext & ctxt);
 	protected:
 		ObjRef expRef;
 		std::vector<ObjRef> parameters;

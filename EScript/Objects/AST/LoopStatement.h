@@ -32,19 +32,20 @@ class LoopStatement : public Object {
 		}
 		
 		virtual ~LoopStatement(){}
-
-
+	
+		const Statement & getInitStatement()const			{		return initStmt;	}
+		ObjPtr getPreConditionExpression()const				{		return preConditionExpression;	}
+		const Statement & getAction()const					{		return action;	}
+		ObjPtr getPostConditionExpression()const			{		return postConditionExpression;	}
+		const Statement & getIncreaseStatement()const		{		return increaseStmt;	}
 
 		//! ---|> Object
-		virtual void _asm(CompilerContext & ctxt);
-		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_LOOP_STATEMENT; }
+		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_LOOP_STATEMENT; }
 
 	private:
-		LoopStatement( const Statement & initStmt,
-						Object * preConditionExpression,
-						const Statement & action,
-						Object * postConditionExpression,
-						const Statement & increaseStmt);
+		LoopStatement( const Statement & _initStmt,	Object * _preConditionExpression, const Statement & _action, Object * _postConditionExpression, const Statement & _increaseStmt) : 
+				initStmt(_initStmt),preConditionExpression(_preConditionExpression),action(_action),postConditionExpression(_postConditionExpression),increaseStmt(_increaseStmt){}
+			
 		Statement initStmt;
 		ObjRef preConditionExpression;
 		Statement action;

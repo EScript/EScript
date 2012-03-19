@@ -16,11 +16,13 @@
 #include <stack>
 
 namespace EScript {
+class Compiler;
 
 /*! Collection of "things" used during the compilation process.
 	As the compilation process is currently under development, it is not clear how this class changes 
 	in the near future.	*/
 class CompilerContext {
+		Compiler & compiler;
 		InstructionBlock & instructions;
 
 		typedef std::map<StringId,size_t> nameToIndexMapping_t;
@@ -53,8 +55,8 @@ class CompilerContext {
 		
 
 	public:
-		CompilerContext(InstructionBlock & _instructions) : 
-				instructions(_instructions),currentLine(-1),currentMarkerId(Instruction::JMP_TO_MARKER_OFFSET){}
+		CompilerContext(Compiler & _compiler,InstructionBlock & _instructions) : 
+				compiler(_compiler),instructions(_instructions),currentLine(-1),currentMarkerId(Instruction::JMP_TO_MARKER_OFFSET){}
 		
 		void addInstruction(const Instruction & newInstruction)			{	instructions.addInstruction(newInstruction,currentLine);	}
 
@@ -63,6 +65,7 @@ class CompilerContext {
 			Iff no entry of the given type is found on the stack, false is returned.	*/
 		bool collectLocalVariables(setting_t entryType,std::vector<size_t> & variableIndices);
 		
+		void compile(ObjPtr expression);
 		
 		uint32_t createMarker()											{	return currentMarkerId++;	}
 		uint32_t declareString(const std::string & str)					{	return instructions.declareString(str);	}

@@ -315,15 +315,4 @@ bool Object::setAttribute(const StringId /*id*/,const Attribute & /*val*/){
 }
 
 // -----------------------------------------------------------------------------------------------
-
-void Object::_asm(CompilerContext & ctxt){
-	Compiler c;
-	c.compileExpression(ctxt,this);
-//	std::ostringstream & out = ctxt.out;
-//	out << toString();
-}
-
-//void Object::tmp_toByteCode(ostream &s){
-//	s<<"\"Obj:"<<toString()<<"\"";
-//}
 }

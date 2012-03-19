@@ -20,7 +20,6 @@ class Runtime;
 class Namespace;
 class Type;
 class ObjectReleaseHandler;
-class CompilerContext;
 
 /*! [Object]    */
 class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
@@ -84,10 +83,6 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 			This makes only sense for reference objects like NumberRef.
 			---o	*/
 		virtual void _assignValue(ObjPtr value);
-
-
-		//! ---o EXPERIMENTAL !!!!!
-		virtual void _asm(CompilerContext & ctxt);
 
 	//	@}
 

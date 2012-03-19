@@ -33,7 +33,7 @@ Statement::~Statement() {
 
 
 //! ---o EXPERIMENTAL !!!!!
-void Statement::_asm(CompilerContext & ctxt){
+void Statement::_asm(CompilerContext & ctxt)const{
 	if(type == TYPE_CONTINUE){
 		const uint32_t target = ctxt.getCurrentMarker(CompilerContext::CONTINUE_MARKER);
 		if(target==Instruction::INVALID_JUMP_ADDRESS){
@@ -60,7 +60,7 @@ void Statement::_asm(CompilerContext & ctxt){
 		
 	}else if(expression.isNotNull()){
 		ctxt.setLine(line);
-		expression->_asm(ctxt);
+		ctxt.compile(expression);
 		if(type == TYPE_EXPRESSION)
 			ctxt.addInstruction(Instruction::createPop());
 	}

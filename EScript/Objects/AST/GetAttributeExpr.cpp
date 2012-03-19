@@ -35,18 +35,3 @@ std::string GetAttributeExpr::toString()const {
 	return s;
 }
 
-//! ---|> Statement
-void GetAttributeExpr::_asm(CompilerContext & ctxt){
-	if(objRef.isNotNull()){
-		objRef->_asm(ctxt);
-		ctxt.addInstruction(Instruction::createGetAttribute(attrId));
-	}else{
-		const int localVarIndex = ctxt.getCurrentVarIndex(attrId);
-		if(localVarIndex>=0){
-			ctxt.addInstruction(Instruction::createGetLocalVariable(localVarIndex));
-		}else{
-			ctxt.addInstruction(Instruction::createGetVariable(attrId));
-		}
-	}
-
-}

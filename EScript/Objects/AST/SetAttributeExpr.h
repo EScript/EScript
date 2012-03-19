@@ -22,10 +22,11 @@ class SetAttributeExpr : public Object {
 		virtual ~SetAttributeExpr();
 
 		StringId getAttrId()const   					{   return attrId;  }
-		Object * getObjectExpression()const				{   return objExpr.get();    }
-		Attribute::flag_t getAttributeProperties()const  	{   return attrFlags;    }
-		Object * getValueExpression()const 		 		{   return valueExpr.get();    }
+		ObjPtr getObjectExpression()const				{   return objExpr;   }
+		Attribute::flag_t getAttributeProperties()const {   return attrFlags;    }
+		ObjPtr getValueExpression()const 		 		{   return valueExpr;    }
 		std::string getAttrName()const					{   return attrId.toString();    }
+		bool isAssignment()const						{   return assign;    }
 
 		int getLine()const								{	return line;	}
 
@@ -33,8 +34,6 @@ class SetAttributeExpr : public Object {
 		virtual std::string toString()const;
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_SET_ATTRIBUTE_EXPRESSION; }
 
-		//! ---|> Object
-		virtual void _asm(CompilerContext & ctxt);
 	private:
 		friend class EScript::Runtime;
 		ObjRef objExpr;

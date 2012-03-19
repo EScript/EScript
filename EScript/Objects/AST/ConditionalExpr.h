@@ -14,19 +14,17 @@ namespace AST {
 class ConditionalExpr : public Object {
 		ES_PROVIDES_TYPE_NAME(ConditionalExpr)
 	public:
-		explicit ConditionalExpr( ObjPtr _condition=NULL, ObjPtr _action=NULL,ObjPtr _elseAction=NULL);
-		virtual ~ConditionalExpr();
+		explicit ConditionalExpr( ObjPtr _condition=NULL, ObjPtr _action=NULL,ObjPtr _elseAction=NULL) :
+				condition(_condition),action(_action),elseAction(_elseAction) {}
+		virtual ~ConditionalExpr() {}
 
-		Object * getCondition()const	{	return condition.get();	}
-		Object * getAction()const		{	return action.get();	}
-		Object * getElseAction()const	{	return elseAction.get();	}
+		ObjPtr getCondition()const	{	return condition;	}
+		ObjPtr getAction()const		{	return action;	}
+		ObjPtr getElseAction()const	{	return elseAction;	}
 
 		/// ---|> [Object]
-		virtual std::string toString()const ;
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_CONDITIONAL_EXPRESSION; }
 		
-		//! ---|> Object
-		virtual void _asm(CompilerContext & ctxt);
 	private:
 		ObjRef condition;
 		ObjRef action;

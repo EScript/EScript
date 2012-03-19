@@ -16,18 +16,17 @@ class ForeachStatement : public Object {
 		ES_PROVIDES_TYPE_NAME(ForeachStatement)
 	public:
 
-		ForeachStatement( Object * collectionExpression,
-						const StringId keyId,
-						const StringId valueId,
-						const Statement & action );
+		ForeachStatement( Object * _collectionExpression,
+						const StringId _keyId,
+						const StringId _valueId,
+						const Statement & _action ) : 
+				collectionExpression(_collectionExpression),keyName(_keyId),valueName(_valueId),action(_action){}
 						
 		virtual ~ForeachStatement(){}
 
-
-
 		//! ---|> Object
-		virtual void _asm(CompilerContext & ctxt);
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_FOREACH_STATEMENT; }
+		
 	private:
 
 		ObjRef collectionExpression;

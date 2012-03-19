@@ -27,7 +27,7 @@ class Compiler {
 	public:
 		Compiler(){}
 	
-		void compileExpression(CompilerContext & ctxt,Object * expression)const;
+		void compileExpression(CompilerContext & ctxt,ObjPtr expression)const;
 };
 }
 

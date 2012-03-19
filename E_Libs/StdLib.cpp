@@ -5,6 +5,7 @@
 #include "StdLib.h"
 
 #include "../EScript/EScript.h"
+#include "../EScript/Parser/Compiler.h"
 #include "../EScript/Parser/Parser.h"
 #include "../EScript/Parser/CompilerContext.h"
 #include "../EScript/Utils/IO/IO.h"
@@ -302,8 +303,9 @@ void StdLib::init(EScript::Namespace * globals) {
 		}
 		
 		// 2. compile
-		CompilerContext ctxt(fun->getInstructions());
-		fun->_asm(ctxt);
+		Compiler c;
+		CompilerContext ctxt(c,fun->getInstructions());
+		ctxt.compile(fun.get());
 		
 		return fun.detachAndDecrease();
 	})
