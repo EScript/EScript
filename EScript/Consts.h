@@ -9,7 +9,7 @@
 
 namespace EScript{
 
-/*! Common identifiers */
+/*! Common identifiers and other numerical constants*/
 //	@{
 struct Consts{
 	static const StringId IDENTIFIER_attr_printableName;
@@ -60,6 +60,11 @@ struct Consts{
 	static const StringId PROPERTY_ATTR_type;
 
 	static const StringId PROPERTY_FN_super;
+	
+	static const size_t LOCAL_VAR_INDEX_this = 0; // $0
+	static const size_t LOCAL_VAR_INDEX_thisFn = 1;// $1
+	static const size_t LOCAL_VAR_INDEX_internalResult = 2; // $2
+	static const size_t LOCAL_VAR_INDEX_firstParameter = 3; // $3
 };
 //	@}
 

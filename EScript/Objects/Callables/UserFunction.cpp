@@ -101,9 +101,6 @@ UserFunction::~UserFunction() {
 }
 
 void UserFunction::initInstructions(){
-	instructions.declareLocalVariable(Consts::IDENTIFIER_this); // $0 : LOCAL_VAR_INDEX_this
-	instructions.declareLocalVariable(Consts::IDENTIFIER_thisFn); // $1 : LOCAL_VAR_INDEX_thisFn
-	instructions.declareLocalVariable(Consts::IDENTIFIER_internalResult); // $2 : LOCAL_VAR_INDEX_internalResult
 	for(parameterList_t::const_iterator it = params->begin();it!=params->end();++it){
 		instructions.declareLocalVariable( (**it).getName() );
 	}

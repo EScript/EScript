@@ -4,10 +4,17 @@
 // ------------------------------------------------------
 #include "InstructionBlock.h"
 #include "../Objects/Callables/UserFunction.h"
+#include "../Consts.h"
 #include <sstream>
 
 namespace EScript{
 
+InstructionBlock::InstructionBlock() {
+	// Magic local variables
+	declareLocalVariable(Consts::IDENTIFIER_this); // $0 : Consts::LOCAL_VAR_INDEX_this
+	declareLocalVariable(Consts::IDENTIFIER_thisFn); // $1 : Consts::LOCAL_VAR_INDEX_thisFn
+	declareLocalVariable(Consts::IDENTIFIER_internalResult); // $2 : Consts::LOCAL_VAR_INDEX_internalResult
+}
 
 StringId InstructionBlock::getLocalVarName(const int index)const{
 	if(index <0 || index>=static_cast<int>(localVariables.size()))

@@ -68,11 +68,6 @@ class UserFunction : public ExtObject {
 
 	/*! @name Main */
 	//	@{
-		static const size_t LOCAL_VAR_INDEX_this = 0; // $0
-		static const size_t LOCAL_VAR_INDEX_thisFn = 1;// $1
-		static const size_t LOCAL_VAR_INDEX_internalResult = 2; // $2
-		static const size_t LOCAL_VAR_INDEX_firstParameter = 3; // $3
-	
 		UserFunction(parameterList_t * params,AST::BlockStatement * block);
 		UserFunction(parameterList_t * params,AST::BlockStatement * block,const std::vector<ObjRef> & _sConstrExpressions);
 		virtual ~UserFunction();

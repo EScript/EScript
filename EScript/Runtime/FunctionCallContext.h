@@ -8,6 +8,7 @@
 #include "../Objects/Callables/UserFunction.h"
 #include "../Utils/EReferenceCounter.h"
 #include "../Utils/ObjRef.h"
+#include "../Consts.h"
 
 #include <stack>
 
@@ -46,7 +47,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		void init(FunctionCallContext * _parent,const EPtr<UserFunction> & userFunction);
 
 	public:
-		ObjPtr getCaller()const    						{   return localVariables[UserFunction::LOCAL_VAR_INDEX_this]; }
+		ObjPtr getCaller()const    						{   return localVariables[Consts::LOCAL_VAR_INDEX_this]; }
 		FunctionCallContext * getParent()const			{	return parent.get();	}
 		ERef<UserFunction> getUserFunction()const		{	return userFunction;	}
 		
@@ -56,7 +57,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		void setInstructionCursor(const size_t p)		{	instructionCursor = p;	}
 		void increaseInstructionCursor()				{	++instructionCursor;	}
 
-		void setCaller(const ObjPtr & _caller)			{	localVariables[UserFunction::LOCAL_VAR_INDEX_this] = _caller;	}
+		void setCaller(const ObjPtr & _caller)			{	localVariables[Consts::LOCAL_VAR_INDEX_this] = _caller;	}
 
 		const InstructionBlock & getInstructions()const	{	return userFunction->getInstructions();	}
 		InstructionBlock & getInstructions()			{	return userFunction->getInstructions();	}

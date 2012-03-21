@@ -25,7 +25,7 @@ class InstructionBlock {
 	public:
 		
 
-		InstructionBlock() {}
+		InstructionBlock();
 		
 		void addInstruction(const Instruction & newInstruction)	{	instructions.push_back(newInstruction);	}
 		void addInstruction(const Instruction & newInstruction,int line)	{	

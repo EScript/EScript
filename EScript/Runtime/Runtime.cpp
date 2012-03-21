@@ -1549,7 +1549,7 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){
 		if(getState()==STATE_EXCEPTION){
 			fcc->stack_clear(); // remove current stack content
 			if(fcc->getExceptionHandlerPos()!=Instruction::INVALID_JUMP_ADDRESS){
-				fcc->assignToLocalVariable(UserFunction::LOCAL_VAR_INDEX_internalResult,getResult()); // ___result = exceptionResult
+				fcc->assignToLocalVariable(Consts::LOCAL_VAR_INDEX_internalResult,getResult()); // ___result = exceptionResult
 				resetState();
 				fcc->setInstructionCursor(fcc->getExceptionHandlerPos());
 			}else{
@@ -1573,11 +1573,11 @@ Runtime::executeFunctionResult_t Runtime::startFunctionExecution(FunctionCallCon
 			
 			// init Function call context
 			if(_callingObject.isNotNull())
-				fcc->assignToLocalVariable(UserFunction::LOCAL_VAR_INDEX_this,_callingObject);
+				fcc->assignToLocalVariable(Consts::LOCAL_VAR_INDEX_this,_callingObject);
 			
-			fcc->assignToLocalVariable(UserFunction::LOCAL_VAR_INDEX_thisFn,fun);
+			fcc->assignToLocalVariable(Consts::LOCAL_VAR_INDEX_thisFn,fun);
 			
-			uint32_t i = UserFunction::LOCAL_VAR_INDEX_firstParameter;
+			uint32_t i = Consts::LOCAL_VAR_INDEX_firstParameter;
 			for(ParameterValues::const_iterator it = params.begin(); it!= params.end(); ++it){
 				fcc->assignToLocalVariable(i++,*it);
 			}
