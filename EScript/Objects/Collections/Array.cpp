@@ -105,6 +105,19 @@ void Array::init(EScript::Namespace & globals) {
 	//! [ESMF] self Array.removeValue(value [,limit [,begin]] )
 	ESMF_DECLARE(typeObject,Array,"removeValue",1,3,(self->rt_removeValue(runtime,parameter[0],parameter[1].toInt(-1),parameter[2].toInt(0)),self))
 
+	//! [ESMF] self Array.resize(Number[, Object fillValue] )
+	ES_MFUNCTION_DECLARE(typeObject,Array,"resize",1,2,{
+		const size_t oldSize = self->size();
+		const size_t newSize = static_cast<size_t>(parameter[0].toUInt());
+		self->resize(newSize);
+		if(parameter.count()>1){
+			for(size_t i=oldSize;i<newSize;++i){
+				self->at(i) = parameter[1]->getRefOrCopy();
+			}
+		}
+		return self;
+	})
+	
 	//! [ESMF] self Array.reverse()
 	ESMF_DECLARE(typeObject,Array,"reverse",0,0,(self->reverse(),self))
 
