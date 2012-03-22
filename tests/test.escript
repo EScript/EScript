@@ -12,7 +12,7 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 //	out(clock()-start,"\n");
 //}
 //{
-//	var fun = _parse2( "for(var i=0;i<1000000;++i){		var b = i+1;	}");
+//	var fun = _compile( "for(var i=0;i<1000000;++i){		var b = i+1;	}");
 //	var start = clock();
 //	
 //	{
@@ -67,7 +67,7 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 	
 	foreach(expressions as var expression ){
 		out("\n","-"*30,"\n[",expression,"]\n");
-		var fun = _parse2( expression);
+		var fun = _compile( expression);
 		out( fun._asm() );
 		out( fun._doCall() );
 	

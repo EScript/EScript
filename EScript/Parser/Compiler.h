@@ -5,19 +5,16 @@
 #ifndef ES_COMPILER_H
 #define ES_COMPILER_H
 
+#include "../Utils/Logger.h"
 #include "../Utils/StringId.h"
+#include "../Utils/StringData.h"
 #include "../Instructions/Instruction.h"
 #include "../Instructions/InstructionBlock.h"
-#include <map>
-#include <set>
-#include <string>
-#include <vector>
-#include <sstream>
-#include <stack>
 
 namespace EScript {
 	
 class CompilerContext;
+class Logger;
 
 /*! Compiler
 	Input: Syntax tree made of Expressions
@@ -25,9 +22,23 @@ class CompilerContext;
 
 class Compiler {
 	public:
-		Compiler(){}
+		Compiler(Logger * _logger = NULL);
 	
 		void compileExpression(CompilerContext & ctxt,ObjPtr expression)const;
+		
+		UserFunction * compile(const StringData & code);
+	
+	// -------------
+		
+	//! @name Logging
+	//	@{
+	public:
+		Logger * getLogger()const				{	return logger.get();	}
+	private:
+		void log(CompilerContext & ctxt,Logger::level_t messageLevel, const std::string & msg)const;
+		_CountedRef<Logger> logger;
+	//	@}
+
 };
 }
 

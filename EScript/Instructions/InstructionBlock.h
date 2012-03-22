@@ -23,8 +23,6 @@ class InstructionBlock {
 		std::vector<ObjRef > internalFunctions; //! UserFunction
 		// flags...
 	public:
-		
-
 		InstructionBlock();
 		
 		void addInstruction(const Instruction & newInstruction)	{	instructions.push_back(newInstruction);	}

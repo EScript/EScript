@@ -283,39 +283,19 @@ void StdLib::init(EScript::Namespace * globals) {
 		}
 		return block.detachAndDecrease();
 	})
-	//!	[ESF]  BlockStatement _parse2(string) 
-	ES_FUNCTION_DECLARE(globals,"_parse2",1,1, {
+	//!	[ESF]  BlockStatement _compile(string) 
+	ES_FUNCTION_DECLARE(globals,"_compile",1,1, {
 		assertParamCount(runtime,parameter.count(),1,1);
 		
-		// 1. parse
-		ERef<AST::BlockStatement> block(new AST::BlockStatement);
-		static const StringId inline_id("[inline]");
-		block->setFilename(inline_id);
-		ERef<UserFunction> fun = new UserFunction(new UserFunction::parameterList_t,block.get());
-		
+		Compiler c(runtime.getLogger());
 		try{
-			Parser p(runtime.getLogger());
-			p._produceBytecode = true;
-			p.parse(block.get(),StringData(parameter[0]->toString()));
+			return c.compile( StringData(parameter[0]->toString()) );
 		}catch(Exception * e){
 			runtime.setException(e); // adds stack info
 			return NULL;
 		}
-		
-		// 2. compile
-		Compiler c;
-		CompilerContext ctxt(c,fun->getInstructions());
-		ctxt.compile(fun.get());
-		
-		return fun.detachAndDecrease();
+
 	})
-
-
-	
-
-		
-//		return String::create(ctxt.out.str() + "\n-----\n" + ctxt.getInstructionsAsString());
-
 
 	//! [ESF]  obj parseJSON(string)
 	ESF_DECLARE(globals,"parseJSON",1,1,JSON::parseJSON(parameter[0].toString()))

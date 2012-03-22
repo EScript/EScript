@@ -3,6 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Compiler.h"
+#include "Parser.h"
 #include "CompilerContext.h"
 #include "../Objects/typeIds.h"
 #include "../Objects/AST/BlockStatement.h"
@@ -21,6 +22,7 @@
 #include "../Objects/Values/Number.h"
 #include "../Objects/Values/String.h"
 #include "../Objects/Values/Void.h"
+
 #include <stdexcept>
 #include <map>
 
@@ -39,6 +41,12 @@ static bool initHandler(handlerRegistry_t &);
 static handlerRegistry_t handlerRegistry;
 static bool _handlerInitialized UNUSED_ATTRIBUTE = initHandler(handlerRegistry);
 
+
+//! (ctor)
+Compiler::Compiler(Logger * _logger) : logger(_logger ? _logger : new StdLogger(std::cout)) {
+}
+
+
 void Compiler::compileExpression(CompilerContext & ctxt,ObjPtr expression)const{
 	if(expression.isNull())
 		return;
@@ -52,6 +60,37 @@ void Compiler::compileExpression(CompilerContext & ctxt,ObjPtr expression)const{
 	(*it->second)(ctxt,expression);
 }
 
+
+void Compiler::log(CompilerContext & ctxt,Logger::level_t messageLevel, const std::string & msg)const{
+	std::ostringstream os;
+	os << "[Compiler] " << msg ;
+//	<< " (" << getCurrentFilename();
+//	if(token!=NULL)
+//		os << ':' << token->getLine();
+//	os << ").";
+	logger->log(messageLevel,os.str());
+}
+
+UserFunction * Compiler::compile(const StringData & code){
+	static const StringId inline_id("[inline]");
+
+	// prepare container function
+	ERef<AST::BlockStatement> block(new AST::BlockStatement);
+	block->setFilename(inline_id);
+	ERef<UserFunction> fun = new UserFunction(new UserFunction::parameterList_t,block.get());
+	fun->setCodeString(String::create(code),0,code.str().length());
+	
+	// parse and build syntax tree
+	Parser p(getLogger());
+	p._produceBytecode = true;
+	p.parse(block.get(),code);
+	
+	// compile and create instructions
+	CompilerContext ctxt(*this,fun->getInstructions());
+	ctxt.compile(fun.get());
+	
+	return fun.detachAndDecrease();
+}
 
 // ------------------------------------------------------------------
 
