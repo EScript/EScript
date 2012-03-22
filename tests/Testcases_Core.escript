@@ -479,7 +479,7 @@ var FAILED="\t failed\n";
 			&& [ 'a','b','c','d' ].slice(4) == [] // starting from #4
 			&& [ 'a','b','c','d' ].slice(-3) == ['b','c','d'] // starting 3 elements back from the end
 			&& [ 'a','b','c','d' ].slice(-10,1) == ['a'] // starting 10 elements back from the end (clamped to 0), with length 1
-
+			&& [1,2,3].resize(1,"foo") == [1] && [].resize(2) == [void,void] && [1,2].resize(4,"bar") == [1,2,"bar","bar"]
 			,Array);
 
 }
