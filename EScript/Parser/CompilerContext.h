@@ -82,9 +82,7 @@ class CompilerContext {
 		size_t getNumLocalVars()const									{	return instructions.getNumLocalVars();	}
 		std::string getStringConstant(const uint32_t index)const		{	return instructions.getStringConstant(index);	}
 
-		
-		bool isCurrentInstructionBlock( const InstructionBlock & i2 )const	{	return &i2==&instructions;	}
-	
+
 		//! Add the local variables which are already defined in the instructionBlock (e.g. 'this' or the parameters), to the set of visible variables.
 		void pushSetting_basicLocalVars();
 

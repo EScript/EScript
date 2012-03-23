@@ -1463,6 +1463,15 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 		case Instruction::I_JMP:{
 			fcc->setInstructionCursor( instruction.getValue_uint32() );
 			continue;
+		}		
+		case Instruction::I_JMP_IF_SET:{
+			/* 	jmpIfSet (uint32) targetAddress
+				-------------
+				pop (uint32) local variable index
+				jmp if variable != NULL */
+			if( fcc->getLocalVariable( fcc->stack_popUInt32() ).isNotNull() )
+				fcc->setInstructionCursor( instruction.getValue_uint32() );
+			continue;
 		}
 		case Instruction::I_JMP_ON_TRUE:{
 			if(fcc->stack_popBool())

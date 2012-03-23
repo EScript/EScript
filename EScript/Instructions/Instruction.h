@@ -20,26 +20,27 @@ class Instruction {
 		enum type_t{
 			I_UNDEFINED,
 			I_ASSIGN_ATTRIBUTE,
-			I_ASSIGN_LOCAL,
+			I_ASSIGN_LOCAL,					// -1
 			I_ASSIGN_VARIABLE,
-			I_CALL,
-			I_DUP,
+			I_CALL,							// -2+x +1
+			I_DUP,							// +1
 			I_FIND_VARIABLE,
 			I_GET_ATTRIBUTE,
 			I_GET_VARIABLE,
 			I_GET_LOCAL_VARIABLE,
-			I_JMP,
-			I_JMP_ON_TRUE,
-			I_JMP_ON_FALSE,
-			I_NOT,
-			I_POP,
-			I_PUSH_BOOL,
-			I_PUSH_ID,
-			I_PUSH_FUNCTION,
-			I_PUSH_NUMBER,
-			I_PUSH_STRING,
-			I_PUSH_UINT,
-			I_PUSH_VOID,
+			I_JMP,							// +-0
+			I_JMP_IF_SET,					// -1
+			I_JMP_ON_TRUE,					// -1
+			I_JMP_ON_FALSE,					// -1
+			I_NOT,							// -1 +1
+			I_POP,							// -1
+			I_PUSH_BOOL,					// +1
+			I_PUSH_ID,						// +1
+			I_PUSH_FUNCTION,				// +1
+			I_PUSH_NUMBER,					// +1
+			I_PUSH_STRING,					// +1
+			I_PUSH_UINT,					// +1
+			I_PUSH_VOID,					// +1
 			I_RESET_LOCAL_VARIABLE,
 			I_SET_ATTRIBUTE,
 			I_SET_EXCEPTION_HANDLER,
@@ -74,6 +75,7 @@ class Instruction {
 		static Instruction createGetLocalVariable(const uint32_t localVarIdx);
 		static Instruction createGetVariable(const StringId id);
 		static Instruction createJmp(const uint32_t markerId);
+		static Instruction createJmpIfSet(const uint32_t markerId);
 		static Instruction createJmpOnTrue(const uint32_t markerId);
 		static Instruction createJmpOnFalse(const uint32_t markerId);
 		static Instruction createNot();

@@ -74,6 +74,12 @@ Instruction Instruction::createJmp(const uint32_t markerId){
 }
 
 //! (static)
+Instruction Instruction::createJmpIfSet(const uint32_t markerId){
+	Instruction i(I_JMP_IF_SET);
+	i.setValue_uint32(markerId);
+	return i;
+}
+//! (static)
 Instruction Instruction::createJmpOnTrue(const uint32_t markerId){
 	Instruction i(I_JMP_ON_TRUE);
 	i.setValue_uint32(markerId);
@@ -217,6 +223,14 @@ std::string Instruction::toString(const InstructionBlock & ctxt)const{
 			out << "MARKER_" << getValue_uint32()-JMP_TO_MARKER_OFFSET<< ":";
 		break;
 	}
+	case I_JMP_IF_SET:{
+		out << "jmpIfSet ";
+		if( getValue_uint32()<JMP_TO_MARKER_OFFSET) 
+			out << "-> "<<getValue_uint32();
+		else 
+			out << "MARKER_" << getValue_uint32()-JMP_TO_MARKER_OFFSET<< ":";
+		break;
+	}	
 	case I_JMP_ON_TRUE:{
 		out << "jmpOnTrue ";
 		if( getValue_uint32()<JMP_TO_MARKER_OFFSET) 

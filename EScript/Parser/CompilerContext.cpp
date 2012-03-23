@@ -102,6 +102,7 @@ void CompilerContext::finalizeInstructions( InstructionBlock & instructionBlock 
 		{ // pass 2: adapt jump instructions
 			for(std::vector<Instruction>::iterator it=instructions.begin();it!=instructions.end();++it){
 				if( it->getType() == Instruction::I_JMP 
+						|| it->getType() == Instruction::I_JMP_IF_SET 
 						|| it->getType() == Instruction::I_JMP_ON_TRUE 
 						|| it->getType() == Instruction::I_JMP_ON_FALSE
 						|| it->getType() == Instruction::I_SET_EXCEPTION_HANDLER){

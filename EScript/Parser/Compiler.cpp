@@ -443,19 +443,42 @@ bool initHandler(handlerRegistry_t & m){
 		ERef<UserFunction> fun = new UserFunction(new UserFunction::parameterList_t,new AST::BlockStatement); // dummy parameters
 		//! \todo set code string
 //		fun->setCodeString(String::create(code),0,code.str().length());
-	
+
+		CompilerContext ctxt2(ctxt.getCompiler(),fun->getInstructions());
+
 		// declare a local variables for each parameter expression
 		for(UserFunctionExpr::parameterList_t::const_iterator it = self->getParamList().begin();it!=self->getParamList().end();++it){
 			fun->getInstructions().declareLocalVariable( it->getName() );
 		}
-
-		CompilerContext ctxt2(ctxt.getCompiler(),fun->getInstructions());
+		
 		ctxt2.pushSetting_basicLocalVars(); // make 'this' and parameters available
+
+		// default parameters
+		for(UserFunctionExpr::parameterList_t::const_iterator it = self->getParamList().begin();it!=self->getParamList().end();++it){
+			const UserFunctionExpr::Parameter & param = *it;
+			ObjPtr defaultExpr = param.getDefaultValueExpression();
+			if(defaultExpr.isNotNull()){
+				const int varIdx = ctxt2.getCurrentVarIndex(param.getName()); // \todo assert(varIdx>=0)
+//			
+				const uint32_t parameterAvailableMarker = ctxt2.createMarker();
+				ctxt2.addInstruction(Instruction::createPushUInt(varIdx));
+				ctxt2.addInstruction(Instruction::createJmpIfSet(parameterAvailableMarker));
+				
+//					ctxt2.enableGlobalVarContext();				// \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+				ctxt2.compile(defaultExpr);
+//					ctxt2.disableGlobalVarContext();			// \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+				ctxt2.addInstruction(Instruction::createAssignLocal(varIdx));
+				
+				ctxt2.addInstruction(Instruction::createSetMarker(parameterAvailableMarker));
+//				
+			}
+			
+		}
+	
 		ctxt2.compile(self->getBlock());
 		ctxt2.popSetting();
 		CompilerContext::finalizeInstructions(fun->getInstructions());
-		
-		
+				
 		ctxt.addInstruction(Instruction::createPushFunction(ctxt.registerInternalFunction(fun.get()))); 
 
 	})

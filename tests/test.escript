@@ -32,7 +32,10 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 //		"var f = fn(b){ var a=2; out('KatzE '*(a*b));}; f(3);",
 
 //		"var b=17;var a=7+b; out(a);",
-		"var f = fn(a){ out(a);}; f( 3*3 );",
+//		"var f = fn(a){ out(a);}; f( 3*3 );",
+//		"var f = fn(a,b=2){ out(a*b);}; f( 3 );",
+//		"var f = fn(a,b=2+a){ out(a*b);}; f( 3 );",
+		"var f = fn(a=1,b=2,c=3){ out(a+b+c);}; f(  );",
 //		"27+17;",
 //		"out('Hello HasE!');",
 ////		"for(var i=0;i<10;++i){	out('foo',i,'\n'); }",
