@@ -31,6 +31,7 @@ struct _TypeIds{
 	static const internalTypeId_t TYPE_SET_ATTRIBUTE_EXPRESSION	= 0x28;
 	static const internalTypeId_t TYPE_STATEMENT				= 0x29;
 	static const internalTypeId_t TYPE_TRY_CATCH_STATEMENT		= 0x2a;
+	static const internalTypeId_t TYPE_USER_FUNCTION_EXPRESSION	= 0x2b;
 
 	// 0x30 >= various objects
 	static const internalTypeId_t TYPE_FUNCTION 		= 0x30;

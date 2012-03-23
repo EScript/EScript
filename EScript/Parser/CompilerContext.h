@@ -70,6 +70,7 @@ class CompilerContext {
 		uint32_t createMarker()											{	return currentMarkerId++;	}
 		uint32_t declareString(const std::string & str)					{	return instructions.declareString(str);	}
 
+		Compiler & getCompiler()										{	return compiler;	}
 		//! if the setting is not defined, Instruction::INVALID_JUMP_ADDRESS is returned.
 		uint32_t getCurrentMarker(setting_t markerType)const;
 		

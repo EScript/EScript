@@ -32,6 +32,7 @@ set(ESCRIPT_SOURCES
 	EScript/Objects/AST/GetAttributeExpr.cpp
 	EScript/Objects/AST/SetAttributeExpr.cpp
 	EScript/Objects/AST/Statement.cpp
+	EScript/Objects/AST/UserFunctionExpr.cpp
 	EScript/Objects/Namespace.cpp
 	EScript/Objects/Object.cpp
 	EScript/Objects/Type.cpp

@@ -11,6 +11,7 @@
 #include "../Objects/Exception.h"
 #include "../Objects/Values/String.h"
 #include "../Objects/Callables/UserFunction.h"
+#include "../Objects/AST/UserFunctionExpr.h"
 #include "../Utils/Logger.h"
 
 #include <vector>
@@ -84,7 +85,8 @@ class Parser : public Object {
 		AST::BlockStatement * getBlock(ParsingContext & ctxt,int & cursor)const ;
 		Object * getMap(ParsingContext & ctxt,int & cursor)const;
 		Object * getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const;
-		UserFunction::parameterList_t * getFunctionParameters(ParsingContext & ctxt,int & cursor)const;
+		UserFunction::parameterList_t * getFunctionParameters(ParsingContext & ctxt,int & cursor)const; //! \todo old!
+		void readFunctionParameters(UserFunctionExpr::parameterList_t & params,ParsingContext & ctxt,int & cursor)const;
 		void getExpressionsInBrackets(ParsingContext & ctxt,int & cursor,std::vector<ObjRef> & expressions)const;
 
 		typedef std::vector<std::pair<StringId,int> > properties_t; //  (property's id, position of option bracket or -1)*

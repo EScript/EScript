@@ -18,7 +18,7 @@ using namespace EScript;
 std::stack<FunctionCallContext *> FunctionCallContext::pool;
 
 //! (static) Factory
-FunctionCallContext * FunctionCallContext::create(FunctionCallContext * _parent,const EPtr<UserFunction> & userFunction){
+FunctionCallContext * FunctionCallContext::create(FunctionCallContext * _parent,const EPtr<UserFunction> userFunction,const ObjPtr _caller){
 	FunctionCallContext * fcc=NULL;
 	if(pool.empty()){
 		fcc=new FunctionCallContext();
@@ -27,7 +27,7 @@ FunctionCallContext * FunctionCallContext::create(FunctionCallContext * _parent,
 		pool.pop();
 	}
 //	assert(userFunction.isNotNull()); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	fcc->init(_parent,userFunction);
+	fcc->init(_parent,userFunction,_caller);
 	return fcc;
 }
 
@@ -39,7 +39,8 @@ void FunctionCallContext::release(FunctionCallContext *fcc){
 
 // -------------------------------------------------------------------------
 
-void FunctionCallContext::init(FunctionCallContext * _parent,const EPtr<UserFunction> & _userFunction){
+void FunctionCallContext::init(FunctionCallContext * _parent,const EPtr<UserFunction> _userFunction,const ObjPtr _caller){
+	caller = _caller;
 	parent = _parent;
 	userFunction = _userFunction;
 	instructionCursor = 0;

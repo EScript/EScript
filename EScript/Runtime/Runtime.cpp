@@ -1273,10 +1273,10 @@ std::string Runtime::getStackInfo(){
 
 
 // ------------------------------------------------------------------
-Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){
+Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \todo caller!
 	
 	
-	_CountedRef<FunctionCallContext> fcc = FunctionCallContext::create(NULL,userFunction);
+	_CountedRef<FunctionCallContext> fcc = FunctionCallContext::create(NULL,userFunction,NULL); //! \todo caller!
 	InstructionBlock * instructions = &fcc->getInstructions();
 
 	while( true ){
@@ -1569,12 +1569,9 @@ Runtime::executeFunctionResult_t Runtime::startFunctionExecution(FunctionCallCon
 	switch( fun->_getInternalTypeId() ){
 		case _TypeIds::TYPE_USER_FUNCTION:{
 			UserFunction * userFunction = static_cast<UserFunction*>(fun.get());
-			_CountedRef<FunctionCallContext> fcc = FunctionCallContext::create(&callingFcc,userFunction);
+			_CountedRef<FunctionCallContext> fcc = FunctionCallContext::create(&callingFcc,userFunction,_callingObject);
 			
-			// init Function call context
-			if(_callingObject.isNotNull())
-				fcc->assignToLocalVariable(Consts::LOCAL_VAR_INDEX_this,_callingObject);
-			
+			// init $thisFn
 			fcc->assignToLocalVariable(Consts::LOCAL_VAR_INDEX_thisFn,fun);
 			
 			uint32_t i = Consts::LOCAL_VAR_INDEX_firstParameter;

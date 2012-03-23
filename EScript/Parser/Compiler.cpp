@@ -17,6 +17,7 @@
 #include "../Objects/AST/SetAttributeExpr.h"
 #include "../Objects/AST/Statement.h"
 #include "../Objects/AST/TryCatchStatement.h"
+#include "../Objects/AST/UserFunctionExpr.h"
 #include "../Objects/Callables/UserFunction.h"
 #include "../Objects/Values/Bool.h"
 #include "../Objects/Values/Number.h"
@@ -75,19 +76,22 @@ UserFunction * Compiler::compile(const StringData & code){
 	static const StringId inline_id("[inline]");
 
 	// prepare container function
-	ERef<AST::BlockStatement> block(new AST::BlockStatement);
-	block->setFilename(inline_id);
-	ERef<UserFunction> fun = new UserFunction(new UserFunction::parameterList_t,block.get());
+	ERef<UserFunction> fun = new UserFunction(new UserFunction::parameterList_t,new AST::BlockStatement); // dummy parameters
 	fun->setCodeString(String::create(code),0,code.str().length());
 	
+	
 	// parse and build syntax tree
+	ERef<AST::BlockStatement> block(new AST::BlockStatement);
+	block->setFilename(inline_id);
+//	ERef<UserFunctionExpr> fun = new UserFunction(block);
+	
 	Parser p(getLogger());
 	p._produceBytecode = true;
 	p.parse(block.get(),code);
 	
 	// compile and create instructions
 	CompilerContext ctxt(*this,fun->getInstructions());
-	ctxt.compile(fun.get());
+	ctxt.compile(block.get());
 	
 	return fun.detachAndDecrease();
 }
@@ -434,26 +438,26 @@ bool initHandler(handlerRegistry_t & m){
 
 	// ------------------------
 	// Other objects
-	ADD_HANDLER( _TypeIds::TYPE_USER_FUNCTION, UserFunction, {
-		// compiling the function itself
-		if(ctxt.isCurrentInstructionBlock(self->getInstructions())){
-			
-			ctxt.pushSetting_basicLocalVars(); // make 'this' and parameters available
-			ctxt.compile(self->getBlock());
-			ctxt.popSetting();
-			CompilerContext::finalizeInstructions(self->getInstructions());
-		}else{
-			Compiler c;
-			CompilerContext ctxt2(c,self->getInstructions());
-			ctxt2.pushSetting_basicLocalVars(); // make 'this' and parameters available
-			ctxt2.compile(self);
-			ctxt2.popSetting();
-			CompilerContext::finalizeInstructions(self->getInstructions());
-			
-			
-			ctxt.addInstruction(Instruction::createPushFunction(ctxt.registerInternalFunction(self))); 
+	ADD_HANDLER( _TypeIds::TYPE_USER_FUNCTION_EXPRESSION, UserFunctionExpr, {
+
+		ERef<UserFunction> fun = new UserFunction(new UserFunction::parameterList_t,new AST::BlockStatement); // dummy parameters
+		//! \todo set code string
+//		fun->setCodeString(String::create(code),0,code.str().length());
+	
+		// declare a local variables for each parameter expression
+		for(UserFunctionExpr::parameterList_t::const_iterator it = self->getParamList().begin();it!=self->getParamList().end();++it){
+			fun->getInstructions().declareLocalVariable( it->getName() );
 		}
-			
+
+		CompilerContext ctxt2(ctxt.getCompiler(),fun->getInstructions());
+		ctxt2.pushSetting_basicLocalVars(); // make 'this' and parameters available
+		ctxt2.compile(self->getBlock());
+		ctxt2.popSetting();
+		CompilerContext::finalizeInstructions(fun->getInstructions());
+		
+		
+		ctxt.addInstruction(Instruction::createPushFunction(ctxt.registerInternalFunction(fun.get()))); 
+
 	})
 		
 	// ------------------------

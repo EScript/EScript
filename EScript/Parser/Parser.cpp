@@ -1109,82 +1109,141 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 			fn( (params*)@(super()) {...} )
 	*/
 Object * Parser::getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const{
-//	bool lambda=false;
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	Token * t=tokens.at(cursor).get();
 
-//	if(t->toString()=="lambda"){
-//		lambda=true;
-//	}else
 	if(t->toString()!="fn"){
 		throwError("No function! ",tokens.at(cursor));
 	}
-	size_t codeStartPos = t->getStartingPos();
+	const size_t codeStartPos = t->getStartingPos();
 
 	++cursor;
 
 	/// step over '(' inserted at pass_2(...)
 	++cursor;
 
-	UserFunction::parameterList_t * params=getFunctionParameters(ctxt,cursor);
-	TOperator * superOp=Token::cast<TOperator>(tokens.at(cursor));
+	if(_produceBytecode){
+		UserFunctionExpr::parameterList_t params;
+		readFunctionParameters(params,ctxt,cursor);
+		TOperator * superOp=Token::cast<TOperator>(tokens.at(cursor));
 
-	/// fn(a).(a+1,2){} \deprecated
-	std::vector<ObjRef> superConCallExpressions;
-	if(superOp!=NULL && superOp->toString()=="."){
-		++cursor;
-		getExpressionsInBrackets(ctxt,cursor,superConCallExpressions);
-		++cursor; // step over ')'
-//		std::cout << " #### ";
-	} /// fn(a)@(super(a+1,2)) {}
-	else if(superOp!=NULL && superOp->toString()=="@"){
-		++cursor;
-		if(!Token::isA<TStartBracket>(tokens.at(cursor))){
-			throwError("Property expects brackets.",superOp);
-		}
-		const int propertyTo = findCorrespondingBracket<TStartBracket,TEndBracket>(ctxt,cursor);
+		/// fn(a).(a+1,2){} \deprecated
+		std::vector<ObjRef> superConCallExpressions;
+		if(superOp!=NULL && superOp->toString()=="."){
+			++cursor;
+			getExpressionsInBrackets(ctxt,cursor,superConCallExpressions);
+			++cursor; // step over ')'
 
-		properties_t properties;
-		readProperties(ctxt,cursor+1,propertyTo-1,properties);
-		for(properties_t::const_iterator it=properties.begin();it!=properties.end();++it ){
-			const StringId name = it->first;
-			int parameterPos = it->second;
-			log(Logger::LOG_INFO,"Property:"+name.toString(),superOp );
-//					const int pos = it->second;
-			if(name == Consts::PROPERTY_FN_super){
-				if(parameterPos<0){
-					throwError("Super attribute needs parameter list.",superOp);
-				}
-				getExpressionsInBrackets(ctxt,parameterPos,superConCallExpressions);
-			}else{
-				log(Logger::LOG_WARNING,"Anntoation is invalid for functions: '"+name.toString()+"'",superOp);
+		} /// fn(a)@(super(a+1,2)) {}
+		else if(superOp!=NULL && superOp->toString()=="@"){
+			++cursor;
+			if(!Token::isA<TStartBracket>(tokens.at(cursor))){
+				throwError("Property expects brackets.",superOp);
 			}
+			const int propertyTo = findCorrespondingBracket<TStartBracket,TEndBracket>(ctxt,cursor);
+
+			properties_t properties;
+			readProperties(ctxt,cursor+1,propertyTo-1,properties);
+			for(properties_t::const_iterator it=properties.begin();it!=properties.end();++it ){
+				const StringId name = it->first;
+				int parameterPos = it->second;
+				log(Logger::LOG_INFO,"Property:"+name.toString(),superOp );
+	//					const int pos = it->second;
+				if(name == Consts::PROPERTY_FN_super){
+					if(parameterPos<0){
+						throwError("Super attribute needs parameter list.",superOp);
+					}
+					getExpressionsInBrackets(ctxt,parameterPos,superConCallExpressions);
+				}else{
+					log(Logger::LOG_WARNING,"Anntoation is invalid for functions: '"+name.toString()+"'",superOp);
+				}
+			}
+			cursor = propertyTo+1;
+
 		}
-		cursor = propertyTo+1;
 
+
+		ctxt.blocks.push_back(NULL); // mark beginning of new local namespace
+		BlockStatement * block=dynamic_cast<BlockStatement*>(getExpression(ctxt,cursor));
+		if (block==NULL) {
+			throwError("[fn] Expects BlockStatement of statements.",tokens.at(cursor));
+		}
+		ctxt.blocks.pop_back(); // remove marking for local namespace
+
+		const size_t codeEndPos = tokens.at(cursor)->getStartingPos(); // position of '}'
+
+		/// step over ')' inserted at pass_2(...)
+		++cursor;
+
+		{	// create function expression
+			UserFunctionExpr * uFunExpr = new UserFunctionExpr(block,superConCallExpressions);
+			uFunExpr->getParamList().swap(params);	// set parameter expressions
+			
+			// store code segment in userFunction
+			if(codeStartPos!=std::string::npos && codeEndPos!=std::string::npos && !ctxt.code.isNull()){
+				uFunExpr->setCodeString(ctxt.code,codeStartPos,codeEndPos-codeStartPos+1);
+			}
+			return uFunExpr;
+		}
+	}else{
+		UserFunction::parameterList_t * params=getFunctionParameters(ctxt,cursor);
+		TOperator * superOp=Token::cast<TOperator>(tokens.at(cursor));
+
+		/// fn(a).(a+1,2){} \deprecated
+		std::vector<ObjRef> superConCallExpressions;
+		if(superOp!=NULL && superOp->toString()=="."){
+			++cursor;
+			getExpressionsInBrackets(ctxt,cursor,superConCallExpressions);
+			++cursor; // step over ')'
+
+		} /// fn(a)@(super(a+1,2)) {}
+		else if(superOp!=NULL && superOp->toString()=="@"){
+			++cursor;
+			if(!Token::isA<TStartBracket>(tokens.at(cursor))){
+				throwError("Property expects brackets.",superOp);
+			}
+			const int propertyTo = findCorrespondingBracket<TStartBracket,TEndBracket>(ctxt,cursor);
+
+			properties_t properties;
+			readProperties(ctxt,cursor+1,propertyTo-1,properties);
+			for(properties_t::const_iterator it=properties.begin();it!=properties.end();++it ){
+				const StringId name = it->first;
+				int parameterPos = it->second;
+				log(Logger::LOG_INFO,"Property:"+name.toString(),superOp );
+	//					const int pos = it->second;
+				if(name == Consts::PROPERTY_FN_super){
+					if(parameterPos<0){
+						throwError("Super attribute needs parameter list.",superOp);
+					}
+					getExpressionsInBrackets(ctxt,parameterPos,superConCallExpressions);
+				}else{
+					log(Logger::LOG_WARNING,"Anntoation is invalid for functions: '"+name.toString()+"'",superOp);
+				}
+			}
+			cursor = propertyTo+1;
+
+		}
+
+
+		ctxt.blocks.push_back(NULL); // mark beginning of new local namespace
+		BlockStatement * block=dynamic_cast<BlockStatement*>(getExpression(ctxt,cursor));
+		if (block==NULL) {
+			throwError("[fn] Expects BlockStatement of statements.",tokens.at(cursor));
+		}
+		ctxt.blocks.pop_back(); // remove marking for local namespace
+
+		size_t codeEndPos = tokens.at(cursor)->getStartingPos(); // position of '}'
+
+		/// step over ')' inserted at pass_2(...)
+		++cursor;
+
+		UserFunction * uFun = new UserFunction(params,block,superConCallExpressions);
+		// store code segment in userFunction
+		if(codeStartPos!=std::string::npos && codeEndPos!=std::string::npos && !ctxt.code.isNull()){
+			uFun->setCodeString(ctxt.code,codeStartPos,codeEndPos-codeStartPos+1);
+		}
+		return uFun;
 	}
-
-
-	ctxt.blocks.push_back(NULL); // mark beginning of new local namespace
-	BlockStatement * block=dynamic_cast<BlockStatement*>(getExpression(ctxt,cursor));
-	if (block==NULL) {
-//
-//		out(tokens.at(cursor));
-		throwError("[fn] Expects BlockStatement of statements.",tokens.at(cursor));
-	}
-	ctxt.blocks.pop_back(); // remove marking for local namespace
-
-	size_t codeEndPos = tokens.at(cursor)->getStartingPos(); // position of '}'
-
-	/// step over ')' inserted at pass_2(...)
-	++cursor;
-
-	UserFunction * uFun = new UserFunction(params,block,superConCallExpressions);
-	// store code segment in userFunction
-	if(codeStartPos!=std::string::npos && codeEndPos!=std::string::npos && !ctxt.code.isNull()){
-		uFun->setCodeString(ctxt.code,codeStartPos,codeEndPos-codeStartPos+1);
-	}
-	return uFun;
 }
 
 
@@ -1907,6 +1966,110 @@ UserFunction::parameterList_t * Parser::getFunctionParameters(ParsingContext & c
 		}
 	}
 	return params;
+}
+/**
+ * e.g. (a, Number b, c=2+3)
+ * Cursor is moved after the Parameter-List.
+ */
+void Parser::readFunctionParameters(UserFunctionExpr::parameterList_t & params,ParsingContext & ctxt,int & cursor)const  {
+	params.clear();
+	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
+	if (!Token::isA<TStartBracket>(tokens.at(cursor))) {
+		return;
+	}
+	++cursor;
+	// fn (bla,blub,)
+	bool first=true;
+
+	while (true) { // foreach parameter
+		if (first&&Token::isA<TEndBracket>(tokens.at(cursor))) {
+			++cursor;
+			break;
+		}
+		first=false;
+
+		/// Parameter::= Expression? Identifier ( ('=' Expression)? ',') | ('*'? ('=' Expression)? ')')
+		int c=cursor;
+
+		// find identifierName, its position, the default expression and identify a multiParam
+		int idPos=-1;
+		StringId name;
+		Object * defaultExpression=NULL;
+		bool multiParam=false;
+		while(true){
+			Token * t=tokens.at(c).get();
+			if(Token::isA<TIdentifier>(t)) {
+				// this may not be the final identifier...
+				name=Token::cast<TIdentifier>(t)->getId();
+				idPos=c;
+
+				Token * tNext=tokens.at(c+1).get();
+				// '*'?
+				if(  Token::isA<TOperator>(tNext) && tNext->toString()=="*" ){
+					multiParam=true;
+					++c;
+					tNext=tokens.at(c+1).get();
+				}else{
+					multiParam=false;
+				}
+				// ',' | ')'
+				if( Token::isA<TEndBracket>(tNext)){
+					break;
+				}else if( Token::isA<TDelimiter>(tNext) ) {
+					if(multiParam)
+						throwError("[fn] Only the last parameter may be a multiparameter.",tokens[c]);
+					break;
+				}else if(  Token::isA<TOperator>(tNext) && tNext->toString()=="=" ){
+					int defaultExpStart=c+2;
+					int defaultExpTo=findExpression(ctxt,defaultExpStart);
+					defaultExpression=getExpression(ctxt,defaultExpStart,defaultExpTo);
+					if (defaultExpression==NULL) {
+						throwError("[fn] SyntaxError in default parameter.",tokens.at(cursor));
+					}
+					c=defaultExpTo;
+					break;
+				}
+			}else if(Token::isA<TStartBracket>(t)){
+				c=findCorrespondingBracket<TStartBracket,TEndBracket>(ctxt,c);
+			}else if(Token::isA<TStartIndex>(t)){
+				c=findCorrespondingBracket<TStartIndex,TEndIndex>(ctxt,c);
+			}else if(Token::isA<TStartMap>(t)){
+				c=findCorrespondingBracket<TStartMap,TEndMap>(ctxt,c);
+			}else if(Token::isA<TEndScript>(t) || Token::isA<TEndBracket>(t)){
+				throwError("[fn] Error in parameter definition.",t);
+			}
+			++c;
+		}
+
+		// get the type expression
+		Object * typeExp=NULL;
+		if(	idPos>cursor ){
+			int tmpCursor=cursor;
+			typeExp=getExpression(ctxt,tmpCursor,idPos-1);
+		}
+
+		// check if this is the last parameter
+		bool lastParam=false;
+		if(Token::isA<TEndBracket>(tokens[c+1])){
+		lastParam=true;
+		}else if( ! Token::isA<TDelimiter>(tokens[c+1])){
+			throwError("[fn] SyntaxError.",tokens[c+1]);
+		}
+
+		// move cursor
+		cursor=c+2;
+
+		// create parameter
+		params.push_back(UserFunctionExpr::Parameter(name,NULL,typeExp));
+		if(multiParam)
+			params.back().setMultiParam(true);
+		if(defaultExpression!=NULL)
+			params.back().setDefaultValueExpression(defaultExpression);
+
+		if(lastParam){
+			break;
+		}
+	}
 }
 
 /*!	1,bla+2,(3*3)

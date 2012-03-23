@@ -29,10 +29,10 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 //		"var a='Excpetion caught:'; try{ var b=2;{var c=3/0; {var d=4;} true; } 17; }catch(e){out(a,e,'\\n');}",
 //		"while(true){ try{ var a=0; continue; }catch(e){out(e);} }",
 //		"true ? 'foo' : 'bar'; ",
-		"var f = fn(b){ var a=2; out('KatzE '*(a*b));}; f(3);",
+//		"var f = fn(b){ var a=2; out('KatzE '*(a*b));}; f(3);",
 
 //		"var b=17;var a=7+b; out(a);",
-//		"var f = fn(a){ out(a);}; f( 3*3 );",
+		"var f = fn(a){ out(a);}; f( 3*3 );",
 //		"27+17;",
 //		"out('Hello HasE!');",
 ////		"for(var i=0;i<10;++i){	out('foo',i,'\n'); }",

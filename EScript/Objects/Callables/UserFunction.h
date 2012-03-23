@@ -33,7 +33,7 @@ class UserFunction : public ExtObject {
 	/*! @name Parameter */
 	//	@{
 
-		/*! [Parameter] */
+		/*! [Parameter] */  // \todo old!
 		class Parameter {
 			private:
 				StringId name;
@@ -72,13 +72,13 @@ class UserFunction : public ExtObject {
 		UserFunction(parameterList_t * params,AST::BlockStatement * block,const std::vector<ObjRef> & _sConstrExpressions);
 		virtual ~UserFunction();
 
-		void setBlock(AST::BlockStatement * block);
-		AST::BlockStatement * getBlock()const				{	return blockRef.get();	}
-		parameterList_t * getParamList()const				{	return params;	}
+		void setBlock(AST::BlockStatement * block); // \todo old!
+		AST::BlockStatement * getBlock()const				{	return blockRef.get();	}  // \todo old!
+		parameterList_t * getParamList()const				{	return params;	}  // \todo old!
 		std::string getFilename()const;
 		int getLine()const;
 
-		std::vector<ObjRef> & getSConstructorExpressions() 	{	return sConstrExpressions;	}
+		std::vector<ObjRef> & getSConstructorExpressions() 	{	return sConstrExpressions;	}  // \todo old!
 
 		void setCodeString(const EPtr<String> & _fileString,size_t _begin,size_t _codeLen);
 		std::string getCode()const;
@@ -97,9 +97,9 @@ class UserFunction : public ExtObject {
 
 	private:
 		void initInstructions();
-		ERef<AST::BlockStatement> blockRef;
-		parameterList_t * params;
-		std::vector<ObjRef> sConstrExpressions;
+		ERef<AST::BlockStatement> blockRef;  // \todo old!
+		parameterList_t * params;  // \todo old!
+		std::vector<ObjRef> sConstrExpressions;  // \todo old!
 
 		ERef<String> fileString;
 		size_t posInFile,codeLen;

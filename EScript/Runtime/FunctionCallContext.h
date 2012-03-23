@@ -19,7 +19,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 	private:
 		static std::stack<FunctionCallContext *> pool;
 	public:
-		static FunctionCallContext * create(FunctionCallContext * _parent,const EPtr<UserFunction> & userFunction);
+		static FunctionCallContext * create(FunctionCallContext * _parent,const EPtr<UserFunction> userFunction,const ObjPtr _caller);
 		static void release(FunctionCallContext *rts);
 
 		// ----
@@ -40,14 +40,15 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		ERef<UserFunction> userFunction;
 		size_t exceptionHandlerPos;
 		size_t instructionCursor;
+		ObjRef caller;
 
 		FunctionCallContext() : instructionCursor(0) {}
 		~FunctionCallContext(){}
 		void reset();
-		void init(FunctionCallContext * _parent,const EPtr<UserFunction> & userFunction);
+		void init(FunctionCallContext * _parent,const EPtr<UserFunction> userFunction,const ObjPtr _caller);
 
 	public:
-		ObjPtr getCaller()const    						{   return localVariables[Consts::LOCAL_VAR_INDEX_this]; }
+		ObjPtr getCaller()const    						{   return caller; }
 		FunctionCallContext * getParent()const			{	return parent.get();	}
 		ERef<UserFunction> getUserFunction()const		{	return userFunction;	}
 		
@@ -57,7 +58,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		void setInstructionCursor(const size_t p)		{	instructionCursor = p;	}
 		void increaseInstructionCursor()				{	++instructionCursor;	}
 
-		void setCaller(const ObjPtr & _caller)			{	localVariables[Consts::LOCAL_VAR_INDEX_this] = _caller;	}
+		void initCallerVariable()						{	localVariables[Consts::LOCAL_VAR_INDEX_this] = caller;	}
 
 		const InstructionBlock & getInstructions()const	{	return userFunction->getInstructions();	}
 		InstructionBlock & getInstructions()			{	return userFunction->getInstructions();	}
