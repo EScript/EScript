@@ -1573,24 +1573,55 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 }
 
 //! (internal)
-Runtime::executeFunctionResult_t Runtime::startFunctionExecution(FunctionCallContext & callingFcc,const ObjPtr & fun,const ObjPtr & _callingObject,const ParameterValues & params){
+Runtime::executeFunctionResult_t Runtime::startFunctionExecution(FunctionCallContext & callingFcc,const ObjPtr & fun,const ObjPtr & _callingObject,ParameterValues & params){
 	ObjPtr result;
 	switch( fun->_getInternalTypeId() ){
 		case _TypeIds::TYPE_USER_FUNCTION:{
 			UserFunction * userFunction = static_cast<UserFunction*>(fun.get());
 			_CountedRef<FunctionCallContext> fcc = FunctionCallContext::create(&callingFcc,userFunction,_callingObject);
+
+			// check for too few parameter values -> throw exception
+			if(userFunction->getMinParamCount()>=0 && params.size()<static_cast<size_t>(userFunction->getMinParamCount())){
+				setException("Too few parameters given."); //! \todo improve error message (which parameters are missing?)
+				return std::make_pair(result.get(),static_cast<FunctionCallContext*>(NULL));
+			}
+			
+			ParameterValues::const_iterator paramsEnd;
+			
+			const int maxParamCount = userFunction->getMaxParamCount();
+			if( maxParamCount<0 ){ // multiParameter
+				ERef<Array> multiParamArray = Array::create();
+				// copy values into multiParamArray
+				if(params.size()>=userFunction->getParamCount()){
+					for(size_t i = userFunction->getParamCount()-1;i<params.size();++i){
+						multiParamArray->pushBack(params[i]);
+					}
+					paramsEnd = params.begin()+(userFunction->getParamCount()-1);
+					
+				}else{
+					paramsEnd = params.end();
+				}
+				// directly assign to last parameter
+				fcc->assignToLocalVariable(Consts::LOCAL_VAR_INDEX_firstParameter + (userFunction->getParamCount()-1) ,multiParamArray.get());
+			} // too many parameters
+			else if( params.size()>static_cast<size_t>(maxParamCount) ){
+				warn("Too many parameters given.");  //! \todo improve warning message (how many?)
+				paramsEnd = params.begin()+maxParamCount; // std::next(...)
+			} // normal parameter count range
+			else{
+				paramsEnd = params.end();
+			}
 			
 			// init $thisFn
 			fcc->assignToLocalVariable(Consts::LOCAL_VAR_INDEX_thisFn,fun);
 			
 			uint32_t i = Consts::LOCAL_VAR_INDEX_firstParameter;
-			for(ParameterValues::const_iterator it = params.begin(); it!= params.end(); ++it){
+			for(ParameterValues::const_iterator it = params.begin(); it!= paramsEnd; ++it){
 				fcc->assignToLocalVariable(i++,*it);
 			}
 
 			return std::make_pair(result.get(),fcc.detachAndDecrease());
 		}
-//	
 	
 		default:{
 			result = executeFunction(fun,_callingObject,params);

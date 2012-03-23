@@ -1242,6 +1242,7 @@ Object * Parser::getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const
 		if(codeStartPos!=std::string::npos && codeEndPos!=std::string::npos && !ctxt.code.isNull()){
 			uFun->setCodeString(ctxt.code,codeStartPos,codeEndPos-codeStartPos+1);
 		}
+		uFun->_finalize_OLD();
 		return uFun;
 	}
 }

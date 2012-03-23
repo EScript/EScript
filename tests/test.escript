@@ -35,7 +35,10 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 //		"var f = fn(a){ out(a);}; f( 3*3 );",
 //		"var f = fn(a,b=2){ out(a*b);}; f( 3 );",
 //		"var f = fn(a,b=2+a){ out(a*b);}; f( 3 );",
-		"var f = fn(a=1,b=2,c=3){ out(a+b+c);}; f(  );",
+//		"var f = fn(a,b){ out(a*b);}; f( 3,4,5 );",
+		"var f = fn(a,b*){ out(a*b.count());print_r(b);}; f( 3,1,2,3,4 );",
+		"var f = fn(a='foo',b*){ out(a);print_r(b);}; f(  );",
+//		"var f = fn(a=1,b=2,c=3){ out(a+b+c);}; f(,10  );", // does not work!
 //		"27+17;",
 //		"out('Hello HasE!');",
 ////		"for(var i=0;i<10;++i){	out('foo',i,'\n'); }",

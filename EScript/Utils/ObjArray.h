@@ -109,7 +109,7 @@ public:
 	inline const_iterator          end()    const   {   return params+size(); }
 };
 
-typedef _ObjArray<ObjPtr> ParameterValues;
+typedef _ObjArray<ObjPtr> ParameterValues; //! \todo use References here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 }
 #endif // OBJARRAY_H_INCLUDED

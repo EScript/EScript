@@ -75,7 +75,7 @@ void UserFunction::init(EScript::Namespace & globals) {
 
 //! (ctor)
 UserFunction::UserFunction(parameterList_t * _params,AST::BlockStatement * block):
-		ExtObject(getTypeObject()), params(_params),posInFile(0),codeLen(0) {
+		ExtObject(getTypeObject()), params(_params),posInFile(0),codeLen(0),paramCount(0),minParamValueCount(0),maxParamValueCount(0) {
 
 	setBlock(block);
 	
@@ -84,7 +84,8 @@ UserFunction::UserFunction(parameterList_t * _params,AST::BlockStatement * block
 }
 //! (ctor)
 UserFunction::UserFunction(parameterList_t * _params,AST::BlockStatement * block,const std::vector<ObjRef> & _sConstrExpressions):
-		ExtObject(getTypeObject()), params(_params),sConstrExpressions(_sConstrExpressions.begin(),_sConstrExpressions.end()),posInFile(0),codeLen(0) {
+		ExtObject(getTypeObject()), params(_params),sConstrExpressions(_sConstrExpressions.begin(),
+		_sConstrExpressions.end()),posInFile(0),codeLen(0),paramCount(0),minParamValueCount(0),maxParamValueCount(0) {
 
 	setBlock(block);
 	initInstructions();
@@ -159,22 +160,20 @@ std::string UserFunction::getCode()const{
 	return fileString->toString().substr(posInFile,codeLen);
 }
 
-int UserFunction::getMaxParamCount()const{
-	if(params->empty()){
-		return 0;
-	}else if(params->back()->isMultiParam()){
-		return -1;
-	}else
-		return params->size();
-}
+void UserFunction::_finalize_OLD(){
 
-int UserFunction::getMinParamCount()const{
-	int i=0;
+	if(params->empty()){
+		maxParamValueCount = 0;
+	}else if(params->back()->isMultiParam()){
+		maxParamValueCount = -1;
+	}else{
+		maxParamValueCount = params->size();
+	}
+	minParamValueCount = 0;
 	for (parameterList_t::const_iterator it=params->begin();it!=params->end();++it) {
 		if( (*it)->isMultiParam() || (*it)->getDefaultValueExpression() !=NULL )
 			break;
-		++i;
+		++minParamValueCount;
 	}
-	return i;
+	paramCount = params->size();
 }
-

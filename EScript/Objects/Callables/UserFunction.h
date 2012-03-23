@@ -82,8 +82,15 @@ class UserFunction : public ExtObject {
 
 		void setCodeString(const EPtr<String> & _fileString,size_t _begin,size_t _codeLen);
 		std::string getCode()const;
-		int getMaxParamCount()const;
-		int getMinParamCount()const;
+		int getMaxParamCount()const							{	return maxParamValueCount;	}
+		int getMinParamCount()const							{	return minParamValueCount;	}
+		size_t getParamCount()const							{	return paramCount;	}
+
+		void _finalize_OLD();
+		void setParameterCounts(size_t paramsCount,int minValues,int maxValues)	{	
+			paramCount = paramsCount , minParamValueCount = minValues,maxParamValueCount = maxValues;	
+		}
+
 
 		const InstructionBlock & getInstructions()const 	{	return instructions;	}
 		InstructionBlock & getInstructions() 				{	return instructions;	}
@@ -103,6 +110,9 @@ class UserFunction : public ExtObject {
 
 		ERef<String> fileString;
 		size_t posInFile,codeLen;
+		size_t paramCount;
+		int minParamValueCount;
+		int maxParamValueCount;
 
 		InstructionBlock instructions;
 	//	@}

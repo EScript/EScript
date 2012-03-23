@@ -79,7 +79,6 @@ UserFunction * Compiler::compile(const StringData & code){
 	ERef<UserFunction> fun = new UserFunction(new UserFunction::parameterList_t,new AST::BlockStatement); // dummy parameters
 	fun->setCodeString(String::create(code),0,code.str().length());
 	
-	
 	// parse and build syntax tree
 	ERef<AST::BlockStatement> block(new AST::BlockStatement);
 	block->setFilename(inline_id);
@@ -228,7 +227,13 @@ bool initHandler(handlerRegistry_t & m){
 			
 		}while(false);
 		for(std::vector<ObjRef>::const_iterator it=self->getParams().begin();it!=self->getParams().end();++it){
-			ctxt.compile(*it);
+			if( it->isNull() ){
+				/* \todo explicitly mark this as NULL/Undefined and not void! Perhaps: pushUndefined!?
+					Then "(fn(a=1,b=2,c=3){ out(a+b+c);}) (,10);" should work.	*/
+				ctxt.addInstruction(Instruction::createPushVoid());
+			}else{
+				ctxt.compile(*it);
+			}
 		}
 		ctxt.addInstruction(Instruction::createCall(self->getParams().size()));
 	})
@@ -441,6 +446,7 @@ bool initHandler(handlerRegistry_t & m){
 	ADD_HANDLER( _TypeIds::TYPE_USER_FUNCTION_EXPRESSION, UserFunctionExpr, {
 
 		ERef<UserFunction> fun = new UserFunction(new UserFunction::parameterList_t,new AST::BlockStatement); // dummy parameters
+		fun->setParameterCounts(self->getParamList().size(),self->getMinParamCount(),self->getMaxParamCount());
 		//! \todo set code string
 //		fun->setCodeString(String::create(code),0,code.str().length());
 
