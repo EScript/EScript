@@ -235,7 +235,11 @@ bool initHandler(handlerRegistry_t & m){
 				ctxt.compile(*it);
 			}
 		}
-		ctxt.addInstruction(Instruction::createCall(self->getParams().size()));
+		if( self->isConstructorCall()){
+			ctxt.addInstruction(Instruction::createCreateInstance(self->getParams().size()));
+		}else{
+			ctxt.addInstruction(Instruction::createCall(self->getParams().size()));
+		}
 	})
 		
 	// GetAttributeExpr

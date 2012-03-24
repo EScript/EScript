@@ -741,9 +741,9 @@ Object * Parser::getMap(ParsingContext & ctxt,int & cursor)const  {
 			throwError("Map Syntax Error",tokens.at(cursor));
 	}
 
-	FunctionCallExpr * funcCall = new FunctionCallExpr(
+	FunctionCallExpr * funcCall = FunctionCallExpr::createFunctionCall(
 					Map::getTypeObject()->getAttribute(Consts::IDENTIFIER_fn_constructor).getValue(),
-					paramExp,false,currentFilename,currentLine);
+					paramExp,currentFilename,currentLine);
 	return funcCall;
 }
 
@@ -817,7 +817,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 			std::vector<ObjRef> paramExp;
 			paramExp.push_back(indexExp);
 			paramExp.push_back(rightExpression);
-			return new FunctionCallExpr(new GetAttributeExpr(obj,Consts::IDENTIFIER_fn_set),paramExp,false,currentFilename,currentLine);
+			return FunctionCallExpr::createFunctionCall(new GetAttributeExpr(obj,Consts::IDENTIFIER_fn_set),paramExp,currentFilename,currentLine);
 		} else {
 //			std::cout << "\n Error = "<<cursor<<" - "<<to<<" :" << lValueType;
 			throwError("No valid LValue before '=' ",tokens[opPosition]);
@@ -945,7 +945,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 		if(cursor!=to){
 			throwError("Error after function call. Forgotten ';' ?",tokens.at(cursor));
 		}
-		FunctionCallExpr * funcCall = new FunctionCallExpr(leftExpression,paramExp,false,currentFilename,currentLine);
+		FunctionCallExpr * funcCall = FunctionCallExpr::createFunctionCall(leftExpression,paramExp,currentFilename,currentLine);
 		return funcCall;
 	}
 	///  Index Exression | Array
@@ -953,11 +953,11 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 		/// No left expression present? -> Array-constructor
 		///"[1,a+2,3]" -> new Array(1,a+2,3)
 		if (!leftExpression) {
-			std::vector<ObjRef> paramExp;
+			std::vector<ObjRef> paramExps;
 			++cursor;
 			while (!Token::isA<TEndIndex>(tokens.at(cursor)) ) {
 
-				paramExp.push_back(getExpression(ctxt,cursor));
+				paramExps.push_back(getExpression(ctxt,cursor));
 
 				++cursor;
 				if (Token::isA<TDelimiter>(tokens.at(cursor)))
@@ -968,18 +968,18 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 			}
 			cursor=to;
 
-			FunctionCallExpr * funcCall = new FunctionCallExpr( Array::getTypeObject()->getAttribute(Consts::IDENTIFIER_fn_constructor).getValue(),
-													paramExp,false,currentFilename,currentLine);
+			FunctionCallExpr * funcCall = FunctionCallExpr::createFunctionCall( Array::getTypeObject()->getAttribute(Consts::IDENTIFIER_fn_constructor).getValue(),
+													paramExps,currentFilename,currentLine);
 			return funcCall;
 		}
 		/// Left expression present? -> Index Expression
 		/// "a[1]"
 		cursor=rightExprFrom;
-		std::vector<ObjRef> paramExp;
-		paramExp.push_back(getExpression(ctxt,cursor));
+		std::vector<ObjRef> paramExps;
+		paramExps.push_back(getExpression(ctxt,cursor));
 		cursor=to;
-		FunctionCallExpr * funcCall = new FunctionCallExpr(new GetAttributeExpr(leftExpression,Consts::IDENTIFIER_fn_get),paramExp,
-										false,currentFilename,currentLine);
+		FunctionCallExpr * funcCall = FunctionCallExpr::createFunctionCall(new GetAttributeExpr(leftExpression,Consts::IDENTIFIER_fn_get),paramExps,
+										currentFilename,currentLine);
 		return funcCall;
 
 	}/// "a?1:2"
@@ -1017,9 +1017,15 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 		Object * obj=getExpression(ctxt,cursor,objExprTo);
 		cursor=to;
 
-		return new FunctionCallExpr(new GetAttributeExpr(obj,Consts::IDENTIFIER_fn_constructor),paramExp,true,
+
+
+		if(_produceBytecode){
+			return FunctionCallExpr::createConstructorCall(obj,paramExp,currentFilename,currentLine);
+		}else{
+			return FunctionCallExpr::createConstructorCall(new GetAttributeExpr(obj,Consts::IDENTIFIER_fn_constructor),paramExp,
 									currentFilename,currentLine);
-		// TODO: !!! Return this-reference !!! ???? What does this mean?
+		}
+		
 	}
 	/// Function "fn(a,b){return a+b;}"
 	else if (op->getString()=="fn" ){//|| op->getString()=="lambda") {
@@ -1063,9 +1069,9 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 		}
 
 		//if (GetAttributeExpr * ga=dynamic_cast<GetAttributeExpr *>(rightExpression)) {
-		FunctionCallExpr * fc=new FunctionCallExpr(
+		FunctionCallExpr * fc = FunctionCallExpr::createFunctionCall(
 			new GetAttributeExpr(rightExpression,
-							 string(op->getString())+"_pre"),std::vector<ObjRef>(),false,currentFilename,currentLine);
+							 string(op->getString())+"_pre"),std::vector<ObjRef>(),currentFilename,currentLine);
 		return  fc;
 
 	} else
@@ -1074,9 +1080,9 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 		/// Bsp: a++ => _.a.++post()
 		if (!rightExpression) {
 			//  if (GetAttributeExpr * ga=dynamic_cast<GetAttributeExpr *>(leftExpression)) {
-			FunctionCallExpr * fc=new FunctionCallExpr(
+			FunctionCallExpr * fc=FunctionCallExpr::createFunctionCall(
 				new GetAttributeExpr(leftExpression,
-								 string(op->getString())+"_post"),std::vector<ObjRef>(),false,currentFilename,currentLine);
+								 string(op->getString())+"_post"),std::vector<ObjRef>(),currentFilename,currentLine);
 			cursor--;
 
 			return  fc;
@@ -1094,8 +1100,8 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 		else {
 			std::vector<ObjRef> paramExp;
 			paramExp.push_back(rightExpression);
-			FunctionCallExpr * funcCall = new FunctionCallExpr(new GetAttributeExpr(leftExpression, op->getString()),paramExp,
-													false,currentFilename,currentLine);
+			FunctionCallExpr * funcCall = FunctionCallExpr::createFunctionCall(new GetAttributeExpr(leftExpression, op->getString()),paramExp,
+													currentFilename,currentLine);
 			return funcCall;
 		}
 	return NULL;
@@ -1548,14 +1554,14 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 			{
 				std::vector<ObjRef> paramExp;
 				paramExp.push_back(arrayExpression);
-				Object * getIterator = new FunctionCallExpr(new Function(fnWrapper::esf_getIterator), paramExp);
+				Object * getIterator = FunctionCallExpr::createFunctionCall(new Function(fnWrapper::esf_getIterator), paramExp);
 				loopWrappingBlock->addStatement( createStatement(getIterator));
 			}
 
 			loopWrappingBlock->setJumpPosA( loopWrappingBlock->getNextPos() );
 			// if( __it.end() )	break;
 			static const StringId endId("end");
-			Object * condition = new FunctionCallExpr(
+			Object * condition = FunctionCallExpr::createFunctionCall(
 									new GetAttributeExpr(new GetAttributeExpr(NULL,itId),endId ),std::vector<ObjRef>());
 			loopWrappingBlock->addStatement( Statement(
 							Statement::TYPE_IF,
@@ -1566,7 +1572,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 				paramExp.push_back( Identifier::create(valueIdent->getId()));
 				if(keyIdent!=NULL)
 					paramExp.push_back( Identifier::create(keyIdent->getId()));
-				loopWrappingBlock->addStatement( createStatement(new FunctionCallExpr(new Function(fnWrapper::esf_setValues), paramExp)));
+				loopWrappingBlock->addStatement( createStatement(FunctionCallExpr::createFunctionCall(new Function(fnWrapper::esf_setValues), paramExp)));
 
 			}
 			// [action]
@@ -1576,7 +1582,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 			// __it.next();
 			static const StringId nextFnId("next");
 			loopWrappingBlock->addStatement( createStatement(
-							new FunctionCallExpr(
+							FunctionCallExpr::createFunctionCall(
 								new GetAttributeExpr(new GetAttributeExpr(NULL,itId),nextFnId ),std::vector<ObjRef>())));
 			// goto :second
 			loopWrappingBlock->addStatement( Statement(Statement::TYPE_JUMP_TO_A) );
@@ -1654,9 +1660,9 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 				};
 				catchBlock->addStatement( Statement( Statement::TYPE_EXPRESSION,
 						SetAttributeExpr::createAssignment(NULL,varName,
-							new FunctionCallExpr(
+							FunctionCallExpr::createFunctionCall(
 								new Function(fnWrapper::extractExceptionValue),
-								paramExp,false,currentFilename,tStartCatchBlock->getLine()),
+								paramExp,currentFilename,tStartCatchBlock->getLine()),
 							tStartCatchBlock->getLine())));
 
 			}

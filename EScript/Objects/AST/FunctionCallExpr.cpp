@@ -12,15 +12,6 @@
 using namespace EScript;
 using namespace EScript::AST;
 
-// \todo change the type of the used array ?
-
-//! (ctor)
-FunctionCallExpr::FunctionCallExpr(Object * exp,const std::vector<ObjRef> & parameterVec,bool _isConstructorCall,
-						StringId filename,int line/*=-1*/):
-		expRef(exp),parameters(parameterVec.begin(), parameterVec.end()),constructorCall(_isConstructorCall),
-		lineNumber(line),filenameId(filename){
-	//ctor
-}
 
 //! ---|> [Object]
 std::string FunctionCallExpr::toString() const {

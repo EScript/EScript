@@ -1389,10 +1389,52 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 				fcc->stack_pushObject(result.first);
 //				std::cout << "Result: "<<(result.first ? result.first->toString() : "Void")<<"\n";
 			}
-
-//			fcc->stack_pushObject( executeFunction(fun,caller,params));	
-			
 			break;
+		}		
+		case Instruction::I_CREATE_INSTANCE:{ //! \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+			/*	create (uint32_t) numParams
+				-------------
+				pop numParams * parameters
+				pop object
+				call object._constructor
+				push result (or jump to exception point)	*/
+			const uint32_t numParams = instruction.getValue_uint32();
+			
+			std::vector<ObjRef> paramRefHolder; //! \todo why doesn't the ParameterValues keep a reference?
+			paramRefHolder.reserve(numParams);
+			ParameterValues params(numParams);
+			for(int i=numParams-1;i>=0;--i ){
+				Object * paramValue = fcc->stack_popObjectValue();
+				params.set(i,paramValue);
+				paramRefHolder.push_back(paramValue);
+			}
+			
+			ObjRef caller = fcc->stack_popObject();
+			if(caller.toType<Type>()==NULL){
+				setException("Can't instanciate object not of type 'Type'");
+				break;
+			}
+			
+			Attribute * ctorAttr = caller->_accessAttribute(Consts::IDENTIFIER_fn_constructor,false);
+			if(ctorAttr==NULL){
+				setException("No _contructor found.");
+				break;
+			}else if(ctorAttr->isPrivate()){
+				setException("Can't instanciate Type with private _contructor."); //! \todo check this!
+				break;
+			}else{
+				ObjRef fun = ctorAttr->getValue();
+				// returnValue , newUserFunctionCallContext
+				executeFunctionResult_t result = startFunctionExecution(*fcc.get(),fun,caller,params); 
+				if(result.second){
+					fcc = result.second;
+					instructions = &fcc->getInstructions();
+				}else{
+					fcc->stack_pushObject(result.first);
+	//				std::cout << "Result: "<<(result.first ? result.first->toString() : "Void")<<"\n";
+				}
+				break;
+			}
 		}
 		case Instruction::I_DUP:{
 			// duplicate topmost stack entry

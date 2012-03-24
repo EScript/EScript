@@ -39,6 +39,13 @@ Instruction Instruction::createCall(const uint32_t numParams){
 }
 
 //! (static)
+Instruction Instruction::createCreateInstance(const uint32_t numParams){
+	Instruction i(I_CREATE_INSTANCE);
+	i.setValue_uint32(numParams);
+	return i;
+}
+
+//! (static)
 Instruction Instruction::createFindVariable(const StringId id){
 	Instruction i(I_FIND_VARIABLE);
 	i.setValue_Identifier(id);
@@ -193,6 +200,10 @@ std::string Instruction::toString(const InstructionBlock & ctxt)const{
 	}
 	case I_CALL:{
 		out << "call " << getValue_uint32();
+		break;
+	}		
+	case I_CREATE_INSTANCE:{
+		out << "createInstance " << getValue_uint32();
 		break;
 	}	
 	case I_DUP:{

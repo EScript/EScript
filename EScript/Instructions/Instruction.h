@@ -23,6 +23,7 @@ class Instruction {
 			I_ASSIGN_LOCAL,					// -1
 			I_ASSIGN_VARIABLE,
 			I_CALL,							// -2+x +1
+			I_CREATE_INSTANCE,				// -1+x +1
 			I_DUP,							// +1
 			I_FIND_VARIABLE,
 			I_GET_ATTRIBUTE,
@@ -69,6 +70,7 @@ class Instruction {
 		static Instruction createAssignLocal(const uint32_t localVarIdx);
 		static Instruction createAssignVariable(const StringId varName);
 		static Instruction createCall(const uint32_t numParams);
+		static Instruction createCreateInstance(const uint32_t numParams);
 		static Instruction createDup()				{	return Instruction(I_DUP);	}
 		static Instruction createFindVariable(const StringId id);
 		static Instruction createGetAttribute(const StringId id);
