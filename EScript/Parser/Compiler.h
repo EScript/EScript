@@ -15,6 +15,9 @@ namespace EScript {
 	
 class CompilerContext;
 class Logger;
+namespace AST{
+class Statement;
+}
 
 /*! Compiler
 	Input: Syntax tree made of Expressions
@@ -24,8 +27,6 @@ class Compiler {
 	public:
 		Compiler(Logger * _logger = NULL);
 	
-		void compileExpression(CompilerContext & ctxt,ObjPtr expression)const;
-		
 		UserFunction * compile(const StringData & code);
 	
 	// -------------
@@ -37,6 +38,24 @@ class Compiler {
 	private:
 		void log(CompilerContext & ctxt,Logger::level_t messageLevel, const std::string & msg)const;
 		_CountedRef<Logger> logger;
+	//	@}
+
+
+	
+	// -------------
+		
+	//! @name Internal helper
+	//	@{
+	public:
+		/*! (static,internal)
+			- Replaces the markers inside the assembly by jump addresses.	*/
+		static void finalizeInstructions( InstructionBlock & instructions ); 
+
+
+		void compileExpression(CompilerContext & ctxt,ObjPtr expression)const;
+		
+		void compileStatement(CompilerContext & ctxt,const AST::Statement & statement)const;
+
 	//	@}
 
 };

@@ -40,7 +40,7 @@ class Statement {
 		~Statement();
 
 		type_t getType()const			{	return type;	}
-		Object* getExpression()const	{	return expression.get();	}
+		ObjPtr getExpression()const		{	return expression;	}
 
 		int getLine()const				{	return line;	}
 		void setLine(int newLine)		{	line=newLine;	}
@@ -57,8 +57,7 @@ class Statement {
 			}
 			return *this;
 		}
-		//! ---o EXPERIMENTAL !!!!!
-		virtual void _asm(CompilerContext & ctxt)const;
+
 		
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_STATEMENT; }
 

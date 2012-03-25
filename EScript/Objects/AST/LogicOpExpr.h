@@ -19,7 +19,10 @@ class LogicOpExpr : public Object {
 			OR,AND,NOT
 		};
 
-		LogicOpExpr(Object * _left,Object * _right,opType_T _op) : left(_left),right(_right),op(_op) {}
+		static LogicOpExpr * createAnd(Object * _left,Object * _right)	{	return new LogicOpExpr(_left,_right,LogicOpExpr::AND);	}
+		static LogicOpExpr * createNot(Object * expr)					{	return new LogicOpExpr(expr,NULL,LogicOpExpr::NOT);	}
+		static LogicOpExpr * createOr(Object * _left,Object * _right)	{	return new LogicOpExpr(_left,_right,LogicOpExpr::OR);	}
+		
 		virtual ~LogicOpExpr(){}
 
 		ObjPtr getLeft()const  			{   return left;   }
@@ -30,6 +33,8 @@ class LogicOpExpr : public Object {
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_LOGIC_OP_EXPRESSION; }
 
 	private:
+		LogicOpExpr(Object * _left,Object * _right,opType_T _op) : left(_left),right(_right),op(_op) {}
+
 		ObjRef left;
 		ObjRef right;
 		opType_T op;

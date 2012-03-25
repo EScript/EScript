@@ -21,6 +21,11 @@ const StringId Consts::IDENTIFIER_fn_getIterator("getIterator");
 const StringId Consts::IDENTIFIER_fn_get("_get");
 const StringId Consts::IDENTIFIER_fn_set("_set");
 
+const StringId Consts::IDENTIFIER_fn_it_end("end");
+const StringId Consts::IDENTIFIER_fn_it_next("next");
+const StringId Consts::IDENTIFIER_fn_it_key("key");
+const StringId Consts::IDENTIFIER_fn_it_value("value");
+
 const StringId Consts::IDENTIFIER_true("true");
 const StringId Consts::IDENTIFIER_false("false");
 const StringId Consts::IDENTIFIER_void("void");

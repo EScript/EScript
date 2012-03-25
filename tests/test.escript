@@ -1,7 +1,8 @@
 // Testcases for HasEScript Scripting-Language
 out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 
-
+var v;
+out(v);
 //{
 //	var start = clock();
 //
@@ -30,7 +31,10 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 //		"while(true){ try{ var a=0; continue; }catch(e){out(e);} }",
 //		"true ? 'foo' : 'bar'; ",
 //		"var f = fn(b){ var a=2; out('KatzE '*(a*b));}; f(3);",
-
+//		"var f = fn(b){ return ; out('!!!!!');}; out(f(3));",
+//		"var f = fn(b){ return b*b; out('!!!!!');}; out(f(3));",
+//		"var a = []; (a->fn(b*){append(b);})(1,2,3); print_r(a); ",
+		"var a = [-100]; foreach( (a->fn(b*){append(b);return this;})(1,2,3) as var key,var value) out(key,'::',value,'\t');  ",
 //		"var b=17;var a=7+b; out(a);",
 //		"var f = fn(a){ out(a);}; f( 3*3 );",
 //		"var f = fn(a,b=2){ out(a*b);}; f( 3 );",
@@ -41,7 +45,10 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 //		"var f = fn(a=1,b=2,c=3){ out(a+b+c);}; f(,10  );", // does not work!
 //		"new ExtObject();",
 //		"print_r([1,2,3]);",
-		"print_r( {'a':'foo',2:$bar});",
+//		"print_r( {'a':'foo',2:$bar});",
+//		"foreach( [1,2,3] as var v) out('####',v);",
+//		"var v; foreach( [1,2,3] as var k,v) out(k,':',v,'\n');",
+//		"var v; out('(',v,')');",
 //		"27+17;",
 //		"out('Hello HasE!');",
 ////		"for(var i=0;i<10;++i){	out('foo',i,'\n'); }",
@@ -86,8 +93,10 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 	exit(0);
 }
 
-
-
+{
+	var v;
+	out(v);
+}
 
 
 

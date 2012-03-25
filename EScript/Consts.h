@@ -19,6 +19,10 @@ struct Consts{
 	static const StringId IDENTIFIER_fn_call;
 	static const StringId IDENTIFIER_fn_constructor;
 	static const StringId IDENTIFIER_fn_greater;
+	static const StringId IDENTIFIER_fn_it_end;
+	static const StringId IDENTIFIER_fn_it_next;
+	static const StringId IDENTIFIER_fn_it_key;
+	static const StringId IDENTIFIER_fn_it_value;
 	static const StringId IDENTIFIER_fn_less;
 	static const StringId IDENTIFIER_fn_equal;
 	static const StringId IDENTIFIER_fn_identical;

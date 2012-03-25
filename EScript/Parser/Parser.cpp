@@ -11,7 +11,6 @@
 #include "../Objects/AST/SetAttributeExpr.h"
 #include "../Objects/AST/IfStatement.h"
 #include "../Objects/AST/ConditionalExpr.h"
-#include "../Objects/AST/ForeachStatement.h"
 #include "../Objects/AST/LogicOpExpr.h"
 #include "../Objects/AST/LoopStatement.h"
 #include "../Objects/AST/Statement.h"
@@ -169,7 +168,7 @@ Object * Parser::parse(BlockStatement * rootBlock,const StringData & c) {
 	int cursor=0;
 	Statement statement=getStatement(ctxt,cursor);
 
-	return statement.getExpression();
+	return statement.getExpression().get();
 }
 
 //! [Helper]
@@ -1075,7 +1074,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 //                return newNum ;
 //            }
 		} else if (op->getString()=="!") {
-			return new LogicOpExpr(rightExpression,0,LogicOpExpr::NOT);
+			return LogicOpExpr::createNot(rightExpression) ;
 		}
 
 		//if (GetAttributeExpr * ga=dynamic_cast<GetAttributeExpr *>(rightExpression)) {
@@ -1099,11 +1098,11 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 		}
 	/// ||
 		else if (op->getString()=="||") {
-			return new LogicOpExpr(leftExpression,rightExpression,LogicOpExpr::OR);
+			return LogicOpExpr::createOr(leftExpression,rightExpression);
 		}
 	/// &&
 		else if (op->getString()=="&&") {
-			return new LogicOpExpr(leftExpression,rightExpression,LogicOpExpr::AND);
+			return LogicOpExpr::createAnd(leftExpression,rightExpression);
 		}
 	/// normal binary expression
 	/// 1+2 -> 1.+(2)
@@ -1458,7 +1457,8 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 
 	}
 	/// foreach-Control
-	/*	foreach( [array] as [keyIdent],[valueIndent] ) [action]
+	/*	old:
+		foreach( [array] as [keyIdent],[valueIndent] ) [action]
 
 		 {  ((var __it))
 				__getIterator( [array] ); == __it=[array].getIterator();
@@ -1473,7 +1473,15 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		 }	break:
 
 	*/
-
+	/*	new:
+		{
+			var __it;
+			for( __it=obj.getIterator(); !__it.end() ; __it.next() ){
+				key = __it.key();
+				value = __it.key();
+			}
+		}
+	*/
 
 	else if(cId==Consts::IDENTIFIER_foreach) {
 		if (!Token::isA<TStartBlock>(tokens.at(cursor)))  // foreach{...as...}
@@ -1508,8 +1516,55 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		Statement action=getStatement(ctxt,cursor);
 
 		if(_produceBytecode){
-			loopWrappingBlock->addStatement( Statement(Statement::TYPE_STATEMENT, new ForeachStatement(
-					arrayExpression,keyIdent?keyIdent->getId():StringId(), valueIdent?valueIdent->getId():StringId(), action) ) );
+			static const StringId itId("__it");
+
+			// var __it;
+			loopWrappingBlock->declareVar(itId);	
+			
+			/* \todo speedup by using systemCall:
+				for(__it = sysCall getIterator(arr); sysCall isIteratorEnd(__it); sysCall increasIterator (__it) )
+			*/
+			// __it = obj.getIterator();	
+			Statement loopInit = Statement(Statement::TYPE_EXPRESSION,
+				SetAttributeExpr::createAssignment(NULL,itId,
+					FunctionCallExpr::createFunctionCall( 
+						new GetAttributeExpr(arrayExpression, Consts::IDENTIFIER_fn_getIterator),std::vector<ObjRef>() ),tokens.at(cursor)->getLine()));
+			
+			// ! __it.end()
+			Object * checkExpression = LogicOpExpr::createNot(
+					FunctionCallExpr::createFunctionCall(
+						new GetAttributeExpr(new GetAttributeExpr(NULL,itId), Consts::IDENTIFIER_fn_it_end),std::vector<ObjRef>() ));
+			
+			// __it.next()
+			Statement increaseStatement = Statement(Statement::TYPE_EXPRESSION,
+					FunctionCallExpr::createFunctionCall(
+						new GetAttributeExpr(new GetAttributeExpr(NULL,itId), Consts::IDENTIFIER_fn_it_next),std::vector<ObjRef>() ));
+			
+			BlockStatement * actionWrapper = new BlockStatement();
+			
+			// key = __it.key();
+			if(keyIdent){
+				actionWrapper->addStatement(Statement(Statement::TYPE_EXPRESSION,
+					SetAttributeExpr::createAssignment(NULL,keyIdent->getId(),
+						FunctionCallExpr::createFunctionCall(
+							new GetAttributeExpr(
+								new GetAttributeExpr(NULL,itId), Consts::IDENTIFIER_fn_it_key),std::vector<ObjRef>() ),tokens.at(cursor)->getLine())));
+			}
+			
+			// value = __it.value();
+			if(valueIdent){
+				actionWrapper->addStatement(Statement(Statement::TYPE_EXPRESSION,
+					SetAttributeExpr::createAssignment(NULL,valueIdent->getId(),
+						FunctionCallExpr::createFunctionCall(
+							new GetAttributeExpr(
+								new GetAttributeExpr(NULL,itId), Consts::IDENTIFIER_fn_it_value),std::vector<ObjRef>() ),tokens.at(cursor)->getLine())));
+			}
+			actionWrapper->addStatement(action);
+			
+			loopWrappingBlock->addStatement(Statement(Statement::TYPE_STATEMENT,
+					LoopStatement::createForLoop(loopInit,checkExpression,increaseStatement,
+													Statement(Statement::TYPE_BLOCK,actionWrapper))));
+
 			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
 		}else{
 			static const StringId itId("__id");

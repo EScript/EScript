@@ -58,8 +58,6 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		void setInstructionCursor(const size_t p)		{	instructionCursor = p;	}
 		void increaseInstructionCursor()				{	++instructionCursor;	}
 
-		void initCallerVariable()						{	localVariables[Consts::LOCAL_VAR_INDEX_this] = caller;	}
-
 		const InstructionBlock & getInstructions()const	{	return userFunction->getInstructions();	}
 		InstructionBlock & getInstructions()			{	return userFunction->getInstructions();	}
 //		const Instruction & getNextInstruction()const	{	instructionCursor._accessInstructions(instructionCursor); }

@@ -10,6 +10,9 @@ namespace EScript{
 	
 void CompilerContext::compile(ObjPtr expression){
 	compiler.compileExpression(*this,expression);
+}	
+void CompilerContext::compile(const AST::Statement & stmt){
+	compiler.compileStatement(*this,stmt);
 }
 
 uint32_t CompilerContext::getCurrentMarker(setting_t type)const{
@@ -76,51 +79,4 @@ bool CompilerContext::collectLocalVariables(setting_t entryType,std::vector<size
 
 }
 
-//------------------------------------------
-	
-//! (static) \todo // move to Compiler
-void CompilerContext::finalizeInstructions( InstructionBlock & instructionBlock ){
-
-	std::vector<Instruction> & instructions = instructionBlock._accessInstructions();
-	
-	if(instructionBlock.hasJumpMarkers()){
-		std::map<uint32_t,uint32_t> markerToPosition;
-	
-		{ // pass 1: remove setMarker-instructions and store position
-			std::vector<Instruction> tmp;
-			for(std::vector<Instruction>::const_iterator it=instructions.begin();it!=instructions.end();++it){
-				if( it->getType() == Instruction::I_SET_MARKER ){
-					markerToPosition[it->getValue_uint32()] = tmp.size();
-				}else{
-					tmp.push_back(*it);
-				}
-			}
-			tmp.swap(instructions);
-//			instructionBlock.clearMarkerNames();
-		}
-
-		{ // pass 2: adapt jump instructions
-			for(std::vector<Instruction>::iterator it=instructions.begin();it!=instructions.end();++it){
-				if( it->getType() == Instruction::I_JMP 
-						|| it->getType() == Instruction::I_JMP_IF_SET 
-						|| it->getType() == Instruction::I_JMP_ON_TRUE 
-						|| it->getType() == Instruction::I_JMP_ON_FALSE
-						|| it->getType() == Instruction::I_SET_EXCEPTION_HANDLER){
-					const uint32_t markerId = it->getValue_uint32();
-					
-					// is name of a marker (and not already a jump position)
-					if(markerId>=Instruction::JMP_TO_MARKER_OFFSET){
-						it->setValue_uint32(markerToPosition[markerId]);
-					}
-				}
-			}
-			
-		}
-		
-	}
-		
-
-//	originalInstructions.swap(finalInstructions);
-	
-}
 }

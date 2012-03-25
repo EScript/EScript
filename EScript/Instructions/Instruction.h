@@ -19,16 +19,16 @@ class Instruction {
 	public:
 		enum type_t{
 			I_UNDEFINED,
-			I_ASSIGN_ATTRIBUTE,
+			I_ASSIGN_ATTRIBUTE,				// -2
 			I_ASSIGN_LOCAL,					// -1
-			I_ASSIGN_VARIABLE,
+			I_ASSIGN_VARIABLE,				// -1
 			I_CALL,							// -2+x +1
 			I_CREATE_INSTANCE,				// -1+x +1
 			I_DUP,							// +1
-			I_FIND_VARIABLE,
-			I_GET_ATTRIBUTE,
-			I_GET_VARIABLE,
-			I_GET_LOCAL_VARIABLE,
+			I_FIND_VARIABLE,				// +2
+			I_GET_ATTRIBUTE,				// -1 +1
+			I_GET_VARIABLE,					// +1
+			I_GET_LOCAL_VARIABLE,			// +1
 			I_JMP,							// +-0
 			I_JMP_IF_SET,					// -1
 			I_JMP_ON_TRUE,					// -1
@@ -42,10 +42,10 @@ class Instruction {
 			I_PUSH_STRING,					// +1
 			I_PUSH_UINT,					// +1
 			I_PUSH_VOID,					// +1
-			I_RESET_LOCAL_VARIABLE,
-			I_SET_ATTRIBUTE,
-			I_SET_EXCEPTION_HANDLER,
-			I_SET_MARKER,
+			I_RESET_LOCAL_VARIABLE,			// -x
+			I_SET_ATTRIBUTE,				// -3
+			I_SET_EXCEPTION_HANDLER,		// +-0
+			I_SET_MARKER,					// +-0
 			I_SYS_CALL,						// -1+x +1 \todo use a parameter pair????
 		};
 		static const uint32_t JMP_TO_MARKER_OFFSET = 0x100000; //! if a jump target is >= JMP_TO_MARKER_OFFSET, the target is a marker and not an address.

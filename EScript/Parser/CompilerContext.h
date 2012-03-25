@@ -16,6 +16,9 @@
 #include <stack>
 
 namespace EScript {
+namespace AST {
+class Statement;
+}
 class Compiler;
 
 /*! Collection of "things" used during the compilation process.
@@ -66,6 +69,7 @@ class CompilerContext {
 		bool collectLocalVariables(setting_t entryType,std::vector<size_t> & variableIndices);
 		
 		void compile(ObjPtr expression);
+		void compile(const AST::Statement & stmt);
 		
 		uint32_t createMarker()											{	return currentMarkerId++;	}
 		uint32_t declareString(const std::string & str)					{	return instructions.declareString(str);	}
@@ -98,9 +102,6 @@ class CompilerContext {
 		void pushLocalVarsCollector(std::vector<size_t> * collection)	{	variableCollectorStack.push(collection);	}
 		void popLocalVarsCollector()									{	variableCollectorStack.pop();	}
 	
-		/*! (static) \todo // move to Compiler
-			- Replaces the markers inside the assembly by jump addresses.	*/
-		static void finalizeInstructions( InstructionBlock & instructions ); 
 		
 };
 }

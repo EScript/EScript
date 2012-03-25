@@ -5,10 +5,10 @@
 #include "Compiler.h"
 #include "Parser.h"
 #include "CompilerContext.h"
+#include "../Consts.h"
 #include "../Objects/typeIds.h"
 #include "../Objects/AST/BlockStatement.h"
 #include "../Objects/AST/ConditionalExpr.h"
-#include "../Objects/AST/ForeachStatement.h"
 #include "../Objects/AST/FunctionCallExpr.h"
 #include "../Objects/AST/GetAttributeExpr.h"
 #include "../Objects/AST/IfStatement.h"
@@ -92,9 +92,96 @@ UserFunction * Compiler::compile(const StringData & code){
 	// compile and create instructions
 	CompilerContext ctxt(*this,fun->getInstructions());
 	ctxt.compile(block.get());
+	Compiler::finalizeInstructions(fun->getInstructions());
 
 	return fun.detachAndDecrease();
 }
+	
+//! (static) 
+void Compiler::finalizeInstructions( InstructionBlock & instructionBlock ){
+
+	std::vector<Instruction> & instructions = instructionBlock._accessInstructions();
+	
+	if(instructionBlock.hasJumpMarkers()){
+		std::map<uint32_t,uint32_t> markerToPosition;
+	
+		{ // pass 1: remove setMarker-instructions and store position
+			std::vector<Instruction> tmp;
+			for(std::vector<Instruction>::const_iterator it=instructions.begin();it!=instructions.end();++it){
+				if( it->getType() == Instruction::I_SET_MARKER ){
+					markerToPosition[it->getValue_uint32()] = tmp.size();
+				}else{
+					tmp.push_back(*it);
+				}
+			}
+			tmp.swap(instructions);
+//			instructionBlock.clearMarkerNames();
+		}
+
+		{ // pass 2: adapt jump instructions
+			for(std::vector<Instruction>::iterator it=instructions.begin();it!=instructions.end();++it){
+				if( it->getType() == Instruction::I_JMP 
+						|| it->getType() == Instruction::I_JMP_IF_SET 
+						|| it->getType() == Instruction::I_JMP_ON_TRUE 
+						|| it->getType() == Instruction::I_JMP_ON_FALSE
+						|| it->getType() == Instruction::I_SET_EXCEPTION_HANDLER){
+					const uint32_t markerId = it->getValue_uint32();
+					
+					// is name of a marker (and not already a jump position)
+					if(markerId>=Instruction::JMP_TO_MARKER_OFFSET){
+						it->setValue_uint32(markerToPosition[markerId]);
+					}
+				}
+			}
+			
+		}
+		
+	}
+}
+
+//! (internal)
+void Compiler::compileStatement(CompilerContext & ctxt,const AST::Statement & statement)const{
+	using AST::Statement;
+	
+	if(statement.getType() == Statement::TYPE_CONTINUE){
+		const uint32_t target = ctxt.getCurrentMarker(CompilerContext::CONTINUE_MARKER);
+		if(target==Instruction::INVALID_JUMP_ADDRESS){
+			std::cout << "\nError: Continue outside a loop!\n"; //! \todo Compiler error
+		}
+		std::vector<size_t> variablesToReset;
+		ctxt.collectLocalVariables(CompilerContext::CONTINUE_MARKER,variablesToReset);
+		for(std::vector<size_t>::const_iterator it = variablesToReset.begin();it!=variablesToReset.end();++it){
+			ctxt.addInstruction(Instruction::createResetLocalVariable(*it));
+		}
+		ctxt.addInstruction(Instruction::createJmp(target));
+		
+	}else if(statement.getType() == Statement::TYPE_BREAK){
+		const uint32_t target = ctxt.getCurrentMarker(CompilerContext::BREAK_MARKER);
+		if(target==Instruction::INVALID_JUMP_ADDRESS){
+			std::cout << "\nError: Break outside a loop!\n"; //! \todo Compiler error
+		}
+		std::vector<size_t> variablesToReset;
+		ctxt.collectLocalVariables(CompilerContext::BREAK_MARKER,variablesToReset);
+		for(std::vector<size_t>::const_iterator it = variablesToReset.begin();it!=variablesToReset.end();++it){
+			ctxt.addInstruction(Instruction::createResetLocalVariable(*it));
+		}
+		ctxt.addInstruction(Instruction::createJmp(target));
+	}else if(statement.getType() == Statement::TYPE_RETURN){
+		if(statement.getExpression().isNotNull()){
+			ctxt.compile(statement.getExpression());
+			ctxt.addInstruction(Instruction::createAssignLocal(Consts::LOCAL_VAR_INDEX_internalResult));
+		}
+		ctxt.addInstruction(Instruction::createJmp(Instruction::INVALID_JUMP_ADDRESS));
+	
+	}else if(statement.getExpression().isNotNull()){
+		ctxt.setLine(statement.getLine());
+		ctxt.compile(statement.getExpression());
+		if(statement.getType() == Statement::TYPE_EXPRESSION)
+			ctxt.addInstruction(Instruction::createPop());
+	}
+}
+
+
 
 // ------------------------------------------------------------------
 
@@ -151,8 +238,8 @@ bool initHandler(handlerRegistry_t & m){
 		if(self->hasLocalVars())
 			ctxt.pushSetting_localVars(*self->getVars());
 
-		for ( BlockStatement::statementCursor c = self->getStatements().begin();  c != self->getStatements().end(); ++c) {
-			c->_asm(ctxt);
+		for ( BlockStatement::cStatementCursor c = self->getStatements().begin();  c != self->getStatements().end(); ++c) {
+			ctxt.compile(*c);
 		}
 		if(self->hasLocalVars()){
 			for(std::set<StringId>::const_iterator it = self->getVars()->begin();it!=self->getVars()->end();++it){
@@ -187,12 +274,6 @@ bool initHandler(handlerRegistry_t & m){
 			}
 		}
 	})
-
-	// ForeachStatement
-	ADD_HANDLER( _TypeIds::TYPE_FOREACH_STATEMENT, ForeachStatement, {
-		// \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	})
-
 
 	// FunctionCallExpr
 	ADD_HANDLER( _TypeIds::TYPE_FUNCTION_CALL_EXPRESSION, FunctionCallExpr, {
@@ -274,7 +355,7 @@ bool initHandler(handlerRegistry_t & m){
 	ADD_HANDLER( _TypeIds::TYPE_IF_STATEMENT, IfStatement, {
 		if(self->getCondition().isNull()){
 			if(self->getElseAction().isValid()){
-				self->getElseAction()._asm(ctxt);
+				ctxt.compile(self->getElseAction());
 			}
 		}else{
 			const uint32_t elseMarker = ctxt.createMarker();
@@ -282,14 +363,14 @@ bool initHandler(handlerRegistry_t & m){
 			ctxt.compile(self->getCondition());
 			ctxt.addInstruction(Instruction::createJmpOnFalse(elseMarker));
 			if(self->getAction().isValid()){
-				self->getAction()._asm(ctxt);
+				ctxt.compile(self->getAction());
 			}
 
 			if(self->getElseAction().isValid()){
 				const uint32_t endMarker = ctxt.createMarker();
 				ctxt.addInstruction(Instruction::createJmp(endMarker));
 				ctxt.addInstruction(Instruction::createSetMarker(elseMarker));
-				self->getElseAction()._asm(ctxt);
+				ctxt.compile(self->getElseAction());
 				ctxt.addInstruction(Instruction::createSetMarker(endMarker));
 			}else{
 				ctxt.addInstruction(Instruction::createSetMarker(elseMarker));
@@ -346,7 +427,7 @@ bool initHandler(handlerRegistry_t & m){
 
 		if(self->getInitStatement().isValid()){
 			ctxt.setLine(self->getInitStatement().getLine());
-			self->getInitStatement()._asm(ctxt);
+			ctxt.compile(self->getInitStatement());
 		}
 		ctxt.addInstruction(Instruction::createSetMarker(loopBegin));
 
@@ -356,7 +437,7 @@ bool initHandler(handlerRegistry_t & m){
 		}
 		ctxt.pushSetting_marker( CompilerContext::BREAK_MARKER ,loopEndMarker);
 		ctxt.pushSetting_marker( CompilerContext::CONTINUE_MARKER ,loopContinueMarker);
-		self->getAction()._asm(ctxt);
+		ctxt.compile(self->getAction());
 		ctxt.popSetting();
 		ctxt.popSetting();
 
@@ -367,7 +448,7 @@ bool initHandler(handlerRegistry_t & m){
 		}else{
 			ctxt.addInstruction(Instruction::createSetMarker(loopContinueMarker));
 			if(self->getIncreaseStatement().isValid()){
-				self->getIncreaseStatement()._asm(ctxt);
+				ctxt.compile(self->getIncreaseStatement());
 			}
 			ctxt.addInstruction(Instruction::createJmp(loopBegin));
 		}
@@ -499,7 +580,7 @@ bool initHandler(handlerRegistry_t & m){
 
 		ctxt2.compile(self->getBlock());
 		ctxt2.popSetting();
-		CompilerContext::finalizeInstructions(fun->getInstructions());
+		Compiler::finalizeInstructions(fun->getInstructions());
 
 		ctxt.addInstruction(Instruction::createPushFunction(ctxt.registerInternalFunction(fun.get())));
 

@@ -495,19 +495,19 @@ Object * Runtime::executeCurrentContext(bool markEntry) {
 		try {
 			switch( stmt->getType()){
 			case Statement::TYPE_EXPRESSION:{
-				resultRef=executeObj( stmt->getExpression() );
+				resultRef=executeObj( stmt->getExpression().get() );
 				stmt = rtb->nextStatement();
 				break;
 			}
 			case Statement::TYPE_BLOCK:{
-				BlockStatement * block=static_cast<BlockStatement*>(stmt->getExpression());
+				BlockStatement * block=static_cast<BlockStatement*>(stmt->getExpression().get());
 				rtb = ctxt->createAndPushRTB(block);
 				++localRTBs;
 				stmt = rtb->nextStatement();
 				break;
 			}
 			case Statement::TYPE_IF:{
-				IfStatement * ifControl = static_cast<IfStatement*>(stmt->getExpression());
+				IfStatement * ifControl = static_cast<IfStatement*>(stmt->getExpression().get());
 				resultRef = executeObj( ifControl->getCondition().get() );
 				assertNormalState(ifControl);
 				stmt = resultRef.toBool() ? &ifControl->getAction() : &ifControl->getElseAction();
@@ -531,8 +531,8 @@ Object * Runtime::executeCurrentContext(bool markEntry) {
 			case Statement::TYPE_RETURN:{
 				ObjRef returnValue;
 				if( stmt->getExpression() != NULL )
-					returnValue = executeObj(stmt->getExpression());
-				if(!assertNormalState(stmt->getExpression()))
+					returnValue = executeObj(stmt->getExpression().get());
+				if(!assertNormalState(stmt->getExpression().get()))
 					break;
 				setReturnState(returnValue);
 				break;
@@ -540,8 +540,8 @@ Object * Runtime::executeCurrentContext(bool markEntry) {
 			case Statement::TYPE_YIELD:{
 				ObjRef returnValue;
 				if( stmt->getExpression() != NULL )
-					returnValue = executeObj(stmt->getExpression());
-				if(!assertNormalState(stmt->getExpression()))
+					returnValue = executeObj(stmt->getExpression().get());
+				if(!assertNormalState(stmt->getExpression().get()))
 					break;
 				setYieldingState(returnValue);
 //				stmt = rtb->nextStatement();
@@ -550,8 +550,8 @@ Object * Runtime::executeCurrentContext(bool markEntry) {
 			case Statement::TYPE_EXCEPTION:{
 				ObjRef returnValue;
 				if( stmt->getExpression() != NULL )
-					returnValue = executeObj(stmt->getExpression());
-				if(!assertNormalState(stmt->getExpression()))
+					returnValue = executeObj(stmt->getExpression().get());
+				if(!assertNormalState(stmt->getExpression().get()))
 					break;
 				setExceptionState(returnValue);
 				break;
@@ -559,8 +559,8 @@ Object * Runtime::executeCurrentContext(bool markEntry) {
 			case Statement::TYPE_EXIT:{
 				ObjRef returnValue;
 				if( stmt->getExpression() != NULL )
-					returnValue = executeObj(stmt->getExpression());
-				if(!assertNormalState(stmt->getExpression()))
+					returnValue = executeObj(stmt->getExpression().get());
+				if(!assertNormalState(stmt->getExpression().get()))
 					break;
 				setExitState(returnValue);
 				break;
@@ -568,7 +568,7 @@ Object * Runtime::executeCurrentContext(bool markEntry) {
 			case Statement::TYPE_UNDEFINED:
 			default:{
 				std::cout << " #unimplementedStmt "<<static_cast<int>(stmt->getType());
-				resultRef=executeObj( stmt->getExpression() );
+				resultRef=executeObj( stmt->getExpression().get() );
 				stmt = rtb->nextStatement();
 				break;
 			}
@@ -1305,15 +1305,14 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 	while( true ){
 		// end of function? continue with calling function
 		if(fcc->getInstructionCursor() >= instructions->getNumInstructions()){
+			ObjRef result = fcc->getLocalVariable(Consts::LOCAL_VAR_INDEX_internalResult);
 			if(fcc->getParent()){
 				fcc = fcc->getParent();
 				instructions = &fcc->getInstructions();
-				fcc->stack_pushVoid();
+				fcc->stack_pushObject(result);
 				continue;
-				// push result !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			}else{
-				break;
 			}
+			return result.detachAndDecrease();
 		}
 
 		//! \todo this could probably improved by using iterators internally!
@@ -1708,6 +1707,10 @@ Runtime::executeFunctionResult_t Runtime::startFunctionExecution(FunctionCallCon
 			}
 
 			return std::make_pair(result.get(),fcc.detachAndDecrease());
+		}
+		case _TypeIds::TYPE_DELEGATE:{
+			Delegate * delegate = static_cast<Delegate*>(fun.get());
+			return startFunctionExecution(callingFcc,delegate->getFunction(),delegate->getObject(),params);
 		}
 
 		default:{
