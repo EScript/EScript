@@ -278,7 +278,7 @@ std::string Instruction::toString(const InstructionBlock & ctxt)const{
 		break;
 	}
 	case I_PUSH_ID:{
-		out << "call " << getValue_uint32();
+		out << "push (Indentifier) '" << getValue_Identifier().toString()<<"'";
 		break;
 	}
 	case I_PUSH_FUNCTION:{

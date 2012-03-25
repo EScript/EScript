@@ -83,7 +83,7 @@ class Parser : public Object {
 		Object * getExpression(ParsingContext & ctxt,int & cursor,int to=-1)const;
 		Object * getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)const;
 		AST::BlockStatement * getBlock(ParsingContext & ctxt,int & cursor)const ;
-		Object * getMap(ParsingContext & ctxt,int & cursor)const;
+		Object * readMap(ParsingContext & ctxt,int & cursor)const;
 		Object * getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const;
 		UserFunction::parameterList_t * getFunctionParameters(ParsingContext & ctxt,int & cursor)const; //! \todo old!
 		void readFunctionParameters(UserFunctionExpr::parameterList_t & params,ParsingContext & ctxt,int & cursor)const;

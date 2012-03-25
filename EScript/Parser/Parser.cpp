@@ -576,7 +576,7 @@ Object * Parser::getExpression(ParsingContext & ctxt,int & cursor,int to)const  
 	if (Token::isA<TStartMap>(tokens.at(cursor)) &&
 		Token::isA<TEndMap>(tokens[to]) &&
 		findCorrespondingBracket<TStartMap,TEndMap>(ctxt,cursor,to,1) == to) {
-		return getMap(ctxt,cursor);
+		return readMap(ctxt,cursor);
 	}
 
 	/// BinaryExpression
@@ -682,8 +682,8 @@ BlockStatement * Parser::getBlock(ParsingContext & ctxt,int & cursor)const {
 	return b;
 }
 
-//!	getMap
-Object * Parser::getMap(ParsingContext & ctxt,int & cursor)const  {
+//!	readMap
+Object * Parser::readMap(ParsingContext & ctxt,int & cursor)const  {
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	if (!Token::isA<TStartMap>(tokens.at(cursor)))
 		throwError("No Map!",tokens.at(cursor));
@@ -741,10 +741,16 @@ Object * Parser::getMap(ParsingContext & ctxt,int & cursor)const  {
 			throwError("Map Syntax Error",tokens.at(cursor));
 	}
 
-	FunctionCallExpr * funcCall = FunctionCallExpr::createFunctionCall(
-					Map::getTypeObject()->getAttribute(Consts::IDENTIFIER_fn_constructor).getValue(),
-					paramExp,currentFilename,currentLine);
-	return funcCall;
+	if(_produceBytecode){
+		return FunctionCallExpr::createSysCall(Consts::SYS_CALL_CREATE_MAP,paramExp,currentFilename,currentLine);
+	}else{
+		FunctionCallExpr * funcCall = FunctionCallExpr::createFunctionCall(
+						Map::getTypeObject()->getAttribute(Consts::IDENTIFIER_fn_constructor).getValue(),
+						paramExp,currentFilename,currentLine);
+		return funcCall;
+	
+	}
+
 }
 
 /*!	Binary expression	*/

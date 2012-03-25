@@ -19,6 +19,7 @@
 #include "../Objects/AST/TryCatchStatement.h"
 #include "../Objects/AST/UserFunctionExpr.h"
 #include "../Objects/Callables/UserFunction.h"
+#include "../Objects/Identifier.h"
 #include "../Objects/Values/Bool.h"
 #include "../Objects/Values/Number.h"
 #include "../Objects/Values/String.h"
@@ -117,14 +118,19 @@ bool initHandler(handlerRegistry_t & m){
 	// ------------------------
 	// Simple types
 
-	// Number
-	ADD_HANDLER( _TypeIds::TYPE_NUMBER, Number, {
-		ctxt.addInstruction(Instruction::createPushNumber(self->toDouble()));
-	})
 	// Bool
 	ADD_HANDLER( _TypeIds::TYPE_BOOL, Bool, {
 		ctxt.addInstruction(Instruction::createPushNumber(self->toBool()));
 	})
+	// Identifier
+	ADD_HANDLER( _TypeIds::TYPE_IDENTIFIER, Identifier, {
+		ctxt.addInstruction(Instruction::createPushId(self->getId()));
+	})
+	// Number
+	ADD_HANDLER( _TypeIds::TYPE_NUMBER, Number, {
+		ctxt.addInstruction(Instruction::createPushNumber(self->toDouble()));
+	})
+
 	// String
 	ADD_HANDLER( _TypeIds::TYPE_STRING, String, {
 		ctxt.addInstruction(Instruction::createPushString(ctxt.declareString(self->toString())));

@@ -44,6 +44,7 @@ class Identifier:public Object{
 		virtual bool rt_isEqual(Runtime & rt,const ObjPtr o);
 		virtual std::string toString()const;
 		virtual StringId hash()const	{	return id;	}
+		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_IDENTIFIER;	}
 };
 //	@}
 

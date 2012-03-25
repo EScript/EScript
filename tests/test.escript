@@ -40,7 +40,8 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 //		"var f = fn(a='foo',b*){ out(a);print_r(b);}; f(  );",
 //		"var f = fn(a=1,b=2,c=3){ out(a+b+c);}; f(,10  );", // does not work!
 //		"new ExtObject();",
-		"[1,2,3];",
+//		"print_r([1,2,3]);",
+		"print_r( {'a':'foo',2:$bar});",
 //		"27+17;",
 //		"out('Hello HasE!');",
 ////		"for(var i=0;i<10;++i){	out('foo',i,'\n'); }",

@@ -39,6 +39,7 @@ struct _TypeIds{
 	static const internalTypeId_t TYPE_DELEGATE 		= 0x32;
 	static const internalTypeId_t TYPE_ARRAY 			= 0x33;
 	static const internalTypeId_t TYPE_VOID 			= 0x34;
+	static const internalTypeId_t TYPE_IDENTIFIER 		= 0x35;
 
 
 };

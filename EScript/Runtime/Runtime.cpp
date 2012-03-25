@@ -149,11 +149,19 @@ Runtime::Runtime() :
 			ESF( sysCall,0,-1,Array::create(parameter) )
 		};
 		systemFunctions.push_back(new Function(_::sysCall));
+	}	
+	{	// SYS_CALL_CREATE_MAP = 0;
+		struct _{
+			ES_FUNCTION( sysCall) {
+					if ( (parameter.count()%2)==1 ) runtime.warn("Map: Last parameter ignored!");
+					Map * a=Map::create();
+					for (ParameterValues::size_type i=0;i<parameter.count();i+=2)
+						a->setValue(parameter[i],parameter[i+1]);
+				return a;			
+			}
+		};
+		systemFunctions.push_back(new Function(_::sysCall));
 	}
-//	static const size_t SYS_CALL_CREATE_ARRAY = 0;
-//	static const size_t SYS_CALL_CREATE_MAP = 1;
-
-
 
 	//ctor
 }
