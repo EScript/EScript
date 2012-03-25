@@ -52,7 +52,7 @@ void Compiler::compileExpression(CompilerContext & ctxt,ObjPtr expression)const{
 	if(expression.isNull())
 		return;
 	const internalTypeId_t typeId = expression->_getInternalTypeId();
-	
+
 	handlerRegistry_t::iterator it = handlerRegistry.find(typeId);
 	if(it==handlerRegistry.end()){
 			std::cout << reinterpret_cast<void*>(typeId)<<"\n";
@@ -78,20 +78,20 @@ UserFunction * Compiler::compile(const StringData & code){
 	// prepare container function
 	ERef<UserFunction> fun = new UserFunction(new UserFunction::parameterList_t,new AST::BlockStatement); // dummy parameters
 	fun->setCodeString(String::create(code),0,code.str().length());
-	
+
 	// parse and build syntax tree
 	ERef<AST::BlockStatement> block(new AST::BlockStatement);
 	block->setFilename(inline_id);
 //	ERef<UserFunctionExpr> fun = new UserFunction(block);
-	
+
 	Parser p(getLogger());
 	p._produceBytecode = true;
 	p.parse(block.get(),code);
-	
+
 	// compile and create instructions
 	CompilerContext ctxt(*this,fun->getInstructions());
 	ctxt.compile(block.get());
-	
+
 	return fun.detachAndDecrease();
 }
 
@@ -124,11 +124,11 @@ bool initHandler(handlerRegistry_t & m){
 	// Bool
 	ADD_HANDLER( _TypeIds::TYPE_BOOL, Bool, {
 		ctxt.addInstruction(Instruction::createPushNumber(self->toBool()));
-	})	
+	})
 	// String
 	ADD_HANDLER( _TypeIds::TYPE_STRING, String, {
 		ctxt.addInstruction(Instruction::createPushString(ctxt.declareString(self->toString())));
-	})	
+	})
 	// Void
 	ADD_HANDLER( _TypeIds::TYPE_VOID, Void, {
 		ctxt.addInstruction(Instruction::createPushVoid());
@@ -136,13 +136,13 @@ bool initHandler(handlerRegistry_t & m){
 
 
 	// ------------------------
-	// AST 
+	// AST
 	using namespace AST;
 
-	
+
 	// BlockStatement
 	ADD_HANDLER( _TypeIds::TYPE_BLOCK_STATEMENT, BlockStatement, {
-		if(self->hasLocalVars()) 
+		if(self->hasLocalVars())
 			ctxt.pushSetting_localVars(*self->getVars());
 
 		for ( BlockStatement::statementCursor c = self->getStatements().begin();  c != self->getStatements().end(); ++c) {
@@ -155,7 +155,7 @@ bool initHandler(handlerRegistry_t & m){
 			ctxt.popSetting();
 		}
 	})
-	
+
 	// ConditionalExpr
 	ADD_HANDLER( _TypeIds::TYPE_CONDITIONAL_EXPRESSION, ConditionalExpr, {
 		if(self->getCondition().isNull()){
@@ -164,12 +164,12 @@ bool initHandler(handlerRegistry_t & m){
 			}
 		}else{
 			const uint32_t elseMarker = ctxt.createMarker();
-		
+
 			ctxt.compile(self->getCondition());
 			ctxt.addInstruction(Instruction::createJmpOnFalse(elseMarker));
-			
+
 			ctxt.compile( self->getAction() );
-			
+
 			if(self->getElseAction().isNotNull()){
 				const uint32_t endMarker = ctxt.createMarker();
 				ctxt.addInstruction(Instruction::createJmp(endMarker));
@@ -181,51 +181,55 @@ bool initHandler(handlerRegistry_t & m){
 			}
 		}
 	})
-	
+
 	// ForeachStatement
 	ADD_HANDLER( _TypeIds::TYPE_FOREACH_STATEMENT, ForeachStatement, {
 		// \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	})
-	
-	
+
+
 	// FunctionCallExpr
 	ADD_HANDLER( _TypeIds::TYPE_FUNCTION_CALL_EXPRESSION, FunctionCallExpr, {
-		do{
-			GetAttributeExpr * gAttr = self->getGetFunctionExpression().toType<GetAttributeExpr>();
+		if(self->isSysCall()){
+			ctxt.addInstruction(Instruction::createPushUInt(self->getSysCallId()));
+		}else{
+			do{
+				GetAttributeExpr * gAttr = self->getGetFunctionExpression().toType<GetAttributeExpr>();
 
-			// getAttributeExpression (...)
-			if( gAttr ){
-				const StringId attrId = gAttr->getAttrId();
+				// getAttributeExpression (...)
+				if( gAttr ){
+					const StringId attrId = gAttr->getAttrId();
 
-				if(gAttr->getObjectExpression()==NULL){ // singleIdentifier (...)
-					const int localVarIndex = ctxt.getCurrentVarIndex(attrId);
-					if(localVarIndex>=0){
-						ctxt.addInstruction(Instruction::createPushVoid());
-						ctxt.addInstruction(Instruction::createGetLocalVariable(localVarIndex));
-					}else{
-						ctxt.addInstruction(Instruction::createFindVariable(attrId));
+					if(gAttr->getObjectExpression()==NULL){ // singleIdentifier (...)
+						const int localVarIndex = ctxt.getCurrentVarIndex(attrId);
+						if(localVarIndex>=0){
+							ctxt.addInstruction(Instruction::createPushVoid());
+							ctxt.addInstruction(Instruction::createGetLocalVariable(localVarIndex));
+						}else{
+							ctxt.addInstruction(Instruction::createFindVariable(attrId));
+						}
+						break;
+					} // getAttributeExpression.identifier (...)
+					else if(GetAttributeExpr * gAttrGAttr = gAttr->getObjectExpression().toType<GetAttributeExpr>() ){
+						ctxt.compile(gAttrGAttr);
+						ctxt.addInstruction(Instruction::createDup());
+						ctxt.addInstruction(Instruction::createGetAttribute(attrId));
+						break;
+					} // somethingElse.identifier (...) e.g. foo().bla(), 7.bla()
+					else{
+						ctxt.compile(gAttr->getObjectExpression());
+						ctxt.addInstruction(Instruction::createDup());
+						ctxt.addInstruction(Instruction::createGetAttribute(attrId));
+						break;
 					}
-					break;
-				} // getAttributeExpression.identifier (...)
-				else if(GetAttributeExpr * gAttrGAttr = gAttr->getObjectExpression().toType<GetAttributeExpr>() ){
-					ctxt.compile(gAttrGAttr);
-					ctxt.addInstruction(Instruction::createDup());
-					ctxt.addInstruction(Instruction::createGetAttribute(attrId));
-					break;
-				} // somethingElse.identifier (...) e.g. foo().bla(), 7.bla()
-				else{
-					ctxt.compile(gAttr->getObjectExpression());
-					ctxt.addInstruction(Instruction::createDup());
-					ctxt.addInstruction(Instruction::createGetAttribute(attrId));
+				}else{
+					ctxt.addInstruction(Instruction::createPushVoid());
+					ctxt.compile(self->getGetFunctionExpression());
 					break;
 				}
-			}else{
-				ctxt.addInstruction(Instruction::createPushVoid());
-				ctxt.compile(self->getGetFunctionExpression());
-				break;
-			}
-			
-		}while(false);
+
+			}while(false);
+		}
 		for(std::vector<ObjRef>::const_iterator it=self->getParams().begin();it!=self->getParams().end();++it){
 			if( it->isNull() ){
 				/* \todo explicitly mark this as NULL/Undefined and not void! Perhaps: pushUndefined!?
@@ -235,13 +239,15 @@ bool initHandler(handlerRegistry_t & m){
 				ctxt.compile(*it);
 			}
 		}
-		if( self->isConstructorCall()){
+		if( self->isSysCall()){
+			ctxt.addInstruction(Instruction::createSysCall(self->getParams().size()));
+		}else if( self->isConstructorCall()){
 			ctxt.addInstruction(Instruction::createCreateInstance(self->getParams().size()));
 		}else{
 			ctxt.addInstruction(Instruction::createCall(self->getParams().size()));
 		}
 	})
-		
+
 	// GetAttributeExpr
 	ADD_HANDLER( _TypeIds::TYPE_GET_ATTRIBUTE_EXPRESSION, GetAttributeExpr, {
 		if(self->getObjectExpression().isNotNull()){
@@ -266,13 +272,13 @@ bool initHandler(handlerRegistry_t & m){
 			}
 		}else{
 			const uint32_t elseMarker = ctxt.createMarker();
-		
+
 			ctxt.compile(self->getCondition());
 			ctxt.addInstruction(Instruction::createJmpOnFalse(elseMarker));
 			if(self->getAction().isValid()){
 				self->getAction()._asm(ctxt);
 			}
-			
+
 			if(self->getElseAction().isValid()){
 				const uint32_t endMarker = ctxt.createMarker();
 				ctxt.addInstruction(Instruction::createJmp(endMarker));
@@ -284,8 +290,8 @@ bool initHandler(handlerRegistry_t & m){
 			}
 		}
 	})
-	
-	
+
+
 	// IfStatement
 	ADD_HANDLER( _TypeIds::TYPE_LOGIC_OP_EXPRESSION, LogicOpExpr, {
 		switch(self->getOperator()){
@@ -325,19 +331,19 @@ bool initHandler(handlerRegistry_t & m){
 			}
 		}
 	})
-	
+
 	// IfStatement
 	ADD_HANDLER( _TypeIds::TYPE_LOOP_STATEMENT, LoopStatement, {
 		const uint32_t loopBegin = ctxt.createMarker();
 		const uint32_t loopEndMarker = ctxt.createMarker();
 		const uint32_t loopContinueMarker = ctxt.createMarker();
-		
+
 		if(self->getInitStatement().isValid()){
 			ctxt.setLine(self->getInitStatement().getLine());
 			self->getInitStatement()._asm(ctxt);
 		}
 		ctxt.addInstruction(Instruction::createSetMarker(loopBegin));
-		
+
 		if(self->getPreConditionExpression().isNotNull()){
 			ctxt.compile(self->getPreConditionExpression());
 			ctxt.addInstruction(Instruction::createJmpOnFalse(loopEndMarker));
@@ -347,7 +353,7 @@ bool initHandler(handlerRegistry_t & m){
 		self->getAction()._asm(ctxt);
 		ctxt.popSetting();
 		ctxt.popSetting();
-		
+
 		if(self->getPostConditionExpression().isNotNull()){ // increaseStmt is ignored!
 			ctxt.addInstruction(Instruction::createSetMarker(loopContinueMarker));
 			ctxt.compile(self->getPostConditionExpression());
@@ -362,29 +368,29 @@ bool initHandler(handlerRegistry_t & m){
 		ctxt.addInstruction(Instruction::createSetMarker(loopEndMarker));
 	})
 
-	
+
 	// IfStatement
 	ADD_HANDLER( _TypeIds::TYPE_SET_ATTRIBUTE_EXPRESSION, SetAttributeExpr, {
 		ctxt.compile(self->getValueExpression());
 
 		ctxt.setLine(self->getLine());
 		ctxt.addInstruction(Instruction::createDup());
-		
+
 		const StringId attrId = self->getAttrId();
 		if(self->isAssignment()){
 			// no object given: a = ...
 			if(self->getObjectExpression().isNull()){
-				// local variable: var a = ...	
+				// local variable: var a = ...
 				if(ctxt.getCurrentVarIndex(attrId)>=0){
 					ctxt.addInstruction(Instruction::createAssignLocal(ctxt.getCurrentVarIndex(attrId)));
 				}else{
 					ctxt.addInstruction(Instruction::createAssignVariable(attrId));
 				}
-			}else{ // object.a = 
+			}else{ // object.a =
 				ctxt.compile(self->getObjectExpression());
 				ctxt.addInstruction(Instruction::createAssignAttribute(attrId));
 			}
-			
+
 		}else{
 				ctxt.compile(self->getObjectExpression());
 				ctxt.addInstruction(Instruction::createPushUInt(static_cast<uint32_t>(self->getAttributeProperties())));
@@ -396,11 +402,11 @@ bool initHandler(handlerRegistry_t & m){
 	ADD_HANDLER( _TypeIds::TYPE_TRY_CATCH_STATEMENT, TryCatchStatement, {
 		const uint32_t catchMarker = ctxt.createMarker();
 		const uint32_t endMarker = ctxt.createMarker();
-		
+
 		// try
 		// ------
 		ctxt.pushSetting_marker(CompilerContext::EXCEPTION_MARKER,catchMarker);
-		ctxt.addInstruction(Instruction::createSetExceptionHandler(catchMarker)); 
+		ctxt.addInstruction(Instruction::createSetExceptionHandler(catchMarker));
 
 		// collect all variables that are declared inside the try-block (excluding nested try-blocks)
 		std::vector<size_t> collectedVariableIndices;
@@ -410,20 +416,20 @@ bool initHandler(handlerRegistry_t & m){
 
 		ctxt.addInstruction(Instruction::createJmp(endMarker));
 		ctxt.popSetting(); // EXCEPTION_MARKER
-		
+
 		// catch
 		// ------
 		const StringId exceptionVariableName = self->getExceptionVariableName();
-		
+
 		ctxt.addInstruction(Instruction::createSetMarker(catchMarker));
 		// reset catchMarker
-		ctxt.addInstruction(Instruction::createSetExceptionHandler(ctxt.getCurrentMarker(CompilerContext::EXCEPTION_MARKER))); 
+		ctxt.addInstruction(Instruction::createSetExceptionHandler(ctxt.getCurrentMarker(CompilerContext::EXCEPTION_MARKER)));
 
 		// clear all variables defined inside try block
 		for(std::vector<size_t>::const_iterator it = collectedVariableIndices.begin(); it!=collectedVariableIndices.end();++it){
 			ctxt.addInstruction(Instruction::createResetLocalVariable(*it));
 		}
-		
+
 		// define exception variable
 		if(!exceptionVariableName.empty()){
 			std::set<StringId> varSet;
@@ -431,9 +437,9 @@ bool initHandler(handlerRegistry_t & m){
 			ctxt.pushSetting_localVars(varSet);
 		}
 		// load exception variable with exception object ( exceptionVariableName = __result )
-		ctxt.addInstruction(Instruction::createGetLocalVariable(2));  
-		ctxt.addInstruction(Instruction::createAssignLocal(ctxt.getCurrentVarIndex(exceptionVariableName))); 
-		
+		ctxt.addInstruction(Instruction::createGetLocalVariable(2));
+		ctxt.addInstruction(Instruction::createAssignLocal(ctxt.getCurrentVarIndex(exceptionVariableName)));
+
 		// execute catch block
 		ctxt.compile(self->getCatchBlock().get());
 		// pop exception variable
@@ -460,7 +466,7 @@ bool initHandler(handlerRegistry_t & m){
 		for(UserFunctionExpr::parameterList_t::const_iterator it = self->getParamList().begin();it!=self->getParamList().end();++it){
 			fun->getInstructions().declareLocalVariable( it->getName() );
 		}
-		
+
 		ctxt2.pushSetting_basicLocalVars(); // make 'this' and parameters available
 
 		// default parameters
@@ -469,30 +475,30 @@ bool initHandler(handlerRegistry_t & m){
 			ObjPtr defaultExpr = param.getDefaultValueExpression();
 			if(defaultExpr.isNotNull()){
 				const int varIdx = ctxt2.getCurrentVarIndex(param.getName()); // \todo assert(varIdx>=0)
-//			
+//
 				const uint32_t parameterAvailableMarker = ctxt2.createMarker();
 				ctxt2.addInstruction(Instruction::createPushUInt(varIdx));
 				ctxt2.addInstruction(Instruction::createJmpIfSet(parameterAvailableMarker));
-				
+
 //					ctxt2.enableGlobalVarContext();				// \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 				ctxt2.compile(defaultExpr);
 //					ctxt2.disableGlobalVarContext();			// \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 				ctxt2.addInstruction(Instruction::createAssignLocal(varIdx));
-				
+
 				ctxt2.addInstruction(Instruction::createSetMarker(parameterAvailableMarker));
-//				
+//
 			}
-			
+
 		}
-	
+
 		ctxt2.compile(self->getBlock());
 		ctxt2.popSetting();
 		CompilerContext::finalizeInstructions(fun->getInstructions());
-				
-		ctxt.addInstruction(Instruction::createPushFunction(ctxt.registerInternalFunction(fun.get()))); 
+
+		ctxt.addInstruction(Instruction::createPushFunction(ctxt.registerInternalFunction(fun.get())));
 
 	})
-		
+
 	// ------------------------
 	#undef ADD_HANDLER
 	return true;

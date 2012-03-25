@@ -967,10 +967,14 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 				}
 			}
 			cursor=to;
-
-			FunctionCallExpr * funcCall = FunctionCallExpr::createFunctionCall( Array::getTypeObject()->getAttribute(Consts::IDENTIFIER_fn_constructor).getValue(),
+			if(_produceBytecode){
+				return FunctionCallExpr::createSysCall( Consts::SYS_CALL_CREATE_ARRAY,
 													paramExps,currentFilename,currentLine);
-			return funcCall;
+			}else{
+				return FunctionCallExpr::createFunctionCall( Array::getTypeObject()->getAttribute(Consts::IDENTIFIER_fn_constructor).getValue(),
+													paramExps,currentFilename,currentLine);
+			}
+
 		}
 		/// Left expression present? -> Index Expression
 		/// "a[1]"
@@ -1025,7 +1029,7 @@ Object * Parser::getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)c
 			return FunctionCallExpr::createConstructorCall(new GetAttributeExpr(obj,Consts::IDENTIFIER_fn_constructor),paramExp,
 									currentFilename,currentLine);
 		}
-		
+
 	}
 	/// Function "fn(a,b){return a+b;}"
 	else if (op->getString()=="fn" ){//|| op->getString()=="lambda") {
@@ -1184,7 +1188,7 @@ Object * Parser::getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const
 		{	// create function expression
 			UserFunctionExpr * uFunExpr = new UserFunctionExpr(block,superConCallExpressions);
 			uFunExpr->getParamList().swap(params);	// set parameter expressions
-			
+
 			// store code segment in userFunction
 			if(codeStartPos!=std::string::npos && codeEndPos!=std::string::npos && !ctxt.code.isNull()){
 				uFunExpr->setCodeString(ctxt.code,codeStartPos,codeEndPos-codeStartPos+1);
@@ -1334,7 +1338,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		Statement action=getStatement(ctxt,cursor);
 
 		if(_produceBytecode){
-			loopWrappingBlock->addStatement( Statement(Statement::TYPE_STATEMENT, 
+			loopWrappingBlock->addStatement( Statement(Statement::TYPE_STATEMENT,
 														LoopStatement::createForLoop(initExp,condition,incr,action) ) );
 			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
 		}else{
@@ -1383,7 +1387,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		if(_produceBytecode){
 			loopWrappingBlock->addStatement( Statement(Statement::TYPE_STATEMENT, LoopStatement::createWhileLoop(condition,action) ) );
 			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
-			
+
 		}else{
 			loopWrappingBlock->setContinuePos( BlockStatement::POS_HANDLE_AND_RESTART );
 			loopWrappingBlock->setJumpPosA( BlockStatement::POS_HANDLE_AND_RESTART );
@@ -1396,8 +1400,8 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 
 			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
 		}
-		
-		
+
+
 	}
 	/// Do-while-Control
 	/*
@@ -1433,7 +1437,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		if(_produceBytecode){
 			loopWrappingBlock->addStatement( Statement(Statement::TYPE_STATEMENT, LoopStatement::createDoWhileLoop(condition,action) ) );
 			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
-			
+
 		}else{
 			loopWrappingBlock->setJumpPosA( BlockStatement::POS_HANDLE_AND_RESTART );
 			loopWrappingBlock->addStatement( action );
@@ -1463,7 +1467,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		 }	break:
 
 	*/
-	
+
 
 	else if(cId==Consts::IDENTIFIER_foreach) {
 		if (!Token::isA<TStartBlock>(tokens.at(cursor)))  // foreach{...as...}
@@ -1590,9 +1594,9 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 			loopWrappingBlock->setBreakPos( BlockStatement::POS_HANDLE_AND_LEAVE );
 
 			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
-		
+
 		}
-		
+
 	}
 
 	/// try-catch-control
@@ -1610,7 +1614,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		} A:
 	*/
 	else if(cId==Consts::IDENTIFIER_try) {
-		BlockStatement * tryBlock=dynamic_cast<BlockStatement*>(getExpression(ctxt,cursor)); 
+		BlockStatement * tryBlock=dynamic_cast<BlockStatement*>(getExpression(ctxt,cursor));
 		if(!tryBlock){
 			throwError("[try-catch] expects an try block. ",tokens.at(cursor));
 		}

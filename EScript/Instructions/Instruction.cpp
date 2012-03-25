@@ -183,6 +183,13 @@ Instruction Instruction::createSetMarker(const uint32_t markerId){
 	return i;
 }
 
+//! (static)
+Instruction Instruction::createSysCall(const uint32_t numParams){
+	Instruction i(I_SYS_CALL);
+	i.setValue_uint32(numParams);
+	return i;
+}
+
 std::string Instruction::toString(const InstructionBlock & ctxt)const{
 	std::ostringstream out;
 	switch(type){
@@ -193,19 +200,19 @@ std::string Instruction::toString(const InstructionBlock & ctxt)const{
 	case I_ASSIGN_LOCAL:{
 		out << "assignLocal $" << getValue_uint32() <<" // '" << ctxt.getLocalVarName(getValue_uint32()).toString()<<"'";
 		break;
-	}	
+	}
 	case I_ASSIGN_VARIABLE:{
 		out << "assignVariable '" << getValue_Identifier().toString() << "'";
 		break;
 	}
 	case I_CALL:{
-		out << "call " << getValue_uint32();
+		out << "call (numParams) " << getValue_uint32();
 		break;
-	}		
+	}
 	case I_CREATE_INSTANCE:{
-		out << "createInstance " << getValue_uint32();
+		out << "createInstance (numParams) " << getValue_uint32();
 		break;
-	}	
+	}
 	case I_DUP:{
 		out << "dup";
 		break;
@@ -217,7 +224,7 @@ std::string Instruction::toString(const InstructionBlock & ctxt)const{
 	case I_GET_ATTRIBUTE:{
 		out << "getAttribute '" << getValue_Identifier().toString() << "'";
 		break;
-	}	
+	}
 	case I_GET_LOCAL_VARIABLE:{
 		out << "getLocalVariable $" << getValue_uint32()<<" // '" << ctxt.getLocalVarName(getValue_uint32()).toString()<<"'";
 		break;
@@ -228,33 +235,33 @@ std::string Instruction::toString(const InstructionBlock & ctxt)const{
 	}
 	case I_JMP:{
 		out << "jmp ";
-		if( getValue_uint32()<JMP_TO_MARKER_OFFSET) 
+		if( getValue_uint32()<JMP_TO_MARKER_OFFSET)
 			out << "-> "<<getValue_uint32();
-		else 
+		else
 			out << "MARKER_" << getValue_uint32()-JMP_TO_MARKER_OFFSET<< ":";
 		break;
 	}
 	case I_JMP_IF_SET:{
 		out << "jmpIfSet ";
-		if( getValue_uint32()<JMP_TO_MARKER_OFFSET) 
+		if( getValue_uint32()<JMP_TO_MARKER_OFFSET)
 			out << "-> "<<getValue_uint32();
-		else 
+		else
 			out << "MARKER_" << getValue_uint32()-JMP_TO_MARKER_OFFSET<< ":";
 		break;
-	}	
+	}
 	case I_JMP_ON_TRUE:{
 		out << "jmpOnTrue ";
-		if( getValue_uint32()<JMP_TO_MARKER_OFFSET) 
+		if( getValue_uint32()<JMP_TO_MARKER_OFFSET)
 			out << "-> "<<getValue_uint32();
-		else 
+		else
 			out << "MARKER_" << getValue_uint32()-JMP_TO_MARKER_OFFSET<< ":";
 		break;
 	}
 	case I_JMP_ON_FALSE:{
 		out << "jmpOnFalse ";
-		if( getValue_uint32()<JMP_TO_MARKER_OFFSET) 
+		if( getValue_uint32()<JMP_TO_MARKER_OFFSET)
 			out << "-> "<<getValue_uint32();
-		else 
+		else
 			out << "MARKER_" << getValue_uint32()-JMP_TO_MARKER_OFFSET<< ":";
 		break;
 	}
@@ -277,7 +284,7 @@ std::string Instruction::toString(const InstructionBlock & ctxt)const{
 	case I_PUSH_FUNCTION:{
 		out << "push (Function) #" << getValue_uint32();
 		break;
-	}	
+	}
 	case I_PUSH_NUMBER:{
 		out << "push (Number) " << getValue_Number();
 		break;
@@ -285,7 +292,7 @@ std::string Instruction::toString(const InstructionBlock & ctxt)const{
 	case I_PUSH_STRING:{
 		out << "push (String) #"<<getValue_uint32()<<" // \"" << ctxt.getStringConstant(getValue_uint32())  << "\"";
 		break;
-	}	
+	}
 	case I_PUSH_UINT:{
 		out << "push (uint) " << getValue_uint32();
 		break;
@@ -293,7 +300,7 @@ std::string Instruction::toString(const InstructionBlock & ctxt)const{
 	case I_PUSH_VOID:{
 		out << "push (Void) Void";
 		break;
-	}	
+	}
 	case I_RESET_LOCAL_VARIABLE:{
 		out << "reset $" << getValue_uint32() <<" // '" << ctxt.getLocalVarName(getValue_uint32()).toString()<<"'";
 		break;
@@ -301,28 +308,33 @@ std::string Instruction::toString(const InstructionBlock & ctxt)const{
 	case I_SET_ATTRIBUTE:{
 		out << "setAttribute '" << getValue_Identifier().toString() << "'";
 		break;
-	}		
+	}
 	case I_SET_EXCEPTION_HANDLER:{
 		out << "setExceptionHandler ";
-		if( getValue_uint32()<JMP_TO_MARKER_OFFSET) 
+		if( getValue_uint32()<JMP_TO_MARKER_OFFSET)
 			out << "-> "<<getValue_uint32();
-		else 
+		else
 			out << "MARKER_" << getValue_uint32()-JMP_TO_MARKER_OFFSET<< ":";
 		break;
-	}	
+	}
 	case I_SET_MARKER:{
-		if( getValue_uint32()<JMP_TO_MARKER_OFFSET) 
+		if( getValue_uint32()<JMP_TO_MARKER_OFFSET)
 			out << "!!!!!!!!!!!!!";
-		else 
+		else
 			out << "MARKER_" << getValue_uint32()-JMP_TO_MARKER_OFFSET<< ":";
 
 		break;
 	}
+	case I_SYS_CALL:{
+		out << "sysCall (numParams) " << getValue_uint32();
+		break;
+	}
+
 	default:
 	case I_UNDEFINED:
 			out << "????";
 			break;
-	
+
 	}
 
 	return out.str();

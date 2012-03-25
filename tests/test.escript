@@ -4,7 +4,7 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 
 //{
 //	var start = clock();
-//	
+//
 //	{
 //		for(var i=0;i<1000000;++i){		var b = i+1;	}
 //	}
@@ -14,7 +14,7 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 //{
 //	var fun = _compile( "for(var i=0;i<1000000;++i){		var b = i+1;	}");
 //	var start = clock();
-//	
+//
 //	{
 //		fun._doCall();
 //	}
@@ -39,7 +39,8 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 //		"var f = fn(a,b*){ out(a*b.count());print_r(b);}; f( 3,1,2,3,4 );",
 //		"var f = fn(a='foo',b*){ out(a);print_r(b);}; f(  );",
 //		"var f = fn(a=1,b=2,c=3){ out(a+b+c);}; f(,10  );", // does not work!
-		"new ExtObject();",
+//		"new ExtObject();",
+		"[1,2,3];",
 //		"27+17;",
 //		"out('Hello HasE!');",
 ////		"for(var i=0;i<10;++i){	out('foo',i,'\n'); }",
@@ -70,17 +71,17 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 //		"for(var i=0;i<10;++i){	var a = i;}",
 ////		"foreach(arr as var key,var value){	value; }",
 	];
-	
-	
+
+
 	foreach(expressions as var expression ){
 		out("\n","-"*30,"\n[",expression,"]\n");
 		var fun = _compile( expression);
 		out( fun._asm() );
 		out( fun._doCall() );
-	
+
 	}
 
-	
+
 	exit(0);
 }
 

@@ -19,6 +19,7 @@ namespace AST{
 class BlockStatement;
 class FunctionCallExpr;
 }
+class Function;
 class UserFunction;
 class Exception;
 class FunctionCallContext;
@@ -92,7 +93,7 @@ class Runtime : public ExtObject  {
 	// ------------------------------------------------
 
 	/// @name Bytecode execution
-	// 	@{	
+	// 	@{
 	private:
 		typedef std::pair<Object *,FunctionCallContext* >  executeFunctionResult_t;
 
@@ -101,9 +102,12 @@ class Runtime : public ExtObject  {
 			A UserFunction produces a FunctionCallContext which still has to be executed. The result is then <NULL,fcc>
 			\note the @p params value may be altered by this function and should not be used afterwards!	*/
 		executeFunctionResult_t startFunctionExecution(FunctionCallContext & fcc,const ObjPtr & fun,const ObjPtr & callingObject,ParameterValues & params);
+
+		Object * sysCall(uint32_t sysFnId,ParameterValues & params);
+		std::vector<ERef<Function> > systemFunctions;
 	public:
 		Object * executeUserFunction(EPtr<UserFunction> userFunctions);
-		
+
 	//	@}
 
 	// ------------------------------------------------

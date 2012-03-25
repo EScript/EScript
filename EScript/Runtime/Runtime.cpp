@@ -140,6 +140,21 @@ Runtime::Runtime() :
 
 	pushContext(RuntimeContext::create());
 
+////		std::vector<ERef<Function> > systemFunctions;
+
+
+	//! init system calls \note the order of the functions MUST correspond to their funcitonId as defined in Consts.h
+	{	// SYS_CALL_CREATE_ARRAY = 0;
+		struct _{
+			ESF( sysCall,0,-1,Array::create(parameter) )
+		};
+		systemFunctions.push_back(new Function(_::sysCall));
+	}
+//	static const size_t SYS_CALL_CREATE_ARRAY = 0;
+//	static const size_t SYS_CALL_CREATE_MAP = 1;
+
+
+
 	//ctor
 }
 
@@ -276,7 +291,7 @@ Object * Runtime::eval(const StringData & code){
 	- return ref or copy otherwise. */
 Object * Runtime::executeObj(Object * obj){
 	using namespace AST;
-	
+
 	int type=obj->_getInternalTypeId();
 	if(type<0x020 || type>0x2f){
 		return obj->getRefOrCopy();
@@ -1274,13 +1289,13 @@ std::string Runtime::getStackInfo(){
 
 // ------------------------------------------------------------------
 Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \todo caller!
-	
-	
+
+
 	_CountedRef<FunctionCallContext> fcc = FunctionCallContext::create(NULL,userFunction,NULL); //! \todo caller!
 	InstructionBlock * instructions = &fcc->getInstructions();
 
 	while( true ){
-		// end of function? continue with calling function 
+		// end of function? continue with calling function
 		if(fcc->getInstructionCursor() >= instructions->getNumInstructions()){
 			if(fcc->getParent()){
 				fcc = fcc->getParent();
@@ -1292,14 +1307,14 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 				break;
 			}
 		}
-	
+
 		//! \todo this could probably improved by using iterators internally!
 		const Instruction & instruction = instructions->getInstruction(fcc->getInstructionCursor());
 		fcc->increaseInstructionCursor();
-		
+
 		std::cout << fcc->stack_toDbgString()<<"\n";
 		std::cout << instruction.toString(*instructions)<<"\n";
-		
+
 		switch(instruction.getType()){
 
 		case Instruction::I_ASSIGN_ATTRIBUTE:{
@@ -1308,9 +1323,9 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 				if object.identifier and not const and not private then object.identifier = value	*/
 			ObjRef value = fcc->stack_popObjectValue();
 			ObjRef obj = fcc->stack_popObject();
-			
+
 			Attribute * attr = obj->_accessAttribute(instruction.getValue_Identifier(),false);
-			
+
 			if(attr){
 				if(attr->getProperties()&Attribute::ASSIGNMENT_RELEVANT_BITS){
 					if(attr->isConst()){
@@ -1335,14 +1350,14 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 			fcc->assignToLocalVariable(instruction.getValue_uint32(), fcc->stack_popObjectValue());
 			continue;
 		}
-				
+
 		case Instruction::I_ASSIGN_VARIABLE:{
 			/*	value = popValueObject
 				if caller.identifier then caller.identifier = value
 				else if globals.identifier then globals.identigier = value
 				else warning */
 			ObjRef value = fcc->stack_popObjectValue();
-			
+
 			Attribute * attr = fcc->getCaller().isNotNull() ?
 					fcc->getCaller()->_accessAttribute(instruction.getValue_Identifier(),false) :
 					globals->_accessAttribute(instruction.getValue_Identifier(),true);
@@ -1366,7 +1381,7 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 				call the function
 				push result (or jump to exception point)	*/
 			const uint32_t numParams = instruction.getValue_uint32();
-			
+
 			std::vector<ObjRef> paramRefHolder; //! \todo why doesn't the ParameterValues keep a reference?
 			paramRefHolder.reserve(numParams);
 			ParameterValues params(numParams);
@@ -1375,13 +1390,13 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 				params.set(i,paramValue);
 				paramRefHolder.push_back(paramValue);
 			}
-			
+
 			ObjRef fun = fcc->stack_popObject();
 			ObjRef caller = fcc->stack_popObject();
 
-			
+
 			// returnValue , newUserFunctionCallContext
-			executeFunctionResult_t result = startFunctionExecution(*fcc.get(),fun,caller,params); 
+			executeFunctionResult_t result = startFunctionExecution(*fcc.get(),fun,caller,params);
 			if(result.second){
 				fcc = result.second;
 				instructions = &fcc->getInstructions();
@@ -1390,7 +1405,7 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 //				std::cout << "Result: "<<(result.first ? result.first->toString() : "Void")<<"\n";
 			}
 			break;
-		}		
+		}
 		case Instruction::I_CREATE_INSTANCE:{ //! \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			/*	create (uint32_t) numParams
 				-------------
@@ -1399,7 +1414,7 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 				call object._constructor
 				push result (or jump to exception point)	*/
 			const uint32_t numParams = instruction.getValue_uint32();
-			
+
 			std::vector<ObjRef> paramRefHolder; //! \todo why doesn't the ParameterValues keep a reference?
 			paramRefHolder.reserve(numParams);
 			ParameterValues params(numParams);
@@ -1408,13 +1423,13 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 				params.set(i,paramValue);
 				paramRefHolder.push_back(paramValue);
 			}
-			
+
 			ObjRef caller = fcc->stack_popObject();
 			if(caller.toType<Type>()==NULL){
 				setException("Can't instanciate object not of type 'Type'");
 				break;
 			}
-			
+
 			Attribute * ctorAttr = caller->_accessAttribute(Consts::IDENTIFIER_fn_constructor,false);
 			if(ctorAttr==NULL){
 				setException("No _contructor found.");
@@ -1425,7 +1440,7 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 			}else{
 				ObjRef fun = ctorAttr->getValue();
 				// returnValue , newUserFunctionCallContext
-				executeFunctionResult_t result = startFunctionExecution(*fcc.get(),fun,caller,params); 
+				executeFunctionResult_t result = startFunctionExecution(*fcc.get(),fun,caller,params);
 				if(result.second){
 					fcc = result.second;
 					instructions = &fcc->getInstructions();
@@ -1448,7 +1463,7 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 				const Attribute & attr = fcc->getCaller()->getAttribute(instruction.getValue_Identifier());
 				if(attr.isNotNull()){
 					fcc->stack_pushObject(fcc->getCaller());
-					fcc->stack_pushObject(attr.getValue()); 
+					fcc->stack_pushObject(attr.getValue());
 					continue;
 				}
 			}
@@ -1482,7 +1497,7 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 			if(fcc->getCaller().isNotNull()){
 				const Attribute & attr = fcc->getCaller()->getAttribute(instruction.getValue_Identifier());
 				if(attr.isNotNull()){
-					fcc->stack_pushObject(attr.getValue()); 
+					fcc->stack_pushObject(attr.getValue());
 					continue;
 				}
 			}
@@ -1505,7 +1520,7 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 		case Instruction::I_JMP:{
 			fcc->setInstructionCursor( instruction.getValue_uint32() );
 			continue;
-		}		
+		}
 		case Instruction::I_JMP_IF_SET:{
 			/* 	jmpIfSet (uint32) targetAddress
 				-------------
@@ -1545,7 +1560,7 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 		case Instruction::I_PUSH_ID:{
 			fcc->stack_pushIdentifier( instruction.getValue_Identifier() );
 			continue;
-		}		
+		}
 		case Instruction::I_PUSH_FUNCTION:{
 			fcc->stack_pushFunction( instruction.getValue_uint32() );
 			continue;
@@ -1578,7 +1593,7 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 				obj = pop object
 				value = pop parameterObj
 				obj.identifier @(properties) := value	*/
-				
+
 			const uint32_t properties = fcc->stack_popUInt32();
 			ObjRef obj = fcc->stack_popObject();
 			ObjRef value = fcc->stack_popObjectValue();
@@ -1590,6 +1605,28 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 		case Instruction::I_SET_EXCEPTION_HANDLER:{
 			fcc->setExceptionHandlerPos(instruction.getValue_uint32());
 			continue;
+		}
+		case Instruction::I_SYS_CALL:{
+			/*	sysCall (uint32_t) numParams
+				-------------
+				pop numParams * parameters
+				pop functionId
+				sysCall functionId,parameters
+				push result (or jump to exception point)	*/
+			const uint32_t numParams = instruction.getValue_uint32();
+
+			std::vector<ObjRef> paramRefHolder; //! \todo why doesn't the ParameterValues keep a reference?
+			paramRefHolder.reserve(numParams);
+			ParameterValues params(numParams);
+			for(int i=numParams-1;i>=0;--i ){
+				Object * paramValue = fcc->stack_popObjectValue();
+				params.set(i,paramValue);
+				paramRefHolder.push_back(paramValue);
+			}
+			const uint32_t funId = fcc->stack_popUInt32();
+
+			fcc->stack_pushObject(sysCall(funId,params));
+			break;
 		}
 		case Instruction::I_UNDEFINED:
 		case Instruction::I_SET_MARKER:
@@ -1607,7 +1644,7 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 				warn("Unhandled exception! TODO!!!!!!!!!"); //! \todo propagate exception !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			}
 		}
-		
+
 	}
 
 
@@ -1627,9 +1664,9 @@ Runtime::executeFunctionResult_t Runtime::startFunctionExecution(FunctionCallCon
 				setException("Too few parameters given."); //! \todo improve error message (which parameters are missing?)
 				return std::make_pair(result.get(),static_cast<FunctionCallContext*>(NULL));
 			}
-			
+
 			ParameterValues::const_iterator paramsEnd;
-			
+
 			const int maxParamCount = userFunction->getMaxParamCount();
 			if( maxParamCount<0 ){ // multiParameter
 				ERef<Array> multiParamArray = Array::create();
@@ -1639,7 +1676,7 @@ Runtime::executeFunctionResult_t Runtime::startFunctionExecution(FunctionCallCon
 						multiParamArray->pushBack(params[i]);
 					}
 					paramsEnd = params.begin()+(userFunction->getParamCount()-1);
-					
+
 				}else{
 					paramsEnd = params.end();
 				}
@@ -1653,10 +1690,10 @@ Runtime::executeFunctionResult_t Runtime::startFunctionExecution(FunctionCallCon
 			else{
 				paramsEnd = params.end();
 			}
-			
+
 			// init $thisFn
 			fcc->assignToLocalVariable(Consts::LOCAL_VAR_INDEX_thisFn,fun);
-			
+
 			uint32_t i = Consts::LOCAL_VAR_INDEX_firstParameter;
 			for(ParameterValues::const_iterator it = params.begin(); it!= paramsEnd; ++it){
 				fcc->assignToLocalVariable(i++,*it);
@@ -1664,7 +1701,7 @@ Runtime::executeFunctionResult_t Runtime::startFunctionExecution(FunctionCallCon
 
 			return std::make_pair(result.get(),fcc.detachAndDecrease());
 		}
-	
+
 		default:{
 			result = executeFunction(fun,_callingObject,params);
 		}
@@ -1674,6 +1711,18 @@ Runtime::executeFunctionResult_t Runtime::startFunctionExecution(FunctionCallCon
 
 }
 
+//! (internal)
+Object * Runtime::sysCall(uint32_t sysFnId,ParameterValues & params){
+	Function * fn = NULL;
+	if(sysFnId<systemFunctions.size()){
+		fn = systemFunctions.at(sysFnId).get();
+	}
+	if(!fn){
+		setException("Unknown systemCall."); // \todo improve message
+		return NULL;
+	}
+	return fn->getFnPtr()(*this,NULL,params);
+}
 
 
 

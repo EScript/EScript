@@ -10,10 +10,10 @@
 #include <cstddef>
 
 namespace EScript {
-	
+
 class InstructionBlock;
 
-/*! [Instruction]  
+/*! [Instruction]
 	Work in progress!	*/
 class Instruction {
 	public:
@@ -46,6 +46,7 @@ class Instruction {
 			I_SET_ATTRIBUTE,
 			I_SET_EXCEPTION_HANDLER,
 			I_SET_MARKER,
+			I_SYS_CALL,						// -1+x +1 \todo use a parameter pair????
 		};
 		static const uint32_t JMP_TO_MARKER_OFFSET = 0x100000; //! if a jump target is >= JMP_TO_MARKER_OFFSET, the target is a marker and not an address.
 		static const uint32_t INVALID_JUMP_ADDRESS = 0x0FFFFF; //! A jump to this address always ends the current function. \todo assure that no IntructionBlock can have so many Instructions
@@ -56,7 +57,7 @@ class Instruction {
 
 		uint32_t getValue_uint32()const				{	return value_uint32;	}
 		void setValue_uint32(const uint32_t v)		{	value_uint32 = v;	}
-		
+
 		double getValue_Number()const				{	return value_number;	}
 		void setValue_Number(double v)				{	value_number=v;	}
 
@@ -93,12 +94,13 @@ class Instruction {
 		static Instruction createSetAttribute(const StringId id);
 		static Instruction createSetExceptionHandler(const uint32_t markerId);
 		static Instruction createSetMarker(const uint32_t markerId);
+		static Instruction createSysCall(const uint32_t numParams);
 
 		void setLine(int l)	{	line = l;	}
 
 	private:
 		Instruction( type_t _type) : type(_type),line(-1){}
-		
+
 
 		type_t type;
 		union{

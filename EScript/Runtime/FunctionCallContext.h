@@ -24,7 +24,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 
 		// ----
 
-	
+
 	//! @name Main
 	// @{
 	private:
@@ -34,7 +34,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 			UNKNOWN_LOCAL_VARIABLE,
 		};
 		void throwError(error_t error)const;
-				
+
 //		ObjRef caller;
 		_CountedRef<FunctionCallContext> parent;
 		ERef<UserFunction> userFunction;
@@ -51,7 +51,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		ObjPtr getCaller()const    						{   return caller; }
 		FunctionCallContext * getParent()const			{	return parent.get();	}
 		ERef<UserFunction> getUserFunction()const		{	return userFunction;	}
-		
+
 		size_t getExceptionHandlerPos()const			{	return exceptionHandlerPos;	}
 		size_t getInstructionCursor()const				{	return instructionCursor;	}
 		void setExceptionHandlerPos(const size_t p)		{	exceptionHandlerPos = p;	}
@@ -65,9 +65,9 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 //		const Instruction & getNextInstruction()const	{	instructionCursor._accessInstructions(instructionCursor); }
 //		bool isInstructionAvailable()const				{	instructionCursor<}
 	// @}
-		
+
 	//	-----------------------------
-	
+
 	//! @name Local variables
 	// @{
 	private:
@@ -77,21 +77,21 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 			if(index>=localVariables.size())
 				throwError(UNKNOWN_LOCAL_VARIABLE);
 			localVariables[index] = value;
-		}		
+		}
 		ObjPtr getLocalVariable(const uint32_t index)const{
 			if(index>=localVariables.size())
 				throwError(UNKNOWN_LOCAL_VARIABLE);
 			return localVariables[index];
 		}
 	// @}
-		
+
 	//	-----------------------------
-	
+
 	//! @name Value Stack operations
 	// @{
 	private:
 
-		
+
 		struct StackEntry{
 			enum dataType_t{
 				VOID,
@@ -100,7 +100,8 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 				UINT32,
 				NUMBER,
 				IDENTIFIER,
-				STRING_IDX, // 
+				STRING_IDX, //
+//				UINT32_PAIR // \todo coming with c++11
 			}dataType;
 			union value_t{
 				Object * value_ObjPtr;
@@ -110,16 +111,16 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 				uint32_t value_indentifier; // \todo c++0x unrestricted union allows StringId
 				uint32_t value_stringIndex;
 			}value;
-			
+
 			StackEntry(dataType_t _dataType = VOID) : dataType(_dataType) {}
 			~StackEntry(){}
 			std::string toString()const;
 		};
 		std::vector<StackEntry> valueStack;
-			
+
 	public:
 		void stack_clear() 								{	valueStack.clear();	}
-		void stack_dup() {	
+		void stack_dup() {
 			StackEntry & entry = stack_top();
 			if(entry.dataType == StackEntry::OBJECT_PTR)
 				Object::addReference(entry.value.value_ObjPtr);
@@ -127,21 +128,21 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		}
 		bool stack_empty()const							{	return valueStack.empty();	}
 		void stack_pushBool(const bool value)			{	valueStack.insert(valueStack.end(),StackEntry::BOOL)->value.value_bool = value; }
-		void stack_pushFunction(const uint32_t functionIndex){	
+		void stack_pushFunction(const uint32_t functionIndex){
 			UserFunction * uFun = userFunction->getInstructions().getUserFunction(functionIndex);
 			Object::addReference(uFun);
-			valueStack.insert(valueStack.end(),StackEntry::OBJECT_PTR)->value.value_ObjPtr = uFun; 
+			valueStack.insert(valueStack.end(),StackEntry::OBJECT_PTR)->value.value_ObjPtr = uFun;
 		}
 		void stack_pushNumber(const double & value)		{	valueStack.insert(valueStack.end(),StackEntry::NUMBER)->value.value_number = value; }
 		void stack_pushUInt32(const uint32_t value)		{	valueStack.insert(valueStack.end(),StackEntry::UINT32)->value.value_uint32 = value; }
 		void stack_pushIdentifier(const StringId & strId){	valueStack.insert(valueStack.end(),StackEntry::IDENTIFIER)->value.value_uint32 = strId.getValue(); }
 		void stack_pushStringIndex(const uint32_t value){	valueStack.insert(valueStack.end(),StackEntry::STRING_IDX)->value.value_stringIndex = value; }
-		void stack_pushObject(const ObjPtr & obj)	{	
+		void stack_pushObject(const ObjPtr & obj)	{
 			Object::addReference(obj.get());
-			valueStack.insert(valueStack.end(),StackEntry::OBJECT_PTR)->value.value_ObjPtr = obj.get(); 
+			valueStack.insert(valueStack.end(),StackEntry::OBJECT_PTR)->value.value_ObjPtr = obj.get();
 		}
 		void stack_pushVoid() 							{	valueStack.push_back(StackEntry::VOID);		}
-		
+
 		size_t stack_size()const						{	return valueStack.size();	}
 		void stack_pop() {
 			StackEntry & entry = stack_top();
@@ -171,7 +172,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 			const StringId id( entry.value.value_indentifier );
 			valueStack.pop_back();
 			return id;
-		}		
+		}
 		uint32_t stack_popUInt32(){
 			StackEntry & entry = stack_top();
 			if(entry.dataType != StackEntry::UINT32)
@@ -179,7 +180,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 			const uint32_t number( entry.value.value_uint32 );
 			valueStack.pop_back();
 			return number;
-		}		
+		}
 		double stack_popNumber(){
 			StackEntry & entry = stack_top();
 			if(entry.dataType != StackEntry::NUMBER)
@@ -187,7 +188,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 			const double number( entry.value.value_number );
 			valueStack.pop_back();
 			return number;
-		}		
+		}
 		uint32_t stack_popStringIndex(){
 			StackEntry & entry = stack_top();
 			if(entry.dataType != StackEntry::STRING_IDX)
@@ -197,13 +198,13 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 			return index;
 		}
 		Object * stack_popObject();
-		
+
 		//! Works like stack_popObject(), but returns an obj->cloneOrReference() if the contained value is already an Object.
 		Object * stack_popObjectValue();
-		
+
 		std::string stack_toDbgString()const;
 	private:
-		
+
 		StackEntry & stack_top(){
 			if(stack_empty())
 				throwError(STACK_EMPTY_ERROR);
@@ -211,7 +212,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		}
 	// @}
 
-		
+
 };
 
 }

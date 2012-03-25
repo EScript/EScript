@@ -60,11 +60,14 @@ struct Consts{
 	static const StringId PROPERTY_ATTR_type;
 
 	static const StringId PROPERTY_FN_super;
-	
+
 	static const size_t LOCAL_VAR_INDEX_this = 0; // $0
 	static const size_t LOCAL_VAR_INDEX_thisFn = 1;// $1
 	static const size_t LOCAL_VAR_INDEX_internalResult = 2; // $2
 	static const size_t LOCAL_VAR_INDEX_firstParameter = 3; // $3
+
+	static const size_t SYS_CALL_CREATE_ARRAY = 0;
+	static const size_t SYS_CALL_CREATE_MAP = 1;
 };
 //	@}
 
