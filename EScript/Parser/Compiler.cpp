@@ -207,7 +207,7 @@ bool initHandler(handlerRegistry_t & m){
 
 	// Bool
 	ADD_HANDLER( _TypeIds::TYPE_BOOL, Bool, {
-		ctxt.addInstruction(Instruction::createPushNumber(self->toBool()));
+		ctxt.addInstruction(Instruction::createPushBool(self->toBool()));
 	})
 	// Identifier
 	ADD_HANDLER( _TypeIds::TYPE_IDENTIFIER, Identifier, {
@@ -277,9 +277,7 @@ bool initHandler(handlerRegistry_t & m){
 
 	// FunctionCallExpr
 	ADD_HANDLER( _TypeIds::TYPE_FUNCTION_CALL_EXPRESSION, FunctionCallExpr, {
-		if(self->isSysCall()){
-			ctxt.addInstruction(Instruction::createPushUInt(self->getSysCallId()));
-		}else{
+		if(!self->isSysCall()){
 			do{
 				GetAttributeExpr * gAttr = self->getGetFunctionExpression().toType<GetAttributeExpr>();
 
@@ -327,6 +325,7 @@ bool initHandler(handlerRegistry_t & m){
 			}
 		}
 		if( self->isSysCall()){
+			ctxt.addInstruction(Instruction::createPushUInt(self->getSysCallId()));
 			ctxt.addInstruction(Instruction::createSysCall(self->getParams().size()));
 		}else if( self->isConstructorCall()){
 			ctxt.addInstruction(Instruction::createCreateInstance(self->getParams().size()));
@@ -562,7 +561,7 @@ bool initHandler(handlerRegistry_t & m){
 			ObjPtr defaultExpr = param.getDefaultValueExpression();
 			if(defaultExpr.isNotNull()){
 				const int varIdx = ctxt2.getCurrentVarIndex(param.getName()); // \todo assert(varIdx>=0)
-//
+
 				const uint32_t parameterAvailableMarker = ctxt2.createMarker();
 				ctxt2.addInstruction(Instruction::createPushUInt(varIdx));
 				ctxt2.addInstruction(Instruction::createJmpIfSet(parameterAvailableMarker));
@@ -575,7 +574,32 @@ bool initHandler(handlerRegistry_t & m){
 				ctxt2.addInstruction(Instruction::createSetMarker(parameterAvailableMarker));
 //
 			}
+		}
 
+		// parameter type checks
+		for(UserFunctionExpr::parameterList_t::const_iterator it = self->getParamList().begin();it!=self->getParamList().end();++it){
+			const UserFunctionExpr::Parameter & param = *it;
+			const std::vector<ObjRef> & typeExpressions = param.getTypeExpressions();
+			if(typeExpressions.empty())
+				continue;
+			const int varIdx = ctxt2.getCurrentVarIndex(param.getName());	// \todo assert(varIdx>=0)
+			const uint32_t typeOkMarker = ctxt2.createMarker();
+			
+			for(std::vector<ObjRef>::const_iterator it2 = typeExpressions.begin();it2!=typeExpressions.end();++it2){
+				if(it2!=typeExpressions.begin())
+					ctxt2.addInstruction(Instruction::createPop());
+
+				ctxt2.compile( *it2 );
+				ctxt2.addInstruction(Instruction::createCheckType(varIdx));
+				ctxt2.addInstruction(Instruction::createJmpOnTrue(typeOkMarker));
+			}
+			// type check failed! -> topmost element on stack is the last checked type (used for the error message)
+			ctxt2.addInstruction(Instruction::createGetLocalVariable(varIdx));
+			ctxt2.addInstruction(Instruction::createPushUInt(Consts::SYS_CALL_THROW_TYPE_EXCEPTION));
+			ctxt2.addInstruction(Instruction::createSysCall(2));
+			ctxt2.addInstruction(Instruction::createJmp( Instruction::INVALID_JUMP_ADDRESS ));
+			
+			ctxt2.addInstruction(Instruction::createSetMarker(typeOkMarker));
 		}
 
 		// add super-constructor parameters

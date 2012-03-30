@@ -150,7 +150,7 @@ Runtime::Runtime() :
 		};
 		systemFunctions.push_back(new Function(_::sysCall));
 	}	
-	{	// SYS_CALL_CREATE_MAP = 0;
+	{	// SYS_CALL_CREATE_MAP = 1;
 		struct _{
 			ES_FUNCTION( sysCall) {
 					if ( (parameter.count()%2)==1 ) runtime.warn("Map: Last parameter ignored!");
@@ -162,6 +162,15 @@ Runtime::Runtime() :
 		};
 		systemFunctions.push_back(new Function(_::sysCall));
 	}
+	{	// SYS_CALL_THROW_TYPE_EXCEPTION = 2;
+		struct _{
+			// SYS_CALL_THROW_TYPE_EXCEPTION( expectedType, receivedValue )
+			ESF( sysCall,2,2,(
+					runtime.setException("Wrong parameter type: Expected '"+parameter[0].toString()+"' but got '"+parameter[1].toString()+"'" ),static_cast<Object*>(NULL)))
+		};
+		systemFunctions.push_back(new Function(_::sysCall));
+	}
+	
 
 	//ctor
 }
@@ -1390,7 +1399,7 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 			}
 			continue;
 		}
-		case Instruction::I_CALL:{ //! \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		case Instruction::I_CALL:{ 
 			/*	call (uint32_t) numParams
 				-------------
 				pop numParams * parameters
@@ -1424,7 +1433,7 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 			}
 			break;
 		}
-		case Instruction::I_CREATE_INSTANCE:{ //! \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		case Instruction::I_CREATE_INSTANCE:{
 			/*	create (uint32_t) numParams
 				-------------
 				pop numParams * parameters
@@ -1499,6 +1508,26 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 				}
 			}
 			break;
+		}
+		case Instruction::I_CHECK_TYPE:{
+			/*	checkType localVariableIdx
+				--------------
+				pop (Object) TypeOrObj
+				if(localVar ---|> Type || localVar == Obj)
+					push true
+				else 
+					push TypeOrObj
+					push false
+			*/
+			ObjRef localVariable = fcc->getLocalVariable(instruction.getValue_uint32());
+			ObjRef typeOrObj = fcc->stack_popObject();
+			if(localVariable->isA(typeOrObj.toType<Type>()) || localVariable->isIdentical(*this,typeOrObj)){
+				fcc->stack_pushBool(true);
+			}else{
+				fcc->stack_pushObject(typeOrObj);
+				fcc->stack_pushBool(false);
+			}
+			continue;
 		}
 		case Instruction::I_DUP:{
 			// duplicate topmost stack entry
@@ -1702,12 +1731,13 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 		case Instruction::I_SYS_CALL:{
 			/*	sysCall (uint32_t) numParams
 				-------------
-				pop numParams * parameters
 				pop functionId
+				pop numParams * parameters
 				sysCall functionId,parameters
 				push result (or jump to exception point)	*/
 			const uint32_t numParams = instruction.getValue_uint32();
-
+			const uint32_t funId = fcc->stack_popUInt32();
+			
 			std::vector<ObjRef> paramRefHolder; //! \todo why doesn't the ParameterValues keep a reference?
 			paramRefHolder.reserve(numParams);
 			ParameterValues params(numParams);
@@ -1716,8 +1746,6 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 				params.set(i,paramValue);
 				paramRefHolder.push_back(paramValue);
 			}
-			const uint32_t funId = fcc->stack_popUInt32();
-
 			fcc->stack_pushObject(sysCall(funId,params));
 			break;
 		}
@@ -1738,10 +1766,7 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 				std::cout << (getResult() ?  getResult()->toString() : "????") <<"\n";
 			}
 		}
-
 	}
-
-
 	return Void::get();
 }
 

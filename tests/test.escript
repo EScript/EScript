@@ -41,10 +41,13 @@ out(v);
 //		"var C = new Type(B);C._constructor ::= fn(p)@(super(p+10)){out('\\n',this,'CCC\\n');n+='blub';}; "+
 //		"var c = new C(1); out(c.n); ",
 		
-		"var A = new Type(); A._constructor ::= fn(p){out('\\n',this,'AAAA\\n');this.n:=''+p+'foo';};	"+
-		"var B = new Type(A);B._constructor ::= fn(p)@(super(p+100)){out('\\n',this,'BBB\\n');n+='bar'+p;}; "+
-		"var C = new Type(B);C._constructor ::= fn(p)@(super(p+10)){out('\\n',this,'CCC\\n');n+='blub'+p;}; "+
-		"var c = new C(1); out(c.n); ",
+//		"var A = new Type(); A._constructor ::= fn(p){out('\\n',this,'AAAA\\n');this.n:=''+p+'foo';};	"+
+//		"var B = new Type(A);B._constructor ::= fn(p)@(super(p+100)){out('\\n',this,'BBB\\n');n+='bar'+p;}; "+
+//		"var C = new Type(B);C._constructor ::= fn(p)@(super(p+10)){out('\\n',this,'CCC\\n');n+='blub'+p;}; "+
+//		"var c = new C(1); out(c.n); ",
+//		"(fn(a){out(a);})(true);"
+		"(fn( [Number,Bool,'a'] a,false b){})('a',true);" 
+//		"(fn( Number a){})('a');"
 //		"var b=17;var a=7+b; out(a);",
 //		"var f = fn(a){ out(a);}; f( 3*3 );",
 //		"var f = fn(a,b=2){ out(a*b);}; f( 3 );",

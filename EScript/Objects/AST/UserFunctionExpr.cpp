@@ -10,25 +10,13 @@
 using namespace EScript;
 
 //! (ctor) UserFunctionExpr::Parameter
-UserFunctionExpr::Parameter::Parameter(const StringId & _name,Object * defaultValueExpression/*=NULL*/,Object * type/*=NULL*/):
-	name(_name),defaultValueExpressionRef(defaultValueExpression),typeRef(type),multiParam(false){
+UserFunctionExpr::Parameter::Parameter(const StringId & _name,Object * defaultValueExpression,std::vector<ObjRef> & _typeExpressions):
+		name(_name),defaultValueExpressionRef(defaultValueExpression),multiParam(false){
+			
+	std::swap(_typeExpressions,typeExpressions);
 }
 
-std::string UserFunctionExpr::Parameter::toString()const{
-	std::string s=typeRef.toString()+' '+name.toString();
-	if(!defaultValueExpressionRef.isNull())
-		s+='='+defaultValueExpressionRef->toDbgString();
-	if(multiParam)
-		s+='*';
-	return s;
-}
-UserFunctionExpr::Parameter * UserFunctionExpr::Parameter::clone()const{
-	Parameter * p = new Parameter( name,
-								defaultValueExpressionRef.isNotNull() ? defaultValueExpressionRef->getRefOrCopy() : NULL,
-								typeRef.isNotNull() ? typeRef->getRefOrCopy() : NULL);
-	p->setMultiParam(isMultiParam());
-	return p;
-}
+
 // ------------------------------------------------------------
 
 
@@ -50,19 +38,6 @@ UserFunctionExpr::UserFunctionExpr(AST::BlockStatement * block,const std::vector
 
 void UserFunctionExpr::setBlock(AST::BlockStatement * _block){
 	blockRef=_block;
-}
-
-//! ---|> [Object]
-std::string UserFunctionExpr::toDbgString()const {
-	std::ostringstream sprinter;
-	sprinter << "fn(";
-	int nr=0;
-	for (parameterList_t::const_iterator it=params.begin();it!=params.end();++it) {
-		if (nr++>0) sprinter<< ',';
-		if ( !(*it).getName().empty() ) sprinter<<(*it).toString();
-	}
-	sprinter << "){...} "<<'['+getFilename()<<':'<<getLine()<<']';
-	return sprinter.str();
 }
 
 

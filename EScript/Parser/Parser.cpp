@@ -2113,14 +2113,35 @@ void Parser::readFunctionParameters(UserFunctionExpr::parameterList_t & params,P
 			++c;
 		}
 
-		// get the type expression
-		Object * typeExp=NULL;
+		// get the type-check-expressions
+		std::vector<ObjRef> typeExpressions;
 		if(	idPos>cursor ){
-			int tmpCursor=cursor;
-			typeExp=getExpression(ctxt,tmpCursor,idPos-1);
+			int c2 = cursor;
+			Token * t = tokens.at(c2).get();
+			
+			// multiple possibilities: fn([Number,'yes'] a){...}
+			if(Token::isA<TStartIndex>(t)){
+				++c2;
+				do {
+					if(Token::isA<TDelimiter>(tokens.at(c2))){ // empty expression (1,,2)
+						throwError("Expected ]",tokens.at(c2));
+					}
+					typeExpressions.push_back(getExpression(ctxt,c2));
+					++c2;
+					if (Token::isA<TDelimiter>(tokens.at(c2))){
+						++c2;
+					}else if (!Token::isA<TEndIndex>(tokens.at(c2))) {
+						throwError("Expected ]",tokens.at(c2));
+					}
+				}while(!Token::isA<TEndIndex>(tokens.at(c2)));
+				
+			} // single type criterium: fn( Bool a){...}
+			else{
+				typeExpressions.push_back(getExpression(ctxt,c2,idPos-1));
+			}
 		}
 
-		// check if this is the last parameter
+		// test if this is the last parameter
 		bool lastParam=false;
 		if(Token::isA<TEndBracket>(tokens[c+1])){
 		lastParam=true;
@@ -2132,7 +2153,7 @@ void Parser::readFunctionParameters(UserFunctionExpr::parameterList_t & params,P
 		cursor=c+2;
 
 		// create parameter
-		params.push_back(UserFunctionExpr::Parameter(name,NULL,typeExp));
+		params.push_back(UserFunctionExpr::Parameter(name,NULL,typeExpressions));
 		if(multiParam)
 			params.back().setMultiParam(true);
 		if(defaultExpression!=NULL)

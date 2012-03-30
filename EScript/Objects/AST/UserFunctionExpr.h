@@ -28,18 +28,16 @@ class UserFunctionExpr : public ExtObject {
 			private:
 				StringId name;
 				ObjRef defaultValueExpressionRef;
-				ObjRef typeRef;
+				std::vector<ObjRef> typeExpressions;
 				bool multiParam;
 			public:
-				explicit Parameter(const StringId & name,Object * defaultValueExpression=NULL,Object * type=NULL);
-				std::string toString()const;
+				Parameter(const StringId & name,Object * defaultValueExpression,std::vector<ObjRef> & _typeExpressions);
 
-				Parameter* clone()const;
-				StringId getName()const						{   return name;    }
-				Object * getType()const						{   return typeRef.get();   }
+				StringId getName()const									{   return name;    }
+				const std::vector<ObjRef>  & getTypeExpressions()const	{   return typeExpressions;   }
 
-				void setMultiParam(bool b)					{   multiParam=b;   }
-				bool isMultiParam()const					{   return multiParam;  }
+				void setMultiParam(bool b)								{   multiParam=b;   }
+				bool isMultiParam()const								{   return multiParam;  }
 
 				Object * getDefaultValueExpression()const {
 					return defaultValueExpressionRef.get();
@@ -77,7 +75,6 @@ class UserFunctionExpr : public ExtObject {
 		int getMinParamCount()const;
 	
 		/// ---|> [Object]
-		virtual std::string toDbgString()const;
 		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_USER_FUNCTION_EXPRESSION;	}
 
 	private:

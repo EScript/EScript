@@ -39,6 +39,13 @@ Instruction Instruction::createCall(const uint32_t numParams){
 }
 
 //! (static)
+Instruction Instruction::createCheckType(const uint32_t localVarIdx){
+	Instruction i(I_CHECK_TYPE);
+	i.setValue_uint32(localVarIdx);
+	return i;
+}
+
+//! (static)
 Instruction Instruction::createCreateInstance(const uint32_t numParams){
 	Instruction i(I_CREATE_INSTANCE);
 	i.setValue_uint32(numParams);
@@ -214,6 +221,10 @@ std::string Instruction::toString(const InstructionBlock & ctxt)const{
 	}
 	case I_CALL:{
 		out << "call (numParams) " << getValue_uint32();
+		break;
+	}
+	case I_CHECK_TYPE:{
+		out << "checkType $" << getValue_uint32() <<" // '" << ctxt.getLocalVarName(getValue_uint32()).toString()<<"'";
 		break;
 	}
 	case I_CREATE_INSTANCE:{
