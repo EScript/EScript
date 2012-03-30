@@ -34,7 +34,13 @@ out(v);
 //		"var f = fn(b){ return ; out('!!!!!');}; out(f(3));",
 //		"var f = fn(b){ return b*b; out('!!!!!');}; out(f(3));",
 //		"var a = []; (a->fn(b*){append(b);})(1,2,3); print_r(a); ",
-		"var a = [-100]; foreach( (a->fn(b*){append(b);return this;})(1,2,3) as var key,var value) out(key,'::',value,'\t');  ",
+//		"var a = [-100]; foreach( (a->fn(b*){append(b);return this;})(1,2,3) as var key,var value) out(key,'::',value,'\t');  ",
+//		"var A = new Type(); A._constructor ::= fn(m){this.m:=m; out('!!!');}; var a = new A(1); out(a.m); out(A.m);"
+		"var A = new Type(); A._constructor ::= fn(){out('\\n',this,'AAAA\\n');this.n:='foo';};	"+
+		"var B = new Type(A);B._constructor ::= fn(){out('\\n',this,'BBB\\n');n+='bar';}; "+
+		"var C = new Type(B);C._constructor ::= fn(){out('\\n',this,'CCC\\n');n+='blub';}; "+
+		"var c = new C(); out(c.n); ",
+
 //		"var b=17;var a=7+b; out(a);",
 //		"var f = fn(a){ out(a);}; f( 3*3 );",
 //		"var f = fn(a,b=2){ out(a*b);}; f( 3 );",

@@ -1306,10 +1306,21 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 		// end of function? continue with calling function
 		if(fcc->getInstructionCursor() >= instructions->getNumInstructions()){
 			ObjRef result = fcc->getLocalVariable(Consts::LOCAL_VAR_INDEX_internalResult);
+			if(fcc->isConstructorCall()){
+				if(result.isNotNull()){
+					warn("Constructors should not return a value.");
+				}
+				// \note the local variable $0 contains the created object, "fcc->getCaller()" contains the instanciated Type-Object.
+				result = fcc->getLocalVariable(Consts::LOCAL_VAR_INDEX_this); 
+			}
 			if(fcc->getParent()){
 				fcc = fcc->getParent();
 				instructions = &fcc->getInstructions();
-				fcc->stack_pushObject(result);
+				if(fcc->isAwaitingCaller()){
+					fcc->initCaller(result);
+				}else{
+					fcc->stack_pushObject(result);
+				}
 				continue;
 			}
 			return result.detachAndDecrease();
@@ -1319,8 +1330,8 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 		const Instruction & instruction = instructions->getInstruction(fcc->getInstructionCursor());
 		fcc->increaseInstructionCursor();
 
-		std::cout << fcc->stack_toDbgString()<<"\n";
-		std::cout << instruction.toString(*instructions)<<"\n";
+//		std::cout << fcc->stack_toDbgString()<<"\n";
+//		std::cout << instruction.toString(*instructions)<<"\n";
 
 		switch(instruction.getType()){
 
@@ -1420,8 +1431,10 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 				pop object
 				call object._constructor
 				push result (or jump to exception point)	*/
-			const uint32_t numParams = instruction.getValue_uint32();
 
+
+			// get the parameters for the first constructor
+			const uint32_t numParams = instruction.getValue_uint32();
 			std::vector<ObjRef> paramRefHolder; //! \todo why doesn't the ParameterValues keep a reference?
 			paramRefHolder.reserve(numParams);
 			ParameterValues params(numParams);
@@ -1431,32 +1444,61 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 				paramRefHolder.push_back(paramValue);
 			}
 
+			// collect constructor functions
 			ObjRef caller = fcc->stack_popObject();
-			if(caller.toType<Type>()==NULL){
+			EPtr<Type> type = caller.toType<Type>();
+			if(type.isNull()){
 				setException("Can't instanciate object not of type 'Type'");
 				break;
 			}
 
-			Attribute * ctorAttr = caller->_accessAttribute(Consts::IDENTIFIER_fn_constructor,false);
-			if(ctorAttr==NULL){
-				setException("No _contructor found.");
+			std::vector<ObjPtr> constructors;
+			do{
+				const Attribute * ctorAttr = type->_accessAttribute(Consts::IDENTIFIER_fn_constructor,true);
+				if(ctorAttr==NULL){
+					type = type->getBaseType();
+					continue;
+				}else if(constructors.empty() && ctorAttr->isPrivate()){ // first constructor must not be private!
+					setException("Can't instanciate Type with private _contructor."); //! \todo check this!
+					constructors.clear();
+					break;
+				}else{
+					ObjPtr fun = ctorAttr->getValue();
+					const internalTypeId_t funType = fun->_getInternalTypeId();
+					
+					if(funType==_TypeIds::TYPE_USER_FUNCTION){
+						constructors.push_back(fun);
+						type = type->getBaseType();
+						continue;
+					}else if(_TypeIds::TYPE_FUNCTION){
+						constructors.push_back(fun);
+					}else{
+						setException("Constructor has to be a UserFunction or a Function.");
+						constructors.clear();
+					}
+					break;
+				}
+			}while(type.isNotNull());
+			
+			if(constructors.empty()) // error occured
 				break;
-			}else if(ctorAttr->isPrivate()){
-				setException("Can't instanciate Type with private _contructor."); //! \todo check this!
-				break;
-			}else{
-				ObjRef fun = ctorAttr->getValue();
-				// returnValue , newUserFunctionCallContext
+			
+			{ // call the first constructor and pass the other constructor-functions by adding them to the stack
+				ObjRef fun = constructors.front();
+				
 				executeFunctionResult_t result = startFunctionExecution(*fcc.get(),fun,caller,params);
 				if(result.second){
 					fcc = result.second;
 					instructions = &fcc->getInstructions();
+					for(std::vector<ObjPtr>::const_reverse_iterator it = constructors.rbegin();(it+1)!=constructors.rend();++it) //! \todo c++11 use std::next
+						fcc->stack_pushObject( *it );
+					fcc->enableAwaitingCaller();
+					fcc->markAsConstructorCall();
 				}else{
 					fcc->stack_pushObject(result.first);
-	//				std::cout << "Result: "<<(result.first ? result.first->toString() : "Void")<<"\n";
 				}
-				break;
 			}
+			break;
 		}
 		case Instruction::I_DUP:{
 			// duplicate topmost stack entry
@@ -1483,6 +1525,50 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 				fcc->stack_pushVoid();
 				fcc->stack_pushVoid();
 			}
+			break;
+		}
+		case Instruction::I_INIT_CALLER:{
+			const uint32_t numParams = instruction.getValue_uint32();
+
+			if(fcc->stack_empty()){ // no constructor call
+				if(numParams>0){
+					warn("Calling constructor function with @(super) attribute as normal function.");
+				}
+//				fcc->initCaller(fcc->getCaller()); ???????
+				continue;
+			}
+
+			// get super constructor parameters
+			std::vector<ObjRef> paramRefHolder; //! \todo why doesn't the ParameterValues keep a reference?
+			paramRefHolder.reserve(numParams);
+			ParameterValues params(numParams);
+			for(int i=numParams-1;i>=0;--i ){
+				Object * paramValue = fcc->stack_popObjectValue();
+				params.set(i,paramValue);
+				paramRefHolder.push_back(paramValue);
+			}
+
+			// call super constructor
+			ObjRef superConstructor = fcc->stack_popObjectValue();
+			executeFunctionResult_t result = startFunctionExecution(*fcc.get(),superConstructor,fcc->getCaller(),params);
+			std::vector<ObjPtr> constructors;
+			while(!fcc->stack_empty()){
+				constructors.push_back(fcc->stack_popObject());
+			}
+			
+			if(result.second){
+				// pass remaining super constructors to new calling context
+				fcc = result.second;
+				instructions = &fcc->getInstructions();
+				for(std::vector<ObjPtr>::const_reverse_iterator it = constructors.rbegin();it!=constructors.rend();++it) 
+					fcc->stack_pushObject( *it );
+				fcc->enableAwaitingCaller();
+				fcc->markAsConstructorCall();
+			}else{
+				// set object
+				fcc->stack_pushObject(result.first);
+			}
+
 			break;
 		}
 		case Instruction::I_GET_ATTRIBUTE:{ //! \todo check for @(private)
@@ -1649,6 +1735,7 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 				fcc->setInstructionCursor(fcc->getExceptionHandlerPos());
 			}else{
 				warn("Unhandled exception! TODO!!!!!!!!!"); //! \todo propagate exception !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+				std::cout << (getResult() ?  getResult()->toString() : "????") <<"\n";
 			}
 		}
 
@@ -1659,7 +1746,8 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 }
 
 //! (internal)
-Runtime::executeFunctionResult_t Runtime::startFunctionExecution(FunctionCallContext & callingFcc,const ObjPtr & fun,const ObjPtr & _callingObject,ParameterValues & params){
+Runtime::executeFunctionResult_t Runtime::startFunctionExecution(FunctionCallContext & callingFcc,const ObjPtr & fun,
+																const ObjPtr & _callingObject,ParameterValues & params){
 	ObjPtr result;
 	switch( fun->_getInternalTypeId() ){
 		case _TypeIds::TYPE_USER_FUNCTION:{

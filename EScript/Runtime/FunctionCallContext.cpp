@@ -44,6 +44,9 @@ void FunctionCallContext::init(FunctionCallContext * _parent,const EPtr<UserFunc
 	parent = _parent;
 	userFunction = _userFunction;
 	instructionCursor = 0;
+	constructorCall = false;
+	
+	awaitsCaller = false;
 	exceptionHandlerPos = Instruction::INVALID_JUMP_ADDRESS;
 	
 	localVariables.resize(userFunction->getInstructions().getNumLocalVars());
@@ -52,6 +55,12 @@ void FunctionCallContext::init(FunctionCallContext * _parent,const EPtr<UserFunc
 	localVariables[Consts::LOCAL_VAR_INDEX_thisFn] = userFunction.get();
 //	std::fill(localVariables.begin(),localVariables.end(),NULL);
 }
+void FunctionCallContext::initCaller(const ObjPtr _caller){
+	awaitsCaller = false;
+	caller = _caller;
+	localVariables[Consts::LOCAL_VAR_INDEX_this] = caller;
+}
+
 
 void FunctionCallContext::reset(){
 	parent = NULL;

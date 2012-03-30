@@ -577,6 +577,9 @@ bool initHandler(handlerRegistry_t & m){
 			}
 
 		}
+		const uint32_t numSuperConstrParams = 0;
+		ctxt2.addInstruction(Instruction::createInitCaller(numSuperConstrParams));
+//		ctxt2.addInstruction(Instruction::createAssignLocal(Consts::LOCAL_VAR_INDEX_this)); 
 
 		ctxt2.compile(self->getBlock());
 		ctxt2.popSetting();

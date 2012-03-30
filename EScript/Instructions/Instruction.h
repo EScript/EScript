@@ -29,6 +29,7 @@ class Instruction {
 			I_GET_ATTRIBUTE,				// -1 +1
 			I_GET_VARIABLE,					// +1
 			I_GET_LOCAL_VARIABLE,			// +1
+			I_INIT_CALLER,					// -x +1
 			I_JMP,							// +-0
 			I_JMP_IF_SET,					// -1
 			I_JMP_ON_TRUE,					// -1
@@ -77,6 +78,7 @@ class Instruction {
 		static Instruction createGetAttribute(const StringId id);
 		static Instruction createGetLocalVariable(const uint32_t localVarIdx);
 		static Instruction createGetVariable(const StringId id);
+		static Instruction createInitCaller(const uint32_t numSuperParams);
 		static Instruction createJmp(const uint32_t markerId);
 		static Instruction createJmpIfSet(const uint32_t markerId);
 		static Instruction createJmpOnTrue(const uint32_t markerId);

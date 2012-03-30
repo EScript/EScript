@@ -46,14 +46,25 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		~FunctionCallContext(){}
 		void reset();
 		void init(FunctionCallContext * _parent,const EPtr<UserFunction> userFunction,const ObjPtr _caller);
-
+		
+		bool constructorCall;
+		bool awaitsCaller;
 	public:
+		/*! Marks that the return value of the next returning function call (emerging from this context) should
+			be used as this context's calling object. This is the case, if a constructor call has performed its initial steps 
+			(e.g. test for parameter types), and now the superconstructor call is called to create the object. */			
+		void enableAwaitingCaller()						{	awaitsCaller = true;	}
 		ObjPtr getCaller()const    						{   return caller; }
 		FunctionCallContext * getParent()const			{	return parent.get();	}
 		ERef<UserFunction> getUserFunction()const		{	return userFunction;	}
 
 		size_t getExceptionHandlerPos()const			{	return exceptionHandlerPos;	}
 		size_t getInstructionCursor()const				{	return instructionCursor;	}
+		//! Set the caller-object; the caller-member as well as the local-'this'-variable
+		void initCaller(const ObjPtr _caller);
+		bool isConstructorCall()const					{	return constructorCall;	}
+		bool isAwaitingCaller()const					{	return awaitsCaller;	}
+		void markAsConstructorCall()					{	constructorCall = true;	}
 		void setExceptionHandlerPos(const size_t p)		{	exceptionHandlerPos = p;	}
 		void setInstructionCursor(const size_t p)		{	instructionCursor = p;	}
 		void increaseInstructionCursor()				{	++instructionCursor;	}

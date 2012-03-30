@@ -74,6 +74,13 @@ Instruction Instruction::createGetVariable(const StringId id){
 }
 
 //! (static)
+Instruction Instruction::createInitCaller(const uint32_t numSuperParams){
+	Instruction i(I_INIT_CALLER);
+	i.setValue_uint32(numSuperParams);
+	return i;
+}
+
+//! (static)
 Instruction Instruction::createJmp(const uint32_t markerId){
 	Instruction i(I_JMP);
 	i.setValue_uint32(markerId);
@@ -233,6 +240,10 @@ std::string Instruction::toString(const InstructionBlock & ctxt)const{
 		out << "getVariable '" << getValue_Identifier().toString() << "'";
 		break;
 	}
+	case I_INIT_CALLER:{
+		out << "initCaller " << getValue_uint32();
+		break;
+	}	
 	case I_JMP:{
 		out << "jmp ";
 		if( getValue_uint32()<JMP_TO_MARKER_OFFSET)
