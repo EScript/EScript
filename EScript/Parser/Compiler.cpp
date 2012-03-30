@@ -577,8 +577,14 @@ bool initHandler(handlerRegistry_t & m){
 			}
 
 		}
-		const uint32_t numSuperConstrParams = 0;
-		ctxt2.addInstruction(Instruction::createInitCaller(numSuperConstrParams));
+
+		// add super-constructor parameters
+		const std::vector<ObjRef> & superConstrParams = self->getSConstructorExpressions();
+		for(std::vector<ObjRef>::const_iterator it = superConstrParams.begin();it!=superConstrParams.end();++it)
+			ctxt2.compile(*it);
+		
+		// init 'this' (or create it if this is a constructor call)
+		ctxt2.addInstruction(Instruction::createInitCaller(superConstrParams.size()));
 //		ctxt2.addInstruction(Instruction::createAssignLocal(Consts::LOCAL_VAR_INDEX_this)); 
 
 		ctxt2.compile(self->getBlock());

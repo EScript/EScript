@@ -69,6 +69,7 @@ class UserFunctionExpr : public ExtObject {
 		int getLine()const;
 
 		std::vector<ObjRef> & getSConstructorExpressions() 	{	return sConstrExpressions;	}
+		const std::vector<ObjRef> & getSConstructorExpressions()const	{	return sConstrExpressions;	}
 
 		void setCodeString(const EPtr<String> & _fileString,size_t _begin,size_t _codeLen);
 		std::string getCode()const;
