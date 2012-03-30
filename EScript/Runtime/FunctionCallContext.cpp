@@ -51,9 +51,8 @@ void FunctionCallContext::init(FunctionCallContext * _parent,const EPtr<UserFunc
 	
 	localVariables.resize(userFunction->getInstructions().getNumLocalVars());
 	
-	localVariables[Consts::LOCAL_VAR_INDEX_this] = caller;
+	localVariables[Consts::LOCAL_VAR_INDEX_this] = caller; // ?????????????????
 	localVariables[Consts::LOCAL_VAR_INDEX_thisFn] = userFunction.get();
-//	std::fill(localVariables.begin(),localVariables.end(),NULL);
 }
 void FunctionCallContext::initCaller(const ObjPtr _caller){
 	awaitsCaller = false;

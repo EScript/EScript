@@ -20,6 +20,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		static std::stack<FunctionCallContext *> pool;
 	public:
 		static FunctionCallContext * create(FunctionCallContext * _parent,const EPtr<UserFunction> userFunction,const ObjPtr _caller);
+		static FunctionCallContext * create(const EPtr<UserFunction> userFunction,const ObjPtr _caller)	{	return create(NULL,userFunction,_caller);	}
 		static void release(FunctionCallContext *rts);
 
 		// ----

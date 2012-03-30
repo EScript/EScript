@@ -1308,7 +1308,7 @@ std::string Runtime::getStackInfo(){
 Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \todo caller!
 
 
-	_CountedRef<FunctionCallContext> fcc = FunctionCallContext::create(NULL,userFunction,NULL); //! \todo caller!
+	_CountedRef<FunctionCallContext> fcc = FunctionCallContext::create(userFunction,NULL); //! \todo caller!
 	InstructionBlock * instructions = &fcc->getInstructions();
 
 	while( true ){
@@ -1504,7 +1504,15 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 					fcc->enableAwaitingCaller();
 					fcc->markAsConstructorCall();
 				}else{
-					fcc->stack_pushObject(result.first);
+					ObjPtr newObj = result.first;
+					if(newObj.isNull()){
+						if(state!=STATE_EXCEPTION) // if an exception occured in the constructor, the result may be NULL
+							setException("Constructor did not create an Object."); //! \todo improve message!
+						break;
+					}
+					fcc->stack_pushObject(newObj);
+					// init attribute
+					newObj->_initAttributes(*this); //! \todo catch exceptions!!!!!!!!
 				}
 			}
 			break;
@@ -1556,50 +1564,6 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 			}
 			break;
 		}
-		case Instruction::I_INIT_CALLER:{
-			const uint32_t numParams = instruction.getValue_uint32();
-
-			if(fcc->stack_empty()){ // no constructor call
-				if(numParams>0){
-					warn("Calling constructor function with @(super) attribute as normal function.");
-				}
-//				fcc->initCaller(fcc->getCaller()); ???????
-				continue;
-			}
-
-			// get super constructor parameters
-			std::vector<ObjRef> paramRefHolder; //! \todo why doesn't the ParameterValues keep a reference?
-			paramRefHolder.reserve(numParams);
-			ParameterValues params(numParams);
-			for(int i=numParams-1;i>=0;--i ){
-				Object * paramValue = fcc->stack_popObjectValue();
-				params.set(i,paramValue);
-				paramRefHolder.push_back(paramValue);
-			}
-
-			// call super constructor
-			ObjRef superConstructor = fcc->stack_popObjectValue();
-			executeFunctionResult_t result = startFunctionExecution(*fcc.get(),superConstructor,fcc->getCaller(),params);
-			std::vector<ObjPtr> constructors;
-			while(!fcc->stack_empty()){
-				constructors.push_back(fcc->stack_popObject());
-			}
-			
-			if(result.second){
-				// pass remaining super constructors to new calling context
-				fcc = result.second;
-				instructions = &fcc->getInstructions();
-				for(std::vector<ObjPtr>::const_reverse_iterator it = constructors.rbegin();it!=constructors.rend();++it) 
-					fcc->stack_pushObject( *it );
-				fcc->enableAwaitingCaller();
-				fcc->markAsConstructorCall();
-			}else{
-				// set object
-				fcc->stack_pushObject(result.first);
-			}
-
-			break;
-		}
 		case Instruction::I_GET_ATTRIBUTE:{ //! \todo check for @(private)
 			/*	pop Object
 				push Object.Identifier (or NULL + Warning)	*/
@@ -1639,6 +1603,57 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 			fcc->stack_pushObject( fcc->getLocalVariable(instruction.getValue_uint32()).get() );
 			continue;
 		}
+		case Instruction::I_INIT_CALLER:{
+			const uint32_t numParams = instruction.getValue_uint32();
+
+			if(fcc->stack_empty()){ // no constructor call
+				if(numParams>0){
+					warn("Calling constructor function with @(super) attribute as normal function.");
+				}
+//				fcc->initCaller(fcc->getCaller()); ???????
+				continue;
+			}
+
+			// get super constructor parameters
+			std::vector<ObjRef> paramRefHolder; //! \todo why doesn't the ParameterValues keep a reference?
+			paramRefHolder.reserve(numParams);
+			ParameterValues params(numParams);
+			for(int i=numParams-1;i>=0;--i ){
+				Object * paramValue = fcc->stack_popObjectValue();
+				params.set(i,paramValue);
+				paramRefHolder.push_back(paramValue);
+			}
+
+			// call super constructor
+			ObjRef superConstructor = fcc->stack_popObjectValue();
+			executeFunctionResult_t result = startFunctionExecution(*fcc.get(),superConstructor,fcc->getCaller(),params);
+			std::vector<ObjPtr> constructors;
+			while(!fcc->stack_empty()){
+				constructors.push_back(fcc->stack_popObject());
+			}
+			
+			if(result.second){
+				// pass remaining super constructors to new calling context
+				fcc = result.second;
+				instructions = &fcc->getInstructions();
+				for(std::vector<ObjPtr>::const_reverse_iterator it = constructors.rbegin();it!=constructors.rend();++it) 
+					fcc->stack_pushObject( *it );
+				fcc->enableAwaitingCaller();
+				fcc->markAsConstructorCall();
+			}else{
+				ObjPtr newObj = result.first;
+				if(newObj.isNull()){
+					if(state!=STATE_EXCEPTION) // if an exception occured in the constructor, the result may be NULL
+						setException("Constructor did not create an Object."); //! \todo improve message!
+					break;
+				}
+				fcc->stack_pushObject(newObj);
+				// init attribute
+				newObj->_initAttributes(*this); //! \todo catch exceptions!!!!!!!!
+			}
+
+			break;
+		}		
 		case Instruction::I_JMP:{
 			fcc->setInstructionCursor( instruction.getValue_uint32() );
 			continue;
@@ -1756,6 +1771,7 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 		}
 		}
 		if(getState()==STATE_EXCEPTION){
+			// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			fcc->stack_clear(); // remove current stack content
 			if(fcc->getExceptionHandlerPos()!=Instruction::INVALID_JUMP_ADDRESS){
 				fcc->assignToLocalVariable(Consts::LOCAL_VAR_INDEX_internalResult,getResult()); // ___result = exceptionResult
@@ -1825,9 +1841,54 @@ Runtime::executeFunctionResult_t Runtime::startFunctionExecution(FunctionCallCon
 			Delegate * delegate = static_cast<Delegate*>(fun.get());
 			return startFunctionExecution(callingFcc,delegate->getFunction(),delegate->getObject(),params);
 		}
+		case _TypeIds::TYPE_FUNCTION:{ // is  C++ function ?
+			Function * libfun=static_cast<Function*>(fun.get());
+			{	// check param count
+				const int min = libfun->getMinParamCount();
+				const int max = libfun->getMaxParamCount();
+				if( (min>0 && static_cast<int>(params.count())<min)){
+					std::ostringstream sprinter;
+					sprinter<<"Too few parameters: Expected " <<min<<", got "<<params.count()<<'.';
+					//! \todo improve message
+					setException(sprinter.str());
+					return std::make_pair(result.get(),static_cast<FunctionCallContext*>(NULL));
+				} else  if (max>=0 && static_cast<int>(params.count())>max) {
+					std::ostringstream sprinter;
+					sprinter<<"Too many parameters: Expected " <<max<<", got "<<params.count()<<'.';
+					//! \todo improve message
+					warn(sprinter.str());
+				}
+			}
+			libfun->increaseCallCounter();
+
+			try {
+				result = (*libfun->getFnPtr())(*this,_callingObject.get(),params);
+			} catch (Exception * e) {
+				setExceptionState(e);
+			} catch(const char * message) {
+				setException(std::string("C++ exception: ")+message);
+			} catch(const std::string & message) {
+				setException(std::string("C++ exception: ") + message);
+			} catch(const std::exception & e) {
+				setException(std::string("C++ exception: ") + e.what());
+			} catch (Object * obj) {
+				// workaround: this should be covered by catching the Exception* directly, but that doesn't always seem to work!?!
+				Exception * e=dynamic_cast<Exception *>(obj);
+				if(e){
+					setExceptionState(e);
+				}else{
+					const std::string message=(obj?obj->toString():"NULL");
+					setException(message);
+				}
+			}  catch (...){
+				setException("C++ exception");
+			}
+			break;
+		}
 
 		default:{
 			result = executeFunction(fun,_callingObject,params);
+			// \todo use _call()
 		}
 	}
 
