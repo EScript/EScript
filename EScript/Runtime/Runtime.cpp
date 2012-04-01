@@ -189,8 +189,14 @@ Runtime::Runtime() :
 	{	// SYS_CALL_THROW = 3;
 		struct _{
 			// SYS_CALL_THROW( [value] )
-			ESF( sysCall,0,1,(
-					runtime.setExceptionState( parameter.count()>0 ? parameter[0] : Void::get() ),static_cast<Object*>(NULL)))
+			ESF( sysCall,0,1,(runtime.setExceptionState( parameter.count()>0 ? parameter[0] : Void::get() ),static_cast<Object*>(NULL)))
+		};
+		systemFunctions.push_back(new Function(_::sysCall));
+	}	
+	{	// SYS_CALL_EXIT = 3;
+		struct _{
+			// SYS_CALL_EXIT( [value] )
+			ESF( sysCall,0,1,(runtime.setExitState( parameter.count()>0 ? parameter[0] : Void::get() ),static_cast<Object*>(NULL)))
 		};
 		systemFunctions.push_back(new Function(_::sysCall));
 	}
@@ -1330,6 +1336,7 @@ std::string Runtime::getStackInfo(){
 
 // ------------------------------------------------------------------
 ObjRef Runtime::executeFunction2(const ObjPtr & fun,const ObjPtr & caller,const ParameterValues & _params){
+	assertNormalState();
 	ParameterValues params(_params);
 	executeFunctionResult_t result = startFunctionExecution(fun,caller,params);
 	ObjRef realResult;
@@ -1393,6 +1400,9 @@ Object * Runtime::executeFunctionCallContext(_Ptr<FunctionCallContext> fcc){
 //		std::cout << fcc->stack_toDbgString()<<"\n";
 //		std::cout << instruction.toString(*instructions)<<"\n";
 
+		// --------------------------------------------------------------------------------------------------------------
+		// Instructio execution...
+		
 		switch(instruction.getType()){
 
 		case Instruction::I_ASSIGN_ATTRIBUTE:{
@@ -1824,7 +1834,10 @@ Object * Runtime::executeFunctionCallContext(_Ptr<FunctionCallContext> fcc){
 			warn("Unknown Instruction");
 		}
 		}
-		if(getState()==STATE_EXCEPTION){
+		// --------------------------------------------------------------------------------------------------------------
+		if(getState()==STATE_NORMAL){
+			continue;
+		}else if(getState()==STATE_EXCEPTION){
 			while(true){
 				fcc->stack_clear(); // remove current stack content
 				
@@ -1841,9 +1854,22 @@ Object * Runtime::executeFunctionCallContext(_Ptr<FunctionCallContext> fcc){
 				else{
 					popActiveFCC();
 					fcc = getActiveFCC();
-					if(fcc.isNull()){ 
+					if(fcc.isNull())
 						return NULL;
-					}
+					instructions = &fcc->getInstructions();
+				}
+			}
+		} else if(getState()==STATE_EXITING){
+			while(true){
+				// execution stops here? Keep the exiting-state and return;
+				if(fcc->isExecutionStoppedAfterEnding()){
+					return NULL;
+				} // continue with the next fcc...
+				else{
+					popActiveFCC();
+					fcc = getActiveFCC();
+					if(fcc.isNull())
+						return NULL;
 					instructions = &fcc->getInstructions();
 				}
 			}

@@ -166,6 +166,13 @@ void Compiler::compileStatement(CompilerContext & ctxt,const AST::Statement & st
 			ctxt.addInstruction(Instruction::createResetLocalVariable(*it));
 		}
 		ctxt.addInstruction(Instruction::createJmp(target));
+	}else if(statement.getType() == Statement::TYPE_EXIT){
+		if(statement.getExpression().isNotNull()){
+			ctxt.compile(statement.getExpression());
+		}
+		ctxt.addInstruction(Instruction::createPushUInt(Consts::SYS_CALL_EXIT));
+		ctxt.addInstruction(Instruction::createSysCall(statement.getExpression().isNotNull() ? 1 : 0));
+	
 	}else if(statement.getType() == Statement::TYPE_RETURN){
 		if(statement.getExpression().isNotNull()){
 			ctxt.compile(statement.getExpression());
