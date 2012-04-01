@@ -41,13 +41,17 @@ out(v);
 //		"var C = new Type(B);C._constructor ::= fn(p)@(super(p+10)){out('\\n',this,'CCC\\n');n+='blub';}; "+
 //		"var c = new C(1); out(c.n); ",
 		
-		"var A = new Type(); A._constructor ::= fn(p){out('\\n',this,'AAAA\\n');this.n:=''+p+'foo';};	"+
-		"var B = new Type(A);B._constructor ::= fn(p)@(super(p+100)){out('\\n',this,'BBB\\n');n+='bar'+p;}; "+
-		"var C = new Type(B);C._constructor ::= fn(p)@(super(p+10)){out('\\n',this,'CCC\\n');n+='blub'+p;}; "+
-		"var c = new C(1); out(c.n,'\n'); ",
+//		"var A = new Type(); A._constructor ::= fn(p){out('\\n',this,'AAAA\\n');this.n:=''+p+'foo';};	"+
+//		"var B = new Type(A);B._constructor ::= fn(p)@(super(p+100)){out('\\n',this,'BBB\\n');n+='bar'+p;}; "+
+//		"var C = new Type(B);C._constructor ::= fn(p)@(super(p+10)){out('\\n',this,'CCC\\n');n+='blub'+p;}; "+
+//		"var c = new C(1); out(c.n,'\n'); ",
+		
+//		"(fn(a){out(a);})(true);",
 //		"(fn(a){out(a);})(true);"
-//		"(fn( [Number,Bool,'a'] a,false b){})('a',true);" 
+//		"(fn( [Number,Bool,'a'] a,false b){})('a',true);" ,
 //		"(fn( Number a){})('a');"
+//		"try{ (fn(){throw 'foo!';})(); }catch(e){out(e);}",
+		"var f=new ExtObject(); f._call := fn(obj,params*){out('this:',this,'\n');out('obj:',obj);print_r(params);};  ('bar'->f)(1,2,3);"
 //		"var b=17;var a=7+b; out(a);",
 //		"var f = fn(a){ out(a);}; f( 3*3 );",
 //		"var f = fn(a,b=2){ out(a*b);}; f( 3 );",
@@ -62,7 +66,7 @@ out(v);
 //		"foreach( [1,2,3] as var v) out('####',v);",
 //		"var v; foreach( [1,2,3] as var k,v) out(k,':',v,'\n');",
 //		"var v; out('(',v,')');",
-//		"27+17;",
+//		"return 27+17;",
 //		"out('Hello HasE!');",
 ////		"for(var i=0;i<10;++i){	out('foo',i,'\n'); }",
 //		"a.b();",
@@ -98,7 +102,8 @@ out(v);
 		out("\n","-"*30,"\n[",expression,"]\n");
 		var fun = _compile( expression);
 		out( fun._asm() );
-		var result = fun._doCall();
+		var result = Runtime._callFunction2( fun );
+//		var result = fun._doCall();
 		out( "\n",result );
 
 	}

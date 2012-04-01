@@ -26,7 +26,7 @@ class Statement {
 			TYPE_JUMP_TO_A,
 
 			// less frequent
-			TYPE_EXCEPTION,
+			TYPE_THROW,
 			TYPE_EXIT,
 			TYPE_UNDEFINED,
 			

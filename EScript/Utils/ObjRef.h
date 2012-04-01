@@ -9,15 +9,17 @@
 #include <string>
 
 namespace EScript {
+template<class _T> class _Ptr;
 
 /*! Simple (counted) reference to use with EReferenceCounter */
 template<class _T>
 class _CountedRef  {
 		_T * obj;
 	public:
-		_CountedRef() : obj(NULL)                              {   }
-		_CountedRef(_T * _obj) : obj(_obj)                     {   _T::addReference(obj);  }
-		_CountedRef(const _CountedRef & other):obj(other.get()){   _T::addReference(obj);  }
+		_CountedRef() : obj(NULL)                              	{   }
+		_CountedRef(_T * _obj) : obj(_obj)                     	{   _T::addReference(obj);  }
+		_CountedRef(const _CountedRef & other):obj(other.get())	{   _T::addReference(obj);  }
+		_CountedRef(const _Ptr<_T> & other):obj(other.get())	{   _T::addReference(obj);  }
 
 		~_CountedRef()     {   _T::removeReference(obj);   }
 
@@ -72,9 +74,63 @@ class _CountedRef  {
 		inline bool isNotNull()const							{   return obj!=NULL;   }
 
 		inline bool operator==(const _CountedRef & other)const 	{   return obj==other.obj;  }
+		inline bool operator==(const _Ptr<_T> & other)const 	{   return obj==other.get();  }
 		inline bool operator==(const _T * o2)const          	{   return obj==o2; }
 		inline bool operator!=(const _CountedRef & other)const 	{   return obj!=other.obj;  }
+		inline bool operator!=(const _Ptr<_T> & other)const		{   return obj!=other.get();  }
 		inline bool operator!=(const _T * o2)const          	{   return obj!=o2; }
+	// @}
+};
+
+/*! Simple wrapper for a pointer to a possibly */
+template<class _T>
+class _Ptr  {
+		_T * obj;
+	public:
+		_Ptr() : obj(NULL)                              	{	}
+		_Ptr(_T * _obj) : obj(_obj)                     	{	}
+		_Ptr(const _Ptr & other):obj(other.get())			{	}
+		_Ptr(const _CountedRef<_T> & other):obj(other.get()){	}
+
+		~_Ptr()	{	}
+
+		/*! Assignment */
+		_Ptr& operator=(const _Ptr& other) {
+			obj = other.obj;
+			return *this;
+		}
+
+		/*! Swap the referenced pointers without touching the reference counter. */
+		void swap(_Ptr& other){
+			_T * tmp=this->obj;
+			this->obj=other.obj;
+			other.obj=tmp;
+		}
+
+
+		/*! Tries to convert object to given Type; returns NULL if object is NULL or not of given type. */
+		template <class _T2> _T2 * toType()const    {   return isNull()?NULL:dynamic_cast<_T2*>(obj);   }
+		
+	/*! @name Information */
+	// @{
+		/*! Returns a pointer to the referenced Object. */
+		inline _T * get()const                              {   return obj; }
+
+		/*! Direct access to the referenced Object. */
+		inline _T * operator->()const                       {   return obj; }
+
+		/*! Returns true if the referenced object is NULL.  */
+		inline bool isNull()const                           {   return obj==NULL;   }
+
+		/*! Returns true if the referenced object is not NULL.  */
+		inline bool isNotNull()const						{   return obj!=NULL;   }
+
+		inline bool operator==(const _Ptr & other)const 			{   return obj==other.obj;  }
+		inline bool operator==(const _CountedRef<_T> & other)const 	{   return obj==other.get();  }
+		inline bool operator==(const _T * o2)const          		{   return obj==o2; }
+		inline bool operator!=(const _Ptr & other)const 			{   return obj!=other.obj;  }
+		inline bool operator!=(const _CountedRef<_T> & other)const 	{   return obj!=other.get();  }
+		inline bool operator!=(const _T * o2)const          		{   return obj!=o2; }
 	// @}
 };
 

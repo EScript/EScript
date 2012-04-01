@@ -18,7 +18,7 @@ using namespace EScript;
 std::stack<FunctionCallContext *> FunctionCallContext::pool;
 
 //! (static) Factory
-FunctionCallContext * FunctionCallContext::create(FunctionCallContext * _parent,const EPtr<UserFunction> userFunction,const ObjPtr _caller){
+FunctionCallContext * FunctionCallContext::create(const EPtr<UserFunction> userFunction,const ObjPtr _caller){
 	FunctionCallContext * fcc=NULL;
 	if(pool.empty()){
 		fcc=new FunctionCallContext();
@@ -27,7 +27,7 @@ FunctionCallContext * FunctionCallContext::create(FunctionCallContext * _parent,
 		pool.pop();
 	}
 //	assert(userFunction.isNotNull()); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	fcc->init(_parent,userFunction,_caller);
+	fcc->init(userFunction,_caller);
 	return fcc;
 }
 
@@ -39,14 +39,13 @@ void FunctionCallContext::release(FunctionCallContext *fcc){
 
 // -------------------------------------------------------------------------
 
-void FunctionCallContext::init(FunctionCallContext * _parent,const EPtr<UserFunction> _userFunction,const ObjPtr _caller){
+void FunctionCallContext::init(const EPtr<UserFunction> _userFunction,const ObjPtr _caller){
 	caller = _caller;
-	parent = _parent;
 	userFunction = _userFunction;
 	instructionCursor = 0;
 	constructorCall = false;
-	
 	awaitsCaller = false;
+	stopExecutionAfterEnding = false;
 	exceptionHandlerPos = Instruction::INVALID_JUMP_ADDRESS;
 	
 	localVariables.resize(userFunction->getInstructions().getNumLocalVars());
@@ -62,7 +61,6 @@ void FunctionCallContext::initCaller(const ObjPtr _caller){
 
 
 void FunctionCallContext::reset(){
-	parent = NULL;
 	userFunction = NULL;
 	localVariables.clear();
 	while(!valueStack.empty())

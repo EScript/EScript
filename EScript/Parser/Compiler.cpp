@@ -173,6 +173,16 @@ void Compiler::compileStatement(CompilerContext & ctxt,const AST::Statement & st
 		}
 		ctxt.addInstruction(Instruction::createJmp(Instruction::INVALID_JUMP_ADDRESS));
 	
+	}else if(statement.getType() == Statement::TYPE_THROW){
+		if(statement.getExpression().isNotNull()){
+			ctxt.compile(statement.getExpression());
+		}
+		ctxt.addInstruction(Instruction::createPushUInt(Consts::SYS_CALL_THROW));
+		ctxt.addInstruction(Instruction::createSysCall(statement.getExpression().isNotNull() ? 1 : 0));
+	
+	}else if(statement.getType() == Statement::TYPE_YIELD){
+		std::cout << "\nError: Yield not yet supported!\n"; //! \todo Compiler error
+	
 	}else if(statement.getExpression().isNotNull()){
 		ctxt.setLine(statement.getLine());
 		ctxt.compile(statement.getExpression());
@@ -522,9 +532,12 @@ bool initHandler(handlerRegistry_t & m){
 			varSet.insert(exceptionVariableName);
 			ctxt.pushSetting_localVars(varSet);
 		}
-		// load exception variable with exception object ( exceptionVariableName = __result )
-		ctxt.addInstruction(Instruction::createGetLocalVariable(2));
+		// load exception-variable with exception object ( exceptionVariableName = __result )
+		ctxt.addInstruction(Instruction::createGetLocalVariable(Consts::LOCAL_VAR_INDEX_internalResult));
 		ctxt.addInstruction(Instruction::createAssignLocal(ctxt.getCurrentVarIndex(exceptionVariableName)));
+		
+		// clear the exception-variable
+		ctxt.addInstruction(Instruction::createResetLocalVariable(Consts::LOCAL_VAR_INDEX_internalResult));
 
 		// execute catch block
 		ctxt.compile(self->getCatchBlock().get());

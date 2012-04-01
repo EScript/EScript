@@ -119,6 +119,22 @@ void Runtime::init(EScript::Namespace & globals) {
 		ObjRef resultRef=runtime.executeFunction(fun.get(),obj.get(),params);
 		return resultRef.detachAndDecrease();
 	})
+	
+	//! [ESF]  Object _callFunction2(fun[,obj[,Array params]])
+	ES_FUNCTION_DECLARE(typeObject,"_callFunction2",1,3, {
+		ObjPtr fun(parameter[0]);
+		ObjPtr obj(parameter[1].get());
+
+		EPtr<Array> paramArr( (parameter.count()>2) ? assertType<Array>(runtime,parameter[2]) : NULL );
+		ParameterValues params(paramArr.isNotNull() ? paramArr->count() : 0);
+		if(paramArr.isNotNull()){
+			int i=0;
+			for(Array::iterator it=paramArr->begin();it!=paramArr->end();++it)
+				params.set(i++,*it);
+		}
+		ObjRef resultRef=runtime.executeFunction2(fun.get(),obj.get(),params);
+		return resultRef.detachAndDecrease();
+	})
 
 	//! [ESF]  Object _getCurrentCaller()
 	ESF_DECLARE(typeObject,"_getCurrentCaller",0,0, runtime.getCurrentContext()->getCaller() )
@@ -167,6 +183,14 @@ Runtime::Runtime() :
 			// SYS_CALL_THROW_TYPE_EXCEPTION( expectedType, receivedValue )
 			ESF( sysCall,2,2,(
 					runtime.setException("Wrong parameter type: Expected '"+parameter[0].toString()+"' but got '"+parameter[1].toString()+"'" ),static_cast<Object*>(NULL)))
+		};
+		systemFunctions.push_back(new Function(_::sysCall));
+	}
+	{	// SYS_CALL_THROW = 3;
+		struct _{
+			// SYS_CALL_THROW( [value] )
+			ESF( sysCall,0,1,(
+					runtime.setExceptionState( parameter.count()>0 ? parameter[0] : Void::get() ),static_cast<Object*>(NULL)))
 		};
 		systemFunctions.push_back(new Function(_::sysCall));
 	}
@@ -556,7 +580,7 @@ Object * Runtime::executeCurrentContext(bool markEntry) {
 //				stmt = rtb->nextStatement();
 				break;
 			}
-			case Statement::TYPE_EXCEPTION:{
+			case Statement::TYPE_THROW:{
 				ObjRef returnValue;
 				if( stmt->getExpression() != NULL )
 					returnValue = executeObj(stmt->getExpression().get());
@@ -1305,10 +1329,32 @@ std::string Runtime::getStackInfo(){
 
 
 // ------------------------------------------------------------------
-Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \todo caller!
+ObjRef Runtime::executeFunction2(const ObjPtr & fun,const ObjPtr & caller,const ParameterValues & _params){
+	ParameterValues params(_params);
+	executeFunctionResult_t result = startFunctionExecution(fun,caller,params);
+	ObjRef realResult;
+	if(result.second){
+		_CountedRef<FunctionCallContext> fcc = result.second;
+		realResult = executeFunctionCallContext(fcc);
+	}else{
+		realResult = result.first;
+	}
+	// error occured? throw an exception!
+	if(getState()==STATE_EXCEPTION){
+		realResult = getResult();
+		resetState();
+		throw(realResult.detachAndDecrease());
+	}
+	return realResult;
+}
 
+//Object * createInstance(...)
 
-	_CountedRef<FunctionCallContext> fcc = FunctionCallContext::create(userFunction,NULL); //! \todo caller!
+//! (internal)
+Object * Runtime::executeFunctionCallContext(_Ptr<FunctionCallContext> fcc){
+
+	fcc->enableStopExecutionAfterEnding();
+	pushActiveFCC(fcc);
 	InstructionBlock * instructions = &fcc->getInstructions();
 
 	while( true ){
@@ -1322,17 +1368,22 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 				// \note the local variable $0 contains the created object, "fcc->getCaller()" contains the instanciated Type-Object.
 				result = fcc->getLocalVariable(Consts::LOCAL_VAR_INDEX_this); 
 			}
-			if(fcc->getParent()){
-				fcc = fcc->getParent();
-				instructions = &fcc->getInstructions();
-				if(fcc->isAwaitingCaller()){
-					fcc->initCaller(result);
-				}else{
-					fcc->stack_pushObject(result);
-				}
-				continue;
+			if(fcc->isExecutionStoppedAfterEnding()){
+				return result.detachAndDecrease();
 			}
-			return result.detachAndDecrease();
+			popActiveFCC();
+			fcc = getActiveFCC();
+			if(fcc.isNull()){ //! just to be safe (should never occur)
+				return result.detachAndDecrease();
+			}
+			
+			instructions = &fcc->getInstructions();
+			if(fcc->isAwaitingCaller()){
+				fcc->initCaller(result);
+			}else{
+				fcc->stack_pushObject(result);
+			}
+			continue;
 		}
 
 		//! \todo this could probably improved by using iterators internally!
@@ -1423,9 +1474,10 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 
 
 			// returnValue , newUserFunctionCallContext
-			executeFunctionResult_t result = startFunctionExecution(*fcc.get(),fun,caller,params);
+			executeFunctionResult_t result = startFunctionExecution(fun,caller,params);
 			if(result.second){
 				fcc = result.second;
+				pushActiveFCC(fcc);
 				instructions = &fcc->getInstructions();
 			}else{
 				fcc->stack_pushObject(result.first);
@@ -1495,9 +1547,10 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 			{ // call the first constructor and pass the other constructor-functions by adding them to the stack
 				ObjRef fun = constructors.front();
 				
-				executeFunctionResult_t result = startFunctionExecution(*fcc.get(),fun,caller,params);
+				executeFunctionResult_t result = startFunctionExecution(fun,caller,params);
 				if(result.second){
 					fcc = result.second;
+					pushActiveFCC(fcc);
 					instructions = &fcc->getInstructions();
 					for(std::vector<ObjPtr>::const_reverse_iterator it = constructors.rbegin();(it+1)!=constructors.rend();++it) //! \todo c++11 use std::next
 						fcc->stack_pushObject( *it );
@@ -1626,7 +1679,7 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 
 			// call super constructor
 			ObjRef superConstructor = fcc->stack_popObjectValue();
-			executeFunctionResult_t result = startFunctionExecution(*fcc.get(),superConstructor,fcc->getCaller(),params);
+			executeFunctionResult_t result = startFunctionExecution(superConstructor,fcc->getCaller(),params);
 			std::vector<ObjPtr> constructors;
 			while(!fcc->stack_empty()){
 				constructors.push_back(fcc->stack_popObject());
@@ -1635,6 +1688,7 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 			if(result.second){
 				// pass remaining super constructors to new calling context
 				fcc = result.second;
+				pushActiveFCC(fcc);
 				instructions = &fcc->getInstructions();
 				for(std::vector<ObjPtr>::const_reverse_iterator it = constructors.rbegin();it!=constructors.rend();++it) 
 					fcc->stack_pushObject( *it );
@@ -1771,15 +1825,27 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 		}
 		}
 		if(getState()==STATE_EXCEPTION){
-			// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			fcc->stack_clear(); // remove current stack content
-			if(fcc->getExceptionHandlerPos()!=Instruction::INVALID_JUMP_ADDRESS){
-				fcc->assignToLocalVariable(Consts::LOCAL_VAR_INDEX_internalResult,getResult()); // ___result = exceptionResult
-				resetState();
-				fcc->setInstructionCursor(fcc->getExceptionHandlerPos());
-			}else{
-				warn("Unhandled exception! TODO!!!!!!!!!"); //! \todo propagate exception !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-				std::cout << (getResult() ?  getResult()->toString() : "????") <<"\n";
+			while(true){
+				fcc->stack_clear(); // remove current stack content
+				
+				// catch-block available?
+				if(fcc->getExceptionHandlerPos()!=Instruction::INVALID_JUMP_ADDRESS){
+					fcc->assignToLocalVariable(Consts::LOCAL_VAR_INDEX_internalResult,getResult()); // ___result = exceptionResult
+					resetState();
+					fcc->setInstructionCursor(fcc->getExceptionHandlerPos());
+					break;
+				} // execution stops here? Keep the exception-state and return;
+				else if(fcc->isExecutionStoppedAfterEnding()){
+					return NULL;
+				} // continue with the next fcc...
+				else{
+					popActiveFCC();
+					fcc = getActiveFCC();
+					if(fcc.isNull()){ 
+						return NULL;
+					}
+					instructions = &fcc->getInstructions();
+				}
 			}
 		}
 	}
@@ -1787,13 +1853,12 @@ Object * Runtime::executeUserFunction(EPtr<UserFunction> userFunction){ //! \tod
 }
 
 //! (internal)
-Runtime::executeFunctionResult_t Runtime::startFunctionExecution(FunctionCallContext & callingFcc,const ObjPtr & fun,
-																const ObjPtr & _callingObject,ParameterValues & params){
+Runtime::executeFunctionResult_t Runtime::startFunctionExecution(const ObjPtr & fun,const ObjPtr & _callingObject,ParameterValues & params){
 	ObjPtr result;
 	switch( fun->_getInternalTypeId() ){
 		case _TypeIds::TYPE_USER_FUNCTION:{
 			UserFunction * userFunction = static_cast<UserFunction*>(fun.get());
-			_CountedRef<FunctionCallContext> fcc = FunctionCallContext::create(&callingFcc,userFunction,_callingObject);
+			_CountedRef<FunctionCallContext> fcc = FunctionCallContext::create(userFunction,_callingObject);
 
 			// check for too few parameter values -> throw exception
 			if(userFunction->getMinParamCount()>=0 && params.size()<static_cast<size_t>(userFunction->getMinParamCount())){
@@ -1839,7 +1904,7 @@ Runtime::executeFunctionResult_t Runtime::startFunctionExecution(FunctionCallCon
 		}
 		case _TypeIds::TYPE_DELEGATE:{
 			Delegate * delegate = static_cast<Delegate*>(fun.get());
-			return startFunctionExecution(callingFcc,delegate->getFunction(),delegate->getObject(),params);
+			return startFunctionExecution(delegate->getFunction(),delegate->getObject(),params);
 		}
 		case _TypeIds::TYPE_FUNCTION:{ // is  C++ function ?
 			Function * libfun=static_cast<Function*>(fun.get());
@@ -1887,8 +1952,20 @@ Runtime::executeFunctionResult_t Runtime::startFunctionExecution(FunctionCallCon
 		}
 
 		default:{
-			result = executeFunction(fun,_callingObject,params);
-			// \todo use _call()
+			// function-object has a user defined "_call"-member?
+			const Attribute & attr = fun->getAttribute(Consts::IDENTIFIER_fn_call);		//! \todo check for @(private)
+			
+			if(attr.getValue()){
+				// fun._call( callingObj , param0 , param1 , ... )
+				ParameterValues params2(params.count()+1);
+				params2.set(0,_callingObject.isNotNull() ? _callingObject : Void::get());
+				std::copy(params.begin(),params.end(),params2.begin()+1);
+
+				return startFunctionExecution(attr.getValue(),fun,params2);
+			}
+
+			warn("Cannot use '"+fun->toDbgString()+"' as a function.");
+	
 		}
 	}
 

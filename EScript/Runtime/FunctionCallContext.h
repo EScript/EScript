@@ -19,8 +19,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 	private:
 		static std::stack<FunctionCallContext *> pool;
 	public:
-		static FunctionCallContext * create(FunctionCallContext * _parent,const EPtr<UserFunction> userFunction,const ObjPtr _caller);
-		static FunctionCallContext * create(const EPtr<UserFunction> userFunction,const ObjPtr _caller)	{	return create(NULL,userFunction,_caller);	}
+		static FunctionCallContext * create(const EPtr<UserFunction> userFunction,const ObjPtr _caller);
 		static void release(FunctionCallContext *rts);
 
 		// ----
@@ -46,25 +45,28 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		FunctionCallContext() : instructionCursor(0) {}
 		~FunctionCallContext(){}
 		void reset();
-		void init(FunctionCallContext * _parent,const EPtr<UserFunction> userFunction,const ObjPtr _caller);
+		void init(const EPtr<UserFunction> userFunction,const ObjPtr _caller);
 		
 		bool constructorCall;
 		bool awaitsCaller;
+		bool stopExecutionAfterEnding;  //! ... or otherwise, continue with the execution of the parent-context.
 	public:
 		/*! Marks that the return value of the next returning function call (emerging from this context) should
 			be used as this context's calling object. This is the case, if a constructor call has performed its initial steps 
 			(e.g. test for parameter types), and now the superconstructor call is called to create the object. */			
 		void enableAwaitingCaller()						{	awaitsCaller = true;	}
+		void enableStopExecutionAfterEnding()			{	stopExecutionAfterEnding = true;	}
+		
 		ObjPtr getCaller()const    						{   return caller; }
-		FunctionCallContext * getParent()const			{	return parent.get();	}
 		ERef<UserFunction> getUserFunction()const		{	return userFunction;	}
 
 		size_t getExceptionHandlerPos()const			{	return exceptionHandlerPos;	}
 		size_t getInstructionCursor()const				{	return instructionCursor;	}
 		//! Set the caller-object; the caller-member as well as the local-'this'-variable
 		void initCaller(const ObjPtr _caller);
-		bool isConstructorCall()const					{	return constructorCall;	}
 		bool isAwaitingCaller()const					{	return awaitsCaller;	}
+		bool isConstructorCall()const					{	return constructorCall;	}
+		bool isExecutionStoppedAfterEnding()const		{	return stopExecutionAfterEnding;	}
 		void markAsConstructorCall()					{	constructorCall = true;	}
 		void setExceptionHandlerPos(const size_t p)		{	exceptionHandlerPos = p;	}
 		void setInstructionCursor(const size_t p)		{	instructionCursor = p;	}

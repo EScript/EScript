@@ -73,6 +73,7 @@ struct Consts{
 	static const size_t SYS_CALL_CREATE_ARRAY = 0;
 	static const size_t SYS_CALL_CREATE_MAP = 1;
 	static const size_t SYS_CALL_THROW_TYPE_EXCEPTION = 2;
+	static const size_t SYS_CALL_THROW = 3;
 };
 //	@}
 

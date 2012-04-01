@@ -5,6 +5,7 @@
 #ifndef RUNTIME_H
 #define RUNTIME_H
 
+#include "FunctionCallContext.h"
 #include "RuntimeContext.h"
 #include "../Objects/ExtObject.h"
 #include "../Utils/Logger.h"
@@ -101,14 +102,23 @@ class Runtime : public ExtObject  {
 			Start the execution of a function. A c++ function is executed immediatly and the result is <result,NULL>.
 			A UserFunction produces a FunctionCallContext which still has to be executed. The result is then <NULL,fcc>
 			\note the @p params value may be altered by this function and should not be used afterwards!	*/
-		executeFunctionResult_t startFunctionExecution(FunctionCallContext & fcc,const ObjPtr & fun,const ObjPtr & callingObject,
-														ParameterValues & params);
+		executeFunctionResult_t startFunctionExecution(const ObjPtr & fun,const ObjPtr & callingObject,ParameterValues & params);
+
+		Object * executeFunctionCallContext(_Ptr<FunctionCallContext> fcc);
 
 		Object * sysCall(uint32_t sysFnId,ParameterValues & params);
 		std::vector<ERef<Function> > systemFunctions;
+		
+		
+		std::vector<_CountedRef<FunctionCallContext> > activeFCCs;
+		
+		void pushActiveFCC(const _Ptr<FunctionCallContext> fcc)	{	activeFCCs.push_back(fcc);	}
+		void popActiveFCC()										{	activeFCCs.pop_back();	}
+		_Ptr<FunctionCallContext> getActiveFCC()const			{	return activeFCCs.empty() ? NULL : activeFCCs.back();	}
+		
 	public:
-		Object * executeUserFunction(EPtr<UserFunction> userFunctions);
-
+		ObjRef executeFunction2(const ObjPtr & fun,const ObjPtr & callingObject,const ParameterValues & params);
+	
 	//	@}
 
 	// ------------------------------------------------
@@ -153,7 +163,7 @@ class Runtime : public ExtObject  {
 		}
 
 
-		Object * getResult()const 						{	return returnRef.get();	}
+		Object * getResult()const 						{	return returnRef.get();	} //! \todo rename to exception
 
 		void info(const std::string & s);
 		void warn(const std::string & s);

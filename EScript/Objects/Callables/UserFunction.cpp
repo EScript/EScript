@@ -68,9 +68,6 @@ void UserFunction::init(EScript::Namespace & globals) {
 	//! [ESMF] String UserFunction._asm()
 	ESMF_DECLARE(t,UserFunction,"_asm",0,0, String::create(self->getInstructions().toString()))
 
-	//! [ESMF] String UserFunction._doCall()
-	ESMF_DECLARE(t,UserFunction,"_doCall",0,0, runtime.executeUserFunction(self))
-
 }
 
 //! (ctor)

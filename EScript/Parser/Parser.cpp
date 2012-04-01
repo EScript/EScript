@@ -1760,7 +1760,7 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 	}
 	/// throw-Control
 	else if(cId==Consts::IDENTIFIER_throw) {
-		return Statement(Statement::TYPE_EXCEPTION,getExpression(ctxt,cursor));
+		return Statement(Statement::TYPE_THROW,getExpression(ctxt,cursor));
 	}
 	/// yield-Control
 	else if(cId==Consts::IDENTIFIER_yield) {
