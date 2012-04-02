@@ -203,8 +203,8 @@ void StdLib::init(EScript::Namespace * globals) {
 	ESF_DECLARE(globals,"clock",0,0,Number::create( static_cast<double>(clock())/CLOCKS_PER_SEC))
 	#endif
 	}
-	//!	[ESF]  Object eval(string)
-	ESF_DECLARE(globals,"eval",1,1, runtime.eval(StringData(parameter[0].toString())))
+////////////	//!	[ESF]  Object eval(string) // \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+////////////	ESF_DECLARE(globals,"eval",1,1, runtime.eval(StringData(parameter[0].toString())))
 
 	/*!	[ESF]  Map getDate([time])
 		like http://de3.php.net/manual/de/function.getdate.php	*/

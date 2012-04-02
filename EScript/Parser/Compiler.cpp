@@ -77,7 +77,7 @@ UserFunction * Compiler::compile(const StringData & code){
 	static const StringId inline_id("[inline]");
 
 	// prepare container function
-	ERef<UserFunction> fun = new UserFunction(new UserFunction::parameterList_t,new AST::BlockStatement); // dummy parameters
+	ERef<UserFunction> fun = new UserFunction();
 	fun->setCodeString(String::create(code),0,code.str().length());
 
 	// parse and build syntax tree
@@ -98,7 +98,7 @@ UserFunction * Compiler::compile(const StringData & code){
 
 UserFunction * Compiler::compileFile(const std::string & filename){
 	// prepare container function
-	ERef<UserFunction> fun = new UserFunction(new UserFunction::parameterList_t);
+	ERef<UserFunction> fun = new UserFunction();
 
 	// parse and build syntax tree
 	Parser p(getLogger());
@@ -119,7 +119,7 @@ void Compiler::finalizeInstructions( InstructionBlock & instructionBlock ){
 
 	std::vector<Instruction> & instructions = instructionBlock._accessInstructions();
 	
-	if(instructionBlock.hasJumpMarkers()){
+//	if(instructionBlock.hasJumpMarkers()){
 		std::map<uint32_t,uint32_t> markerToPosition;
 	
 		{ // pass 1: remove setMarker-instructions and store position
@@ -153,7 +153,7 @@ void Compiler::finalizeInstructions( InstructionBlock & instructionBlock ){
 			
 		}
 		
-	}
+//	}
 }
 
 //! (internal)
@@ -597,7 +597,7 @@ bool initHandler(handlerRegistry_t & m){
 	// Other objects
 	ADD_HANDLER( _TypeIds::TYPE_USER_FUNCTION_EXPRESSION, UserFunctionExpr, {
 
-		ERef<UserFunction> fun = new UserFunction(new UserFunction::parameterList_t,new AST::BlockStatement); // dummy parameters
+		ERef<UserFunction> fun = new UserFunction();
 		fun->setParameterCounts(self->getParamList().size(),self->getMinParamCount(),self->getMaxParamCount());
 		//! \todo set code string
 //		fun->setCodeString(String::create(code),0,code.str().length());

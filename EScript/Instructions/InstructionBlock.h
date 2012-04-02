@@ -56,18 +56,10 @@ class InstructionBlock {
 		UserFunction * getUserFunction(const uint32_t index)const;
 		int getCurrentVarIndex(const StringId name)const;
 		
-		bool hasJumpMarkers()const								{	return true;	} //! \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		
 		std::vector<Instruction> & _accessInstructions()		{	return instructions;	}
 		const std::vector<Instruction> & _accessInstructions()const	{	return instructions;	}
 
-		/*! Initializes this instructionBLock with the data of the other.
-			The given InstructionBlock becomes thereby invalid.	*/
-		void emplace(InstructionBlock & other);
-		
 		std::string toString()const;
-
-		
 };
 }
 

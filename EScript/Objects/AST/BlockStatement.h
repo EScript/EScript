@@ -34,7 +34,6 @@ class BlockStatement : public Object {
 
 
 		/*! returns false if variable was already declared */
-//		bool declareVar(const std::string & s)			{	return declareVar(EScript::stringToIdentifierId(s));	}
 		bool declareVar(StringId id);
 		const declaredVariableMap_t * getVars()const 	{ 	return vars;    }
 		bool isLocalVar(StringId id)					{	return vars==NULL ? false : vars->count(id)>0;	}
@@ -49,33 +48,6 @@ class BlockStatement : public Object {
 		declaredVariableMap_t * vars;
 		statementList statements;
 		int line;
-
-		//! \todo remove this: 
-	public:
-		static const int POS_DONT_HANDLE = -1;
-		static const int POS_HANDLE_AND_LEAVE = -2;
-		static const int POS_HANDLE_AND_RESTART = 0;
-
-		int getNextPos()const			{	return statements.size();	}
-
-		int getContinuePos()const		{	return continuePos;	}
-		void setContinuePos(int pos)	{	continuePos=pos;	}
-		int getBreakPos()const			{	return breakPos;	}
-		void setBreakPos(int pos)		{	breakPos=pos;	}
-
-		int getExceptionPos()const		{	return exceptionPos;	}
-		void setExceptionPos(int pos)	{	exceptionPos=pos;	}
-
-		int getJumpPosA()const			{	return jumpPosA;	}
-		void setJumpPosA(int pos)		{	jumpPosA=pos;	}
-
-	private:
-		int continuePos;
-		int breakPos;
-		int exceptionPos;
-		int jumpPosA;
-		// exceptionPos
-
 };
 }
 }

@@ -30,55 +30,12 @@ class UserFunction : public ExtObject {
 
 	// -------------------------------------------------------------
 
-	/*! @name Parameter */
-	//	@{
-
-		/*! [Parameter] */  // \todo old!
-		class Parameter {
-			private:
-				StringId name;
-				ObjRef defaultValueExpressionRef;
-				ObjRef typeRef;
-				bool multiParam;
-			public:
-				explicit Parameter(const StringId & name,Object * defaultValueExpression=NULL,Object * type=NULL);
-				~Parameter();
-				std::string toString()const;
-
-				Parameter* clone()const;
-				StringId getName()const						{   return name;    }
-				Object * getType()const						{   return typeRef.get();   }
-
-				void setMultiParam(bool b)					{   multiParam=b;   }
-				bool isMultiParam()const					{   return multiParam;  }
-
-				Object * getDefaultValueExpression()const {
-					return defaultValueExpressionRef.get();
-				}
-				void setDefaultValueExpression(Object * newDefaultExpression) {
-					defaultValueExpressionRef=newDefaultExpression;
-				}
-
-		};
-
-		typedef std::vector<Parameter *> parameterList_t;
-	//	@}
-
-	// -------------------------------------------------------------
-
 	/*! @name Main */
 	//	@{
-		UserFunction(parameterList_t * params,AST::BlockStatement * block = NULL);
-		UserFunction(parameterList_t * params,AST::BlockStatement * block,const std::vector<ObjRef> & _sConstrExpressions);
+		UserFunction();
 		virtual ~UserFunction();
 
-		void setBlock(AST::BlockStatement * block); // \todo old!
-		AST::BlockStatement * getBlock()const				{	return blockRef.get();	}  // \todo old!
-		parameterList_t * getParamList()const				{	return params;	}  // \todo old!
 		std::string getFilename()const;
-		int getLine()const;
-
-		std::vector<ObjRef> & getSConstructorExpressions() 	{	return sConstrExpressions;	}  // \todo old!
 
 		void setCodeString(const EPtr<String> & _fileString,size_t _begin,size_t _codeLen);
 		std::string getCode()const;
@@ -86,28 +43,17 @@ class UserFunction : public ExtObject {
 		int getMinParamCount()const							{	return minParamValueCount;	}
 		size_t getParamCount()const							{	return paramCount;	}
 
-		void _finalize_OLD();
 		void setParameterCounts(size_t paramsCount,int minValues,int maxValues)	{	
 			paramCount = paramsCount , minParamValueCount = minValues,maxParamValueCount = maxValues;	
 		}
-
-
 		const InstructionBlock & getInstructions()const 	{	return instructions;	}
 		InstructionBlock & getInstructions() 				{	return instructions;	}
-		void emplaceInstructions( InstructionBlock & source){	instructions.emplace(source);	}
 	
 	
 		/// ---|> [Object]
-		virtual UserFunction * clone()const;
-		virtual std::string toDbgString()const;
 		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_USER_FUNCTION;	}
 
 	private:
-		void initInstructions();
-		ERef<AST::BlockStatement> blockRef;  // \todo old!
-		parameterList_t * params;  // \todo old!
-		std::vector<ObjRef> sConstrExpressions;  // \todo old!
-
 		ERef<String> fileString;
 		size_t posInFile,codeLen;
 		size_t paramCount;

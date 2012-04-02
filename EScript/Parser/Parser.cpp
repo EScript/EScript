@@ -1137,128 +1137,67 @@ Object * Parser::getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const
 	/// step over '(' inserted at pass_2(...)
 	++cursor;
 
-	if(_produceBytecode){
-		UserFunctionExpr::parameterList_t params;
-		readFunctionParameters(params,ctxt,cursor);
-		TOperator * superOp=Token::cast<TOperator>(tokens.at(cursor));
+	UserFunctionExpr::parameterList_t params;
+	readFunctionParameters(params,ctxt,cursor);
+	TOperator * superOp=Token::cast<TOperator>(tokens.at(cursor));
 
-		/// fn(a).(a+1,2){} \deprecated
-		std::vector<ObjRef> superConCallExpressions;
-		if(superOp!=NULL && superOp->toString()=="."){
-			++cursor;
-			getExpressionsInBrackets(ctxt,cursor,superConCallExpressions);
-			++cursor; // step over ')'
-
-		} /// fn(a)@(super(a+1,2)) {}
-		else if(superOp!=NULL && superOp->toString()=="@"){
-			++cursor;
-			if(!Token::isA<TStartBracket>(tokens.at(cursor))){
-				throwError("Property expects brackets.",superOp);
-			}
-			const int propertyTo = findCorrespondingBracket<TStartBracket,TEndBracket>(ctxt,cursor);
-
-			properties_t properties;
-			readProperties(ctxt,cursor+1,propertyTo-1,properties);
-			for(properties_t::const_iterator it=properties.begin();it!=properties.end();++it ){
-				const StringId name = it->first;
-				int parameterPos = it->second;
-				log(Logger::LOG_INFO,"Property:"+name.toString(),superOp );
-	//					const int pos = it->second;
-				if(name == Consts::PROPERTY_FN_super){
-					if(parameterPos<0){
-						throwError("Super attribute needs parameter list.",superOp);
-					}
-					getExpressionsInBrackets(ctxt,parameterPos,superConCallExpressions);
-				}else{
-					log(Logger::LOG_WARNING,"Anntoation is invalid for functions: '"+name.toString()+"'",superOp);
-				}
-			}
-			cursor = propertyTo+1;
-
-		}
-
-
-		ctxt.blocks.push_back(NULL); // mark beginning of new local namespace
-		BlockStatement * block=dynamic_cast<BlockStatement*>(getExpression(ctxt,cursor));
-		if (block==NULL) {
-			throwError("[fn] Expects BlockStatement of statements.",tokens.at(cursor));
-		}
-		ctxt.blocks.pop_back(); // remove marking for local namespace
-
-		const size_t codeEndPos = tokens.at(cursor)->getStartingPos(); // position of '}'
-
-		/// step over ')' inserted at pass_2(...)
+	/// fn(a).(a+1,2){} \deprecated
+	std::vector<ObjRef> superConCallExpressions;
+	if(superOp!=NULL && superOp->toString()=="."){
 		++cursor;
+		getExpressionsInBrackets(ctxt,cursor,superConCallExpressions);
+		++cursor; // step over ')'
 
-		{	// create function expression
-			UserFunctionExpr * uFunExpr = new UserFunctionExpr(block,superConCallExpressions);
-			uFunExpr->getParamList().swap(params);	// set parameter expressions
-
-			// store code segment in userFunction
-			if(codeStartPos!=std::string::npos && codeEndPos!=std::string::npos && !ctxt.code.isNull()){
-				uFunExpr->setCodeString(ctxt.code,codeStartPos,codeEndPos-codeStartPos+1);
-			}
-			return uFunExpr;
-		}
-	}else{
-		UserFunction::parameterList_t * params=getFunctionParameters(ctxt,cursor);
-		TOperator * superOp=Token::cast<TOperator>(tokens.at(cursor));
-
-		/// fn(a).(a+1,2){} \deprecated
-		std::vector<ObjRef> superConCallExpressions;
-		if(superOp!=NULL && superOp->toString()=="."){
-			++cursor;
-			getExpressionsInBrackets(ctxt,cursor,superConCallExpressions);
-			++cursor; // step over ')'
-
-		} /// fn(a)@(super(a+1,2)) {}
-		else if(superOp!=NULL && superOp->toString()=="@"){
-			++cursor;
-			if(!Token::isA<TStartBracket>(tokens.at(cursor))){
-				throwError("Property expects brackets.",superOp);
-			}
-			const int propertyTo = findCorrespondingBracket<TStartBracket,TEndBracket>(ctxt,cursor);
-
-			properties_t properties;
-			readProperties(ctxt,cursor+1,propertyTo-1,properties);
-			for(properties_t::const_iterator it=properties.begin();it!=properties.end();++it ){
-				const StringId name = it->first;
-				int parameterPos = it->second;
-				log(Logger::LOG_INFO,"Property:"+name.toString(),superOp );
-	//					const int pos = it->second;
-				if(name == Consts::PROPERTY_FN_super){
-					if(parameterPos<0){
-						throwError("Super attribute needs parameter list.",superOp);
-					}
-					getExpressionsInBrackets(ctxt,parameterPos,superConCallExpressions);
-				}else{
-					log(Logger::LOG_WARNING,"Anntoation is invalid for functions: '"+name.toString()+"'",superOp);
-				}
-			}
-			cursor = propertyTo+1;
-
-		}
-
-
-		ctxt.blocks.push_back(NULL); // mark beginning of new local namespace
-		BlockStatement * block=dynamic_cast<BlockStatement*>(getExpression(ctxt,cursor));
-		if (block==NULL) {
-			throwError("[fn] Expects BlockStatement of statements.",tokens.at(cursor));
-		}
-		ctxt.blocks.pop_back(); // remove marking for local namespace
-
-		size_t codeEndPos = tokens.at(cursor)->getStartingPos(); // position of '}'
-
-		/// step over ')' inserted at pass_2(...)
+	} /// fn(a)@(super(a+1,2)) {}
+	else if(superOp!=NULL && superOp->toString()=="@"){
 		++cursor;
+		if(!Token::isA<TStartBracket>(tokens.at(cursor))){
+			throwError("Property expects brackets.",superOp);
+		}
+		const int propertyTo = findCorrespondingBracket<TStartBracket,TEndBracket>(ctxt,cursor);
 
-		UserFunction * uFun = new UserFunction(params,block,superConCallExpressions);
+		properties_t properties;
+		readProperties(ctxt,cursor+1,propertyTo-1,properties);
+		for(properties_t::const_iterator it=properties.begin();it!=properties.end();++it ){
+			const StringId name = it->first;
+			int parameterPos = it->second;
+			log(Logger::LOG_INFO,"Property:"+name.toString(),superOp );
+//					const int pos = it->second;
+			if(name == Consts::PROPERTY_FN_super){
+				if(parameterPos<0){
+					throwError("Super attribute needs parameter list.",superOp);
+				}
+				getExpressionsInBrackets(ctxt,parameterPos,superConCallExpressions);
+			}else{
+				log(Logger::LOG_WARNING,"Anntoation is invalid for functions: '"+name.toString()+"'",superOp);
+			}
+		}
+		cursor = propertyTo+1;
+
+	}
+
+
+	ctxt.blocks.push_back(NULL); // mark beginning of new local namespace
+	BlockStatement * block=dynamic_cast<BlockStatement*>(getExpression(ctxt,cursor));
+	if (block==NULL) {
+		throwError("[fn] Expects BlockStatement of statements.",tokens.at(cursor));
+	}
+	ctxt.blocks.pop_back(); // remove marking for local namespace
+
+	const size_t codeEndPos = tokens.at(cursor)->getStartingPos(); // position of '}'
+
+	/// step over ')' inserted at pass_2(...)
+	++cursor;
+
+	{	// create function expression
+		UserFunctionExpr * uFunExpr = new UserFunctionExpr(block,superConCallExpressions);
+		uFunExpr->getParamList().swap(params);	// set parameter expressions
+
 		// store code segment in userFunction
 		if(codeStartPos!=std::string::npos && codeEndPos!=std::string::npos && !ctxt.code.isNull()){
-			uFun->setCodeString(ctxt.code,codeStartPos,codeEndPos-codeStartPos+1);
+			uFunExpr->setCodeString(ctxt.code,codeStartPos,codeEndPos-codeStartPos+1);
 		}
-		uFun->_finalize_OLD();
-		return uFun;
+		return uFunExpr;
 	}
 }
 
@@ -1342,27 +1281,10 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		++cursor;
 		Statement action=getStatement(ctxt,cursor);
 
-		if(_produceBytecode){
-			loopWrappingBlock->addStatement( Statement(Statement::TYPE_STATEMENT,
-														LoopStatement::createForLoop(initExp,condition,incr,action) ) );
-			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
-		}else{
-			loopWrappingBlock->addStatement( initExp );
-			loopWrappingBlock->setJumpPosA( loopWrappingBlock->getNextPos() );
-			if(condition!=NULL)
-				loopWrappingBlock->addStatement( Statement(
-							Statement::TYPE_IF,
-							new IfStatement(condition,action,Statement(Statement::TYPE_BREAK))));
-			else if(action.isValid())
-				loopWrappingBlock->addStatement(action);
 
-			loopWrappingBlock->setContinuePos( loopWrappingBlock->getNextPos() );
-			loopWrappingBlock->addStatement( incr );
-			loopWrappingBlock->addStatement( Statement( Statement::TYPE_JUMP_TO_A ) );
-			loopWrappingBlock->setBreakPos( BlockStatement::POS_HANDLE_AND_LEAVE );
-
-			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
-		}
+		loopWrappingBlock->addStatement( Statement(Statement::TYPE_STATEMENT,
+													LoopStatement::createForLoop(initExp,condition,incr,action) ) );
+		return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
 	}
 	/// while-Control
 	/*
@@ -1389,24 +1311,9 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		}
 		++cursor;
 		Statement action=getStatement(ctxt,cursor);
-		if(_produceBytecode){
-			loopWrappingBlock->addStatement( Statement(Statement::TYPE_STATEMENT, LoopStatement::createWhileLoop(condition,action) ) );
-			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
 
-		}else{
-			loopWrappingBlock->setContinuePos( BlockStatement::POS_HANDLE_AND_RESTART );
-			loopWrappingBlock->setJumpPosA( BlockStatement::POS_HANDLE_AND_RESTART );
-			loopWrappingBlock->addStatement( Statement(
-							Statement::TYPE_IF,
-							new IfStatement(condition,action,Statement(Statement::TYPE_BREAK))));
-			loopWrappingBlock->addStatement( Statement(Statement::TYPE_JUMP_TO_A));
-
-			loopWrappingBlock->setBreakPos( BlockStatement::POS_HANDLE_AND_LEAVE );
-
-			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
-		}
-
-
+		loopWrappingBlock->addStatement( Statement(Statement::TYPE_STATEMENT, LoopStatement::createWhileLoop(condition,action) ) );
+		return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
 	}
 	/// Do-while-Control
 	/*
@@ -1439,22 +1346,9 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		if (!Token::isA<TEndCommand>(tokens.at(cursor))) {
 			throwError("[do-while] expects ;",tokens.at(cursor));
 		}
-		if(_produceBytecode){
-			loopWrappingBlock->addStatement( Statement(Statement::TYPE_STATEMENT, LoopStatement::createDoWhileLoop(condition,action) ) );
-			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
 
-		}else{
-			loopWrappingBlock->setJumpPosA( BlockStatement::POS_HANDLE_AND_RESTART );
-			loopWrappingBlock->addStatement( action );
-			loopWrappingBlock->setContinuePos( loopWrappingBlock->getNextPos() );
-			loopWrappingBlock->addStatement( Statement(
-							Statement::TYPE_IF,
-							new IfStatement(condition, Statement(Statement::TYPE_JUMP_TO_A),Statement())));
-			loopWrappingBlock->setBreakPos( BlockStatement::POS_HANDLE_AND_LEAVE );
-
-			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
-		}
-
+		loopWrappingBlock->addStatement( Statement(Statement::TYPE_STATEMENT, LoopStatement::createDoWhileLoop(condition,action) ) );
+		return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
 	}
 	/// foreach-Control
 	/*	old:
@@ -1515,150 +1409,58 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		++cursor;
 		Statement action=getStatement(ctxt,cursor);
 
-		if(_produceBytecode){
-			static const StringId itId("__it");
+		static const StringId itId("__it");
 
-			// var __it;
-			loopWrappingBlock->declareVar(itId);	
-			
-			/* \todo speedup by using systemCall:
-				for(__it = sysCall getIterator(arr); sysCall isIteratorEnd(__it); sysCall increasIterator (__it) )
-			*/
-			// __it = SYS_CALL_GET_ITERATOR( obj ) ( ~ __it = obj.getIterator();  + some special cases)
-			std::vector<ObjRef> loopInitParams;
-			loopInitParams.push_back(arrayExpression);
-			Statement loopInit = Statement(Statement::TYPE_EXPRESSION,
-				SetAttributeExpr::createAssignment(NULL,itId,
-					FunctionCallExpr::createSysCall(Consts::SYS_CALL_GET_ITERATOR,loopInitParams,currentFilename,tokens.at(cursor)->getLine())));
-			
-			// ! __it.end()
-			Object * checkExpression = LogicOpExpr::createNot(
+		// var __it;
+		loopWrappingBlock->declareVar(itId);	
+		
+		/* \todo speedup by using systemCall:
+			for(__it = sysCall getIterator(arr); sysCall isIteratorEnd(__it); sysCall increasIterator (__it) )
+		*/
+		// __it = SYS_CALL_GET_ITERATOR( obj ) ( ~ __it = obj.getIterator();  + some special cases)
+		std::vector<ObjRef> loopInitParams;
+		loopInitParams.push_back(arrayExpression);
+		Statement loopInit = Statement(Statement::TYPE_EXPRESSION,
+			SetAttributeExpr::createAssignment(NULL,itId,
+				FunctionCallExpr::createSysCall(Consts::SYS_CALL_GET_ITERATOR,loopInitParams,currentFilename,tokens.at(cursor)->getLine())));
+		
+		// ! __it.end()
+		Object * checkExpression = LogicOpExpr::createNot(
+				FunctionCallExpr::createFunctionCall(
+					new GetAttributeExpr(new GetAttributeExpr(NULL,itId), Consts::IDENTIFIER_fn_it_end),std::vector<ObjRef>() ));
+		
+		// __it.next()
+		Statement increaseStatement = Statement(Statement::TYPE_EXPRESSION,
+				FunctionCallExpr::createFunctionCall(
+					new GetAttributeExpr(new GetAttributeExpr(NULL,itId), Consts::IDENTIFIER_fn_it_next),std::vector<ObjRef>() ));
+		
+		BlockStatement * actionWrapper = new BlockStatement();
+		
+		// key = __it.key();
+		if(keyIdent){
+			actionWrapper->addStatement(Statement(Statement::TYPE_EXPRESSION,
+				SetAttributeExpr::createAssignment(NULL,keyIdent->getId(),
 					FunctionCallExpr::createFunctionCall(
-						new GetAttributeExpr(new GetAttributeExpr(NULL,itId), Consts::IDENTIFIER_fn_it_end),std::vector<ObjRef>() ));
-			
-			// __it.next()
-			Statement increaseStatement = Statement(Statement::TYPE_EXPRESSION,
-					FunctionCallExpr::createFunctionCall(
-						new GetAttributeExpr(new GetAttributeExpr(NULL,itId), Consts::IDENTIFIER_fn_it_next),std::vector<ObjRef>() ));
-			
-			BlockStatement * actionWrapper = new BlockStatement();
-			
-			// key = __it.key();
-			if(keyIdent){
-				actionWrapper->addStatement(Statement(Statement::TYPE_EXPRESSION,
-					SetAttributeExpr::createAssignment(NULL,keyIdent->getId(),
-						FunctionCallExpr::createFunctionCall(
-							new GetAttributeExpr(
-								new GetAttributeExpr(NULL,itId), Consts::IDENTIFIER_fn_it_key),std::vector<ObjRef>() ),tokens.at(cursor)->getLine())));
-			}
-			
-			// value = __it.value();
-			if(valueIdent){
-				actionWrapper->addStatement(Statement(Statement::TYPE_EXPRESSION,
-					SetAttributeExpr::createAssignment(NULL,valueIdent->getId(),
-						FunctionCallExpr::createFunctionCall(
-							new GetAttributeExpr(
-								new GetAttributeExpr(NULL,itId), Consts::IDENTIFIER_fn_it_value),std::vector<ObjRef>() ),tokens.at(cursor)->getLine())));
-			}
-			actionWrapper->addStatement(action);
-			
-			loopWrappingBlock->addStatement(Statement(Statement::TYPE_STATEMENT,
-					LoopStatement::createForLoop(loopInit,checkExpression,increaseStatement,
-													Statement(Statement::TYPE_BLOCK,actionWrapper))));
-
-			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
-		}else{
-			static const StringId itId("__id");
-			static const StringId getIteratorId("getIterator");
-			static const StringId keyFnId("key");
-			static const StringId valueFnId("value");
-
-			// var __it;
-			loopWrappingBlock->declareVar(itId);
-
-			// __it = __getIterator([array])
-			struct fnWrapper {
-				ES_FUNCTION(esf_getIterator){
-					Object * it=NULL;
-					if(	Collection * c=parameter[0].toType<Collection>()){
-						it = c->getIterator();
-					}else if(parameter[0].toType<YieldIterator>()){
-						it = parameter[0].get();
-					}else {
-						it = callMemberFunction(runtime,parameter[0] ,getIteratorId,ParameterValues());
-					}
-					if(it!=NULL){
-						runtime.assignToVariable(itId,it);
-					}else{
-						runtime.setException("Could not get iterator from '" + parameter[0]->toDbgString() + '\'');
-						return NULL;
-					}
-					return NULL;
-				}
-				ES_FUNCTION(esf_setValues){
-					ObjPtr  it=runtime.getVariable(itId);
-					Identifier * valueId=parameter[0].toType<Identifier>();
-					Identifier * keyId=parameter[1].toType<Identifier>();
-					if(Iterator * it2=it.toType<Iterator>()){
-						if(keyId!=NULL)
-							runtime.assignToVariable(keyId->getId(),it2->key());
-						runtime.assignToVariable(valueId->getId(),it2->value());
-					}else if(YieldIterator * yIt=it.toType<YieldIterator>()){
-						if(keyId!=NULL)
-							runtime.assignToVariable(keyId->getId(),yIt->key());
-						runtime.assignToVariable(valueId->getId(),yIt->value());
-					}else{
-						if(keyId!=NULL)
-							runtime.assignToVariable(keyId->getId(),
-										callMemberFunction(runtime,it ,keyFnId,ParameterValues()));
-						runtime.assignToVariable(valueId->getId(),
-									callMemberFunction(runtime,it ,valueFnId,ParameterValues()));
-					}
-					return NULL;
-				}
-			};
-			{
-				std::vector<ObjRef> paramExp;
-				paramExp.push_back(arrayExpression);
-				Object * getIterator = FunctionCallExpr::createFunctionCall(new Function(fnWrapper::esf_getIterator), paramExp);
-				loopWrappingBlock->addStatement( createStatement(getIterator));
-			}
-
-			loopWrappingBlock->setJumpPosA( loopWrappingBlock->getNextPos() );
-			// if( __it.end() )	break;
-			static const StringId endId("end");
-			Object * condition = FunctionCallExpr::createFunctionCall(
-									new GetAttributeExpr(new GetAttributeExpr(NULL,itId),endId ),std::vector<ObjRef>());
-			loopWrappingBlock->addStatement( Statement(
-							Statement::TYPE_IF,
-							new IfStatement(condition,Statement(Statement::TYPE_BREAK),Statement())));
-
-			{ // key == __it.key(), value==__it.value()
-				std::vector<ObjRef> paramExp;
-				paramExp.push_back( Identifier::create(valueIdent->getId()));
-				if(keyIdent!=NULL)
-					paramExp.push_back( Identifier::create(keyIdent->getId()));
-				loopWrappingBlock->addStatement( createStatement(FunctionCallExpr::createFunctionCall(new Function(fnWrapper::esf_setValues), paramExp)));
-
-			}
-			// [action]
-			loopWrappingBlock->addStatement( action );
-			// :continue
-			loopWrappingBlock->setContinuePos( loopWrappingBlock->getNextPos() );
-			// __it.next();
-			static const StringId nextFnId("next");
-			loopWrappingBlock->addStatement( createStatement(
-							FunctionCallExpr::createFunctionCall(
-								new GetAttributeExpr(new GetAttributeExpr(NULL,itId),nextFnId ),std::vector<ObjRef>())));
-			// goto :second
-			loopWrappingBlock->addStatement( Statement(Statement::TYPE_JUMP_TO_A) );
-
-			loopWrappingBlock->setBreakPos( BlockStatement::POS_HANDLE_AND_LEAVE );
-
-			return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
-
+						new GetAttributeExpr(
+							new GetAttributeExpr(NULL,itId), Consts::IDENTIFIER_fn_it_key),std::vector<ObjRef>() ),tokens.at(cursor)->getLine())));
 		}
+		
+		// value = __it.value();
+		if(valueIdent){
+			actionWrapper->addStatement(Statement(Statement::TYPE_EXPRESSION,
+				SetAttributeExpr::createAssignment(NULL,valueIdent->getId(),
+					FunctionCallExpr::createFunctionCall(
+						new GetAttributeExpr(
+							new GetAttributeExpr(NULL,itId), Consts::IDENTIFIER_fn_it_value),std::vector<ObjRef>() ),tokens.at(cursor)->getLine())));
+		}
+		actionWrapper->addStatement(action);
+		
+		loopWrappingBlock->addStatement(Statement(Statement::TYPE_STATEMENT,
+				LoopStatement::createForLoop(loopInit,checkExpression,increaseStatement,
+												Statement(Statement::TYPE_BLOCK,actionWrapper))));
 
+		return Statement(Statement::TYPE_BLOCK,loopWrappingBlock);
+		
 	}
 
 	/// try-catch-control
@@ -1691,11 +1493,9 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		TIdentifier * tIdent=NULL;
 
 		StringId varName;
-		bool hasVarName=false;
 		if ((tIdent=Token::cast<TIdentifier>(tokens.at(cursor)))) {
 			++cursor;
 			varName=tIdent->getId();
-			hasVarName=true;
 		}
 
 		if (!Token::isA<TEndBracket>(tokens.at(cursor))) {
@@ -1709,39 +1509,8 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 		}
 
 		BlockStatement * catchBlock=tStartCatchBlock->getBlock();
-		if(_produceBytecode){
-			getExpression(ctxt,cursor); // fill rest of catch block
-			return Statement(Statement::TYPE_STATEMENT,new TryCatchStatement(tryBlock,catchBlock,varName));
-		}else{
-			if(hasVarName){
-				catchBlock->declareVar(varName);
-				std::vector<ObjRef> paramExp;
-
-				struct fnWrapper {
-					ES_FUNCTION(extractExceptionValue){
-						ObjRef exceptionValue=runtime.getResult();
-						runtime.resetState();
-						return exceptionValue.detachAndDecrease();
-					}
-				};
-				catchBlock->addStatement( Statement( Statement::TYPE_EXPRESSION,
-						SetAttributeExpr::createAssignment(NULL,varName,
-							FunctionCallExpr::createFunctionCall(
-								new Function(fnWrapper::extractExceptionValue),
-								paramExp,currentFilename,tStartCatchBlock->getLine()),
-							tStartCatchBlock->getLine())));
-
-			}
-			getExpression(ctxt,cursor); // fill rest of catch block
-
-			BlockStatement * wrappingBlock = new BlockStatement();
-			wrappingBlock->addStatement( createStatement(tryBlock) );
-			wrappingBlock->addStatement( Statement(Statement::TYPE_JUMP_TO_A) );
-			wrappingBlock->setExceptionPos( wrappingBlock->getNextPos() );
-			wrappingBlock->addStatement( Statement(Statement::TYPE_BLOCK,catchBlock) );
-			wrappingBlock->setJumpPosA(  BlockStatement::POS_HANDLE_AND_LEAVE );
-			return Statement(Statement::TYPE_BLOCK,wrappingBlock);
-		}
+		getExpression(ctxt,cursor); // fill rest of catch block
+		return Statement(Statement::TYPE_STATEMENT,new TryCatchStatement(tryBlock,catchBlock,varName));
 	}
 	/// continue-Control
 	else if(cId==Consts::IDENTIFIER_continue) {
@@ -1932,113 +1701,6 @@ int Parser::findExpression(ParsingContext & ctxt,int cursor)const {
 		}
 	}
 	return to;
-}
-/**
- * e.g. (a, Number b, c=2+3)
- * Cursor is moved after the Parameter-List.
- */
-UserFunction::parameterList_t * Parser::getFunctionParameters(ParsingContext & ctxt,int & cursor)const  {
-
-	UserFunction::parameterList_t * params = new UserFunction::parameterList_t();
-
-	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
-	if (!Token::isA<TStartBracket>(tokens.at(cursor))) {
-		return params;
-	}
-	++cursor;
-	// fn (bla,blub,)
-	bool first=true;
-
-	while (true) { // foreach parameter
-		if (first&&Token::isA<TEndBracket>(tokens.at(cursor))) {
-			++cursor;
-			break;
-		}
-		first=false;
-
-		/// Parameter::= Expression? Identifier ( ('=' Expression)? ',') | ('*'? ('=' Expression)? ')')
-		int c=cursor;
-
-		// find identifierName, its position, the default expression and identify a multiParam
-		int idPos=-1;
-		StringId name;
-		Object * defaultExpression=NULL;
-		bool multiParam=false;
-		while(true){
-			Token * t=tokens.at(c).get();
-			if(Token::isA<TIdentifier>(t)) {
-				// this may not be the final identifier...
-				name=Token::cast<TIdentifier>(t)->getId();
-				idPos=c;
-
-				Token * tNext=tokens.at(c+1).get();
-				// '*'?
-				if(  Token::isA<TOperator>(tNext) && tNext->toString()=="*" ){
-					multiParam=true;
-					++c;
-					tNext=tokens.at(c+1).get();
-				}else{
-					multiParam=false;
-				}
-				// ',' | ')'
-				if( Token::isA<TEndBracket>(tNext)){
-					break;
-				}else if( Token::isA<TDelimiter>(tNext) ) {
-					if(multiParam)
-						throwError("[fn] Only the last parameter may be a multiparameter.",tokens[c]);
-					break;
-				}else if(  Token::isA<TOperator>(tNext) && tNext->toString()=="=" ){
-					int defaultExpStart=c+2;
-					int defaultExpTo=findExpression(ctxt,defaultExpStart);
-					defaultExpression=getExpression(ctxt,defaultExpStart,defaultExpTo);
-					if (defaultExpression==NULL) {
-						throwError("[fn] SyntaxError in default parameter.",tokens.at(cursor));
-					}
-					c=defaultExpTo;
-					break;
-				}
-			}else if(Token::isA<TStartBracket>(t)){
-				c=findCorrespondingBracket<TStartBracket,TEndBracket>(ctxt,c);
-			}else if(Token::isA<TStartIndex>(t)){
-				c=findCorrespondingBracket<TStartIndex,TEndIndex>(ctxt,c);
-			}else if(Token::isA<TStartMap>(t)){
-				c=findCorrespondingBracket<TStartMap,TEndMap>(ctxt,c);
-			}else if(Token::isA<TEndScript>(t) || Token::isA<TEndBracket>(t)){
-				throwError("[fn] Error in parameter definition.",t);
-			}
-			++c;
-		}
-
-		// get the type expression
-		Object * typeExp=NULL;
-		if(	idPos>cursor ){
-			int tmpCursor=cursor;
-			typeExp=getExpression(ctxt,tmpCursor,idPos-1);
-		}
-
-		// check if this is the last parameter
-		bool lastParam=false;
-		if(Token::isA<TEndBracket>(tokens[c+1])){
-		lastParam=true;
-		}else if( ! Token::isA<TDelimiter>(tokens[c+1])){
-			throwError("[fn] SyntaxError.",tokens[c+1]);
-		}
-
-		// move cursor
-		cursor=c+2;
-
-		// create parameter
-		UserFunction::Parameter * p=new UserFunction::Parameter(name,NULL,typeExp);
-		if(multiParam)
-			p->setMultiParam(true);
-		if(defaultExpression!=NULL)
-			p->setDefaultValueExpression(defaultExpression);
-		params->push_back(p);
-		if(lastParam){
-			break;
-		}
-	}
-	return params;
 }
 /**
  * e.g. (a, Number b, c=2+3)

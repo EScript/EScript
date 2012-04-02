@@ -87,17 +87,17 @@ void assertParamCount_2(Runtime & runtime, int paramCount, int min, int max) {
 	if (min >= 0 && paramCount < min) {
 		std::ostringstream sprinter;
 		sprinter << "Too few parameters: Expected " << min << ", got " << paramCount << ".";
-		Object * object = runtime.getCallingObject();
-		if(object != NULL) {
-			sprinter << object->toString();
+		ObjPtr caller = runtime.getCallingObject();
+		if(caller.isNotNull()) {
+			sprinter << caller->toString();
 		}
 		runtime.throwException(sprinter.str());
 	} else  if (max >= 0 && paramCount > max) {
 		std::ostringstream sprinter;
 		sprinter << "Too many parameters: Expected " << max << ", got " << paramCount << ".";
-		Object * object = runtime.getCallingObject();
-		if(object != NULL) {
-			sprinter << object->toString();
+		ObjPtr caller = runtime.getCallingObject();
+		if(caller.isNotNull()) {
+			sprinter << caller->toString();
 		}
 		runtime.warn(sprinter.str());
 	}
@@ -109,24 +109,24 @@ void assertType_throwError(Runtime & runtime, const ObjPtr & obj,const char * cl
 }
 
 //! (static)
-Object * callMemberFunction(Runtime & rt, ObjPtr obj, StringId fnNameId, const ParameterValues & params) {
+ObjRef callMemberFunction(Runtime & rt, ObjPtr obj, StringId fnNameId, const ParameterValues & params) {
 	if (obj.isNull()) {
 		return NULL;
 	}
-	return rt.executeFunction(obj->getAttribute(fnNameId).getValue(), obj.get(), params);
+	return rt.executeFunction2(obj->getAttribute(fnNameId).getValue(), obj.get(), params);
 }
 
 //! (static)
-Object * callMemberFunction(Runtime & rt, ObjPtr obj, const std::string & fnName, const ParameterValues & params) {
+ObjRef callMemberFunction(Runtime & rt, ObjPtr obj, const std::string & fnName, const ParameterValues & params) {
 	return callMemberFunction(rt, obj, StringId(fnName), params);
 }
 
 //! (static)
-Object * callFunction(Runtime & rt, Object * function, const ParameterValues & params) {
+ObjRef callFunction(Runtime & rt, Object * function, const ParameterValues & params) {
 	if (function == NULL) {
 		return NULL;
 	}
-	return rt.executeFunction(function, NULL, params);;
+	return rt.executeFunction2(function, NULL, params);;
 }
 
 
@@ -139,39 +139,35 @@ void out(Object * obj) {
 	}
 }
 
-//! (static)
-UserFunction * loadScriptFile(const std::string & filename,Logger * logger){
-	Compiler compiler(logger);
-	return compiler.compileFile(filename);
-}
-
-//! (static)
-std::pair<bool, ObjRef> execute(Runtime & runtime, AST::BlockStatement * block) {
-	bool success = true;
-	ObjRef result;
-	try {
-		runtime.executeObj(block);
-		result = runtime.getResult();
-		if(runtime.getState() == Runtime::STATE_EXCEPTION) {
-			std::cout << "\nException caught (1):\n" << result.toString() << std::endl;
-			success = false;
-		}
-	} catch (Object * o) {
-		result = o;
-		std::cout << "\nException caught (2):\n" << result.toString() << std::endl;
-		success = false;
-	} catch (...) {
-		std::cout << "\nCaught unknown C++ exception." << std::endl;
-		success = false;
-	}
-	return std::make_pair(success, result);
-}
+//
+////! (static)
+//std::pair<bool, ObjRef> execute(Runtime & runtime, AST::BlockStatement * block) {
+//	bool success = true;
+//	ObjRef result;
+//	try {
+//		runtime.executeObj(block);
+//		result = runtime.getResult();
+//		if(runtime.getState() == Runtime::STATE_EXCEPTION) {
+//			std::cout << "\nException caught (1):\n" << result.toString() << std::endl;
+//			success = false;
+//		}
+//	} catch (Object * o) {
+//		result = o;
+//		std::cout << "\nException caught (2):\n" << result.toString() << std::endl;
+//		success = false;
+//	} catch (...) {
+//		std::cout << "\nCaught unknown C++ exception." << std::endl;
+//		success = false;
+//	}
+//	return std::make_pair(success, result);
+//}
 
 //! (static)
 std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & filename) {
 	ERef<UserFunction> script;
 	try {
-		script = loadScriptFile(filename,runtime.getLogger());
+		Compiler compiler(runtime.getLogger());
+		script = compiler.compileFile(filename);
 	} catch (Object * error) {
 		std::cerr << "\nError occurred while loading file '" << filename << "':\n" << error->toString() << std::endl;
 		return std::make_pair(false, error);
@@ -182,34 +178,54 @@ std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & fi
 	}catch(Object * error){
 		std::cerr << "\nError occurred while executing file '" << filename << "':\n" << error->toString() << std::endl;
 		return std::make_pair(false, error);
-	}catch(...){
-		std::cout << "\nCaught unknown C++ exception." << std::endl;
-		return std::make_pair(false, result.detachAndDecrease());
+//	}catch(...){
+//		std::cout << "\nCaught unknown C++ exception." << std::endl;
+//		return std::make_pair(false, result.detachAndDecrease());
 	}
 	
 	return std::make_pair(true,result.detachAndDecrease());
 }
+//////////
+//////////Object * EScript::eval(const StringData & code){
+//////////	ERef<AST::BlockStatement> block(new AST::BlockStatement());
+//////////	static const StringId inline_id("[inline]");
+//////////	block->setFilename(inline_id);
+//////////	try{
+//////////		Parser p(getLogger());
+//////////		p.parse(block.get(),code);
+//////////	}catch(Exception * e){
+//////////		setException(e);
+//////////		return NULL;
+//////////	}
+//////////	pushContext(RuntimeContext::create());
+//////////	getCurrentContext()->createAndPushRTB(block.get());// this is later popped implicitly when the context is executed.
+//////////
+//////////	ObjRef resultRef = executeCurrentContext(true);
+//////////	popContext();
+//////////	block = NULL; // remove possibly pending reference to the result to prevent accidental deletion
+//////////	return resultRef.detachAndDecrease();
+//////////}
 
-//! (static)
-std::pair<bool, ObjRef> executeStream(Runtime & runtime, std::istream & stream) {
-	ERef<AST::BlockStatement> rootBlock = new AST::BlockStatement;
-	rootBlock->setFilename(StringId("stdin"));
-
-	std::string streamData;
-	while(stream.good()) {
-		char buffer[256];
-		stream.read(buffer, 256);
-		streamData.append(buffer, stream.gcount());
-	}
-
-	try {
-		Parser parser(runtime.getLogger());
-		parser.parse(rootBlock.get(), StringData(streamData));
-	} catch (Exception * error) {
-		return std::make_pair(false, error);
-	}
-
-	return execute(runtime, rootBlock.get());
-}
+//////////! (static)
+////////std::pair<bool, ObjRef> executeStream(Runtime & runtime, std::istream & stream) {
+////////	ERef<AST::BlockStatement> rootBlock = new AST::BlockStatement;
+////////	rootBlock->setFilename(StringId("stdin"));
+////////
+////////	std::string streamData;
+////////	while(stream.good()) {
+////////		char buffer[256];
+////////		stream.read(buffer, 256);
+////////		streamData.append(buffer, stream.gcount());
+////////	}
+////////
+////////	try {
+////////		Parser parser(runtime.getLogger());
+////////		parser.parse(rootBlock.get(), StringData(streamData));
+////////	} catch (Exception * error) {
+////////		return std::make_pair(false, error);
+////////	}
+////////
+////////	return execute(runtime, rootBlock.get());
+////////}
 
 }

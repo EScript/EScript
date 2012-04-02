@@ -13,8 +13,7 @@ using namespace EScript::AST;
 
 //! (ctor)
 BlockStatement::BlockStatement(int lineNr):
-		filenameId(0),vars(NULL),line(lineNr),
-		continuePos(POS_DONT_HANDLE),breakPos(POS_DONT_HANDLE),exceptionPos(POS_DONT_HANDLE),jumpPosA(0) {
+		filenameId(0),vars(NULL),line(lineNr){
 	//ctor
 }
 

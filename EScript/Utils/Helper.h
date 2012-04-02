@@ -80,22 +80,22 @@ template<class T> static T * assertType(Runtime & runtime, const ObjPtr & obj) {
 	return t;
 }
 
-Object * callMemberFunction(Runtime & rt, ObjPtr obj, StringId fnNameId, const ParameterValues & params);
-Object * callMemberFunction(Runtime & rt, ObjPtr obj, const std::string & fnName, const ParameterValues & params);
-Object * callFunction(Runtime & rt, Object * function, const ParameterValues & params);
+ObjRef callMemberFunction(Runtime & rt, ObjPtr obj, StringId fnNameId, const ParameterValues & params);
+ObjRef callMemberFunction(Runtime & rt, ObjPtr obj, const std::string & fnName, const ParameterValues & params);
+ObjRef callFunction(Runtime & rt, Object * function, const ParameterValues & params);
 
 void out(Object * obj);
 
-UserFunction * loadScriptFile(const std::string & filename,Logger * logger=NULL);
-
-//! @return (success, result)
-std::pair<bool, ObjRef> execute(Runtime & runtime, AST::BlockStatement * block);
+////! @return (success, result)
+//std::pair<bool, ObjRef> execute(Runtime & runtime, AST::BlockStatement * block);
 
 //! @return (success, result)
 std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & filename);
 
 //! @return (success, result)
 std::pair<bool, ObjRef> executeStream(Runtime & runtime, std::istream & stream);
+
+//eval
 
 //@}
 

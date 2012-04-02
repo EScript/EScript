@@ -50,8 +50,6 @@ set(ESCRIPT_SOURCES
 	EScript/Parser/Tokenizer.cpp
 	EScript/Runtime/FunctionCallContext.cpp
 	EScript/Runtime/Runtime.cpp
-	EScript/Runtime/RuntimeBlock.cpp
-	EScript/Runtime/RuntimeContext.cpp
 	EScript/Utils/AttributeContainer.cpp
 	EScript/Utils/Debug.cpp
 	EScript/Utils/Hashing.cpp

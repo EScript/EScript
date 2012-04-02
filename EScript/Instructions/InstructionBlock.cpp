@@ -30,14 +30,6 @@ UserFunction * InstructionBlock::getUserFunction(const uint32_t index)const{
 	}
 }
 
-void InstructionBlock::emplace(InstructionBlock & other){
-	using namespace std;
-	swap(other.localVariables,localVariables);
-	swap(other.stringConstants,stringConstants);
-	swap(other.instructions,instructions);
-	swap(other.internalFunctions,internalFunctions);
-}
-
 std::string InstructionBlock::toString()const{
 	std::ostringstream out;
 	

@@ -208,12 +208,14 @@ bool Collection::rt_isEqual(Runtime &runtime,const ObjPtr other){
  */
 Object * Collection::rt_map(Runtime & runtime,ObjPtr function, const ParameterValues & additionalValues){
 	// Create new, empty Collection
-	Object * obj=callMemberFunction(runtime,this,Consts::IDENTIFIER_fn_constructor,ParameterValues());
-	ERef<Collection> newCollectionRef=dynamic_cast<Collection*>(obj);
+	ObjRef obj=callMemberFunction(runtime,this,Consts::IDENTIFIER_fn_constructor,ParameterValues());
+	ERef<Collection> newCollectionRef = obj.toType<Collection>();
 	if(newCollectionRef.isNull()){
 		runtime.setException("Collection.map(..) No Contructor found!");
 		return NULL;
 	}
+	obj = NULL;
+	
 	ParameterValues parameters(additionalValues.count()+2);
 	if(!additionalValues.empty())
 		std::copy(additionalValues.begin(),additionalValues.end(),parameters.begin()+2);
@@ -224,7 +226,7 @@ Object * Collection::rt_map(Runtime & runtime,ObjPtr function, const ParameterVa
 		ObjRef value=it->value();
 		parameters.set(0,key);
 		parameters.set(1,value);
-		ObjRef newValue=runtime.executeFunction(function.get(),NULL,parameters);
+		ObjRef newValue=runtime.executeFunction2(function.get(),NULL,parameters);
 		if(!newValue.isNull())
 			newCollectionRef->setValue(key.get(),newValue.get());
 	}

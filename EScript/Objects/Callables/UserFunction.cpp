@@ -11,31 +11,6 @@
 
 using namespace EScript;
 
-//! (ctor) UserFunction::Parameter
-UserFunction::Parameter::Parameter(const StringId & _name,Object * defaultValueExpression/*=NULL*/,Object * type/*=NULL*/):
-	name(_name),defaultValueExpressionRef(defaultValueExpression),typeRef(type),multiParam(false){
-}
-
-//! (dtor) UserFunction::Parameter
-UserFunction::Parameter::~Parameter(){
-}
-
-std::string UserFunction::Parameter::toString()const{
-	std::string s=typeRef.toString()+' '+name.toString();
-	if(!defaultValueExpressionRef.isNull())
-		s+='='+defaultValueExpressionRef->toDbgString();
-	if(multiParam)
-		s+='*';
-	return s;
-}
-UserFunction::Parameter * UserFunction::Parameter::clone()const{
-	Parameter * p = new Parameter( name,
-								defaultValueExpressionRef.isNotNull() ? defaultValueExpressionRef->getRefOrCopy() : NULL,
-								typeRef.isNotNull() ? typeRef->getRefOrCopy() : NULL);
-	p->setMultiParam(isMultiParam());
-	return p;
-}
-// ------------------------------------------------------------
 
 //! (static)
 Type * UserFunction::getTypeObject()	{
@@ -71,81 +46,29 @@ void UserFunction::init(EScript::Namespace & globals) {
 }
 
 //! (ctor)
-UserFunction::UserFunction(parameterList_t * _params,AST::BlockStatement * block):
-		ExtObject(getTypeObject()), params(_params),posInFile(0),codeLen(0),paramCount(0),minParamValueCount(0),maxParamValueCount(0) {
-
-	setBlock(block);
-	
-	initInstructions();
-	//ctor
-}
-//! (ctor)
-UserFunction::UserFunction(parameterList_t * _params,AST::BlockStatement * block,const std::vector<ObjRef> & _sConstrExpressions):
-		ExtObject(getTypeObject()), params(_params),sConstrExpressions(_sConstrExpressions.begin(),
-		_sConstrExpressions.end()),posInFile(0),codeLen(0),paramCount(0),minParamValueCount(0),maxParamValueCount(0) {
-
-	setBlock(block);
-	initInstructions();
+UserFunction::UserFunction():posInFile(0),codeLen(0),paramCount(0),minParamValueCount(0),maxParamValueCount(0) {
+//	initInstructions();
 	//ctor
 }
 
 //! (dtor)
 UserFunction::~UserFunction() {
-	for (parameterList_t::iterator it=params->begin();it!=params->end();++it) {
-		delete (*it);
-	}
-	delete params;
 	//dtor
 }
-
-void UserFunction::initInstructions(){
-	for(parameterList_t::const_iterator it = params->begin();it!=params->end();++it){
-		instructions.declareLocalVariable( (**it).getName() );
-	}
-	//! \todo init parameters
-
-}
-
-
-void UserFunction::setBlock(AST::BlockStatement * _block){
-	blockRef=_block;
-}
-
-//! ---|> [Object]
-UserFunction * UserFunction::clone()const{
-	parameterList_t * params2 = new parameterList_t;
-	for(parameterList_t::const_iterator it = params->begin();it!=params->end();++it){
-		params2->push_back( (*it)->clone());
-	}
-
-	UserFunction * f = new UserFunction( params2,blockRef.get(),sConstrExpressions );
-	f->cloneAttributesFrom( this );
-	f->setCodeString(fileString,posInFile,codeLen);
-	return f;
-}
-
-//! ---|> [Object]
-std::string UserFunction::toDbgString()const {
-	std::ostringstream sprinter;
-	sprinter << "fn(";
-	int nr=0;
-	for (parameterList_t::const_iterator it=params->begin();it!=params->end();++it) {
-		if (nr++>0) sprinter<< ',';
-		if ( (*it) ) sprinter<<(*it)->toString();
-	}
-	sprinter << "){...} "<<'['+getFilename()<<':'<<getLine()<<']';
-	return sprinter.str();
-}
-
+//
+//void UserFunction::initInstructions(){
+//	for(parameterList_t::const_iterator it = params->begin();it!=params->end();++it){
+//		instructions.declareLocalVariable( (**it).getName() );
+//	}
+//	//! \todo init parameters
+//
+//}
 
 std::string UserFunction::getFilename()const {
-	return blockRef.isNull() ? "" : blockRef->getFilename();
+	return "\\todo "; // \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
 
 
-int UserFunction::getLine()const	{
-	return blockRef.isNull() ? -1 : blockRef->getLine();
-}
 
 void UserFunction::setCodeString(const EPtr<String> & _fileString,size_t _begin,size_t _codeLen){
 	fileString = _fileString.get();
@@ -155,22 +78,4 @@ void UserFunction::setCodeString(const EPtr<String> & _fileString,size_t _begin,
 
 std::string UserFunction::getCode()const{
 	return fileString->toString().substr(posInFile,codeLen);
-}
-
-void UserFunction::_finalize_OLD(){
-
-	if(params->empty()){
-		maxParamValueCount = 0;
-	}else if(params->back()->isMultiParam()){
-		maxParamValueCount = -1;
-	}else{
-		maxParamValueCount = params->size();
-	}
-	minParamValueCount = 0;
-	for (parameterList_t::const_iterator it=params->begin();it!=params->end();++it) {
-		if( (*it)->isMultiParam() || (*it)->getDefaultValueExpression() !=NULL )
-			break;
-		++minParamValueCount;
-	}
-	paramCount = params->size();
 }

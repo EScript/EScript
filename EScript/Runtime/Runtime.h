@@ -6,7 +6,6 @@
 #define RUNTIME_H
 
 #include "FunctionCallContext.h"
-#include "RuntimeContext.h"
 #include "../Objects/ExtObject.h"
 #include "../Utils/Logger.h"
 #include "../Utils/ObjRef.h"
@@ -50,16 +49,16 @@ class Runtime : public ExtObject  {
 	/// @name Variables
 	// 	@{
 	public:
-		Object * getVariable(const StringId id);
-		Object * getGlobalVariable(const StringId id);
+//		Object * getVariable(const StringId id);
+		ObjPtr getGlobalVariable(const StringId id);
 		Namespace * getGlobals()const;
 
-		void assignToVariable(const StringId id,Object * value);
+//		void assignToVariable(const StringId id,Object * value);
 		bool assignToAttribute(ObjPtr obj,StringId attrId,ObjPtr value);
 	public:
 		/*! returns the object's attribute with the given id. If the attribute can not be found, NULL is returned.
 			If the attribute can be found but not accessed, a warning is emitted and NULL is returned. */
-		Object * readMemberAttribute(Object * obj,const StringId id);
+		ObjPtr readMemberAttribute(ObjPtr obj,const StringId id);
 
 		ERef<Namespace> globals;
 	// 	@}
@@ -70,25 +69,25 @@ class Runtime : public ExtObject  {
 	// 	@{
 	public:
 		Object * eval(const StringData & code);
-		Object * executeObj(Object * obj);
+//		Object * executeObj(Object * obj);
 
-		void setCallingObject(Object * obj)				{  callingObject=obj;	}
-		Object * getCallingObject()const 				{  return callingObject.get();	}
+//		void setCallingObject(Object * obj)				{  callingObject=obj;	}
+		ObjPtr getCallingObject()const 					{  return activeFCCs.empty() ? NULL : activeFCCs.back()->getCaller();	}
 
-		RuntimeContext * getCurrentContext()const		{	return contextStack.top().get();	}
-		void pushContext(RuntimeContext * s)			{	contextStack.push(s);	}
-		void popContext()								{	contextStack.pop();		}
-		Object * executeCurrentContext(bool markEntry=false);
+//		RuntimeContext * getCurrentContext()const		{	return contextStack.top().get();	}
+//		void pushContext(RuntimeContext * s)			{	contextStack.push(s);	}
+//		void popContext()								{	contextStack.pop();		}
+//		Object * executeCurrentContext(bool markEntry=false);
 
-		size_t getStackSize()const						{	return contextStack.size();	}
+		size_t getStackSize()const						{	return activeFCCs.size();	}
 		size_t getStackSizeLimit()const					{	return stackSizeLimit;	}
 		void setStackSizeLimit(size_t s)				{	stackSizeLimit = s;	}
 
 	private:
-		Object * executeBlock(AST::BlockStatement * block);
+//		Object * executeBlock(AST::BlockStatement * block);
 
-		ObjRef callingObject;
-		std::stack<RuntimeContext::RTBRef> contextStack;
+//		ObjRef callingObject;
+//		std::stack<RuntimeContext::RTBRef> contextStack;
 		size_t stackSizeLimit;
 	//	@}
 
@@ -132,23 +131,23 @@ class Runtime : public ExtObject  {
 	/// @name Function execution
 	// 	@{
 	public:
-		Object * executeFunctionCall(AST::FunctionCallExpr * fCall);
-		Object * executeFunction(const ObjPtr & fun,const ObjPtr & callingObject,const ParameterValues & params,bool isConstructor=false);
+//		Object * executeFunctionCall(AST::FunctionCallExpr * fCall);
+//		Object * executeFunction(const ObjPtr & fun,const ObjPtr & callingObject,const ParameterValues & params,bool isConstructor=false);
 	private:
-		RuntimeContext * createAndPushFunctionCallContext(const ObjPtr & callingObject,UserFunction * ufun,const ParameterValues & paramValues);
-		Object * executeUserConstructor(const ObjPtr & _callingObject,const ParameterValues & paramValues);
-		bool checkType(const StringId & name,Object * obj,Object *typeExpression);
-		/*! (internal) Used to track the status of the active function calls (for stack traces) */
-		struct FunctionCallInfo{
-			AST::FunctionCallExpr * funCall;
-			Object * callingObject;
-			Object * function;
-			ParameterValues * parameterValues;
-
-			FunctionCallInfo(AST::FunctionCallExpr * _funCall,Object * _callingObject,Object * _function,ParameterValues * _pValues):
-				funCall(_funCall),callingObject(_callingObject),function(_function),parameterValues(_pValues) { }
-		};
-		std::vector<FunctionCallInfo> functionCallStack;
+//		RuntimeContext * createAndPushFunctionCallContext(const ObjPtr & callingObject,UserFunction * ufun,const ParameterValues & paramValues);
+//		Object * executeUserConstructor(const ObjPtr & _callingObject,const ParameterValues & paramValues);
+//		bool checkType(const StringId & name,Object * obj,Object *typeExpression);
+//		/*! (internal) Used to track the status of the active function calls (for stack traces) */
+//		struct FunctionCallInfo{
+//			AST::FunctionCallExpr * funCall;
+//			Object * callingObject;
+//			Object * function;
+//			ParameterValues * parameterValues;
+//
+//			FunctionCallInfo(AST::FunctionCallExpr * _funCall,Object * _callingObject,Object * _function,ParameterValues * _pValues):
+//				funCall(_funCall),callingObject(_callingObject),function(_function),parameterValues(_pValues) { }
+//		};
+//		std::vector<FunctionCallInfo> functionCallStack;
 	//	@}
 
 	// ------------------------------------------------

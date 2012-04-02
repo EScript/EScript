@@ -50,8 +50,8 @@ void Object::init(EScript::Namespace & globals) {
 	//! [ESMF] String Object.toDbgString()
 	ESF_DECLARE(typeObject,"toDbgString",0,0,String::create(caller->toDbgString()))
 
-	//! [ESMF] Object Object.execute() @deprecated
-	ESF_DECLARE(typeObject,"execute",0,0,runtime.executeObj(caller))
+//	//! [ESMF] Object Object.execute() @deprecated
+//	ESF_DECLARE(typeObject,"execute",0,0,runtime.executeObj(caller))
 
 	//! [ESMF] Bool Object.isA(Object o)
 	ESF_DECLARE(typeObject,"isA",1,1,Bool::create(caller->isA(parameter[0].toType<Type>())))

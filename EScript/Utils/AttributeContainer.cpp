@@ -18,11 +18,13 @@ void AttributeContainer::initAttributes(Runtime & rt){
 	for(attributeMap_t::iterator it = attributes.begin() ; it!=attributes.end() ; ++it){
 		Attribute & attr = it->second;
 		if(attr.isInitializable()){
-			Type * t = dynamic_cast<Type*>(attr.getValue());
-			if(t!=NULL){
-				attr.setValue( rt.executeFunction(t->getAttribute(Consts::IDENTIFIER_fn_constructor).getValue(), t, ParameterValues(),true));
+			Type * type = dynamic_cast<Type*>(attr.getValue());
+			if(type!=NULL){
+				ObjRef value = rt.createInstance(type,ParameterValues());
+				attr.setValue( value.get() );
 			}else{
-				attr.setValue( rt.executeFunction(attr.getValue(),NULL,ParameterValues()));
+				ObjRef value = rt.executeFunction2(attr.getValue(),NULL,ParameterValues());
+				attr.setValue( value.get() );
 			}
 		}
 	}
