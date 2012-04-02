@@ -28,6 +28,7 @@ class Compiler {
 		Compiler(Logger * _logger = NULL);
 	
 		UserFunction * compile(const StringData & code);
+		UserFunction * compileFile(const std::string & filename);
 	
 	// -------------
 		

@@ -102,7 +102,8 @@ class Instruction {
 		static Instruction createSysCall(const uint32_t numParams);
 		static Instruction createYield()				{	return Instruction(I_YIELD);	}
 
-		void setLine(int l)	{	line = l;	}
+		int getLine()const			{	return line;	}
+		void setLine(const int l)	{	line = l;	}
 
 	private:
 		Instruction( type_t _type) : type(_type),line(-1){}

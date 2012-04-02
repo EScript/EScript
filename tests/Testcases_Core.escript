@@ -105,6 +105,7 @@ var FAILED="\t failed\n";
 			&& (-327645342.123342).toIntStr() === "-327645342"
 			, Number);
 }
+
 //---
 {
 	var mystring="bl\"#"+2;
@@ -119,7 +120,8 @@ var FAILED="\t failed\n";
 	test("String:", true
 		&& new String(2) === "2"
 		&& "foo".length()==3 && "\0\0".length()==2
-		&& "bar"[1] == "a" && void == "bar"[3]
+		&& "bar"[1] == "a" 
+		&& void == "bar"[3]
 		&& mystring*3 == "bl\"#2bl\"#2bl\"#2" && !s.endsWith("\0")
 		&& s.endsWith("bar")&&!s.endsWith("b")&&s.beginsWith("foo")&& s.beginsWith(s)&&  !s.beginsWith(s+s)
 		&& s.contains("ob") && !s.contains("oc") && "f".getType()==String
@@ -137,6 +139,7 @@ var FAILED="\t failed\n";
 		&& " fOObaR12.3".toLower() == " foobar12.3" &&" fOObaR12.3".toUpper() == " FOOBAR12.3"
 		,String);
 }
+
 //---
 {
 	out("Void:\t\t");
@@ -255,7 +258,9 @@ var FAILED="\t failed\n";
 	var f=fn( [Number,"bla"] p1,[Number] p2=7,[1,2,3] p3* = 3){
 
 	};
+
 	f("bla",3);
+		exit(1);
 	var typeException3=false;
 	try{
 		f("bla",3,4);
@@ -323,6 +328,7 @@ var FAILED="\t failed\n";
 	 f3.staticVar=0; // reset staticVar for next testing loop.
 	 UserFunction.bindLastParams = void; // need to remove the UserFunction extension for memory debug mode
 }
+exit(0);
 //---
 {	// User defined function (experimental!!!)
 

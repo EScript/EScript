@@ -117,30 +117,6 @@ static std::string findFile(Runtime & runtime, const std::string & filename){
 }
 
 //! (static)
-Object * StdLib::load(Runtime & runtime,const std::string & filename){
-	ERef<AST::BlockStatement> block;
-	try {
-		block=EScript::loadScriptFile(findFile(runtime,filename),runtime.getLogger());
-	} catch (Exception * e) {
-		runtime.setException(e); // adds stack info
-		return NULL;
-	}
-	if (block.isNull())
-		return NULL;
-
-	ObjRef resultRef(runtime.executeObj(block.get()));
-	/* reset the BlockStatement at this point is important as it might hold a reference to the result, which may then
-		be destroyed when the function is left after the resultRef-reference has already been decreased. */
-	block = NULL;
-	if(runtime.getState() == Runtime::STATE_RETURNING){
-			resultRef=runtime.getResult();
-			runtime.resetState();
-			return resultRef.detachAndDecrease();
-	}
-	return NULL;
-}
-
-//! (static)
 Object * StdLib::loadOnce(Runtime & runtime,const std::string & filename){
 	static const StringId mapId("__loadOnce_loadedFiles");
 
@@ -155,7 +131,7 @@ Object * StdLib::loadOnce(Runtime & runtime,const std::string & filename){
 		return NULL;
 	}
 	m->setValue(String::create(condensedFilename),Bool::create(true));
-	return load(runtime,condensedFilename);
+	return loadAndExecute(runtime,condensedFilename).second.detachAndDecrease(); //! \todo handle exceptions properly!
 }
 
 #if defined(_WIN32)
@@ -255,7 +231,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	ESF_DECLARE(globals,"getRuntime",0,0, &runtime)
 
 	//!	[ESF] mixed load(string filename)
-	ESF_DECLARE(globals,"load",1,1,StdLib::load(runtime,parameter[0].toString()))
+	ESF_DECLARE(globals,"load",1,1,loadAndExecute(runtime,findFile(runtime,parameter[0].toString())).second.detachAndDecrease()) //! \todo handle exceptions during lo
 
 	//!	[ESF] mixed loadOnce(string filename)
 	ESF_DECLARE(globals,"loadOnce",1,1,StdLib::loadOnce(runtime,parameter[0].toString()))

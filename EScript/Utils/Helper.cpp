@@ -8,6 +8,7 @@
 #include "../Objects/Namespace.h"
 #include "../Objects/Object.h"
 #include "../Objects/Type.h"
+#include "../Parser/Compiler.h"
 #include "../Parser/Parser.h"
 #include "../Runtime/Runtime.h"
 #include "../Consts.h"
@@ -139,9 +140,9 @@ void out(Object * obj) {
 }
 
 //! (static)
-AST::BlockStatement * loadScriptFile(const std::string & filename,Logger * logger){
-	Parser parser(logger);
-	return parser.parseFile(filename);
+UserFunction * loadScriptFile(const std::string & filename,Logger * logger){
+	Compiler compiler(logger);
+	return compiler.compileFile(filename);
 }
 
 //! (static)
@@ -168,14 +169,25 @@ std::pair<bool, ObjRef> execute(Runtime & runtime, AST::BlockStatement * block) 
 
 //! (static)
 std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & filename) {
-	ERef<AST::BlockStatement> script;
+	ERef<UserFunction> script;
 	try {
 		script = loadScriptFile(filename,runtime.getLogger());
-	} catch (Exception * error) {
+	} catch (Object * error) {
 		std::cerr << "\nError occurred while loading file '" << filename << "':\n" << error->toString() << std::endl;
 		return std::make_pair(false, error);
 	}
-	return execute(runtime, script.get());
+	ObjRef result;
+	try {
+		result = runtime.executeFunction2(script.get(),NULL,ParameterValues());	//! \todo handle exceptions
+	}catch(Object * error){
+		std::cerr << "\nError occurred while executing file '" << filename << "':\n" << error->toString() << std::endl;
+		return std::make_pair(false, error);
+	}catch(...){
+		std::cout << "\nCaught unknown C++ exception." << std::endl;
+		return std::make_pair(false, result.detachAndDecrease());
+	}
+	
+	return std::make_pair(true,result.detachAndDecrease());
 }
 
 //! (static)

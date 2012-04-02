@@ -62,6 +62,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 
 		size_t getExceptionHandlerPos()const			{	return exceptionHandlerPos;	}
 		size_t getInstructionCursor()const				{	return instructionCursor;	}
+		
 		//! Set the caller-object; the caller-member as well as the local-'this'-variable
 		void initCaller(const ObjPtr _caller);
 		bool isAwaitingCaller()const					{	return awaitsCaller;	}
@@ -150,8 +151,12 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		void stack_pushIdentifier(const StringId & strId){	valueStack.insert(valueStack.end(),StackEntry::IDENTIFIER)->value.value_uint32 = strId.getValue(); }
 		void stack_pushStringIndex(const uint32_t value){	valueStack.insert(valueStack.end(),StackEntry::STRING_IDX)->value.value_stringIndex = value; }
 		void stack_pushObject(const ObjPtr & obj)	{
-			Object::addReference(obj.get());
-			valueStack.insert(valueStack.end(),StackEntry::OBJECT_PTR)->value.value_ObjPtr = obj.get();
+			if(obj.isNull()){
+				stack_pushVoid();
+			}else{
+				Object::addReference(obj.get());
+				valueStack.insert(valueStack.end(),StackEntry::OBJECT_PTR)->value.value_ObjPtr = obj.get();
+			}
 		}
 		void stack_pushVoid() 							{	valueStack.push_back(StackEntry::VOID);		}
 

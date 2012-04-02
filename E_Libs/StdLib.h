@@ -15,12 +15,12 @@ namespace StdLib {
 
 void init(EScript::Namespace * o);
 
-/*! Loads and executes the script from file __filename__.
- * Returns the return value; void otherwise. */
-Object * load(Runtime & runtime,const std::string & filename);
+
 
 /*! Loads and executes the script from file __filename__ if the file has not already been loaded by this function.
- * Returns the return value; void otherwise. */
+	Returns the return value; 
+	\note May throw 'Object *' on error!
+ */
 Object * loadOnce(Runtime & runtime,const std::string & filename);
 
 /*! formatted output */

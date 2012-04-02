@@ -119,6 +119,7 @@ class Runtime : public ExtObject  {
 		void popActiveFCC()										{	activeFCCs.pop_back();	}
 		_Ptr<FunctionCallContext> getActiveFCC()const			{	return activeFCCs.empty() ? NULL : activeFCCs.back();	}
 		
+		int activeInstructionPos;
 	public:
 		ObjRef executeFunction2(const ObjPtr & fun,const ObjPtr & callingObject,const ParameterValues & params);
 		ObjRef createInstance(const EPtr<Type> & type,const ParameterValues & params);

@@ -145,7 +145,7 @@ void Runtime::init(EScript::Namespace & globals) {
 
 //! (ctor)
 Runtime::Runtime() :
-		ExtObject(Runtime::getTypeObject()), stackSizeLimit(512),
+		ExtObject(Runtime::getTypeObject()), stackSizeLimit(512),activeInstructionPos(-1),
 		state(STATE_NORMAL),logger(new LoggerGroup(Logger::LOG_WARNING)){
 
 	logger->addLogger("coutLogger",new StdLogger(std::cout));
@@ -1209,14 +1209,16 @@ void Runtime::info(const std::string & s) {
 void Runtime::warn(const std::string & s) {
 	std::ostringstream os;
 	os << s;
-	if(getCurrentContext()->getCurrentRTB()!=NULL){
-		AST::BlockStatement * b=getCurrentContext()->getCurrentRTB()->getStaticBlock();
-		if(b!=NULL)
-			os<<" ('"<<b->getFilename()<<"':~"<<getCurrentLine()<<")";
-	}
+//	if(getActiveFCC()!=NULL){
+//		AST::BlockStatement * b=getCurrentContext()->getCurrentRTB()->getStaticBlock();
+//		if(b!=NULL)
+//			os<<" ('"<<b->getFilename()<<"':~"<<getCurrentLine()<<")";
+			os<<" ('"<<"':~"<<getCurrentLine()<<")";
+//	}
 	logger->warn(os.str());
-
 }
+
+
 
 void Runtime::setException(const std::string & s) {
 	Exception * e = new Exception(s,getCurrentLine());
@@ -1310,13 +1312,11 @@ std::string Runtime::getCurrentFile()const{
 }
 
 int Runtime::getCurrentLine()const{
-	 int line = getCurrentContext()->getPrevLine();
-	 if(line<0 && !functionCallStack.empty()){
-		UserFunction * ufun=dynamic_cast<UserFunction *>(functionCallStack.back().function);
-		if(ufun!=NULL)
-			line = ufun->getBlock()->getLine();
-	 }
-	 return line;
+	if(getActiveFCC().isNotNull() && activeInstructionPos>=0){
+		return getActiveFCC()->getInstructions().getLine(activeInstructionPos);
+	}else{
+		return -1;
+	}
 }
 
 std::string Runtime::getStackInfo(){
@@ -1432,9 +1432,10 @@ Object * Runtime::executeFunctionCallContext(_Ptr<FunctionCallContext> fcc){
 		}
 
 		//! \todo this could probably improved by using iterators internally!
-		const Instruction & instruction = instructions->getInstruction(fcc->getInstructionCursor());
+		activeInstructionPos = fcc->getInstructionCursor();
+		const Instruction & instruction = instructions->getInstruction(activeInstructionPos);
 		fcc->increaseInstructionCursor();
-
+//
 //		std::cout << fcc->stack_toDbgString()<<"\n";
 //		std::cout << instruction.toString(*instructions)<<"\n";
 

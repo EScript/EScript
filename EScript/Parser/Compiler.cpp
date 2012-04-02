@@ -83,7 +83,6 @@ UserFunction * Compiler::compile(const StringData & code){
 	// parse and build syntax tree
 	ERef<AST::BlockStatement> block(new AST::BlockStatement);
 	block->setFilename(inline_id);
-//	ERef<UserFunctionExpr> fun = new UserFunction(block);
 
 	Parser p(getLogger());
 	p._produceBytecode = true;
@@ -96,7 +95,25 @@ UserFunction * Compiler::compile(const StringData & code){
 
 	return fun.detachAndDecrease();
 }
-	
+
+UserFunction * Compiler::compileFile(const std::string & filename){
+	// prepare container function
+	ERef<UserFunction> fun = new UserFunction(new UserFunction::parameterList_t);
+
+	// parse and build syntax tree
+	Parser p(getLogger());
+	p._produceBytecode = true;
+	ERef<AST::BlockStatement> block = p.parseFile(filename);
+//	fun->setCodeString(String::create(block->get),0,code.str().length()); //! \todo add code to function!!!
+
+
+	// compile and create instructions
+	CompilerContext ctxt(*this,fun->getInstructions());
+	ctxt.compile(block.get());
+	Compiler::finalizeInstructions(fun->getInstructions());
+
+	return fun.detachAndDecrease();
+}
 //! (static) 
 void Compiler::finalizeInstructions( InstructionBlock & instructionBlock ){
 
@@ -299,6 +316,8 @@ bool initHandler(handlerRegistry_t & m){
 
 	// FunctionCallExpr
 	ADD_HANDLER( _TypeIds::TYPE_FUNCTION_CALL_EXPRESSION, FunctionCallExpr, {
+		ctxt.setLine(self->getLine());
+	
 		if(!self->isSysCall()){
 			do{
 				GetAttributeExpr * gAttr = self->getGetFunctionExpression().toType<GetAttributeExpr>();
@@ -310,27 +329,39 @@ bool initHandler(handlerRegistry_t & m){
 					if(gAttr->getObjectExpression()==NULL){ // singleIdentifier (...)
 						const int localVarIndex = ctxt.getCurrentVarIndex(attrId);
 						if(localVarIndex>=0){
-							ctxt.addInstruction(Instruction::createPushVoid());
+							if( !self->isConstructorCall() ){ // constructor calls don't need a caller
+								ctxt.addInstruction(Instruction::createPushVoid());
+							}
 							ctxt.addInstruction(Instruction::createGetLocalVariable(localVarIndex));
 						}else{
-							ctxt.addInstruction(Instruction::createFindVariable(attrId));
+							if( self->isConstructorCall() ){ // constructor calls don't need a caller
+								ctxt.addInstruction(Instruction::createGetVariable(attrId));
+							}else{
+								ctxt.addInstruction(Instruction::createFindVariable(attrId));
+							}
 						}
 						break;
 					} // getAttributeExpression.identifier (...)
 					else if(GetAttributeExpr * gAttrGAttr = gAttr->getObjectExpression().toType<GetAttributeExpr>() ){
 						ctxt.compile(gAttrGAttr);
-						ctxt.addInstruction(Instruction::createDup());
+						if( !self->isConstructorCall() ){ // constructor calls don't need a caller
+							ctxt.addInstruction(Instruction::createDup());
+						}
 						ctxt.addInstruction(Instruction::createGetAttribute(attrId));
 						break;
 					} // somethingElse.identifier (...) e.g. foo().bla(), 7.bla()
 					else{
 						ctxt.compile(gAttr->getObjectExpression());
-						ctxt.addInstruction(Instruction::createDup());
+						if( !self->isConstructorCall() ){ // constructor calls don't need a caller
+							ctxt.addInstruction(Instruction::createDup());
+						}
 						ctxt.addInstruction(Instruction::createGetAttribute(attrId));
 						break;
 					}
 				}else{
-					ctxt.addInstruction(Instruction::createPushVoid());
+					if( !self->isConstructorCall() ){ // constructor calls don't need a caller
+						ctxt.addInstruction(Instruction::createPushVoid());
+					}
 					ctxt.compile(self->getGetFunctionExpression());
 					break;
 				}

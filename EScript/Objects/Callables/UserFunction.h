@@ -68,7 +68,7 @@ class UserFunction : public ExtObject {
 
 	/*! @name Main */
 	//	@{
-		UserFunction(parameterList_t * params,AST::BlockStatement * block);
+		UserFunction(parameterList_t * params,AST::BlockStatement * block = NULL);
 		UserFunction(parameterList_t * params,AST::BlockStatement * block,const std::vector<ObjRef> & _sConstrExpressions);
 		virtual ~UserFunction();
 

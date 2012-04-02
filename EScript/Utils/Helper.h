@@ -24,6 +24,7 @@ class Object;
 class Runtime;
 class Type;
 class Logger;
+class UserFunction;
 
 //! @name Declaration
 //@{
@@ -85,7 +86,7 @@ Object * callFunction(Runtime & rt, Object * function, const ParameterValues & p
 
 void out(Object * obj);
 
-AST::BlockStatement * loadScriptFile(const std::string & filename,Logger * logger=NULL);
+UserFunction * loadScriptFile(const std::string & filename,Logger * logger=NULL);
 
 //! @return (success, result)
 std::pair<bool, ObjRef> execute(Runtime & runtime, AST::BlockStatement * block);

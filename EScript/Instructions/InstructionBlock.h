@@ -34,7 +34,6 @@ class InstructionBlock {
 			internalFunctions.push_back(userFunction);
 			return static_cast<uint32_t>(internalFunctions.size()-1);
 		}
-		void clearJumpMarkers()									{	}		//! \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 			
 		uint32_t declareString(const std::string & str){
 			stringConstants.push_back(str);
@@ -45,6 +44,8 @@ class InstructionBlock {
 			return static_cast<uint32_t>(localVariables.size()-1);
 		}
 		const Instruction & getInstruction(const size_t index)const	{	return instructions[index];	}
+		int getLine(const size_t index)const					{	return index<instructions.size() ? instructions[index].getLine() : -1;	}
+
 		
 		StringId getLocalVarName(const int index)const;
 		const std::vector<StringId> & getLocalVariables()const	{	return localVariables;	}
