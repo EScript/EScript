@@ -1524,11 +1524,12 @@ Statement Parser::getControl(ParsingContext & ctxt,int & cursor)const  {
 			/* \todo speedup by using systemCall:
 				for(__it = sysCall getIterator(arr); sysCall isIteratorEnd(__it); sysCall increasIterator (__it) )
 			*/
-			// __it = obj.getIterator();	
+			// __it = SYS_CALL_GET_ITERATOR( obj ) ( ~ __it = obj.getIterator();  + some special cases)
+			std::vector<ObjRef> loopInitParams;
+			loopInitParams.push_back(arrayExpression);
 			Statement loopInit = Statement(Statement::TYPE_EXPRESSION,
 				SetAttributeExpr::createAssignment(NULL,itId,
-					FunctionCallExpr::createFunctionCall( 
-						new GetAttributeExpr(arrayExpression, Consts::IDENTIFIER_fn_getIterator),std::vector<ObjRef>() ),tokens.at(cursor)->getLine()));
+					FunctionCallExpr::createSysCall(Consts::SYS_CALL_GET_ITERATOR,loopInitParams,currentFilename,tokens.at(cursor)->getLine())));
 			
 			// ! __it.end()
 			Object * checkExpression = LogicOpExpr::createNot(

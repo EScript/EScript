@@ -350,6 +350,10 @@ std::string Instruction::toString(const InstructionBlock & ctxt)const{
 	case I_SYS_CALL:{
 		out << "sysCall (numParams) " << getValue_uint32();
 		break;
+	}	
+	case I_YIELD:{
+		out << "yield";
+		break;
 	}
 
 	default:

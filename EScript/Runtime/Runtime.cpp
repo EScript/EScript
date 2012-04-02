@@ -193,14 +193,34 @@ Runtime::Runtime() :
 		};
 		systemFunctions.push_back(new Function(_::sysCall));
 	}	
-	{	// SYS_CALL_EXIT = 3;
+	{	// SYS_CALL_EXIT = 4;
 		struct _{
 			// SYS_CALL_EXIT( [value] )
 			ESF( sysCall,0,1,(runtime.setExitState( parameter.count()>0 ? parameter[0] : Void::get() ),static_cast<Object*>(NULL)))
 		};
 		systemFunctions.push_back(new Function(_::sysCall));
 	}
-	
+	{	// SYS_CALL_GET_ITERATOR = 5;
+		struct _{
+			ES_FUNCTION( sysCall) {
+				assertParamCount(runtime,1,1);
+				Object * it=NULL;
+				if(	Collection * c=parameter[0].toType<Collection>()){
+					it = c->getIterator();
+				}else if(parameter[0].toType<YieldIterator>()){
+					it = parameter[0].get();
+				}else {
+					it = callMemberFunction(runtime,parameter[0] ,Consts::IDENTIFIER_fn_getIterator,ParameterValues());
+				}
+				if(it==NULL){
+					runtime.setException("Could not get iterator from '" + parameter[0]->toDbgString() + '\'');
+					return NULL;
+				}
+				return it;
+			}
+		};
+		systemFunctions.push_back(new Function(_::sysCall));
+	}
 
 	//ctor
 }
@@ -891,8 +911,8 @@ Object * Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & _callingObje
 					resetState();
 				}else if(getState()==Runtime::STATE_YIELDING){
 					YieldIterator * yctxt=new YieldIterator();
-					yctxt->setResult(getResult());
-					yctxt->setContext(fctxt);
+					yctxt->setValue(getResult());
+//					yctxt->setContext(fctxt);
 					result=yctxt;
 					resetState();
 				}else if(!assertNormalState()){
@@ -1355,7 +1375,25 @@ ObjRef Runtime::executeFunction2(const ObjPtr & fun,const ObjPtr & caller,const 
 	return realResult;
 }
 
-//Object * createInstance(...)
+ObjRef Runtime::createInstance(const EPtr<Type> & type,const ParameterValues & _params){
+	assertNormalState();
+	ParameterValues params(_params);
+	executeFunctionResult_t result = startInstanceCreation(type,params);
+	ObjRef realResult;
+	if(result.second){
+		_CountedRef<FunctionCallContext> fcc = result.second;
+		realResult = executeFunctionCallContext(fcc);
+	}else{
+		realResult = result.first;
+	}
+	// error occured? throw an exception!
+	if(getState()==STATE_EXCEPTION){
+		realResult = getResult();
+		resetState();
+		throw(realResult.detachAndDecrease());
+	}
+	return realResult;
+}
 
 //! (internal)
 Object * Runtime::executeFunctionCallContext(_Ptr<FunctionCallContext> fcc){
@@ -1491,7 +1529,6 @@ Object * Runtime::executeFunctionCallContext(_Ptr<FunctionCallContext> fcc){
 				instructions = &fcc->getInstructions();
 			}else{
 				fcc->stack_pushObject(result.first);
-//				std::cout << "Result: "<<(result.first ? result.first->toString() : "Void")<<"\n";
 			}
 			break;
 		}
@@ -1502,7 +1539,7 @@ Object * Runtime::executeFunctionCallContext(_Ptr<FunctionCallContext> fcc){
 				pop object
 				call object._constructor
 				push result (or jump to exception point)	*/
-
+				
 
 			// get the parameters for the first constructor
 			const uint32_t numParams = instruction.getValue_uint32();
@@ -1523,61 +1560,15 @@ Object * Runtime::executeFunctionCallContext(_Ptr<FunctionCallContext> fcc){
 				break;
 			}
 
-			std::vector<ObjPtr> constructors;
-			do{
-				const Attribute * ctorAttr = type->_accessAttribute(Consts::IDENTIFIER_fn_constructor,true);
-				if(ctorAttr==NULL){
-					type = type->getBaseType();
-					continue;
-				}else if(constructors.empty() && ctorAttr->isPrivate()){ // first constructor must not be private!
-					setException("Can't instanciate Type with private _contructor."); //! \todo check this!
-					constructors.clear();
-					break;
-				}else{
-					ObjPtr fun = ctorAttr->getValue();
-					const internalTypeId_t funType = fun->_getInternalTypeId();
-					
-					if(funType==_TypeIds::TYPE_USER_FUNCTION){
-						constructors.push_back(fun);
-						type = type->getBaseType();
-						continue;
-					}else if(_TypeIds::TYPE_FUNCTION){
-						constructors.push_back(fun);
-					}else{
-						setException("Constructor has to be a UserFunction or a Function.");
-						constructors.clear();
-					}
-					break;
-				}
-			}while(type.isNotNull());
-			
-			if(constructors.empty()) // error occured
-				break;
-			
-			{ // call the first constructor and pass the other constructor-functions by adding them to the stack
-				ObjRef fun = constructors.front();
-				
-				executeFunctionResult_t result = startFunctionExecution(fun,caller,params);
-				if(result.second){
-					fcc = result.second;
-					pushActiveFCC(fcc);
-					instructions = &fcc->getInstructions();
-					for(std::vector<ObjPtr>::const_reverse_iterator it = constructors.rbegin();(it+1)!=constructors.rend();++it) //! \todo c++11 use std::next
-						fcc->stack_pushObject( *it );
-					fcc->enableAwaitingCaller();
-					fcc->markAsConstructorCall();
-				}else{
-					ObjPtr newObj = result.first;
-					if(newObj.isNull()){
-						if(state!=STATE_EXCEPTION) // if an exception occured in the constructor, the result may be NULL
-							setException("Constructor did not create an Object."); //! \todo improve message!
-						break;
-					}
-					fcc->stack_pushObject(newObj);
-					// init attribute
-					newObj->_initAttributes(*this); //! \todo catch exceptions!!!!!!!!
-				}
+			executeFunctionResult_t result = startInstanceCreation(type,params);
+			if(result.second){
+				fcc = result.second;
+				pushActiveFCC(fcc);
+				instructions = &fcc->getInstructions();
+			}else{
+				fcc->stack_pushObject(result.first);
 			}
+
 			break;
 		}
 		case Instruction::I_CHECK_TYPE:{
@@ -1828,6 +1819,28 @@ Object * Runtime::executeFunctionCallContext(_Ptr<FunctionCallContext> fcc){
 			fcc->stack_pushObject(sysCall(funId,params));
 			break;
 		}
+		case Instruction::I_YIELD:{
+			/*	yield
+				-------------
+				pop result	*/
+			ObjRef value = fcc->stack_popObjectValue();
+			ERef<YieldIterator> yIt = new YieldIterator();
+			yIt->setFCC(fcc);
+			yIt->setValue(value);
+			if(fcc->isExecutionStoppedAfterEnding()){
+				popActiveFCC();
+				return yIt.detachAndDecrease();
+			} // continue with the next fcc...
+			else{
+				popActiveFCC();
+				fcc = getActiveFCC();
+				if(fcc.isNull())
+					return NULL;
+				instructions = &fcc->getInstructions();
+				fcc->stack_pushObject(yIt.get());
+			}
+			break;
+		}
 		case Instruction::I_UNDEFINED:
 		case Instruction::I_SET_MARKER:
 		default:{
@@ -1849,6 +1862,7 @@ Object * Runtime::executeFunctionCallContext(_Ptr<FunctionCallContext> fcc){
 					break;
 				} // execution stops here? Keep the exception-state and return;
 				else if(fcc->isExecutionStoppedAfterEnding()){
+					popActiveFCC();
 					return NULL;
 				} // continue with the next fcc...
 				else{
@@ -1863,6 +1877,7 @@ Object * Runtime::executeFunctionCallContext(_Ptr<FunctionCallContext> fcc){
 			while(true){
 				// execution stops here? Keep the exiting-state and return;
 				if(fcc->isExecutionStoppedAfterEnding()){
+					popActiveFCC();
 					return NULL;
 				} // continue with the next fcc...
 				else{
@@ -1996,8 +2011,72 @@ Runtime::executeFunctionResult_t Runtime::startFunctionExecution(const ObjPtr & 
 	}
 
 	return std::make_pair(result.get(),static_cast<FunctionCallContext*>(NULL));
-
 }
+
+
+//! (internal)
+Runtime::executeFunctionResult_t Runtime::startInstanceCreation(EPtr<Type> type,ParameterValues & params){
+	static const executeFunctionResult_t failureResult = std::make_pair(static_cast<Object*>(NULL),static_cast<FunctionCallContext*>(NULL));
+	ObjRef createdObject;
+	
+	// collect constructors
+	std::vector<ObjPtr> constructors;
+	do{
+		const Attribute * ctorAttr = type->_accessAttribute(Consts::IDENTIFIER_fn_constructor,true);
+		if(ctorAttr==NULL){
+			type = type->getBaseType();
+			continue;
+		}else if(constructors.empty() && ctorAttr->isPrivate()){ // first constructor must not be private!
+			setException("Can't instanciate Type with private _contructor."); //! \todo check this!
+			return failureResult; // failure
+		}else{
+			ObjPtr fun = ctorAttr->getValue();
+			const internalTypeId_t funType = fun->_getInternalTypeId();
+			
+			if(funType==_TypeIds::TYPE_USER_FUNCTION){
+				constructors.push_back(fun);
+				type = type->getBaseType();
+				continue;
+			}else if(_TypeIds::TYPE_FUNCTION){
+				constructors.push_back(fun);
+			}else{
+				setException("Constructor has to be a UserFunction or a Function.");
+				return failureResult; // failure
+			}
+			break;
+		}
+	}while(type.isNotNull());
+	
+	if(constructors.empty()) // failure
+		return failureResult;
+	
+	{ // call the first constructor and pass the other constructor-functions by adding them to the stack
+		ObjRef fun = constructors.front();
+		
+		executeFunctionResult_t result = startFunctionExecution(fun,type.get(),params);
+		if(result.second){
+			FunctionCallContext * fcc = result.second;
+			for(std::vector<ObjPtr>::const_reverse_iterator it = constructors.rbegin();(it+1)!=constructors.rend();++it) //! \todo c++11 use std::next
+				fcc->stack_pushObject( *it );
+			fcc->enableAwaitingCaller();
+			fcc->markAsConstructorCall();
+			return std::make_pair(static_cast<Object*>(NULL),fcc);
+		}else{
+			createdObject = result.first;
+			if(createdObject.isNull()){
+				if(state!=STATE_EXCEPTION) // if an exception occured in the constructor, the result may be NULL
+					setException("Constructor did not create an Object."); //! \todo improve message!
+				return failureResult;
+			}
+			
+			// init attribute
+			createdObject->_initAttributes(*this); //! \todo catch exceptions!!!!!!!!
+			return std::make_pair(createdObject.detachAndDecrease(),static_cast<FunctionCallContext*>(NULL));
+		}
+	}
+	return failureResult;
+}
+
 
 //! (internal)
 Object * Runtime::sysCall(uint32_t sysFnId,ParameterValues & params){
@@ -2012,6 +2091,32 @@ Object * Runtime::sysCall(uint32_t sysFnId,ParameterValues & params){
 	return fn->getFnPtr()(*this,NULL,params);
 }
 
+void Runtime::yieldNext(YieldIterator & yIt){
+	_Ptr<FunctionCallContext> fcc = yIt.getFCC();
+	if(fcc.isNull()){
+		setException("Invalid YieldIterator");
+		return;
+	}
+	ObjRef result = executeFunctionCallContext( fcc );
+	// error occured? throw an exception!
+	if(getState()==STATE_EXCEPTION){
+		result = getResult();
+		resetState();
+		throw(result.detachAndDecrease());
+	}
+	
+	ERef<YieldIterator> newYieldIterator = result.toType<YieldIterator>();
+	
+	// function exited with another yield? -> reuse the data for the current iterator
+	if(newYieldIterator.isNotNull()){
+		yIt.setFCC( newYieldIterator->getFCC() );
+		yIt.setValue( newYieldIterator->value() );
+	} // function returned without yield? -> update and terminate the current iterator
+	else{
+		yIt.setFCC( NULL );
+		yIt.setValue( result );
+	}
 
+}
 
 }

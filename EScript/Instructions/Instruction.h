@@ -49,6 +49,7 @@ class Instruction {
 			I_SET_EXCEPTION_HANDLER,		// +-0
 			I_SET_MARKER,					// +-0
 			I_SYS_CALL,						// -1+x +1 \todo use a parameter pair????
+			I_YIELD,						// -1
 		};
 		static const uint32_t JMP_TO_MARKER_OFFSET = 0x100000; //! if a jump target is >= JMP_TO_MARKER_OFFSET, the target is a marker and not an address.
 		static const uint32_t INVALID_JUMP_ADDRESS = 0x0FFFFF; //! A jump to this address always ends the current function. \todo assure that no IntructionBlock can have so many Instructions
@@ -99,6 +100,7 @@ class Instruction {
 		static Instruction createSetExceptionHandler(const uint32_t markerId);
 		static Instruction createSetMarker(const uint32_t markerId);
 		static Instruction createSysCall(const uint32_t numParams);
+		static Instruction createYield()				{	return Instruction(I_YIELD);	}
 
 		void setLine(int l)	{	line = l;	}
 

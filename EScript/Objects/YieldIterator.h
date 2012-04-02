@@ -6,7 +6,7 @@
 #define ES_YIELD_ITERATOR_H
 
 #include "Object.h"
-#include "../Runtime/RuntimeContext.h"
+#include "../Runtime/FunctionCallContext.h"
 
 namespace EScript {
 
@@ -18,30 +18,25 @@ class YieldIterator : public Object {
 		static void init(EScript::Namespace & globals);
 		// ----
 
-		YieldIterator();
-		virtual ~YieldIterator();
+		YieldIterator()	: Object(getTypeObject()),counter(0) {}
+		virtual ~YieldIterator() {	}
 
-		Object * value()const						{	return myResult.get();	}
+		Object * value()const						{	return currentValue.get();	}
 		Object * key()const	;
-		void setResult(ObjPtr newResult)			{	myResult=newResult;		}
+		void setValue(ObjPtr newResult)				{	currentValue = newResult;	}
 
-		void setContext(RuntimeContext * ctxt)		{	runtimeContext=ctxt;	}
-		RuntimeContext * getContext()const			{	return runtimeContext.get();	}
-
+		_Ptr<FunctionCallContext> getFCC()const		{	return fcc;	}
+		void setFCC(_Ptr<FunctionCallContext> _fcc)	{	fcc = _fcc;	}
+		
 		void next(Runtime & rt);
-		bool end()const								{	return !active;	}
+		bool end()const								{	return fcc.isNull();	}
 
 		int getCounter()const						{	return counter;	}
 
-		/// ---|> [Object]
-//		virtual YieldIterator * clone() const;
-//		virtual bool rt_isEqual(Runtime &rt, const ObjPtr o);
-
 	private:
-		ObjRef myResult;
-		RuntimeContext::RTBRef  runtimeContext;
+		ObjRef currentValue;
 		int counter;
-		bool active;
+		_CountedRef<FunctionCallContext> fcc;
 };
 
 }

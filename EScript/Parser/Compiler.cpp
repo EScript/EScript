@@ -188,7 +188,12 @@ void Compiler::compileStatement(CompilerContext & ctxt,const AST::Statement & st
 		ctxt.addInstruction(Instruction::createSysCall(statement.getExpression().isNotNull() ? 1 : 0));
 	
 	}else if(statement.getType() == Statement::TYPE_YIELD){
-		std::cout << "\nError: Yield not yet supported!\n"; //! \todo Compiler error
+		if(statement.getExpression().isNotNull()){
+			ctxt.compile(statement.getExpression());
+		}else{
+			ctxt.addInstruction(Instruction::createPushVoid());
+		}
+		ctxt.addInstruction(Instruction::createYield());
 	
 	}else if(statement.getExpression().isNotNull()){
 		ctxt.setLine(statement.getLine());

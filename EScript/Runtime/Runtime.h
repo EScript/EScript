@@ -25,6 +25,7 @@ class UserFunction;
 class Exception;
 class FunctionCallContext;
 class StringData;
+class YieldIterator;
 
 
 /*! [Runtime] ---|> [ExtObject]    */
@@ -104,6 +105,8 @@ class Runtime : public ExtObject  {
 			\note the @p params value may be altered by this function and should not be used afterwards!	*/
 		executeFunctionResult_t startFunctionExecution(const ObjPtr & fun,const ObjPtr & callingObject,ParameterValues & params);
 
+		executeFunctionResult_t startInstanceCreation(EPtr<Type> type,ParameterValues & params);
+	
 		Object * executeFunctionCallContext(_Ptr<FunctionCallContext> fcc);
 
 		Object * sysCall(uint32_t sysFnId,ParameterValues & params);
@@ -118,7 +121,9 @@ class Runtime : public ExtObject  {
 		
 	public:
 		ObjRef executeFunction2(const ObjPtr & fun,const ObjPtr & callingObject,const ParameterValues & params);
-	
+		ObjRef createInstance(const EPtr<Type> & type,const ParameterValues & params);
+		
+		void yieldNext(YieldIterator & yIt);
 	//	@}
 
 	// ------------------------------------------------

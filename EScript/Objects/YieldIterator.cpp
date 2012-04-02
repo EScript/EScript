@@ -37,41 +37,13 @@ void YieldIterator::init(EScript::Namespace & globals) {
 
 //---
 
-//! (ctor)
-YieldIterator::YieldIterator():
-		Object(getTypeObject()),counter(0),active(true) {
-	//ctor
-}
-
-//! (dtor)
-YieldIterator::~YieldIterator() {
-	//dtor
-}
 
 
 void YieldIterator::next(Runtime & rt){
-	if(!active){
-		rt.warn("YieldContext is inactive.");
-		return;
-	}
 	++counter;
-	rt.pushContext(runtimeContext.get());
-	ObjRef tmp=rt.executeCurrentContext();
-	rt.popContext();
-
-	if(rt.getState()==Runtime::STATE_YIELDING){
-		myResult=rt.getResult();
-		active=true;
-		rt.resetState();
-	}else if(rt.getState()==Runtime::STATE_RETURNING){
-		myResult=rt.getResult();
-		active=false;
-		rt.resetState();
-	}else{
-		active=false;
-		rt.assertNormalState(this);
-	}
+	rt.yieldNext( *this );
 }
+
 Object * YieldIterator::key()const{
 	return Number::create(getCounter());
 }

@@ -36,15 +36,16 @@ out(v);
 //		"var a = []; (a->fn(b*){append(b);})(1,2,3); print_r(a); ",
 //		"var a = [-100]; foreach( (a->fn(b*){append(b);return this;})(1,2,3) as var key,var value) out(key,'::',value,'\t');  ",
 //		"var A = new Type(); A._constructor ::= fn(m){this.m:=m; out('!!!');}; var a = new A(1); out(a.m); out(A.m);"
-//		"var A = new Type(); A._constructor ::= fn(p)@(super(p+1000)){out('\\n',this,'AAAA\\n');this.n:=''+p+'foo';};	"+
-//		"var B = new Type(A);B._constructor ::= fn(p)@(super(p+100)){out('\\n',this,'BBB\\n');n+='bar';}; "+
-//		"var C = new Type(B);C._constructor ::= fn(p)@(super(p+10)){out('\\n',this,'CCC\\n');n+='blub';}; "+
-//		"var c = new C(1); out(c.n); ",
+
 		
 //		"var A = new Type(); A._constructor ::= fn(p){out('\\n',this,'AAAA\\n');this.n:=''+p+'foo';};	"+
 //		"var B = new Type(A);B._constructor ::= fn(p)@(super(p+100)){out('\\n',this,'BBB\\n');n+='bar'+p;}; "+
 //		"var C = new Type(B);C._constructor ::= fn(p)@(super(p+10)){out('\\n',this,'CCC\\n');n+='blub'+p;}; "+
 //		"var c = new C(1); out(c.n,'\n'); ",
+		
+//		" (fn(i){ if(i%1000 ==0)out(i,' '); return i>0 ? i+thisFn(i-1) : 0 ;})(1000000);"
+
+
 //		"(fn(){exit( 77 );})(); out('FOO');",
 //		"(fn(a){out(a);})(true);",
 //		"(fn(a){out(a);})(true);"
@@ -65,6 +66,11 @@ out(v);
 //		"print_r( {'a':'foo',2:$bar});",
 //		"foreach( [1,2,3] as var v) out('####',v);",
 //		"var v; foreach( [1,2,3] as var k,v) out(k,':',v,'\n');",
+//		"foreach( {$foo : 1,$bar :2} as var k,var v) out(k,':',v,'\n');",
+		
+//		"var f = fn(){ out(1);yield 1;out(2);yield 2;out(3);yield 3;out(4);}; var i=f();out('.\\n',i.next(),i.end(),'.\\n',i.next(),i.end(),'.\\n',i.next(),i.end());",
+		"foreach( (fn(){ var a =10 ;yield a; ++a;yield a; ++a;yield a;++a;return a;})() as var key,var value) { out(key,':',value,'\n'); } ",
+
 //		"var v; out('(',v,')');",
 //		"return 27+17;",
 //		"out('Hello HasE!');",

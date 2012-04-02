@@ -75,6 +75,7 @@ struct Consts{
 	static const size_t SYS_CALL_THROW_TYPE_EXCEPTION = 2;
 	static const size_t SYS_CALL_THROW = 3;
 	static const size_t SYS_CALL_EXIT = 4;
+	static const size_t SYS_CALL_GET_ITERATOR = 5;
 };
 //	@}
 
