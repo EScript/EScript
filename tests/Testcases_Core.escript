@@ -485,6 +485,7 @@ var FAILED="\t failed\n";
 			,Array);
 
 }
+
 //---
 {	// Map
 	var m=new Map();
@@ -537,6 +538,8 @@ var FAILED="\t failed\n";
 	var o=new O();
 	test("Collection:",o[100]==200 ,Collection);
 }
+exit(1);
+
 //---
 {
 	out("try/catch/throw:");

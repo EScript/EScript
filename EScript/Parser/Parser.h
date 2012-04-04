@@ -78,21 +78,19 @@ class Parser : public Object {
 		Tokenizer tokenizer;
 		void pass_1(ParsingContext & ctxt);
 		void pass_2(ParsingContext & ctxt, Tokenizer::tokenList_t  & enrichedTokens)const;
-		AST::Statement getControl(ParsingContext & ctxt,int & cursor)const;
-		AST::Statement getStatement(ParsingContext & ctxt,int & cursor,int to=-1)const;
-		Object * getExpression(ParsingContext & ctxt,int & cursor,int to=-1)const;
-		Object * getBinaryExpression(ParsingContext & ctxt,int & cursor,int to)const;
-		AST::BlockStatement * getBlock(ParsingContext & ctxt,int & cursor)const ;
+		AST::Statement readControl(ParsingContext & ctxt,int & cursor)const;
+		AST::Statement readStatement(ParsingContext & ctxt,int & cursor,int to=-1)const;
+		Object * readExpression(ParsingContext & ctxt,int & cursor,int to=-1)const;
+		Object * readBinaryExpression(ParsingContext & ctxt,int & cursor,int to)const;
+		AST::BlockStatement * readBlock(ParsingContext & ctxt,int & cursor)const ;
 		Object * readMap(ParsingContext & ctxt,int & cursor)const;
-		Object * getFunctionDeclaration(ParsingContext & ctxt,int & cursor)const;
+		Object * readFunctionDeclaration(ParsingContext & ctxt,int & cursor)const;
 //		UserFunction::parameterList_t * getFunctionParameters(ParsingContext & ctxt,int & cursor)const; //! \todo old!
 		void readFunctionParameters(UserFunctionExpr::parameterList_t & params,ParsingContext & ctxt,int & cursor)const;
-		void getExpressionsInBrackets(ParsingContext & ctxt,int & cursor,std::vector<ObjRef> & expressions)const;
+		void readExpressionsInBrackets(ParsingContext & ctxt,int & cursor,std::vector<ObjRef> & expressions)const;
 
 		typedef std::vector<std::pair<StringId,int> > properties_t; //  (property's id, position of option bracket or -1)*
 		void readProperties(ParsingContext & ctxt,int from,int to,properties_t & properties)const;
-
-		AST::Statement createStatement(Object * obj)const;
 
 		enum lValue_t { LVALUE_NONE, LVALUE_INDEX, LVALUE_MEMBER};
 		lValue_t getLValue(ParsingContext & ctxt,int from,int to,Object * & obj,StringId & identifier,Object * &indexExpression)const;

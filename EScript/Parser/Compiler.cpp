@@ -190,12 +190,40 @@ void Compiler::compileStatement(CompilerContext & ctxt,const AST::Statement & st
 		ctxt.addInstruction(Instruction::createPushUInt(Consts::SYS_CALL_EXIT));
 		ctxt.addInstruction(Instruction::createSysCall(statement.getExpression().isNotNull() ? 1 : 0));
 	
+	}else if(statement.getType() == Statement::TYPE_EXPRESSION){
+		ctxt.setLine(statement.getLine());
+		ctxt.compile(statement.getExpression());
+		ctxt.addInstruction(Instruction::createPop());
+	
 	}else if(statement.getType() == Statement::TYPE_RETURN){
 		if(statement.getExpression().isNotNull()){
 			ctxt.compile(statement.getExpression());
 			ctxt.addInstruction(Instruction::createAssignLocal(Consts::LOCAL_VAR_INDEX_internalResult));
 		}
 		ctxt.addInstruction(Instruction::createJmp(Instruction::INVALID_JUMP_ADDRESS));
+	
+	}else if(statement.getType() == Statement::TYPE_STATEMENT){
+		ctxt.setLine(statement.getLine());
+		
+		// block - statement (NOT block - expression)
+		if(statement.getExpression().isNotNull() && statement.getExpression()->_getInternalTypeId() == _TypeIds::TYPE_BLOCK_STATEMENT ){
+			const AST::BlockStatement * blockStatement = statement.getExpression().toType<AST::BlockStatement>();
+			
+			if(blockStatement->hasLocalVars())
+				ctxt.pushSetting_localVars(*blockStatement->getVars());
+
+			for ( AST::BlockStatement::cStatementCursor c = blockStatement->getStatements().begin();  c != blockStatement->getStatements().end(); ++c) {
+					ctxt.compile(*c);
+			}
+			if(blockStatement->hasLocalVars()){
+				for(std::set<StringId>::const_iterator it = blockStatement->getVars()->begin();it!=blockStatement->getVars()->end();++it){
+					ctxt.addInstruction(Instruction::createResetLocalVariable(ctxt.getCurrentVarIndex(*it)));
+				}
+				ctxt.popSetting();
+			}
+		}else{
+			ctxt.compile(statement.getExpression());
+		}
 	
 	}else if(statement.getType() == Statement::TYPE_THROW){
 		if(statement.getExpression().isNotNull()){
@@ -213,10 +241,7 @@ void Compiler::compileStatement(CompilerContext & ctxt,const AST::Statement & st
 		ctxt.addInstruction(Instruction::createYield());
 	
 	}else if(statement.getExpression().isNotNull()){
-		ctxt.setLine(statement.getLine());
-		ctxt.compile(statement.getExpression());
-		if(statement.getType() == Statement::TYPE_EXPRESSION)
-			ctxt.addInstruction(Instruction::createPop());
+		std::cout << "\nError: Unknown statement!\n"; //! \todo Compiler error
 	}
 }
 
@@ -272,13 +297,26 @@ bool initHandler(handlerRegistry_t & m){
 	using namespace AST;
 
 
-	// BlockStatement
+	// BlockStatement // \todo ---> Block expression!
 	ADD_HANDLER( _TypeIds::TYPE_BLOCK_STATEMENT, BlockStatement, {
 		if(self->hasLocalVars())
 			ctxt.pushSetting_localVars(*self->getVars());
 
-		for ( BlockStatement::cStatementCursor c = self->getStatements().begin();  c != self->getStatements().end(); ++c) {
-			ctxt.compile(*c);
+		if(self->getStatements().empty()){
+			ctxt.addInstruction(Instruction::createPushVoid());
+		}else{
+			for ( BlockStatement::cStatementCursor c = self->getStatements().begin();  c != self->getStatements().end(); ++c) {
+				if(c+1 == self->getStatements().end()){ // last statemenet ? --> keep the result
+					if( c->getType() == Statement::TYPE_EXPRESSION ){
+						ctxt.compile( c->getExpression() );
+					}else{
+						ctxt.compile(*c);
+						ctxt.addInstruction(Instruction::createPushVoid());
+					}
+				}else{
+					ctxt.compile(*c);
+				}
+			}
 		}
 		if(self->hasLocalVars()){
 			for(std::set<StringId>::const_iterator it = self->getVars()->begin();it!=self->getVars()->end();++it){

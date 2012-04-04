@@ -573,6 +573,8 @@ Object * Runtime::executeFunctionCallContext(_Ptr<FunctionCallContext> fcc){
 	pushActiveFCC(fcc);
 	InstructionBlock * instructions = &fcc->getInstructions();
 
+//std::cout << fcc->getInstructions().toString()<<"\n";
+
 	while( true ){
 		// end of function? continue with calling function
 		if(fcc->getInstructionCursor() >= instructions->getNumInstructions()){
