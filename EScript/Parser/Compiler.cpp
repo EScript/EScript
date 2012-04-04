@@ -370,9 +370,8 @@ bool initHandler(handlerRegistry_t & m){
 		}
 		for(std::vector<ObjRef>::const_iterator it=self->getParams().begin();it!=self->getParams().end();++it){
 			if( it->isNull() ){
-				/* \todo explicitly mark this as NULL/Undefined and not void! Perhaps: pushUndefined!?
-					Then "(fn(a=1,b=2,c=3){ out(a+b+c);}) (,10);" should work.	*/
-				ctxt.addInstruction(Instruction::createPushVoid());
+				// push undefined to be able to distinguish 'someFun(void,2);' from 'someFun(,2);'
+				ctxt.addInstruction(Instruction::createPushUndefined()); 
 			}else{
 				ctxt.compile(*it);
 			}

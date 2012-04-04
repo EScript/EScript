@@ -113,7 +113,8 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 				UINT32,
 				NUMBER,
 				IDENTIFIER,
-				STRING_IDX, //
+				STRING_IDX, 
+				UNDEFINED, 
 //				UINT32_PAIR // \todo coming with c++11
 			}dataType;
 			union value_t{
@@ -141,6 +142,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		}
 		bool stack_empty()const							{	return valueStack.empty();	}
 		void stack_pushBool(const bool value)			{	valueStack.insert(valueStack.end(),StackEntry::BOOL)->value.value_bool = value; }
+		void stack_pushUndefined()						{	valueStack.push_back(StackEntry::UNDEFINED);	 }
 		void stack_pushFunction(const uint32_t functionIndex){
 			UserFunction * uFun = userFunction->getInstructions().getUserFunction(functionIndex);
 			Object::addReference(uFun);

@@ -46,16 +46,22 @@ void UserFunction::init(EScript::Namespace & globals) {
 }
 
 //! (ctor)
-UserFunction::UserFunction():posInFile(0),codeLen(0),paramCount(0),minParamValueCount(0),maxParamValueCount(0) {
+UserFunction::UserFunction(const UserFunction & other) : 
+		ExtObject(other),posInFile(other.posInFile),codeLen(other.codeLen),
+		paramCount(other.paramCount),minParamValueCount(other.minParamValueCount),maxParamValueCount(other.maxParamValueCount),
+		instructions(other.instructions){
+}
+
+//! (ctor)
+UserFunction::UserFunction() : 
+		ExtObject(getTypeObject()),posInFile(0),codeLen(0),paramCount(0),minParamValueCount(0),maxParamValueCount(0) {
 //	initInstructions();
 	//ctor
 }
+//! (ctor)
+UserFunction::~UserFunction(){}
 
-//! (dtor)
-UserFunction::~UserFunction() {
-	//dtor
-}
-//
+
 //void UserFunction::initInstructions(){
 //	for(parameterList_t::const_iterator it = params->begin();it!=params->end();++it){
 //		instructions.declareLocalVariable( (**it).getName() );
@@ -77,5 +83,5 @@ void UserFunction::setCodeString(const EPtr<String> & _fileString,size_t _begin,
 }
 
 std::string UserFunction::getCode()const{
-	return fileString->toString().substr(posInFile,codeLen);
+	return fileString.isNotNull() ? fileString->toString().substr(posInFile,codeLen) : std::string("???");
 }

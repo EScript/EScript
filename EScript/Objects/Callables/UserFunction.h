@@ -32,6 +32,9 @@ class UserFunction : public ExtObject {
 
 	/*! @name Main */
 	//	@{
+	protected:
+		UserFunction(const UserFunction & other);
+	public:
 		UserFunction();
 		virtual ~UserFunction();
 
@@ -52,6 +55,7 @@ class UserFunction : public ExtObject {
 	
 		/// ---|> [Object]
 		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_USER_FUNCTION;	}
+		virtual UserFunction * clone()const					{	return new UserFunction(*this);	}
 
 	private:
 		ERef<String> fileString;

@@ -25,6 +25,8 @@ class ExtObject : public Object {
 
 	/*! @name Main */
 	//	@{
+	protected:
+		ExtObject(const ExtObject & other);
 	public:
 		static ExtObject * create();
 		ExtObject();

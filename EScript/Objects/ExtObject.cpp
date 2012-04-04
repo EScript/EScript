@@ -50,13 +50,16 @@ ExtObject::ExtObject():
 	//ctor
 }
 
-//! (ctor)
-ExtObject::ExtObject(Type * type):
-		Object(type) {
-	if (typeRef.isNull())
-		return;
+ExtObject::ExtObject(const ExtObject & other): Object(other.getType()){
+//	if (typeRef.isNotNull())
+//		typeRef->copyObjAttributesTo(this);
+	cloneAttributesFrom(&other);
+}
 
-	typeRef->copyObjAttributesTo(this);
+//! (ctor)
+ExtObject::ExtObject(Type * type) : Object(type) {
+	if (typeRef.isNotNull())
+		typeRef->copyObjAttributesTo(this);
 	//ctor
 }
 

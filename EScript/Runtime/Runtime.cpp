@@ -585,6 +585,7 @@ Object * Runtime::executeFunctionCallContext(_Ptr<FunctionCallContext> fcc){
 				result = fcc->getLocalVariable(Consts::LOCAL_VAR_INDEX_this); 
 			}
 			if(fcc->isExecutionStoppedAfterEnding()){
+				popActiveFCC();
 				return result.detachAndDecrease();
 			}
 			popActiveFCC();
@@ -935,6 +936,10 @@ Object * Runtime::executeFunctionCallContext(_Ptr<FunctionCallContext> fcc){
 			fcc->stack_pushUInt32( instruction.getValue_uint32() );
 			continue;
 		}
+		case Instruction::I_PUSH_UNDEFINED:{
+			fcc->stack_pushUndefined();
+			continue;
+		}		
 		case Instruction::I_PUSH_VOID:{
 			fcc->stack_pushVoid( );
 			continue;
@@ -1072,9 +1077,7 @@ Runtime::executeFunctionResult_t Runtime::startFunctionExecution(const ObjPtr & 
 				setException("Too few parameters given."); //! \todo improve error message (which parameters are missing?)
 				return std::make_pair(result.get(),static_cast<FunctionCallContext*>(NULL));
 			}
-
 			ParameterValues::const_iterator paramsEnd;
-
 			const int maxParamCount = userFunction->getMaxParamCount();
 			if( maxParamCount<0 ){ // multiParameter
 				ERef<Array> multiParamArray = Array::create();
@@ -1098,7 +1101,6 @@ Runtime::executeFunctionResult_t Runtime::startFunctionExecution(const ObjPtr & 
 			else{
 				paramsEnd = params.end();
 			}
-
 			// init $thisFn
 			fcc->assignToLocalVariable(Consts::LOCAL_VAR_INDEX_thisFn,fun);
 
@@ -1106,7 +1108,6 @@ Runtime::executeFunctionResult_t Runtime::startFunctionExecution(const ObjPtr & 
 			for(ParameterValues::const_iterator it = params.begin(); it!= paramsEnd; ++it){
 				fcc->assignToLocalVariable(i++,*it);
 			}
-
 			return std::make_pair(result.get(),fcc.detachAndDecrease());
 		}
 		case _TypeIds::TYPE_DELEGATE:{

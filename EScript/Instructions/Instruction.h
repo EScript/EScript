@@ -43,6 +43,7 @@ class Instruction {
 			I_PUSH_NUMBER,					// +1
 			I_PUSH_STRING,					// +1
 			I_PUSH_UINT,					// +1
+			I_PUSH_UNDEFINED,				// +1
 			I_PUSH_VOID,					// +1
 			I_RESET_LOCAL_VARIABLE,			// -x
 			I_SET_ATTRIBUTE,				// -3
@@ -86,21 +87,22 @@ class Instruction {
 		static Instruction createJmpIfSet(const uint32_t markerId);
 		static Instruction createJmpOnTrue(const uint32_t markerId);
 		static Instruction createJmpOnFalse(const uint32_t markerId);
-		static Instruction createNot();
-		static Instruction createPop();
+		static Instruction createNot()				{	return Instruction(I_NOT);	}
+		static Instruction createPop()				{	return Instruction(I_POP);	}
 		static Instruction createPushBool(const bool value);
 		static Instruction createPushId(const StringId id);
 		static Instruction createPushFunction(const uint32_t functionIdx);
 		static Instruction createPushNumber(const double value);
 		static Instruction createPushString(const uint32_t stringIndex);
 		static Instruction createPushUInt(const uint32_t value);
-		static Instruction createPushVoid();
+		static Instruction createPushUndefined()	{	return Instruction(I_PUSH_UNDEFINED);	}
+		static Instruction createPushVoid()			{	return Instruction(I_PUSH_VOID);	}
 		static Instruction createResetLocalVariable(const uint32_t localVarIdx);
 		static Instruction createSetAttribute(const StringId id);
 		static Instruction createSetExceptionHandler(const uint32_t markerId);
 		static Instruction createSetMarker(const uint32_t markerId);
 		static Instruction createSysCall(const uint32_t numParams);
-		static Instruction createYield()				{	return Instruction(I_YIELD);	}
+		static Instruction createYield()			{	return Instruction(I_YIELD);	}
 
 		int getLine()const			{	return line;	}
 		void setLine(const int l)	{	line = l;	}

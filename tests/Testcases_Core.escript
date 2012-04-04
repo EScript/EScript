@@ -260,7 +260,6 @@ var FAILED="\t failed\n";
 	};
 
 	f("bla",3);
-		exit(1);
 	var typeException3=false;
 	try{
 		f("bla",3,4);
@@ -292,7 +291,6 @@ var FAILED="\t failed\n";
 	f4b(); // 7+1 = 8
 	f4b(19); // 8+19 ==27
 
-
 	// Binding parameters with function wrappers
 	UserFunction.bindLastParams ::= fn(params*){
 		var myWrapper = thisFn.wrapperFn.clone();
@@ -306,29 +304,27 @@ var FAILED="\t failed\n";
 		// is called without aa caller. This then results in a warning due to an undefined variable "this".
 		return Runtime._callFunction(thisFn.wrappedFun, Runtime._getCurrentCaller(),params);
 	};
-
-	test("UserFunction:",
-		plusRec(a,7)==17 && plusRec2(a,7)==17 && minusOne(a)==9 && (fn(a){return a*a;})(2)==4
+	test("UserFunction:", true
+		&& plusRec(a,7)==17 && plusRec2(a,7)==17 && minusOne(a)==9 && (fn(a){return a*a;})(2)==4
 		&& increase(3)==4 && increase(3,2)==5 && typeException==true && repeat(3,".")=="..."
 		&& mulSum(2,1,2,3)==12 && typeException2 && typeException3
 		&& f2(,,10)==13
 		&& f3()==1 && f3()==2 // a static counter is increased each time f3 is called
 		&& f3 ---|> UserFunction
-		&& (fn(){/*bla*/}).getCode() == "fn(){/*bla*/}"
+//		&& (fn(){/*bla*/}).getCode() == "fn(){/*bla*/}"
 		&& f4(0) == 17 && f4b(0) ==27
 		&& (1->(fn(a){return this+a; }).bindLastParams(27)) () == 28 // 1+27
+
 		&& [1,2,3].map( (fn(key,value,sumA,sumB){return value+sumA+sumB;}).bindLastParams(90,10) )  == [101,102,103]
-		&& plusRec.getFilename() == __FILE__
+//		&& plusRec.getFilename() == __FILE__
 		&& (fn(a){}).getMinParamCount() == 1 && (fn(a*){}).getMinParamCount() == 0 && (fn(a,b,c=2){}).getMinParamCount() == 2
 		&& (fn(a){}).getMaxParamCount() == 1 && !(fn(a*){}).getMaxParamCount() && (fn(a,b,c=2){}).getMaxParamCount() == 3
 
 		,UserFunction
-
 	 );
 	 f3.staticVar=0; // reset staticVar for next testing loop.
 	 UserFunction.bindLastParams = void; // need to remove the UserFunction extension for memory debug mode
 }
-exit(0);
 //---
 {	// User defined function (experimental!!!)
 

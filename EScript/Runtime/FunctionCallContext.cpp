@@ -98,6 +98,9 @@ Object * FunctionCallContext::stack_popObject(){
 	case StackEntry::STRING_IDX:{
 		obj = String::create(getInstructions().getStringConstant(entry.value.value_stringIndex));
 		break;
+	}	
+	case StackEntry::UNDEFINED:{
+		return NULL;
 	}
 	default:
 		obj = NULL;
@@ -146,6 +149,10 @@ Object * FunctionCallContext::stack_popObjectValue(){
 		valueStack.pop_back();
 		return String::create(getInstructions().getStringConstant(value));
 	}
+	case StackEntry::UNDEFINED:{
+		valueStack.pop_back();
+		return NULL;
+	}	
 	default:;
 	}
 	
@@ -195,6 +202,10 @@ std::string FunctionCallContext::StackEntry::toString()const{
 	}
 	case STRING_IDX:{
 		out << "#" << value.value_stringIndex;
+		break;
+	}
+	case UNDEFINED:{
+		out << "UNDEFINED";
 		break;
 	}
 	default:

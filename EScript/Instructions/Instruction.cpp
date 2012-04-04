@@ -116,16 +116,6 @@ Instruction Instruction::createJmpOnFalse(const uint32_t markerId){
 
 
 //! (static)
-Instruction Instruction::createPop(){
-	return Instruction(I_POP);
-}
-
-//! (static)
-Instruction Instruction::createNot(){
-	return Instruction(I_NOT);
-}
-
-//! (static)
 Instruction Instruction::createPushBool(const bool value){
 	Instruction i(I_PUSH_BOOL);
 	i.setValue_Bool(value);
@@ -167,11 +157,6 @@ Instruction Instruction::createPushUInt(const uint32_t value){
 	return i;
 }
 
-//! (static)
-Instruction Instruction::createPushVoid(){
-	Instruction i(I_PUSH_VOID);
-	return i;
-}
 //! (static)
 Instruction Instruction::createResetLocalVariable(const uint32_t localVarIdx){
 	Instruction i(I_RESET_LOCAL_VARIABLE);
@@ -319,6 +304,10 @@ std::string Instruction::toString(const InstructionBlock & ctxt)const{
 		out << "push (uint) " << getValue_uint32();
 		break;
 	}
+	case I_PUSH_UNDEFINED:{
+		out << "push (Undefined)";
+		break;
+	}	
 	case I_PUSH_VOID:{
 		out << "push (Void) Void";
 		break;
