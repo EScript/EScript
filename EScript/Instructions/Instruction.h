@@ -24,7 +24,7 @@ class Instruction {
 			I_ASSIGN_VARIABLE,				// -1
 			I_CALL,							// -2+x +1
 			I_CREATE_INSTANCE,				// -1+x +1
-			I_CHECK_TYPE,					// -0 or -1   +1
+			I_CHECK_TYPE,					// -1   +1
 			I_DUP,							// +1
 			I_FIND_VARIABLE,				// +2
 			I_GET_ATTRIBUTE,				// -1 +1

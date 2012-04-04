@@ -153,13 +153,14 @@ Runtime::Runtime() :
 	declareConstant(globals.get(),"GLOBALS",globals.get());
 	declareConstant(globals.get(),"SGLOBALS",EScript::getSGlobals());
 
+	systemFunctions.resize(7);
 
 	//! init system calls \note the order of the functions MUST correspond to their funcitonId as defined in Consts.h
 	{	// SYS_CALL_CREATE_ARRAY = 0;
 		struct _{
 			ESF( sysCall,0,-1,Array::create(parameter) )
 		};
-		systemFunctions.push_back(new Function(_::sysCall));
+		systemFunctions[Consts::SYS_CALL_CREATE_ARRAY] = new Function(_::sysCall);
 	}	
 	{	// SYS_CALL_CREATE_MAP = 1;
 		struct _{
@@ -171,29 +172,36 @@ Runtime::Runtime() :
 				return a;			
 			}
 		};
-		systemFunctions.push_back(new Function(_::sysCall));
+		systemFunctions[Consts::SYS_CALL_CREATE_MAP] = new Function(_::sysCall);
 	}
-	{	// SYS_CALL_THROW_TYPE_EXCEPTION = 2;
+	{	// SYS_CALL_THROW_TYPE_EXCEPTION( expectedType, receivedValue )
 		struct _{
-			// SYS_CALL_THROW_TYPE_EXCEPTION( expectedType, receivedValue )
-			ESF( sysCall,2,2,(
-					runtime.setException("Wrong parameter type: Expected '"+parameter[0].toString()+"' but got '"+parameter[1].toString()+"'" ),static_cast<Object*>(NULL)))
+			ES_FUNCTION( sysCall) {
+				assertParamCount(runtime,2,-1);
+				std::ostringstream os;
+				os << "Wrong parameter type: Expected ";
+				for(size_t i = 0;i<parameter.size()-1;++i ){
+					if(i>0) os <<", ";
+					os<<(parameter[i].isNotNull() ? parameter[i]->toDbgString() : "???");
+				}
+				os << " but got " << parameter[parameter.size()-1]->toDbgString()<<".";
+				runtime.setException(os.str());
+				return static_cast<Object*>(NULL);
+			}
 		};
-		systemFunctions.push_back(new Function(_::sysCall));
+		systemFunctions[Consts::SYS_CALL_THROW_TYPE_EXCEPTION] = new Function(_::sysCall);
 	}
-	{	// SYS_CALL_THROW = 3;
+	{	// SYS_CALL_THROW( [value] )
 		struct _{
-			// SYS_CALL_THROW( [value] )
 			ESF( sysCall,0,1,(runtime.setExceptionState( parameter.count()>0 ? parameter[0] : Void::get() ),static_cast<Object*>(NULL)))
 		};
-		systemFunctions.push_back(new Function(_::sysCall));
+		systemFunctions[Consts::SYS_CALL_THROW] = new Function(_::sysCall);
 	}	
-	{	// SYS_CALL_EXIT = 4;
+	{	// SYS_CALL_EXIT( [value] )
 		struct _{
-			// SYS_CALL_EXIT( [value] )
 			ESF( sysCall,0,1,(runtime.setExitState( parameter.count()>0 ? parameter[0] : Void::get() ),static_cast<Object*>(NULL)))
 		};
-		systemFunctions.push_back(new Function(_::sysCall));
+		systemFunctions[Consts::SYS_CALL_EXIT] = new Function(_::sysCall);
 	}
 	{	// SYS_CALL_GET_ITERATOR = 5;
 		struct _{
@@ -214,7 +222,40 @@ Runtime::Runtime() :
 				return it.detachAndDecrease();
 			}
 		};
-		systemFunctions.push_back(new Function(_::sysCall));
+		systemFunctions[Consts::SYS_CALL_GET_ITERATOR] = new Function(_::sysCall);
+	}
+	{	// SYS_CALL_TEST_ARRAY_PARAMETER_CONSTRAINTS( expectedTypes*, Array receivedValue )
+		struct _{
+			ES_FUNCTION( sysCall) {
+				assertParamCount(runtime,2,-1);
+				const size_t constraintEnd = parameter.size()-1;
+
+				Array * values = assertType<Array>(runtime,parameter[constraintEnd]);
+				
+				for(Array::iterator it = values->begin();it!=values->end();++it){
+					bool success = false;
+					for(size_t i = 0; i<constraintEnd; ++i){
+						if(Runtime::checkParameterConstraint(runtime,*it,parameter[i])){
+							success = true;
+							break;
+						}
+					}
+					if(!success){
+						std::ostringstream os;
+						os << "Wrong parameter type: Expected ";
+						for(size_t i = 0;i<constraintEnd;++i ){
+							if(i>0) os <<", ";
+							os<<(parameter[i].isNotNull() ? parameter[i]->toDbgString() : "???");
+						}
+						os << " but got " << (*it)->toDbgString()<<".";
+						runtime.setException(os.str());
+						return static_cast<Object*>(NULL);
+					}
+				}
+				return static_cast<Object*>(NULL);
+			}
+		};
+		systemFunctions[Consts::SYS_CALL_TEST_ARRAY_PARAMETER_CONSTRAINTS] = new Function(_::sysCall);
 	}
 
 	//ctor
@@ -233,22 +274,22 @@ Namespace * Runtime::getGlobals()const	{
 	return globals.get();
 }
 
-ObjPtr Runtime::readMemberAttribute(ObjPtr obj,const StringId id){
-	try{
-		Attribute * attr = obj->_accessAttribute(id,false);
-		if(attr==NULL){
-			return NULL;
-		}else if(attr->isPrivate() && obj!=getCallingObject()) {
-			warn("Cannot read private attribute.");
-			return NULL;
-		}
-		return attr->getValue();
-	}catch(Exception * e){
-		ERef<Exception> eHolder(e);
-		warn(eHolder->getMessage());
-		return NULL;
-	}
-}
+//ObjPtr Runtime::readMemberAttribute(ObjPtr obj,const StringId id){
+//	try{
+//		Attribute * attr = obj->_accessAttribute(id,false);
+//		if(attr==NULL){
+//			return NULL;
+//		}else if(attr->isPrivate() && obj!=getCallingObject()) {
+//			warn("Cannot read private attribute.");
+//			return NULL;
+//		}
+//		return attr->getValue();
+//	}catch(Exception * e){
+//		ERef<Exception> eHolder(e);
+//		warn(eHolder->getMessage());
+//		return NULL;
+//	}
+//}
 
 ObjPtr Runtime::getGlobalVariable(const StringId id) {
 	// \note getLocalAttribute is used to skip the members of Type
@@ -474,6 +515,13 @@ std::string Runtime::getStackInfo(){
 //	os<<"\n\n----------------------\n";
 //	return os.str();
 	return "STACKINFO"; //! \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+}
+// ---------------------------------------------------------------
+// helper
+
+//! (static)			
+bool Runtime::checkParameterConstraint(Runtime & rt,const ObjPtr & value,const ObjPtr & constraint){
+	return value->isA(constraint.toType<Type>()) || value->isIdentical(rt,constraint);
 }
 
 
@@ -702,17 +750,11 @@ Object * Runtime::executeFunctionCallContext(_Ptr<FunctionCallContext> fcc){
 				if(localVar ---|> Type || localVar == Obj)
 					push true
 				else 
-					push TypeOrObj
 					push false
 			*/
-			ObjRef localVariable = fcc->getLocalVariable(instruction.getValue_uint32());
-			ObjRef typeOrObj = fcc->stack_popObject();
-			if(localVariable->isA(typeOrObj.toType<Type>()) || localVariable->isIdentical(*this,typeOrObj)){
-				fcc->stack_pushBool(true);
-			}else{
-				fcc->stack_pushObject(typeOrObj);
-				fcc->stack_pushBool(false);
-			}
+			const ObjPtr localVariable = fcc->getLocalVariable(instruction.getValue_uint32());
+			const ObjRef typeOrObj = fcc->stack_popObject();
+			fcc->stack_pushBool( checkParameterConstraint(*this,localVariable,typeOrObj) );
 			continue;
 		}
 		case Instruction::I_DUP:{

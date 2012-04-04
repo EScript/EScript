@@ -56,9 +56,9 @@ class Runtime : public ExtObject  {
 //		void assignToVariable(const StringId id,Object * value);
 		bool assignToAttribute(ObjPtr obj,StringId attrId,ObjPtr value);
 	public:
-		/*! returns the object's attribute with the given id. If the attribute can not be found, NULL is returned.
-			If the attribute can be found but not accessed, a warning is emitted and NULL is returned. */
-		ObjPtr readMemberAttribute(ObjPtr obj,const StringId id);
+//		/*! returns the object's attribute with the given id. If the attribute can not be found, NULL is returned.
+//			If the attribute can be found but not accessed, a warning is emitted and NULL is returned. */
+//		ObjPtr readMemberAttribute(ObjPtr obj,const StringId id);
 
 		ERef<Namespace> globals;
 	// 	@}
@@ -84,6 +84,7 @@ class Runtime : public ExtObject  {
 		void setStackSizeLimit(size_t s)				{	stackSizeLimit = s;	}
 
 	private:
+		static bool checkParameterConstraint(Runtime & rt,const ObjPtr & value,const ObjPtr & constraint);
 //		Object * executeBlock(AST::BlockStatement * block);
 
 //		ObjRef callingObject;

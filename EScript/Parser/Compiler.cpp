@@ -471,7 +471,7 @@ bool initHandler(handlerRegistry_t & m){
 		}
 	})
 
-	// IfStatement
+	// for-statement
 	ADD_HANDLER( _TypeIds::TYPE_LOOP_STATEMENT, LoopStatement, {
 		const uint32_t loopBegin = ctxt.createMarker();
 		const uint32_t loopEndMarker = ctxt.createMarker();
@@ -508,7 +508,7 @@ bool initHandler(handlerRegistry_t & m){
 	})
 
 
-	// IfStatement
+	// if-statement
 	ADD_HANDLER( _TypeIds::TYPE_SET_ATTRIBUTE_EXPRESSION, SetAttributeExpr, {
 		ctxt.compile(self->getValueExpression());
 
@@ -593,8 +593,7 @@ bool initHandler(handlerRegistry_t & m){
 		ctxt.addInstruction(Instruction::createSetMarker(endMarker));
 	})
 
-	// ------------------------
-	// Other objects
+	// user function
 	ADD_HANDLER( _TypeIds::TYPE_USER_FUNCTION_EXPRESSION, UserFunctionExpr, {
 
 		ERef<UserFunction> fun = new UserFunction();
@@ -639,23 +638,49 @@ bool initHandler(handlerRegistry_t & m){
 			if(typeExpressions.empty())
 				continue;
 			const int varIdx = ctxt2.getCurrentVarIndex(param.getName());	// \todo assert(varIdx>=0)
-			const uint32_t typeOkMarker = ctxt2.createMarker();
 			
-			for(std::vector<ObjRef>::const_iterator it2 = typeExpressions.begin();it2!=typeExpressions.end();++it2){
-				if(it2!=typeExpressions.begin())
-					ctxt2.addInstruction(Instruction::createPop());
 
-				ctxt2.compile( *it2 );
-				ctxt2.addInstruction(Instruction::createCheckType(varIdx));
-				ctxt2.addInstruction(Instruction::createJmpOnTrue(typeOkMarker));
-			}
-			// type check failed! -> topmost element on stack is the last checked type (used for the error message)
-			ctxt2.addInstruction(Instruction::createGetLocalVariable(varIdx));
-			ctxt2.addInstruction(Instruction::createPushUInt(Consts::SYS_CALL_THROW_TYPE_EXCEPTION));
-			ctxt2.addInstruction(Instruction::createSysCall(2));
-			ctxt2.addInstruction(Instruction::createJmp( Instruction::INVALID_JUMP_ADDRESS ));
 			
-			ctxt2.addInstruction(Instruction::createSetMarker(typeOkMarker));
+			// if the parameter has value constrains AND is a multi parameter, use a special system-call for this (instead of manually creating a foreach-loop here)
+			// e.g. fn([Bool,Number] p*){...}
+			if(param.isMultiParam()){
+//				ctxt2.addInstruction(Instruction::createPush(varIdx));
+				for(std::vector<ObjRef>::const_iterator it2 = typeExpressions.begin();it2!=typeExpressions.end();++it2){
+					ctxt2.compile( *it2 );
+				}
+				ctxt2.addInstruction(Instruction::createGetLocalVariable(varIdx));
+				ctxt2.addInstruction(Instruction::createPushUInt(Consts::SYS_CALL_TEST_ARRAY_PARAMETER_CONSTRAINTS));
+				ctxt2.addInstruction(Instruction::createSysCall( typeExpressions.size()+1 ));
+				ctxt2.addInstruction(Instruction::createPop());
+				
+			}else{
+				std::vector<uint32_t> constrainOkMarkers; // each constrain gets its own ok-marker
+				for(std::vector<ObjRef>::const_iterator it2 = typeExpressions.begin();it2!=typeExpressions.end();++it2){
+					const uint32_t constrainOkMarker = ctxt2.createMarker();
+					constrainOkMarkers.push_back(constrainOkMarker);
+					
+					ctxt2.compile( *it2 );
+					ctxt2.addInstruction(Instruction::createDup()); // store the constraint for the error message
+					ctxt2.addInstruction(Instruction::createCheckType(varIdx));
+					ctxt2.addInstruction(Instruction::createJmpOnTrue(constrainOkMarker));
+				}
+					
+				// all constraint-checks failed! -> stack contains all failed constraints
+				ctxt2.addInstruction(Instruction::createGetLocalVariable(varIdx));
+				ctxt2.addInstruction(Instruction::createPushUInt(Consts::SYS_CALL_THROW_TYPE_EXCEPTION));
+				ctxt2.addInstruction(Instruction::createSysCall( constrainOkMarkers.size()+1 ));
+				ctxt2.addInstruction(Instruction::createJmp( Instruction::INVALID_JUMP_ADDRESS ));
+				
+				// depending on which constraint-check succeeded, pop the constraint-values from the stack
+				for(std::vector<uint32_t>::const_reverse_iterator cIt = constrainOkMarkers.rbegin();cIt!=constrainOkMarkers.rend();++cIt){
+					ctxt2.addInstruction(Instruction::createSetMarker(*cIt));
+					ctxt2.addInstruction(Instruction::createPop());
+				}
+			}
+//			ctxt2.addInstruction(Instruction::createSetMarker(lastTypeOkMarker));
+//			ctxt2.addInstruction(Instruction::createPop()); //the last constraint was the right one -> remove the unused type info from the stack.
+//			
+//			ctxt2.addInstruction(Instruction::createSetMarker(typeOkMarker));
 		}
 
 		// add super-constructor parameters

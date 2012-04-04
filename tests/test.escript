@@ -1,9 +1,3 @@
-//var f=fn( Bool p3*){};
-//
-//f(3);
-//
-//
-//exit(1);
 
 // Testcases for HasEScript Scripting-Language
 out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
