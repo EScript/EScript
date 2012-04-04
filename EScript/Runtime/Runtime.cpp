@@ -617,11 +617,11 @@ Object * Runtime::executeFunctionCallContext(_Ptr<FunctionCallContext> fcc){
 		switch(instruction.getType()){
 
 		case Instruction::I_ASSIGN_ATTRIBUTE:{
-			/*	value = popValueObject
-				object = popObject
+			/*	object = popObject
+				value = popValueObject
 				if object.identifier and not const and not private then object.identifier = value	*/
-			ObjRef value = fcc->stack_popObjectValue();
 			ObjRef obj = fcc->stack_popObject();
+			ObjRef value = fcc->stack_popObjectValue();
 
 			Attribute * attr = obj->_accessAttribute(instruction.getValue_Identifier(),false);
 
@@ -1188,10 +1188,11 @@ Runtime::executeFunctionResult_t Runtime::startInstanceCreation(EPtr<Type> type,
 	
 	// collect constructors
 	std::vector<ObjPtr> constructors;
+	EPtr<Type> typeCursor = type;
 	do{
-		const Attribute * ctorAttr = type->_accessAttribute(Consts::IDENTIFIER_fn_constructor,true);
+		const Attribute * ctorAttr = typeCursor->_accessAttribute(Consts::IDENTIFIER_fn_constructor,true);
 		if(ctorAttr==NULL){
-			type = type->getBaseType();
+			typeCursor = typeCursor->getBaseType();
 			continue;
 		}else if(constructors.empty() && ctorAttr->isPrivate()){ // first constructor must not be private!
 			setException("Can't instanciate Type with private _contructor."); //! \todo check this!
@@ -1202,7 +1203,7 @@ Runtime::executeFunctionResult_t Runtime::startInstanceCreation(EPtr<Type> type,
 			
 			if(funType==_TypeIds::TYPE_USER_FUNCTION){
 				constructors.push_back(fun);
-				type = type->getBaseType();
+				typeCursor = typeCursor->getBaseType();
 				continue;
 			}else if(_TypeIds::TYPE_FUNCTION){
 				constructors.push_back(fun);
@@ -1212,7 +1213,7 @@ Runtime::executeFunctionResult_t Runtime::startInstanceCreation(EPtr<Type> type,
 			}
 			break;
 		}
-	}while(type.isNotNull());
+	}while(typeCursor.isNotNull());
 	
 	if(constructors.empty()) // failure
 		return failureResult;
