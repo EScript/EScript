@@ -49,8 +49,6 @@ class FunctionCallExpr : public Object {
 		Object * getParamExpression(size_t i)const		{	return parameters[i].get();	}
 
 		/// ---|> [Object]
-		virtual std::string toString()const;
-		virtual std::string toDbgString()const;
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_FUNCTION_CALL_EXPRESSION; }
 
 	protected:

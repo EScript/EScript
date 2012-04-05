@@ -4,15 +4,9 @@
 // ------------------------------------------------------
 #include "Runtime.h"
 #include "FunctionCallContext.h"
+#include "RuntimeInternals.h"
+
 #include "../EScript.h"
-#include "../Objects/AST/ConditionalExpr.h"
-#include "../Objects/AST/GetAttributeExpr.h"
-#include "../Objects/AST/SetAttributeExpr.h"
-#include "../Objects/AST/BlockStatement.h"
-#include "../Objects/AST/IfStatement.h"
-#include "../Objects/AST/FunctionCallExpr.h"
-#include "../Objects/AST/LogicOpExpr.h"
-#include "../Objects/AST/Statement.h"
 #include "../Objects/Values/Void.h"
 #include "../Objects/Exception.h"
 #include "../Objects/Callables/Function.h"
@@ -144,7 +138,7 @@ void Runtime::init(EScript::Namespace & globals) {
 
 //! (ctor)
 Runtime::Runtime() :
-		ExtObject(Runtime::getTypeObject()), stackSizeLimit(512),activeInstructionPos(-1),
+		ExtObject(Runtime::getTypeObject()), internals(new RuntimeInternals(*this)), stackSizeLimit(512),activeInstructionPos(-1),
 		state(STATE_NORMAL),logger(new LoggerGroup(Logger::LOG_WARNING)){
 
 	logger->addLogger("coutLogger",new StdLogger(std::cout));
@@ -152,112 +146,6 @@ Runtime::Runtime() :
 	globals = EScript::getSGlobals()->clone();
 	declareConstant(globals.get(),"GLOBALS",globals.get());
 	declareConstant(globals.get(),"SGLOBALS",EScript::getSGlobals());
-
-	systemFunctions.resize(7);
-
-	//! init system calls \note the order of the functions MUST correspond to their funcitonId as defined in Consts.h
-	{	// SYS_CALL_CREATE_ARRAY = 0;
-		struct _{
-			ESF( sysCall,0,-1,Array::create(parameter) )
-		};
-		systemFunctions[Consts::SYS_CALL_CREATE_ARRAY] = new Function(_::sysCall);
-	}	
-	{	// SYS_CALL_CREATE_MAP = 1;
-		struct _{
-			ES_FUNCTION( sysCall) {
-					if ( (parameter.count()%2)==1 ) runtime.warn("Map: Last parameter ignored!");
-					Map * a=Map::create();
-					for (ParameterValues::size_type i=0;i<parameter.count();i+=2)
-						a->setValue(parameter[i],parameter[i+1]);
-				return a;			
-			}
-		};
-		systemFunctions[Consts::SYS_CALL_CREATE_MAP] = new Function(_::sysCall);
-	}
-	{	// SYS_CALL_THROW_TYPE_EXCEPTION( expectedType, receivedValue )
-		struct _{
-			ES_FUNCTION( sysCall) {
-				assertParamCount(runtime,2,-1);
-				std::ostringstream os;
-				os << "Wrong parameter type: Expected ";
-				for(size_t i = 0;i<parameter.size()-1;++i ){
-					if(i>0) os <<", ";
-					os<<(parameter[i].isNotNull() ? parameter[i]->toDbgString() : "???");
-				}
-				os << " but got " << parameter[parameter.size()-1]->toDbgString()<<".";
-				runtime.setException(os.str());
-				return static_cast<Object*>(NULL);
-			}
-		};
-		systemFunctions[Consts::SYS_CALL_THROW_TYPE_EXCEPTION] = new Function(_::sysCall);
-	}
-	{	// SYS_CALL_THROW( [value] )
-		struct _{
-			ESF( sysCall,0,1,(runtime.setExceptionState( parameter.count()>0 ? parameter[0] : Void::get() ),static_cast<Object*>(NULL)))
-		};
-		systemFunctions[Consts::SYS_CALL_THROW] = new Function(_::sysCall);
-	}	
-	{	// SYS_CALL_EXIT( [value] )
-		struct _{
-			ESF( sysCall,0,1,(runtime.setExitState( parameter.count()>0 ? parameter[0] : Void::get() ),static_cast<Object*>(NULL)))
-		};
-		systemFunctions[Consts::SYS_CALL_EXIT] = new Function(_::sysCall);
-	}
-	{	// SYS_CALL_GET_ITERATOR = 5;
-		struct _{
-			ES_FUNCTION( sysCall) {
-				assertParamCount(runtime,1,1);
-				ObjRef it;
-				if(	Collection * c=parameter[0].toType<Collection>()){
-					it = c->getIterator();
-				}else if(parameter[0].toType<YieldIterator>()){
-					it = parameter[0].get();
-				}else {
-					it = callMemberFunction(runtime,parameter[0] ,Consts::IDENTIFIER_fn_getIterator,ParameterValues());
-				}
-				if(it==NULL){
-					runtime.setException("Could not get iterator from '" + parameter[0]->toDbgString() + '\'');
-					return NULL;
-				}
-				return it.detachAndDecrease();
-			}
-		};
-		systemFunctions[Consts::SYS_CALL_GET_ITERATOR] = new Function(_::sysCall);
-	}
-	{	// SYS_CALL_TEST_ARRAY_PARAMETER_CONSTRAINTS( expectedTypes*, Array receivedValue )
-		struct _{
-			ES_FUNCTION( sysCall) {
-				assertParamCount(runtime,2,-1);
-				const size_t constraintEnd = parameter.size()-1;
-
-				Array * values = assertType<Array>(runtime,parameter[constraintEnd]);
-				
-				for(Array::iterator it = values->begin();it!=values->end();++it){
-					bool success = false;
-					for(size_t i = 0; i<constraintEnd; ++i){
-						if(Runtime::checkParameterConstraint(runtime,*it,parameter[i])){
-							success = true;
-							break;
-						}
-					}
-					if(!success){
-						std::ostringstream os;
-						os << "Wrong parameter type: Expected ";
-						for(size_t i = 0;i<constraintEnd;++i ){
-							if(i>0) os <<", ";
-							os<<(parameter[i].isNotNull() ? parameter[i]->toDbgString() : "???");
-						}
-						os << " but got " << (*it)->toDbgString()<<".";
-						runtime.setException(os.str());
-						return static_cast<Object*>(NULL);
-					}
-				}
-				return static_cast<Object*>(NULL);
-			}
-		};
-		systemFunctions[Consts::SYS_CALL_TEST_ARRAY_PARAMETER_CONSTRAINTS] = new Function(_::sysCall);
-	}
-
 	//ctor
 }
 
@@ -273,23 +161,6 @@ Runtime::~Runtime() {
 Namespace * Runtime::getGlobals()const	{
 	return globals.get();
 }
-
-//ObjPtr Runtime::readMemberAttribute(ObjPtr obj,const StringId id){
-//	try{
-//		Attribute * attr = obj->_accessAttribute(id,false);
-//		if(attr==NULL){
-//			return NULL;
-//		}else if(attr->isPrivate() && obj!=getCallingObject()) {
-//			warn("Cannot read private attribute.");
-//			return NULL;
-//		}
-//		return attr->getValue();
-//	}catch(Exception * e){
-//		ERef<Exception> eHolder(e);
-//		warn(eHolder->getMessage());
-//		return NULL;
-//	}
-//}
 
 ObjPtr Runtime::getGlobalVariable(const StringId id) {
 	// \note getLocalAttribute is used to skip the members of Type
@@ -331,26 +202,10 @@ bool Runtime::assignToAttribute(ObjPtr obj,StringId attrId,ObjPtr value){
 // ---- States
 
 //! (internal)
-bool Runtime::stateError(Object * obj){
+bool Runtime::stateError(){
 	switch(getState()){
 		case STATE_NORMAL:{
 			return true;
-		}
-		case STATE_RETURNING:{
-			setException("No return here!"+(obj?" ["+obj->toString()+']':""));
-			break;
-		}
-		case STATE_BREAKING:{
-			setException("No break here!"+(obj?" ["+obj->toString()+']':""));
-			break;
-		}
-		case STATE_CONTINUING:{
-			setException("No continue here!"+(obj?" ["+obj->toString()+']':""));
-			break;
-		}
-		case STATE_YIELDING:{
-			setException("No yield here!"+(obj?" ["+obj->toString()+']':""));
-			break;
 		}
 		case STATE_EXITING:{
 			break;
@@ -989,7 +844,7 @@ Object * Runtime::executeFunctionCallContext(_Ptr<FunctionCallContext> fcc){
 				params.set(i,paramValue);
 				paramRefHolder.push_back(paramValue);
 			}
-			fcc->stack_pushObject(sysCall(funId,params));
+			fcc->stack_pushObject(internals->sysCall(funId,params));
 			break;
 		}
 		case Instruction::I_YIELD:{
@@ -1245,20 +1100,6 @@ Runtime::executeFunctionResult_t Runtime::startInstanceCreation(EPtr<Type> type,
 		}
 	}
 	return failureResult;
-}
-
-
-//! (internal)
-Object * Runtime::sysCall(uint32_t sysFnId,ParameterValues & params){
-	Function * fn = NULL;
-	if(sysFnId<systemFunctions.size()){
-		fn = systemFunctions.at(sysFnId).get();
-	}
-	if(!fn){
-		setException("Unknown systemCall."); // \todo improve message
-		return NULL;
-	}
-	return fn->getFnPtr()(*this,NULL,params);
 }
 
 void Runtime::yieldNext(YieldIterator & yIt){

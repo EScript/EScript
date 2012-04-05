@@ -13,18 +13,19 @@
 #include <stack>
 #include <vector>
 #include <string>
+#include <memory>
+
 
 namespace EScript {
-namespace AST{
-class BlockStatement;
-class FunctionCallExpr;
-}
+
 class Function;
 class UserFunction;
 class Exception;
 class FunctionCallContext;
 class StringData;
 class YieldIterator;
+
+class RuntimeInternals;
 
 
 /*! [Runtime] ---|> [ExtObject]    */
@@ -38,6 +39,8 @@ class Runtime : public ExtObject  {
 
 	/// @name Main
 	// 	@{
+	private:
+		std::auto_ptr<RuntimeInternals> internals;
 	public:
 		Runtime();
 		virtual ~Runtime();
@@ -69,26 +72,16 @@ class Runtime : public ExtObject  {
 	// 	@{
 	public:
 		Object * eval(const StringData & code);
-//		Object * executeObj(Object * obj);
 
-//		void setCallingObject(Object * obj)				{  callingObject=obj;	}
 		ObjPtr getCallingObject()const 					{  return activeFCCs.empty() ? NULL : activeFCCs.back()->getCaller();	}
 
-//		RuntimeContext * getCurrentContext()const		{	return contextStack.top().get();	}
-//		void pushContext(RuntimeContext * s)			{	contextStack.push(s);	}
-//		void popContext()								{	contextStack.pop();		}
-//		Object * executeCurrentContext(bool markEntry=false);
 
 		size_t getStackSize()const						{	return activeFCCs.size();	}
 		size_t getStackSizeLimit()const					{	return stackSizeLimit;	}
 		void setStackSizeLimit(size_t s)				{	stackSizeLimit = s;	}
 
-	private:
 		static bool checkParameterConstraint(Runtime & rt,const ObjPtr & value,const ObjPtr & constraint);
-//		Object * executeBlock(AST::BlockStatement * block);
-
-//		ObjRef callingObject;
-//		std::stack<RuntimeContext::RTBRef> contextStack;
+	private:
 		size_t stackSizeLimit;
 	//	@}
 
@@ -108,9 +101,6 @@ class Runtime : public ExtObject  {
 		executeFunctionResult_t startInstanceCreation(EPtr<Type> type,ParameterValues & params);
 	
 		Object * executeFunctionCallContext(_Ptr<FunctionCallContext> fcc);
-
-		Object * sysCall(uint32_t sysFnId,ParameterValues & params);
-		std::vector<ERef<Function> > systemFunctions;
 		
 		
 		std::vector<_CountedRef<FunctionCallContext> > activeFCCs;
@@ -129,37 +119,13 @@ class Runtime : public ExtObject  {
 
 	// ------------------------------------------------
 
-	/// @name Function execution
-	// 	@{
-	public:
-//		Object * executeFunctionCall(AST::FunctionCallExpr * fCall);
-//		Object * executeFunction(const ObjPtr & fun,const ObjPtr & callingObject,const ParameterValues & params,bool isConstructor=false);
-	private:
-//		RuntimeContext * createAndPushFunctionCallContext(const ObjPtr & callingObject,UserFunction * ufun,const ParameterValues & paramValues);
-//		Object * executeUserConstructor(const ObjPtr & _callingObject,const ParameterValues & paramValues);
-//		bool checkType(const StringId & name,Object * obj,Object *typeExpression);
-//		/*! (internal) Used to track the status of the active function calls (for stack traces) */
-//		struct FunctionCallInfo{
-//			AST::FunctionCallExpr * funCall;
-//			Object * callingObject;
-//			Object * function;
-//			ParameterValues * parameterValues;
-//
-//			FunctionCallInfo(AST::FunctionCallExpr * _funCall,Object * _callingObject,Object * _function,ParameterValues * _pValues):
-//				funCall(_funCall),callingObject(_callingObject),function(_function),parameterValues(_pValues) { }
-//		};
-//		std::vector<FunctionCallInfo> functionCallStack;
-	//	@}
-
-	// ------------------------------------------------
-
 	/// @name States
 	// 	@{
 	public:
 		enum state_t{
-			STATE_NORMAL,STATE_BREAKING,STATE_CONTINUING,STATE_RETURNING,STATE_YIELDING,STATE_EXITING,STATE_EXCEPTION
+			STATE_NORMAL,STATE_EXITING,STATE_EXCEPTION
 		};
-		bool assertNormalState(Object * obj=NULL) 		{	return state==STATE_NORMAL ? true : stateError(obj);	}
+		bool assertNormalState() 						{	return state==STATE_NORMAL ? true : stateError();	}
 
 		bool checkNormalState()const					{	return state==STATE_NORMAL;	}
 		state_t getState()const							{	return state;	}
@@ -190,16 +156,6 @@ class Runtime : public ExtObject  {
 		 */
 		void throwException(const std::string & s,Object * obj=NULL);
 
-	private:
-		void setState(state_t newState)					{	state=newState; /* TODO only when state was 0? */ }
-		void setReturnState(const ObjRef & value) {
-			returnRef=value;
-			state=STATE_RETURNING;
-		}
-		void setYieldingState(const ObjRef & value) {
-			returnRef=value;
-			state=STATE_YIELDING;
-		}
 		void setExitState(const ObjRef & value) {
 			returnRef=value;
 			state=STATE_EXITING;
@@ -208,7 +164,9 @@ class Runtime : public ExtObject  {
 			returnRef=exceptionObj;
 			state=STATE_EXCEPTION;
 		}
-		bool stateError(Object * obj);
+		
+	private:
+		bool stateError();
 		state_t state;
 		ObjRef returnRef;
 	// 	@}

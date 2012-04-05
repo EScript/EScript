@@ -50,13 +50,13 @@ set(ESCRIPT_SOURCES
 	EScript/Parser/Tokenizer.cpp
 	EScript/Runtime/FunctionCallContext.cpp
 	EScript/Runtime/Runtime.cpp
+	EScript/Runtime/RuntimeInternals.cpp
 	EScript/Utils/AttributeContainer.cpp
 	EScript/Utils/Debug.cpp
 	EScript/Utils/Hashing.cpp
 	EScript/Utils/Helper.cpp
 	EScript/Utils/IO/DefaultFileSystemHandler.cpp
 	EScript/Utils/IO/IO.cpp
-	EScript/Utils/LocalVarMap.cpp
 	EScript/Utils/Logger.cpp
 	EScript/Utils/StringData.cpp
 	EScript/Utils/StringUtils.cpp

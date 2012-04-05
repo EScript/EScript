@@ -15,21 +15,19 @@ namespace AST {
 class GetAttributeExpr : public Object {
 		ES_PROVIDES_TYPE_NAME(GetAttributeExpr)
 	public:
-		GetAttributeExpr(Object * obj,StringId attrId);
-		GetAttributeExpr(Object * obj,const std::string & attrName);
-		virtual ~GetAttributeExpr();
+		GetAttributeExpr(Object * _obj,StringId _attrId) : objExpression(_obj),attrId(_attrId) {}
+		virtual ~GetAttributeExpr(){}
 
 		StringId getAttrId()const				{   return attrId;  }
 		const std::string & getAttrName()const	{   return attrId.toString();    }
-		ObjPtr getObjectExpression()const		{   return objRef;    }
+		ObjPtr getObjectExpression()const		{   return objExpression;    }
 
 		/// ---|> [Object]
-		virtual std::string toString()const;
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_GET_ATTRIBUTE_EXPRESSION; }
 
 
 	private:
-		ObjRef objRef;
+		ObjRef objExpression;
 		StringId attrId;
 };
 }

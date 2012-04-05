@@ -139,29 +139,6 @@ void out(Object * obj) {
 	}
 }
 
-//
-////! (static)
-//std::pair<bool, ObjRef> execute(Runtime & runtime, AST::BlockStatement * block) {
-//	bool success = true;
-//	ObjRef result;
-//	try {
-//		runtime.executeObj(block);
-//		result = runtime.getResult();
-//		if(runtime.getState() == Runtime::STATE_EXCEPTION) {
-//			std::cout << "\nException caught (1):\n" << result.toString() << std::endl;
-//			success = false;
-//		}
-//	} catch (Object * o) {
-//		result = o;
-//		std::cout << "\nException caught (2):\n" << result.toString() << std::endl;
-//		success = false;
-//	} catch (...) {
-//		std::cout << "\nCaught unknown C++ exception." << std::endl;
-//		success = false;
-//	}
-//	return std::make_pair(success, result);
-//}
-
 //! (static)
 std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & filename) {
 	ERef<UserFunction> script;
