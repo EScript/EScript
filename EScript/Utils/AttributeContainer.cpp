@@ -23,7 +23,7 @@ void AttributeContainer::initAttributes(Runtime & rt){
 				ObjRef value = rt.createInstance(type,ParameterValues());
 				attr.setValue( value.get() );
 			}else{
-				ObjRef value = rt.executeFunction2(attr.getValue(),NULL,ParameterValues());
+				ObjRef value = rt.executeFunction(attr.getValue(),NULL,ParameterValues());
 				attr.setValue( value.get() );
 			}
 		}

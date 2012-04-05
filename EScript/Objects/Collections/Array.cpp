@@ -372,7 +372,7 @@ void Array::rt_sort(Runtime & runtime,Object * function/*=NULL*/,bool reverseOrd
 			else if (function!=NULL) { // comarement function given?
 //				executeFunction(const ObjPtr & fun,const ObjPtr & callingObject,const ParameterValues & params,bool isConstructor=false);
 				ObjRef result=callFunction(runtime,function,ParameterValues(di,dr));
-				if(!runtime.assertNormalState())
+				if(!runtime.checkNormalState())
 					return;
 				change=result.toBool();
 			}else{

@@ -47,15 +47,15 @@ void Runtime::init(EScript::Namespace & globals) {
 	declareConstant(typeObject,"LOG_ERROR",Number::create(static_cast<int>(Logger::LOG_ERROR)));
 	declareConstant(typeObject,"LOG_FATAL",Number::create(static_cast<int>(Logger::LOG_FATAL)));
 
-	//!	[ESMF] Number Runtime._getStackSize();
-	ESF_DECLARE(typeObject,"_getStackSize",0,0, Number::create(runtime.getStackSize()))
-
-	//!	[ESMF] Number Runtime._getStackSizeLimit();
-	ESF_DECLARE(typeObject,"_getStackSizeLimit",0,0, Number::create(runtime.getStackSizeLimit()))
-
-	//!	[ESMF] void Runtime._setStackSizeLimit(number);
-	ESF_DECLARE(typeObject,"_setStackSizeLimit",1,1,
-				(runtime.setStackSizeLimit(static_cast<size_t>(parameter[0].toInt())),Void::get()) )
+//	//!	[ESMF] Number Runtime._getStackSize();
+//	ESF_DECLARE(typeObject,"_getStackSize",0,0, Number::create(runtime.getStackSize()))
+//
+//	//!	[ESMF] Number Runtime._getStackSizeLimit();
+//	ESF_DECLARE(typeObject,"_getStackSizeLimit",0,0, Number::create(runtime.getStackSizeLimit()))
+//
+//	//!	[ESMF] void Runtime._setStackSizeLimit(number);
+//	ESF_DECLARE(typeObject,"_setStackSizeLimit",1,1,
+//				(runtime.setStackSizeLimit(static_cast<size_t>(parameter[0].toInt())),Void::get()) )
 
 	//!	[ESMF] void Runtime.disableLogCounting( );
 	ESF_DECLARE(typeObject,"disableLogCounting",0,1, (runtime.disableLogCounting(),Void::get()))
@@ -109,7 +109,7 @@ void Runtime::init(EScript::Namespace & globals) {
 			for(Array::iterator it=paramArr->begin();it!=paramArr->end();++it)
 				params.set(i++,*it);
 		}
-		ObjRef resultRef=runtime.executeFunction2(fun.get(),obj.get(),params);
+		ObjRef resultRef=runtime.executeFunction(fun.get(),obj.get(),params);
 		return resultRef.detachAndDecrease();
 	})
 	
@@ -125,7 +125,7 @@ void Runtime::init(EScript::Namespace & globals) {
 			for(Array::iterator it=paramArr->begin();it!=paramArr->end();++it)
 				params.set(i++,*it);
 		}
-		ObjRef resultRef=runtime.executeFunction2(fun.get(),obj.get(),params);
+		ObjRef resultRef=runtime.executeFunction(fun.get(),obj.get(),params);
 		return resultRef.detachAndDecrease();
 	})
 
@@ -138,35 +138,19 @@ void Runtime::init(EScript::Namespace & globals) {
 
 //! (ctor)
 Runtime::Runtime() :
-		ExtObject(Runtime::getTypeObject()), internals(new RuntimeInternals(*this)), stackSizeLimit(512),activeInstructionPos(-1),
-		state(STATE_NORMAL),logger(new LoggerGroup(Logger::LOG_WARNING)){
+		ExtObject(Runtime::getTypeObject()), internals(new RuntimeInternals(*this)), 
+//		stackSizeLimit(512),
+		logger(new LoggerGroup(Logger::LOG_WARNING)){
 
 	logger->addLogger("coutLogger",new StdLogger(std::cout));
-
-	globals = EScript::getSGlobals()->clone();
-	declareConstant(globals.get(),"GLOBALS",globals.get());
-	declareConstant(globals.get(),"SGLOBALS",EScript::getSGlobals());
 	//ctor
 }
 
 //! (dtor)
 Runtime::~Runtime() {
-	declareConstant(globals.get(), "GLOBALS",NULL);
 	//dtor
 }
 
-// ----------------------------------------------------------------------
-// ---- Variables
-
-Namespace * Runtime::getGlobals()const	{
-	return globals.get();
-}
-
-ObjPtr Runtime::getGlobalVariable(const StringId id) {
-	// \note getLocalAttribute is used to skip the members of Type
-	// 	which are otherwise found as false global variables  [BUG20100618]
-	return globals->getLocalAttribute(id).getValue();
-}
 
 
 bool Runtime::assignToAttribute(ObjPtr obj,StringId attrId,ObjPtr value){
@@ -194,76 +178,69 @@ bool Runtime::assignToAttribute(ObjPtr obj,StringId attrId,ObjPtr value){
 	return true;
 }
 
-// ----------------------------------------------------------------------
-// ---- General execution
+bool Runtime::checkNormalState()const				{	return internals->checkNormalState();	}
 
-
-// ----------------------------------------------------------------------
-// ---- States
-
-//! (internal)
-bool Runtime::stateError(){
-	switch(getState()){
-		case STATE_NORMAL:{
-			return true;
-		}
-		case STATE_EXITING:{
-			break;
-		}
-		case STATE_EXCEPTION:{
-			// we are already in an exception state...
-			break;
-		}
-		default:
-			setException("Unknown runtime state.");
+ObjRef Runtime::createInstance(const EPtr<Type> & type,const ParameterValues & _params){
+	if(!internals->checkNormalState())
+		return NULL;
+	ParameterValues params(_params);
+	RuntimeInternals::executeFunctionResult_t result = internals->startInstanceCreation(type,params);
+	ObjRef realResult;
+	if(result.second){
+		_CountedRef<FunctionCallContext> fcc = result.second;
+		realResult = internals->executeFunctionCallContext(fcc);
+	}else{
+		realResult = result.first;
 	}
-	return false;
+	// error occured? throw an exception!
+	if(internals->getState()==RuntimeInternals::STATE_EXCEPTION){
+		realResult = internals->getResult();
+		internals->resetState();
+		throw(realResult.detachAndDecrease());
+	}
+	return realResult;
 }
 
-
-void Runtime::info(const std::string & s) {
-	logger->info(s);
+ObjRef Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & caller,const ParameterValues & _params){
+	if(!internals->checkNormalState())
+		return NULL;
+	ParameterValues params(_params);
+	RuntimeInternals::executeFunctionResult_t result = internals->startFunctionExecution(fun,caller,params);
+	ObjRef realResult;
+	if(result.second){
+		_CountedRef<FunctionCallContext> fcc = result.second;
+		realResult = internals->executeFunctionCallContext(fcc);
+	}else{
+		realResult = result.first;
+	}
+	// error occured? throw an exception!
+	if(internals->getState()==RuntimeInternals::STATE_EXCEPTION){
+		realResult = internals->getResult();
+		internals->resetState();
+		throw(realResult.detachAndDecrease());
+	}
+	return realResult;
 }
 
+ObjPtr Runtime::getCallingObject()const				{	return internals->getCallingObject();	}
 
-void Runtime::warn(const std::string & s) {
-	std::ostringstream os;
-	os << s;
-//	if(getActiveFCC()!=NULL){
-//		AST::BlockStatement * b=getCurrentContext()->getCurrentRTB()->getStaticBlock();
-//		if(b!=NULL)
-//			os<<" ('"<<b->getFilename()<<"':~"<<getCurrentLine()<<")";
-			os<<" ('"<<"':~"<<getCurrentLine()<<")";
-//	}
-	logger->warn(os.str());
-}
+int Runtime::getCurrentLine()const					{	return internals->getCurrentLine();	}
 
+Namespace * Runtime::getGlobals()const				{	return internals->getGlobals();	}
 
+void Runtime::info(const std::string & s)			{	logger->info(s);	}
 
-void Runtime::setException(const std::string & s) {
-	Exception * e = new Exception(s,getCurrentLine());
-	e->setFilename(getCurrentFile());
-	setException(e);
-}
+std::string Runtime::getCurrentFile()const			{	return internals->getCurrentFile();	}
 
-void Runtime::setException(Exception * e){
-	e->setStackInfo(getStackInfo());
-	setExceptionState(e);
-}
+void Runtime::_setExceptionState(const ObjPtr e)	{	internals->setExceptionState(e);	}
 
-void Runtime::throwException(const std::string & s,Object * obj) {
-	std::ostringstream os;
-	os<<s;
-	if(obj) os<<"("<<obj->toString()<<')';
-	os<<getStackInfo();
-	Exception * e = new Exception(os.str(),getCurrentLine()); // \todo remove line
-	e->setFilename(getCurrentFile());
-	throw e;
-}
+void Runtime::setException(const std::string & s)	{	internals->setException(s);	}
+
+void Runtime::setException(Exception * e)			{	internals->setException(e);	}
+
+void Runtime::_setExitState(const ObjPtr e)			{	internals->setExitState(e);	}
 
 void Runtime::setTreatWarningsAsError(bool b){
-
-
 	if(b){ // --> disable coutLogger and add throwLogger
 		Logger * coutLogger = logger->getLogger("coutLogger");
 		if(coutLogger!=NULL)
@@ -284,9 +261,58 @@ void Runtime::setTreatWarningsAsError(bool b){
 		logger->removeLogger("throwLogger");
 	}
 }
+void Runtime::throwException(const std::string & s,Object * obj) {
+	std::ostringstream os;
+	os<<s;
+	if(obj) os<<"("<<obj->toString()<<')';
+	os<<getStackInfo();
+	Exception * e = new Exception(os.str(),getCurrentLine()); // \todo remove line
+	e->setFilename(getCurrentFile());
+	throw e;
+}
 
-// ----------------------------------------------------------------------
-// ---- Debugging
+void Runtime::warn(const std::string & s) {
+	std::ostringstream os;
+	os << s;
+//	if(getActiveFCC()!=NULL){
+//		AST::BlockStatement * b=getCurrentContext()->getCurrentRTB()->getStaticBlock();
+//		if(b!=NULL)
+//			os<<" ('"<<b->getFilename()<<"':~"<<getCurrentLine()<<")";
+			os<<" ('"<<"':~"<<getCurrentLine()<<")";
+//	}
+	logger->warn(os.str());
+}
+
+
+void Runtime::yieldNext(YieldIterator & yIt){
+	_Ptr<FunctionCallContext> fcc = yIt.getFCC();
+	if(fcc.isNull()){
+		setException("Invalid YieldIterator");
+		return;
+	}
+	ObjRef result = internals->executeFunctionCallContext( fcc );
+	// error occured? throw an exception!
+	if(internals->getState()==RuntimeInternals::STATE_EXCEPTION){
+		result = internals->getResult();
+		internals->resetState();
+		throw(result.detachAndDecrease());
+	}
+	
+	ERef<YieldIterator> newYieldIterator = result.toType<YieldIterator>();
+	
+	// function exited with another yield? -> reuse the data for the current iterator
+	if(newYieldIterator.isNotNull()){
+		yIt.setFCC( newYieldIterator->getFCC() );
+		yIt.setValue( newYieldIterator->value() );
+	} // function returned without yield? -> update and terminate the current iterator
+	else{
+		yIt.setFCC( NULL );
+		yIt.setValue( result );
+	}
+
+}
+// ----------------------------------------------------------------------------------
+// ---- Logging
 
 //! CountingLogger ---|> Logger
 class CountingLogger : public Logger{
@@ -322,20 +348,6 @@ uint32_t Runtime::getLogCounter(Logger::level_t level)const{
 	return l==NULL ? 0 : l->get(level);
 }
 
-std::string Runtime::getCurrentFile()const{
-	if(getActiveFCC().isNotNull()){
-		return getActiveFCC()->getUserFunction()->getFilename();
-	}
-	return std::string();
-}
-
-int Runtime::getCurrentLine()const{
-	if(getActiveFCC().isNotNull() && activeInstructionPos>=0){
-		return getActiveFCC()->getInstructions().getLine(activeInstructionPos);
-	}else{
-		return -1;
-	}
-}
 
 std::string Runtime::getStackInfo(){
 //	std::ostringstream os;
@@ -371,763 +383,7 @@ std::string Runtime::getStackInfo(){
 //	return os.str();
 	return "STACKINFO"; //! \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
-// ---------------------------------------------------------------
-// helper
-
-//! (static)			
-bool Runtime::checkParameterConstraint(Runtime & rt,const ObjPtr & value,const ObjPtr & constraint){
-	return value->isA(constraint.toType<Type>()) || value->isIdentical(rt,constraint);
-}
-
 
 // ------------------------------------------------------------------
-ObjRef Runtime::executeFunction2(const ObjPtr & fun,const ObjPtr & caller,const ParameterValues & _params){
-	assertNormalState();
-	ParameterValues params(_params);
-	executeFunctionResult_t result = startFunctionExecution(fun,caller,params);
-	ObjRef realResult;
-	if(result.second){
-		_CountedRef<FunctionCallContext> fcc = result.second;
-		realResult = executeFunctionCallContext(fcc);
-	}else{
-		realResult = result.first;
-	}
-	// error occured? throw an exception!
-	if(getState()==STATE_EXCEPTION){
-		realResult = getResult();
-		resetState();
-		throw(realResult.detachAndDecrease());
-	}
-	return realResult;
-}
-
-ObjRef Runtime::createInstance(const EPtr<Type> & type,const ParameterValues & _params){
-	assertNormalState();
-	ParameterValues params(_params);
-	executeFunctionResult_t result = startInstanceCreation(type,params);
-	ObjRef realResult;
-	if(result.second){
-		_CountedRef<FunctionCallContext> fcc = result.second;
-		realResult = executeFunctionCallContext(fcc);
-	}else{
-		realResult = result.first;
-	}
-	// error occured? throw an exception!
-	if(getState()==STATE_EXCEPTION){
-		realResult = getResult();
-		resetState();
-		throw(realResult.detachAndDecrease());
-	}
-	return realResult;
-}
-
-//! (internal)
-Object * Runtime::executeFunctionCallContext(_Ptr<FunctionCallContext> fcc){
-
-	fcc->enableStopExecutionAfterEnding();
-	pushActiveFCC(fcc);
-	InstructionBlock * instructions = &fcc->getInstructions();
-
-//std::cout << fcc->getInstructions().toString()<<"\n";
-
-	while( true ){
-		// end of function? continue with calling function
-		if(fcc->getInstructionCursor() >= instructions->getNumInstructions()){
-			ObjRef result = fcc->getLocalVariable(Consts::LOCAL_VAR_INDEX_internalResult);
-			if(fcc->isConstructorCall()){
-				if(result.isNotNull()){
-					warn("Constructors should not return a value.");
-				}
-				// \note the local variable $0 contains the created object, "fcc->getCaller()" contains the instanciated Type-Object.
-				result = fcc->getLocalVariable(Consts::LOCAL_VAR_INDEX_this); 
-			}
-			if(fcc->isExecutionStoppedAfterEnding()){
-				popActiveFCC();
-				return result.detachAndDecrease();
-			}
-			popActiveFCC();
-			fcc = getActiveFCC();
-			if(fcc.isNull()){ //! just to be safe (should never occur)
-				return result.detachAndDecrease();
-			}
-			
-			instructions = &fcc->getInstructions();
-			if(fcc->isAwaitingCaller()){
-				fcc->initCaller(result);
-			}else{
-				fcc->stack_pushObject(result);
-			}
-			continue;
-		}
-
-		//! \todo this could probably improved by using iterators internally!
-		activeInstructionPos = fcc->getInstructionCursor();
-		const Instruction & instruction = instructions->getInstruction(activeInstructionPos);
-		fcc->increaseInstructionCursor();
-//
-//		std::cout << fcc->stack_toDbgString()<<"\n";
-//		std::cout << instruction.toString(*instructions)<<"\n";
-
-		// --------------------------------------------------------------------------------------------------------------
-		// Instructio execution...
-		
-		switch(instruction.getType()){
-
-		case Instruction::I_ASSIGN_ATTRIBUTE:{
-			/*	object = popObject
-				value = popValueObject
-				if object.identifier and not const and not private then object.identifier = value	*/
-			ObjRef obj = fcc->stack_popObject();
-			ObjRef value = fcc->stack_popObjectValue();
-
-			Attribute * attr = obj->_accessAttribute(instruction.getValue_Identifier(),false);
-
-			if(attr){
-				if(attr->getProperties()&Attribute::ASSIGNMENT_RELEVANT_BITS){
-					if(attr->isConst()){
-						setException("Cannot assign to const attribute.");
-						break;
-					}else if(attr->isPrivate() && fcc->getCaller()!=obj ) {
-						setException("Cannot access private attribute from outside of it owning object.");
-						break;
-					}
-				}
-				attr->setValue(value.get());
-			}else{
-				warn("Attribute not found..."); //! \todo proper warning!
-			}
-			continue;
-		}
-		case Instruction::I_ASSIGN_LOCAL:{
-			/* 	assignLocal (uint32_t) variableIndex
-				------------
-				pop value
-				$variableIndex = value	*/
-			fcc->assignToLocalVariable(instruction.getValue_uint32(), fcc->stack_popObjectValue());
-			continue;
-		}
-
-		case Instruction::I_ASSIGN_VARIABLE:{
-			/*	value = popValueObject
-				if caller.identifier then caller.identifier = value
-				else if globals.identifier then globals.identigier = value
-				else warning */
-			ObjRef value = fcc->stack_popObjectValue();
-
-			Attribute * attr = fcc->getCaller().isNotNull() ?
-					fcc->getCaller()->_accessAttribute(instruction.getValue_Identifier(),false) :
-					globals->_accessAttribute(instruction.getValue_Identifier(),true);
-			if(attr){
-				if(attr->isConst()){
-					setException("Cannot assign to const attribute.");
-				}else{
-					attr->setValue(value.get());
-				}
-			}else{
-				warn("Attribute not found..."); //! \todo proper warning!
-			}
-			continue;
-		}
-		case Instruction::I_CALL:{ 
-			/*	call (uint32_t) numParams
-				-------------
-				pop numParams * parameters
-				pop function
-				pop object
-				call the function
-				push result (or jump to exception point)	*/
-			const uint32_t numParams = instruction.getValue_uint32();
-
-			std::vector<ObjRef> paramRefHolder; //! \todo why doesn't the ParameterValues keep a reference?
-			paramRefHolder.reserve(numParams);
-			ParameterValues params(numParams);
-			for(int i=numParams-1;i>=0;--i ){
-				Object * paramValue = fcc->stack_popObjectValue();
-				params.set(i,paramValue);
-				paramRefHolder.push_back(paramValue);
-			}
-
-			ObjRef fun = fcc->stack_popObject();
-			ObjRef caller = fcc->stack_popObject();
-
-
-			// returnValue , newUserFunctionCallContext
-			executeFunctionResult_t result = startFunctionExecution(fun,caller,params);
-			if(result.second){
-				fcc = result.second;
-				pushActiveFCC(fcc);
-				instructions = &fcc->getInstructions();
-			}else{
-				fcc->stack_pushObject(result.first);
-			}
-			break;
-		}
-		case Instruction::I_CREATE_INSTANCE:{
-			/*	create (uint32_t) numParams
-				-------------
-				pop numParams * parameters
-				pop object
-				call object._constructor
-				push result (or jump to exception point)	*/
-				
-
-			// get the parameters for the first constructor
-			const uint32_t numParams = instruction.getValue_uint32();
-			std::vector<ObjRef> paramRefHolder; //! \todo why doesn't the ParameterValues keep a reference?
-			paramRefHolder.reserve(numParams);
-			ParameterValues params(numParams);
-			for(int i=numParams-1;i>=0;--i ){
-				Object * paramValue = fcc->stack_popObjectValue();
-				params.set(i,paramValue);
-				paramRefHolder.push_back(paramValue);
-			}
-
-			// collect constructor functions
-			ObjRef caller = fcc->stack_popObject();
-			EPtr<Type> type = caller.toType<Type>();
-			if(type.isNull()){
-				setException("Can't instanciate object not of type 'Type'");
-				break;
-			}
-
-			executeFunctionResult_t result = startInstanceCreation(type,params);
-			if(result.second){
-				fcc = result.second;
-				pushActiveFCC(fcc);
-				instructions = &fcc->getInstructions();
-			}else{
-				fcc->stack_pushObject(result.first);
-			}
-
-			break;
-		}
-		case Instruction::I_CHECK_TYPE:{
-			/*	checkType localVariableIdx
-				--------------
-				pop (Object) TypeOrObj
-				if(localVar ---|> Type || localVar == Obj)
-					push true
-				else 
-					push false
-			*/
-			const ObjPtr localVariable = fcc->getLocalVariable(instruction.getValue_uint32());
-			const ObjRef typeOrObj = fcc->stack_popObject();
-			fcc->stack_pushBool( checkParameterConstraint(*this,localVariable,typeOrObj) );
-			continue;
-		}
-		case Instruction::I_DUP:{
-			// duplicate topmost stack entry
-			fcc->stack_dup();
-			continue;
-		}
-		case Instruction::I_FIND_VARIABLE:{
-			/*	if caller.Identifier -> push (caller, caller.Identifier)
-				else push (GLOBALS, GLOBALS.Identifier) (or NULL,NULL + Warning) 	*/
-			if(fcc->getCaller().isNotNull()){
-				const Attribute & attr = fcc->getCaller()->getAttribute(instruction.getValue_Identifier());
-				if(attr.isNotNull()){
-					fcc->stack_pushObject(fcc->getCaller());
-					fcc->stack_pushObject(attr.getValue());
-					continue;
-				}
-			}
-			ObjPtr obj = getGlobalVariable(instruction.getValue_Identifier());
-			if(obj.isNotNull()){
-				fcc->stack_pushObject(globals.get());
-				fcc->stack_pushObject(obj);
-			}else{
-				warn("Variable not found: "); //! \todo proper warning!
-				fcc->stack_pushVoid();
-				fcc->stack_pushVoid();
-			}
-			break;
-		}
-		case Instruction::I_GET_ATTRIBUTE:{ //! \todo check for @(private)
-			/*	pop Object
-				push Object.Identifier (or NULL + Warning)	*/
-			ObjRef obj = fcc->stack_popObject();
-			const Attribute & attr = obj->getAttribute(instruction.getValue_Identifier());
-			if(attr.isNull()) {
-				warn("Attribute not found: "); //! \todo add proper warning
-				fcc->stack_pushVoid();
-			}else{
-				fcc->stack_pushObject( attr.getValue() );
-			}
-			continue;
-		}
-		case Instruction::I_GET_VARIABLE:{
-			/*	if caller.Identifier -> push (caller.Identifier)
-				else push (GLOBALS.Identifier) (or NULL + Warning) 	*/
-			if(fcc->getCaller().isNotNull()){
-				const Attribute & attr = fcc->getCaller()->getAttribute(instruction.getValue_Identifier());
-				if(attr.isNotNull()){
-					fcc->stack_pushObject(attr.getValue());
-					continue;
-				}
-			}
-			ObjPtr obj = getGlobalVariable(instruction.getValue_Identifier());
-			if(obj.isNotNull()){
-				fcc->stack_pushObject(obj);
-			}else{
-				warn("Variable not found: "); //! \todo proper warning!
-				fcc->stack_pushVoid();
-			}
-			break;
-		}
-		case Instruction::I_GET_LOCAL_VARIABLE:{
-			/* 	getLocalVariable (uint32_t) variableIndex
-				------------
-				push $variableIndex	*/
-			fcc->stack_pushObject( fcc->getLocalVariable(instruction.getValue_uint32()).get() );
-			continue;
-		}
-		case Instruction::I_INIT_CALLER:{
-			const uint32_t numParams = instruction.getValue_uint32();
-
-			if(fcc->stack_empty()){ // no constructor call
-				if(numParams>0){
-					warn("Calling constructor function with @(super) attribute as normal function.");
-				}
-//				fcc->initCaller(fcc->getCaller()); ???????
-				continue;
-			}
-
-			// get super constructor parameters
-			std::vector<ObjRef> paramRefHolder; //! \todo why doesn't the ParameterValues keep a reference?
-			paramRefHolder.reserve(numParams);
-			ParameterValues params(numParams);
-			for(int i=numParams-1;i>=0;--i ){
-				Object * paramValue = fcc->stack_popObjectValue();
-				params.set(i,paramValue);
-				paramRefHolder.push_back(paramValue);
-			}
-
-			// call super constructor
-			ObjRef superConstructor = fcc->stack_popObjectValue();
-			executeFunctionResult_t result = startFunctionExecution(superConstructor,fcc->getCaller(),params);
-			std::vector<ObjPtr> constructors;
-			while(!fcc->stack_empty()){
-				constructors.push_back(fcc->stack_popObject());
-			}
-			
-			if(result.second){
-				// pass remaining super constructors to new calling context
-				fcc = result.second;
-				pushActiveFCC(fcc);
-				instructions = &fcc->getInstructions();
-				for(std::vector<ObjPtr>::const_reverse_iterator it = constructors.rbegin();it!=constructors.rend();++it) 
-					fcc->stack_pushObject( *it );
-				fcc->enableAwaitingCaller();
-				fcc->markAsConstructorCall();
-			}else{
-				ObjPtr newObj = result.first;
-				if(newObj.isNull()){
-					if(state!=STATE_EXCEPTION) // if an exception occured in the constructor, the result may be NULL
-						setException("Constructor did not create an Object."); //! \todo improve message!
-					break;
-				}
-				fcc->stack_pushObject(newObj);
-				// init attribute
-				newObj->_initAttributes(*this); //! \todo catch exceptions!!!!!!!!
-			}
-
-			break;
-		}		
-		case Instruction::I_JMP:{
-			fcc->setInstructionCursor( instruction.getValue_uint32() );
-			continue;
-		}
-		case Instruction::I_JMP_IF_SET:{
-			/* 	jmpIfSet (uint32) targetAddress
-				-------------
-				pop (uint32) local variable index
-				jmp if variable != NULL */
-			if( fcc->getLocalVariable( fcc->stack_popUInt32() ).isNotNull() )
-				fcc->setInstructionCursor( instruction.getValue_uint32() );
-			continue;
-		}
-		case Instruction::I_JMP_ON_TRUE:{
-			if(fcc->stack_popBool())
-				fcc->setInstructionCursor( instruction.getValue_uint32() );
-			continue;
-		}
-		case Instruction::I_JMP_ON_FALSE:{
-			if(!fcc->stack_popBool())
-				fcc->setInstructionCursor( instruction.getValue_uint32() );
-			continue;
-		}
-		case Instruction::I_NOT:{
-			/*	not
-				-------
-				bool b = popBool
-				push !b	*/
-			fcc->stack_pushBool( !fcc->stack_popBool() );
-			continue;
-		}
-		case Instruction::I_POP:{
-			// remove entry from stack
-			fcc->stack_pop();
-			continue;
-		}
-		case Instruction::I_PUSH_BOOL:{
-			fcc->stack_pushBool( instruction.getValue_Bool() );
-			continue;
-		}
-		case Instruction::I_PUSH_ID:{
-			fcc->stack_pushIdentifier( instruction.getValue_Identifier() );
-			continue;
-		}
-		case Instruction::I_PUSH_FUNCTION:{
-			fcc->stack_pushFunction( instruction.getValue_uint32() );
-			continue;
-		}
-		case Instruction::I_PUSH_NUMBER:{
-			fcc->stack_pushNumber( instruction.getValue_Number() );
-			continue;
-		}
-		case Instruction::I_PUSH_STRING:{
-			fcc->stack_pushStringIndex( instruction.getValue_uint32() );
-			continue;
-		}
-		case Instruction::I_PUSH_UINT:{
-			fcc->stack_pushUInt32( instruction.getValue_uint32() );
-			continue;
-		}
-		case Instruction::I_PUSH_UNDEFINED:{
-			fcc->stack_pushUndefined();
-			continue;
-		}		
-		case Instruction::I_PUSH_VOID:{
-			fcc->stack_pushVoid( );
-			continue;
-		}
-		case Instruction::I_RESET_LOCAL_VARIABLE:{
-			// $localVarId = NULL
-			fcc->assignToLocalVariable(instruction.getValue_uint32(), NULL);
-			continue;
-		}
-		case Instruction::I_SET_ATTRIBUTE:{
-			/*	setAttribute identifierId
-				-------------
-				properies = pop uint32
-				obj = pop object
-				value = pop parameterObj
-				obj.identifier @(properties) := value	*/
-
-			const uint32_t properties = fcc->stack_popUInt32();
-			ObjRef obj = fcc->stack_popObject();
-			ObjRef value = fcc->stack_popObjectValue();
-			if(!obj->setAttribute(instruction.getValue_Identifier(),Attribute(value,properties))){
-				warn("Could not set Attribute..."); //! \todo proper warning!
-			}
-			continue;
-		}
-		case Instruction::I_SET_EXCEPTION_HANDLER:{
-			fcc->setExceptionHandlerPos(instruction.getValue_uint32());
-			continue;
-		}
-		case Instruction::I_SYS_CALL:{
-			/*	sysCall (uint32_t) numParams
-				-------------
-				pop functionId
-				pop numParams * parameters
-				sysCall functionId,parameters
-				push result (or jump to exception point)	*/
-			const uint32_t numParams = instruction.getValue_uint32();
-			const uint32_t funId = fcc->stack_popUInt32();
-			
-			std::vector<ObjRef> paramRefHolder; //! \todo why doesn't the ParameterValues keep a reference?
-			paramRefHolder.reserve(numParams);
-			ParameterValues params(numParams);
-			for(int i=numParams-1;i>=0;--i ){
-				Object * paramValue = fcc->stack_popObjectValue();
-				params.set(i,paramValue);
-				paramRefHolder.push_back(paramValue);
-			}
-			fcc->stack_pushObject(internals->sysCall(funId,params));
-			break;
-		}
-		case Instruction::I_YIELD:{
-			/*	yield
-				-------------
-				pop result	*/
-			ObjRef value = fcc->stack_popObjectValue();
-			ERef<YieldIterator> yIt = new YieldIterator();
-			yIt->setFCC(fcc);
-			yIt->setValue(value);
-			if(fcc->isExecutionStoppedAfterEnding()){
-				popActiveFCC();
-				return yIt.detachAndDecrease();
-			} // continue with the next fcc...
-			else{
-				popActiveFCC();
-				fcc = getActiveFCC();
-				if(fcc.isNull())
-					return NULL;
-				instructions = &fcc->getInstructions();
-				fcc->stack_pushObject(yIt.get());
-			}
-			break;
-		}
-		case Instruction::I_UNDEFINED:
-		case Instruction::I_SET_MARKER:
-		default:{
-			warn("Unknown Instruction");
-		}
-		}
-		// --------------------------------------------------------------------------------------------------------------
-		if(getState()==STATE_NORMAL){
-			continue;
-		}else if(getState()==STATE_EXCEPTION){
-			while(true){
-				fcc->stack_clear(); // remove current stack content
-				
-				// catch-block available?
-				if(fcc->getExceptionHandlerPos()!=Instruction::INVALID_JUMP_ADDRESS){
-					fcc->assignToLocalVariable(Consts::LOCAL_VAR_INDEX_internalResult,getResult()); // ___result = exceptionResult
-					resetState();
-					fcc->setInstructionCursor(fcc->getExceptionHandlerPos());
-					break;
-				} // execution stops here? Keep the exception-state and return;
-				else if(fcc->isExecutionStoppedAfterEnding()){
-					popActiveFCC();
-					return NULL;
-				} // continue with the next fcc...
-				else{
-					popActiveFCC();
-					fcc = getActiveFCC();
-					if(fcc.isNull())
-						return NULL;
-					instructions = &fcc->getInstructions();
-				}
-			}
-		} else if(getState()==STATE_EXITING){
-			while(true){
-				// execution stops here? Keep the exiting-state and return;
-				if(fcc->isExecutionStoppedAfterEnding()){
-					popActiveFCC();
-					return NULL;
-				} // continue with the next fcc...
-				else{
-					popActiveFCC();
-					fcc = getActiveFCC();
-					if(fcc.isNull())
-						return NULL;
-					instructions = &fcc->getInstructions();
-				}
-			}
-		}
-	}
-	return Void::get();
-}
-
-//! (internal)
-Runtime::executeFunctionResult_t Runtime::startFunctionExecution(const ObjPtr & fun,const ObjPtr & _callingObject,ParameterValues & params){
-	ObjPtr result;
-	switch( fun->_getInternalTypeId() ){
-		case _TypeIds::TYPE_USER_FUNCTION:{
-			UserFunction * userFunction = static_cast<UserFunction*>(fun.get());
-			_CountedRef<FunctionCallContext> fcc = FunctionCallContext::create(userFunction,_callingObject);
-
-			// check for too few parameter values -> throw exception
-			if(userFunction->getMinParamCount()>=0 && params.size()<static_cast<size_t>(userFunction->getMinParamCount())){
-				setException("Too few parameters given."); //! \todo improve error message (which parameters are missing?)
-				return std::make_pair(result.get(),static_cast<FunctionCallContext*>(NULL));
-			}
-			ParameterValues::const_iterator paramsEnd;
-			const int maxParamCount = userFunction->getMaxParamCount();
-			if( maxParamCount<0 ){ // multiParameter
-				ERef<Array> multiParamArray = Array::create();
-				// copy values into multiParamArray
-				if(params.size()>=userFunction->getParamCount()){
-					for(size_t i = userFunction->getParamCount()-1;i<params.size();++i){
-						multiParamArray->pushBack(params[i]);
-					}
-					paramsEnd = params.begin()+(userFunction->getParamCount()-1);
-
-				}else{
-					paramsEnd = params.end();
-				}
-				// directly assign to last parameter
-				fcc->assignToLocalVariable(Consts::LOCAL_VAR_INDEX_firstParameter + (userFunction->getParamCount()-1) ,multiParamArray.get());
-			} // too many parameters
-			else if( params.size()>static_cast<size_t>(maxParamCount) ){
-				warn("Too many parameters given.");  //! \todo improve warning message (how many?)
-				paramsEnd = params.begin()+maxParamCount; // std::next(...)
-			} // normal parameter count range
-			else{
-				paramsEnd = params.end();
-			}
-			// init $thisFn
-			fcc->assignToLocalVariable(Consts::LOCAL_VAR_INDEX_thisFn,fun);
-
-			uint32_t i = Consts::LOCAL_VAR_INDEX_firstParameter;
-			for(ParameterValues::const_iterator it = params.begin(); it!= paramsEnd; ++it){
-				fcc->assignToLocalVariable(i++,*it);
-			}
-			return std::make_pair(result.get(),fcc.detachAndDecrease());
-		}
-		case _TypeIds::TYPE_DELEGATE:{
-			Delegate * delegate = static_cast<Delegate*>(fun.get());
-			return startFunctionExecution(delegate->getFunction(),delegate->getObject(),params);
-		}
-		case _TypeIds::TYPE_FUNCTION:{ // is  C++ function ?
-			Function * libfun=static_cast<Function*>(fun.get());
-			{	// check param count
-				const int min = libfun->getMinParamCount();
-				const int max = libfun->getMaxParamCount();
-				if( (min>0 && static_cast<int>(params.count())<min)){
-					std::ostringstream sprinter;
-					sprinter<<"Too few parameters: Expected " <<min<<", got "<<params.count()<<'.';
-					//! \todo improve message
-					setException(sprinter.str());
-					return std::make_pair(result.get(),static_cast<FunctionCallContext*>(NULL));
-				} else  if (max>=0 && static_cast<int>(params.count())>max) {
-					std::ostringstream sprinter;
-					sprinter<<"Too many parameters: Expected " <<max<<", got "<<params.count()<<'.';
-					//! \todo improve message
-					warn(sprinter.str());
-				}
-			}
-			libfun->increaseCallCounter();
-
-			try {
-				result = (*libfun->getFnPtr())(*this,_callingObject.get(),params);
-			} catch (Exception * e) {
-				setExceptionState(e);
-			} catch(const char * message) {
-				setException(std::string("C++ exception: ")+message);
-			} catch(const std::string & message) {
-				setException(std::string("C++ exception: ") + message);
-			} catch(const std::exception & e) {
-				setException(std::string("C++ exception: ") + e.what());
-			} catch (Object * obj) {
-				// workaround: this should be covered by catching the Exception* directly, but that doesn't always seem to work!?!
-				Exception * e=dynamic_cast<Exception *>(obj);
-				if(e){
-					setExceptionState(e);
-				}else{
-					const std::string message=(obj?obj->toString():"NULL");
-					setException(message);
-				}
-			}  catch (...){
-				setException("C++ exception");
-			}
-			break;
-		}
-
-		default:{
-			// function-object has a user defined "_call"-member?
-			const Attribute & attr = fun->getAttribute(Consts::IDENTIFIER_fn_call);		//! \todo check for @(private)
-			
-			if(attr.getValue()){
-				// fun._call( callingObj , param0 , param1 , ... )
-				ParameterValues params2(params.count()+1);
-				params2.set(0,_callingObject.isNotNull() ? _callingObject : Void::get());
-				std::copy(params.begin(),params.end(),params2.begin()+1);
-
-				return startFunctionExecution(attr.getValue(),fun,params2);
-			}
-
-			warn("Cannot use '"+fun->toDbgString()+"' as a function.");
-	
-		}
-	}
-
-	return std::make_pair(result.get(),static_cast<FunctionCallContext*>(NULL));
-}
-
-
-//! (internal)
-Runtime::executeFunctionResult_t Runtime::startInstanceCreation(EPtr<Type> type,ParameterValues & params){
-	static const executeFunctionResult_t failureResult = std::make_pair(static_cast<Object*>(NULL),static_cast<FunctionCallContext*>(NULL));
-	ObjRef createdObject;
-	
-	// collect constructors
-	std::vector<ObjPtr> constructors;
-	EPtr<Type> typeCursor = type;
-	do{
-		const Attribute * ctorAttr = typeCursor->_accessAttribute(Consts::IDENTIFIER_fn_constructor,true);
-		if(ctorAttr==NULL){
-			typeCursor = typeCursor->getBaseType();
-			continue;
-		}else if(constructors.empty() && ctorAttr->isPrivate()){ // first constructor must not be private!
-			setException("Can't instanciate Type with private _contructor."); //! \todo check this!
-			return failureResult; // failure
-		}else{
-			ObjPtr fun = ctorAttr->getValue();
-			const internalTypeId_t funType = fun->_getInternalTypeId();
-			
-			if(funType==_TypeIds::TYPE_USER_FUNCTION){
-				constructors.push_back(fun);
-				typeCursor = typeCursor->getBaseType();
-				continue;
-			}else if(_TypeIds::TYPE_FUNCTION){
-				constructors.push_back(fun);
-			}else{
-				setException("Constructor has to be a UserFunction or a Function.");
-				return failureResult; // failure
-			}
-			break;
-		}
-	}while(typeCursor.isNotNull());
-	
-	if(constructors.empty()) // failure
-		return failureResult;
-	
-	{ // call the first constructor and pass the other constructor-functions by adding them to the stack
-		ObjRef fun = constructors.front();
-		
-		executeFunctionResult_t result = startFunctionExecution(fun,type.get(),params);
-		if(result.second){
-			FunctionCallContext * fcc = result.second;
-			for(std::vector<ObjPtr>::const_reverse_iterator it = constructors.rbegin();(it+1)!=constructors.rend();++it) //! \todo c++11 use std::next
-				fcc->stack_pushObject( *it );
-			fcc->enableAwaitingCaller();
-			fcc->markAsConstructorCall();
-			return std::make_pair(static_cast<Object*>(NULL),fcc);
-		}else{
-			createdObject = result.first;
-			if(createdObject.isNull()){
-				if(state!=STATE_EXCEPTION) // if an exception occured in the constructor, the result may be NULL
-					setException("Constructor did not create an Object."); //! \todo improve message!
-				return failureResult;
-			}
-			
-			// init attribute
-			createdObject->_initAttributes(*this); //! \todo catch exceptions!!!!!!!!
-			return std::make_pair(createdObject.detachAndDecrease(),static_cast<FunctionCallContext*>(NULL));
-		}
-	}
-	return failureResult;
-}
-
-void Runtime::yieldNext(YieldIterator & yIt){
-	_Ptr<FunctionCallContext> fcc = yIt.getFCC();
-	if(fcc.isNull()){
-		setException("Invalid YieldIterator");
-		return;
-	}
-	ObjRef result = executeFunctionCallContext( fcc );
-	// error occured? throw an exception!
-	if(getState()==STATE_EXCEPTION){
-		result = getResult();
-		resetState();
-		throw(result.detachAndDecrease());
-	}
-	
-	ERef<YieldIterator> newYieldIterator = result.toType<YieldIterator>();
-	
-	// function exited with another yield? -> reuse the data for the current iterator
-	if(newYieldIterator.isNotNull()){
-		yIt.setFCC( newYieldIterator->getFCC() );
-		yIt.setValue( newYieldIterator->value() );
-	} // function returned without yield? -> update and terminate the current iterator
-	else{
-		yIt.setFCC( NULL );
-		yIt.setValue( result );
-	}
-
-}
 
 }

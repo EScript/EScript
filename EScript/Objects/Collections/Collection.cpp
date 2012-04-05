@@ -226,7 +226,7 @@ Object * Collection::rt_map(Runtime & runtime,ObjPtr function, const ParameterVa
 		ObjRef value=it->value();
 		parameters.set(0,key);
 		parameters.set(1,value);
-		ObjRef newValue=runtime.executeFunction2(function.get(),NULL,parameters);
+		ObjRef newValue=runtime.executeFunction(function.get(),NULL,parameters);
 		if(!newValue.isNull())
 			newCollectionRef->setValue(key.get(),newValue.get());
 	}

@@ -113,7 +113,7 @@ ObjRef callMemberFunction(Runtime & rt, ObjPtr obj, StringId fnNameId, const Par
 	if (obj.isNull()) {
 		return NULL;
 	}
-	return rt.executeFunction2(obj->getAttribute(fnNameId).getValue(), obj.get(), params);
+	return rt.executeFunction(obj->getAttribute(fnNameId).getValue(), obj.get(), params);
 }
 
 //! (static)
@@ -126,7 +126,7 @@ ObjRef callFunction(Runtime & rt, Object * function, const ParameterValues & par
 	if (function == NULL) {
 		return NULL;
 	}
-	return rt.executeFunction2(function, NULL, params);;
+	return rt.executeFunction(function, NULL, params);;
 }
 
 
@@ -151,7 +151,7 @@ std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & fi
 	}
 	ObjRef result;
 	try {
-		result = runtime.executeFunction2(script.get(),NULL,ParameterValues());	//! \todo handle exceptions
+		result = runtime.executeFunction(script.get(),NULL,ParameterValues());	//! \todo handle exceptions
 	}catch(Object * error){
 		std::cerr << "\nError occurred while executing file '" << filename << "':\n" << error->toString() << std::endl;
 		return std::make_pair(false, error);
