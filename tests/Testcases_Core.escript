@@ -700,6 +700,7 @@ if(!benchmark)
 //        out(A.a,"\t",B.a); /// should be 1 2
 //    }
 }
+
 //---
 {
 	out("Superconstructor:");

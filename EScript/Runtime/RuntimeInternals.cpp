@@ -341,9 +341,9 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 						setException("Constructor did not create an Object."); //! \todo improve message!
 					break;
 				}
-				fcc->stack_pushObject(newObj);
-				// init attribute
+				// init attributes
 				newObj->_initAttributes(runtime); //! \todo catch exceptions!!!!!!!!
+				fcc->initCaller(newObj);
 			}
 
 			break;

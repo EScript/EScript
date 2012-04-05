@@ -727,7 +727,6 @@ bool initHandler(handlerRegistry_t & m){
 		
 		// init 'this' (or create it if this is a constructor call)
 		ctxt2.addInstruction(Instruction::createInitCaller(superConstrParams.size()));
-//		ctxt2.addInstruction(Instruction::createAssignLocal(Consts::LOCAL_VAR_INDEX_this)); 
 
 		ctxt2.compile(self->getBlock());
 		ctxt2.popSetting();
