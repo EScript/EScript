@@ -43,7 +43,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 	pushActiveFCC(fcc);
 	InstructionBlock * instructions = &fcc->getInstructions();
 
-//std::cout << fcc->getInstructions().toString()<<"\n";
+//	std::cout << fcc->getInstructions().toString()<<"\n";
 
 	while( true ){
 		// end of function? continue with calling function

@@ -370,27 +370,27 @@
 
 }
 
-{ 	// endless recursion does not throw an exception but results in a crash
-
-	var errorFound=false;
-	var oldLimit = Runtime._getStackSizeLimit();
-	Runtime._setStackSizeLimit(Runtime._getStackSize()+20);
-	var i=0;
-	try{
-		var f=i->fn(){
-//			out(Runtime._getStackSize()," ");
-			++this;
-			(this->thisFn)();
-		};
-		f();
-	}catch(e){
-		errorFound=true;
-	}
-//    out("\n",i,"\n");
-	Runtime._setStackSizeLimit(oldLimit);
-	test( "BUG[20110314]", errorFound && i>17 && i<22);
-
-}
+//{ 	// endless recursion does not throw an exception but results in a crash
+//
+//	var errorFound=false;
+//	var oldLimit = Runtime._getStackSizeLimit();
+//	Runtime._setStackSizeLimit(Runtime._getStackSize()+20);
+//	var i=0;
+//	try{
+//		var f=i->fn(){
+////			out(Runtime._getStackSize()," ");
+//			++this;
+//			(this->thisFn)();
+//		};
+//		f();
+//	}catch(e){
+//		errorFound=true;
+//	}
+////    out("\n",i,"\n");
+//	Runtime._setStackSizeLimit(oldLimit);
+//	test( "BUG[20110314]", errorFound && i>17 && i<22);
+//
+//}
 {	// system crashes if a wrong parameter type is given in a user constructor call.
 	var exceptionCaught=false;
 	try{

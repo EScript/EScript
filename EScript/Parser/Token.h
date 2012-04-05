@@ -88,7 +88,7 @@ class TControl :  public Token {
 	public:
 		static const uint32_t TYPE_ID=0x01 << 1;
 		static uint32_t getTypeId()				{	return TYPE_ID;	}
-		TControl(const char * _name) : id(stringToIdentifierId(_name)) {   }
+		TControl(const char * _name) : id(_name) {   }
 		TControl(StringId _id) : Token(getTypeId()),id(_id) {   }
 		virtual std::string toString()const  	{   return id.toString();    }
 		StringId getId()const           		{   return id;    }

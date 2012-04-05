@@ -611,10 +611,10 @@ bool initHandler(handlerRegistry_t & m){
 			std::set<StringId> varSet;
 			varSet.insert(exceptionVariableName);
 			ctxt.pushSetting_localVars(varSet);
+			// load exception-variable with exception object ( exceptionVariableName = __result )
+			ctxt.addInstruction(Instruction::createGetLocalVariable(Consts::LOCAL_VAR_INDEX_internalResult));
+			ctxt.addInstruction(Instruction::createAssignLocal(ctxt.getCurrentVarIndex(exceptionVariableName)));
 		}
-		// load exception-variable with exception object ( exceptionVariableName = __result )
-		ctxt.addInstruction(Instruction::createGetLocalVariable(Consts::LOCAL_VAR_INDEX_internalResult));
-		ctxt.addInstruction(Instruction::createAssignLocal(ctxt.getCurrentVarIndex(exceptionVariableName)));
 		
 		// clear the exception-variable
 		ctxt.addInstruction(Instruction::createResetLocalVariable(Consts::LOCAL_VAR_INDEX_internalResult));

@@ -538,7 +538,6 @@ var FAILED="\t failed\n";
 	var o=new O();
 	test("Collection:",o[100]==200 ,Collection);
 }
-exit(1);
 
 //---
 {
