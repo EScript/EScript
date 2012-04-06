@@ -88,9 +88,13 @@ UserFunction * Compiler::compile(const StringData & code){
 	p._produceBytecode = true;
 	p.parse(block.get(),code);
 
+	// outerBlock is used to add a return statement: {return {block}}
+	ERef<AST::BlockStatement> outerBlock(new AST::BlockStatement);
+	outerBlock->addStatement(AST::Statement(AST::Statement::TYPE_RETURN,block.get()));
+	
 	// compile and create instructions
 	CompilerContext ctxt(*this,fun->getInstructions());
-	ctxt.compile(block.get());
+	ctxt.compile(outerBlock.get());
 	Compiler::finalizeInstructions(fun->getInstructions());
 
 	return fun.detachAndDecrease();

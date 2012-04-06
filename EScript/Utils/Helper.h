@@ -24,6 +24,7 @@ class Object;
 class Runtime;
 class Type;
 class Logger;
+class StringData;
 class UserFunction;
 
 //! @name Declaration
@@ -95,7 +96,8 @@ std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & fi
 //! @return (success, result)
 std::pair<bool, ObjRef> executeStream(Runtime & runtime, std::istream & stream);
 
-//eval
+//! @return (success, result)
+std::pair<bool, ObjRef> eval(Runtime & runtime, const StringData & code);
 
 //@}
 

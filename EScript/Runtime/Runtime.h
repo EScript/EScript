@@ -63,8 +63,6 @@ class Runtime : public ExtObject  {
 	/// @name Execution
 	// 	@{
 	public:
-		Object * eval(const StringData & code);
-
 		ObjPtr getCallingObject()const;
 
 		ObjRef executeFunction(const ObjPtr & fun,const ObjPtr & callingObject,const ParameterValues & params);

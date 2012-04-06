@@ -203,8 +203,18 @@ void StdLib::init(EScript::Namespace * globals) {
 	ESF_DECLARE(globals,"clock",0,0,Number::create( static_cast<double>(clock())/CLOCKS_PER_SEC))
 	#endif
 	}
-////////////	//!	[ESF]  Object eval(string) // \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-////////////	ESF_DECLARE(globals,"eval",1,1, runtime.eval(StringData(parameter[0].toString())))
+	
+	typedef std::pair<bool,ObjRef> result_t; // compiler...grmpf \todo c++11 use auto
+	//!	[ESF]  Object eval(string) 
+	ES_FUNCTION_DECLARE(globals,"eval",1,1, {
+		result_t result = eval(runtime,StringData(parameter[0].toString()));
+		if(result.first){
+			return result.second.detachAndDecrease();
+		}else{
+			throw result.second.detachAndDecrease(); // \todo set exception
+			return Void::get();
+		}
+	})
 
 	/*!	[ESF]  Map getDate([time])
 		like http://de3.php.net/manual/de/function.getdate.php	*/

@@ -162,26 +162,30 @@ std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & fi
 	
 	return std::make_pair(true,result.detachAndDecrease());
 }
-//////////
-//////////Object * EScript::eval(const StringData & code){
-//////////	ERef<AST::BlockStatement> block(new AST::BlockStatement());
-//////////	static const StringId inline_id("[inline]");
-//////////	block->setFilename(inline_id);
-//////////	try{
-//////////		Parser p(getLogger());
-//////////		p.parse(block.get(),code);
-//////////	}catch(Exception * e){
-//////////		setException(e);
-//////////		return NULL;
-//////////	}
-//////////	pushContext(RuntimeContext::create());
-//////////	getCurrentContext()->createAndPushRTB(block.get());// this is later popped implicitly when the context is executed.
-//////////
-//////////	ObjRef resultRef = executeCurrentContext(true);
-//////////	popContext();
-//////////	block = NULL; // remove possibly pending reference to the result to prevent accidental deletion
-//////////	return resultRef.detachAndDecrease();
-//////////}
+
+//! (static)
+std::pair<bool, ObjRef> eval(Runtime & runtime, const StringData & code) {
+	ERef<UserFunction> script;
+	try {
+		Compiler compiler(runtime.getLogger());
+		script = compiler.compile(code);
+	} catch (Object * error) {
+		std::cerr << "\nError occurred while compiling code '" << code.str() << "':\n" << error->toString() << std::endl;
+		return std::make_pair(false, error);
+	}
+	ObjRef result;
+	try {
+		result = runtime.executeFunction(script.get(),NULL,ParameterValues());	//! \todo handle exceptions
+	}catch(Object * error){
+		std::cerr << "\nError occurred while executing code '" << code.str() << "':\n" << error->toString() << std::endl;
+		return std::make_pair(false, error);
+//	}catch(...){
+//		std::cout << "\nCaught unknown C++ exception." << std::endl;
+//		return std::make_pair(false, result.detachAndDecrease());
+	}
+	
+	return std::make_pair(true,result.detachAndDecrease());
+}
 
 //////////! (static)
 ////////std::pair<bool, ObjRef> executeStream(Runtime & runtime, std::istream & stream) {
