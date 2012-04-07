@@ -103,7 +103,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 						setException("Cannot assign to const attribute.");
 						break;
 					}else if(attr->isPrivate() && fcc->getCaller()!=obj ) {
-						setException("Cannot access private attribute from outside of it owning object.");
+						setException("Cannot access private attribute from outside of its owning object.");
 						break;
 					}
 				}
@@ -265,6 +265,9 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			if(attr.isNull()) {
 				warn("Attribute not found: "); //! \todo add proper warning
 				fcc->stack_pushVoid();
+			}else if(attr.isPrivate() && fcc->getCaller()!=obj ) {
+				setException("Cannot access private attribute from outside of its owning object.");
+				break;
 			}else{
 				fcc->stack_pushObject( attr.getValue() );
 			}
@@ -432,6 +435,9 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			const uint32_t properties = fcc->stack_popUInt32();
 			ObjRef obj = fcc->stack_popObject();
 			ObjRef value = fcc->stack_popObjectValue();
+			if( (properties & Attribute::OVERRIDE_BIT) && (obj->_accessAttribute(instruction.getValue_Identifier(),false) == NULL ) ) {
+				warn("Attribute marked with @(override) does not override.");
+			} 
 			if(!obj->setAttribute(instruction.getValue_Identifier(),Attribute(value,properties))){
 				warn("Could not set Attribute..."); //! \todo proper warning!
 			}
