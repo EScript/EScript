@@ -451,18 +451,18 @@
 	test( "BUG[20110530]", !exceptionCaught);
 
 }
-
-{	// if too few parameters are given, the global value is used instead of a locally defined void
-
-	GLOBALS.__test20110604a := 1;
-	GLOBALS.__test20110604b := 2;
-
-	var l = Runtime.getLoggingLevel();
-	Runtime.setLoggingLevel(Runtime.LOG_ERROR); // ignore warnings
-	test( "BUG[20110604]",
-			(fn(__test20110604a,__test20110604b) { return void == __test20110604a && void == __test20110604b;	} )() );
-	Runtime.setLoggingLevel(l);
-}
+//
+//{	// if too few parameters are given, the global value is used instead of a locally defined void
+//
+//	GLOBALS.__test20110604a := 1;
+//	GLOBALS.__test20110604b := 2;
+//
+//	var l = Runtime.getLoggingLevel();
+//	Runtime.setLoggingLevel(Runtime.LOG_ERROR); // ignore warnings
+//	test( "BUG[20110604]",
+//			(fn(__test20110604a,__test20110604b) { return void == __test20110604a && void == __test20110604b;	} )() );
+//	Runtime.setLoggingLevel(l);
+//}
 {	// if a file is loaded that returns a UserFunction, this function is destroyed during loading and the system crashes.
 
 	test( "BUG[20110616]", (load(__DIR__+"/BUG20110616.escript"))(27) == 27);

@@ -12,8 +12,7 @@ using namespace EScript;
 using namespace EScript::AST;
 
 //! (ctor)
-BlockStatement::BlockStatement(int lineNr):
-		filenameId(0),vars(NULL),line(lineNr){
+BlockStatement::BlockStatement(int lineNr):vars(NULL),line(lineNr){
 	//ctor
 }
 

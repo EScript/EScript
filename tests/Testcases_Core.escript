@@ -311,12 +311,12 @@ var FAILED="\t failed\n";
 		&& f2(,,10)==13
 		&& f3()==1 && f3()==2 // a static counter is increased each time f3 is called
 		&& f3 ---|> UserFunction
-//		&& (fn(){/*bla*/}).getCode() == "fn(){/*bla*/}"
+		&& (fn(){/*bla*/}).getCode() == "fn(){/*bla*/}"
 		&& f4(0) == 17 && f4b(0) ==27
 		&& (1->(fn(a){return this+a; }).bindLastParams(27)) () == 28 // 1+27
 
 		&& [1,2,3].map( (fn(key,value,sumA,sumB){return value+sumA+sumB;}).bindLastParams(90,10) )  == [101,102,103]
-//		&& plusRec.getFilename() == __FILE__
+		&& plusRec.getFilename() == __FILE__
 		&& (fn(a){}).getMinParamCount() == 1 && (fn(a*){}).getMinParamCount() == 0 && (fn(a,b,c=2){}).getMinParamCount() == 2
 		&& (fn(a){}).getMaxParamCount() == 1 && !(fn(a*){}).getMaxParamCount() && (fn(a,b,c=2){}).getMaxParamCount() == 3
 

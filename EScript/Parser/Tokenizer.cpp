@@ -80,7 +80,7 @@ Tokenizer::~Tokenizer() {
 	//dtor
 }
 
-void Tokenizer::getTokens( const char * prog,tokenList_t & tokens)  throw (Exception *) {
+void Tokenizer::getTokens( const char * prog,tokenList_t & tokens){
 	int cursor=0;
 	int line=1;
 	size_t startPos = std::string::npos;
@@ -101,7 +101,7 @@ void Tokenizer::getTokens( const char * prog,tokenList_t & tokens)  throw (Excep
  *   Reads the next Token from prog beginning with position cursor and moves
  *   cursor to the next Token.
  */
-Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_t & startPos,tokenList_t & tokens)  throw (Exception *) {
+Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_t & startPos,tokenList_t & tokens) {
 
 	char c=prog[cursor];
 

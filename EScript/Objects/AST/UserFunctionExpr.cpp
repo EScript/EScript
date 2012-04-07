@@ -22,14 +22,14 @@ UserFunctionExpr::Parameter::Parameter(const StringId & _name,Object * defaultVa
 
 //! (ctor)
 UserFunctionExpr::UserFunctionExpr(AST::BlockStatement * block):
-		ExtObject(), posInFile(0),codeLen(0) {
+		ExtObject(){
 
 	setBlock(block);
 	//ctor
 }
 //! (ctor)
 UserFunctionExpr::UserFunctionExpr(AST::BlockStatement * block,const std::vector<ObjRef> & _sConstrExpressions):
-		ExtObject(), sConstrExpressions(_sConstrExpressions.begin(),_sConstrExpressions.end()),posInFile(0),codeLen(0) {
+		ExtObject(), sConstrExpressions(_sConstrExpressions.begin(),_sConstrExpressions.end()) {
 
 	setBlock(block);
 	//ctor
@@ -41,23 +41,8 @@ void UserFunctionExpr::setBlock(AST::BlockStatement * _block){
 }
 
 
-std::string UserFunctionExpr::getFilename()const {
-	return blockRef.isNull() ? "" : blockRef->getFilename();
-}
-
-
 int UserFunctionExpr::getLine()const	{
 	return blockRef.isNull() ? -1 : blockRef->getLine();
-}
-
-void UserFunctionExpr::setCodeString(const EPtr<String> & _fileString,size_t _begin,size_t _codeLen){
-	fileString = _fileString.get();
-	posInFile = _begin;
-	codeLen = _codeLen;
-}
-
-std::string UserFunctionExpr::getCode()const{
-	return fileString->toString().substr(posInFile,codeLen);
 }
 
 int UserFunctionExpr::getMaxParamCount()const{

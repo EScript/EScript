@@ -7,6 +7,7 @@
 
 #include "../ExtObject.h"
 #include "../../Instructions/InstructionBlock.h"
+#include "../../Utils/CodeFragment.h"
 #include <vector>
 
 namespace EScript {
@@ -37,11 +38,10 @@ class UserFunction : public ExtObject {
 	public:
 		UserFunction();
 		virtual ~UserFunction();
-
-		std::string getFilename()const;
-
-		void setCodeString(const EPtr<String> & _fileString,size_t _begin,size_t _codeLen);
-		std::string getCode()const;
+		
+		const CodeFragment & getCode()const					{	return codeFragment;	}
+		void setCode(const CodeFragment & c)				{	codeFragment = c;	}
+		
 		int getMaxParamCount()const							{	return maxParamValueCount;	}
 		int getMinParamCount()const							{	return minParamValueCount;	}
 		size_t getParamCount()const							{	return paramCount;	}
@@ -58,8 +58,7 @@ class UserFunction : public ExtObject {
 		virtual UserFunction * clone()const					{	return new UserFunction(*this);	}
 
 	private:
-		ERef<String> fileString;
-		size_t posInFile,codeLen;
+		CodeFragment codeFragment;
 		size_t paramCount;
 		int minParamValueCount;
 		int maxParamValueCount;

@@ -5,6 +5,7 @@
 #ifndef ES_COMPILER_H
 #define ES_COMPILER_H
 
+#include "../Utils/CodeFragment.h"
 #include "../Utils/Logger.h"
 #include "../Utils/StringId.h"
 #include "../Utils/StringData.h"
@@ -27,8 +28,7 @@ class Compiler {
 	public:
 		Compiler(Logger * _logger = NULL);
 	
-		UserFunction * compile(const StringData & code);
-		UserFunction * compileFile(const std::string & filename);
+		UserFunction * compile(const CodeFragment & code);
 	
 	// -------------
 		

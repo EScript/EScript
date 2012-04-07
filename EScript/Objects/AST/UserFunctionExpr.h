@@ -6,6 +6,7 @@
 #define ES_USERFUNCTION_EXPR_H
 
 #include "../ExtObject.h"
+#include "../../Utils/CodeFragment.h"
 #include <vector>
 
 namespace EScript {
@@ -61,16 +62,15 @@ class UserFunctionExpr : public ExtObject {
 
 		void setBlock(AST::BlockStatement * block);
 		AST::BlockStatement * getBlock()const				{	return blockRef.get();	}
+		int getLine()const;
 		const parameterList_t & getParamList()const			{	return params;	}
 		parameterList_t & getParamList()					{	return params;	}
-		std::string getFilename()const;
-		int getLine()const;
 
 		std::vector<ObjRef> & getSConstructorExpressions() 	{	return sConstrExpressions;	}
 		const std::vector<ObjRef> & getSConstructorExpressions()const	{	return sConstrExpressions;	}
 
-		void setCodeString(const EPtr<String> & _fileString,size_t _begin,size_t _codeLen);
-		std::string getCode()const;
+		void setCode(const CodeFragment & _code)			{	code = _code;	}
+		const CodeFragment & getCode()const					{	return code;	}
 		int getMaxParamCount()const;
 		int getMinParamCount()const;
 	
@@ -82,8 +82,7 @@ class UserFunctionExpr : public ExtObject {
 		parameterList_t params; // \todo should this really saved as a pointer???
 		std::vector<ObjRef> sConstrExpressions;
 
-		ERef<String> fileString;
-		size_t posInFile,codeLen;
+		CodeFragment code;
 	//	@}
 };
 }

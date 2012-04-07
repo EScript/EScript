@@ -25,10 +25,10 @@ void UserFunction::init(EScript::Namespace & globals) {
 	declareConstant(&globals,getClassName(),t);
 
 	//! [ESMF] String UserFunction.getFilename()
-	ESMF_DECLARE(t,UserFunction,"getFilename",0,0,String::create(self->getFilename()))
+	ESMF_DECLARE(t,UserFunction,"getFilename",0,0,String::create(self->getCode().getFilename()))
 
 	//! [ESMF] String UserFunction.getCode()
-	ESMF_DECLARE(t,UserFunction,"getCode",0,0,String::create(self->getCode()))
+	ESMF_DECLARE(t,UserFunction,"getCode",0,0,String::create(self->getCode().getCodeString()))
 
 	//! [ESMF] Number|false UserFunction.getMaxParamCount()
 	ES_MFUNCTION_DECLARE(t,UserFunction,"getMaxParamCount",0,0,{
@@ -47,41 +47,16 @@ void UserFunction::init(EScript::Namespace & globals) {
 
 //! (ctor)
 UserFunction::UserFunction(const UserFunction & other) : 
-		ExtObject(other),posInFile(other.posInFile),codeLen(other.codeLen),
+		ExtObject(other),codeFragment(other.codeFragment),
 		paramCount(other.paramCount),minParamValueCount(other.minParamValueCount),maxParamValueCount(other.maxParamValueCount),
 		instructions(other.instructions){
 }
 
 //! (ctor)
 UserFunction::UserFunction() : 
-		ExtObject(getTypeObject()),posInFile(0),codeLen(0),paramCount(0),minParamValueCount(0),maxParamValueCount(0) {
+		ExtObject(getTypeObject()),paramCount(0),minParamValueCount(0),maxParamValueCount(0) {
 //	initInstructions();
 	//ctor
 }
 //! (ctor)
 UserFunction::~UserFunction(){}
-
-
-//void UserFunction::initInstructions(){
-//	for(parameterList_t::const_iterator it = params->begin();it!=params->end();++it){
-//		instructions.declareLocalVariable( (**it).getName() );
-//	}
-//	//! \todo init parameters
-//
-//}
-
-std::string UserFunction::getFilename()const {
-	return "\\todo "; // \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-}
-
-
-
-void UserFunction::setCodeString(const EPtr<String> & _fileString,size_t _begin,size_t _codeLen){
-	fileString = _fileString.get();
-	posInFile = _begin;
-	codeLen = _codeLen;
-}
-
-std::string UserFunction::getCode()const{
-	return fileString.isNotNull() ? fileString->toString().substr(posInFile,codeLen) : std::string("???");
-}

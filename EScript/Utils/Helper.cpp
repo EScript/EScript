@@ -11,6 +11,7 @@
 #include "../Parser/Compiler.h"
 #include "../Parser/Parser.h"
 #include "../Runtime/Runtime.h"
+#include "IO/IO.h"
 #include "../Consts.h"
 #include <sstream>
 
@@ -143,8 +144,9 @@ void out(Object * obj) {
 std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & filename) {
 	ERef<UserFunction> script;
 	try {
+		StringData file = IO::loadFile(filename);
 		Compiler compiler(runtime.getLogger());
-		script = compiler.compileFile(filename);
+		script = compiler.compile(CodeFragment(StringId(filename),file));
 	} catch (Object * error) {
 		std::cerr << "\nError occurred while loading file '" << filename << "':\n" << error->toString() << std::endl;
 		return std::make_pair(false, error);
@@ -167,8 +169,9 @@ std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & fi
 std::pair<bool, ObjRef> eval(Runtime & runtime, const StringData & code) {
 	ERef<UserFunction> script;
 	try {
+		static const StringId inlineId("[inline]");
 		Compiler compiler(runtime.getLogger());
-		script = compiler.compile(code);
+		script = compiler.compile(CodeFragment(inlineId, code));
 	} catch (Object * error) {
 		std::cerr << "\nError occurred while compiling code '" << code.str() << "':\n" << error->toString() << std::endl;
 		return std::make_pair(false, error);

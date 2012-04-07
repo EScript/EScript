@@ -47,33 +47,23 @@ class Parser : public Object {
 		};
 		//-----------
 
-		bool _produceBytecode;
-
 		Parser(Logger * logger=NULL, Type * type=NULL);
 		virtual ~Parser();
 
-		Object * parse(AST::BlockStatement * rootBlock,const StringData & code);
-		AST::BlockStatement * parseFile(const std::string & filename);
+		ERef<AST::BlockStatement> parse(const CodeFragment & code);
 
-		/// ---|> [Object]
-		virtual Object * clone()const;
-
+	private:
 		//! (internal)
 		struct ParsingContext{
 			Tokenizer::tokenList_t & tokens;
 			AST::BlockStatement * rootBlock;
 			std::deque<AST::BlockStatement*> blocks; // used as a stack
-			ERef<String> code;
-			ParsingContext(Tokenizer::tokenList_t & _tokens,const EPtr<String> & _code ) : tokens(_tokens),rootBlock(NULL),code(_code){}
+			CodeFragment code;
+			ParsingContext(Tokenizer::tokenList_t & _tokens,const CodeFragment & _code ) : tokens(_tokens),rootBlock(NULL),code(_code){}
 		};
 
-	private:
 		_CountedRef<Logger> logger;
-		void log(Logger::level_t messageLevel, const std::string & msg,const _CountedRef<Token> & token=NULL)const;
-
-		// only for debugging
-		StringId currentFilename;
-		std::string getCurrentFilename()const	{	return currentFilename.toString();	}
+		void log(ParsingContext & ctxt,Logger::level_t messageLevel, const std::string & msg,const _CountedRef<Token> & token=NULL)const;
 
 		Tokenizer tokenizer;
 		void pass_1(ParsingContext & ctxt);
@@ -95,8 +85,8 @@ class Parser : public Object {
 		lValue_t getLValue(ParsingContext & ctxt,int from,int to,Object * & obj,StringId & identifier,Object * &indexExpression)const;
 		int findExpression(ParsingContext & ctxt,int cursor)const;
 
-		void throwError(const std::string & msg,Token * token=NULL)const;
-		void throwError(const std::string & msg,const _CountedRef<Token> & token)const	{	throwError(msg,token.get());	}
+		void throwError(ParsingContext & ctxt,const std::string & msg,Token * token=NULL)const;
+		void throwError(ParsingContext & ctxt,const std::string & msg,const _CountedRef<Token> & token)const	{	throwError(ctxt,msg,token.get());	}
 };
 }
 

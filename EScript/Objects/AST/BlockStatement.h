@@ -28,8 +28,6 @@ class BlockStatement : public Object {
 
 		statementList & getStatements()                 {   return statements;  }
 		const statementList & getStatements()const      {   return statements;  }
-		void setFilename(StringId filename)  			{   filenameId=filename;  }
-		std::string getFilename()const                  {   return filenameId.toString();    }
 		int getLine()const								{	return line;	}
 
 
@@ -44,7 +42,6 @@ class BlockStatement : public Object {
 		/// ---|> [Object]
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_BLOCK_STATEMENT; }
 	private:
-		StringId filenameId; // for debugging
 		declaredVariableMap_t * vars;
 		statementList statements;
 		int line;

@@ -750,7 +750,7 @@ bool RuntimeInternals::checkParameterConstraint(Runtime & rt,const ObjPtr & valu
 
 std::string RuntimeInternals::getCurrentFile()const{
 	if(getActiveFCC().isNotNull()){
-		return getActiveFCC()->getUserFunction()->getFilename();
+		return getActiveFCC()->getUserFunction()->getCode().getFilename();
 	}
 	return std::string();
 }

@@ -38,12 +38,12 @@ class Tokenizer {
 		};
 		// ---
 
-		void getTokens( const char * prog,tokenList_t & tokens) throw (Exception *);
+		void getTokens( const char * prog,tokenList_t & tokens);
 		void defineToken(const std::string & name,Token * value);
 
 	private:
 
-		Token * readNextToken(const char * prog, int & cursor,int &line,size_t & startPos,tokenList_t & tokens) throw (Exception *);
+		Token * readNextToken(const char * prog, int & cursor,int &line,size_t & startPos,tokenList_t & tokens);
 		Token * identifyToken(StringId id)const;
 
 		inline bool isNumber(char c) const;

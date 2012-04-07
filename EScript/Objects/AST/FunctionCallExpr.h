@@ -15,16 +15,16 @@ namespace AST {
 class FunctionCallExpr : public Object {
 		ES_PROVIDES_TYPE_NAME(FunctionCallExpr)
 	public:
-		static FunctionCallExpr * createConstructorCall(Object * objExpr,const std::vector<ObjRef> & parameterExpr,StringId filename=StringId(), int line=-1){
-			return new FunctionCallExpr(objExpr,parameterExpr,true,filename,line);
+		static FunctionCallExpr * createConstructorCall(Object * objExpr,const std::vector<ObjRef> & parameterExpr, int line=-1){
+			return new FunctionCallExpr(objExpr,parameterExpr,true,line);
 		}
 
-		static FunctionCallExpr * createFunctionCall(Object * getFunctionExpr,const std::vector<ObjRef> & parameterExpr,StringId filename=StringId(), int line=-1){
-			return new FunctionCallExpr(getFunctionExpr,parameterExpr,false,filename,line);
+		static FunctionCallExpr * createFunctionCall(Object * getFunctionExpr,const std::vector<ObjRef> & parameterExpr, int line=-1){
+			return new FunctionCallExpr(getFunctionExpr,parameterExpr,false,line);
 		}
 
-		static FunctionCallExpr * createSysCall(uint32_t sysCallId,const std::vector<ObjRef> & parameterExpr,StringId filename=StringId(), int line=-1){
-			return new FunctionCallExpr(sysCallId,parameterExpr,filename,line);
+		static FunctionCallExpr * createSysCall(uint32_t sysCallId,const std::vector<ObjRef> & parameterExpr, int line=-1){
+			return new FunctionCallExpr(sysCallId,parameterExpr,line);
 		}
 		virtual ~FunctionCallExpr() {}
 
@@ -39,8 +39,6 @@ class FunctionCallExpr : public Object {
 
 		int getLine()const        						{   return lineNumber;  }
 		void setLine(int i)      						{   lineNumber = i;   }
-		void setFilename(const std::string & filename)  {   filenameId = filename;  }
-		std::string getFilename()const                  {   return filenameId.toString();    }
 
 		bool isConstructorCall()const					{	return constructorCall; }
 		bool isSysCall()const							{	return sysCall; }
@@ -53,14 +51,14 @@ class FunctionCallExpr : public Object {
 
 	protected:
 
-		FunctionCallExpr(Object * exp,const std::vector<ObjRef> & _parameters,bool _isConstructorCall,StringId filename, int line) :
+		FunctionCallExpr(Object * exp,const std::vector<ObjRef> & _parameters,bool _isConstructorCall, int line) :
 				expRef(exp),parameters(_parameters),constructorCall(_isConstructorCall),sysCall(false),sysCallId(0),
-				lineNumber(line),filenameId(filename){
+				lineNumber(line){
 		}
 
-		FunctionCallExpr(uint32_t _sysCallId,const std::vector<ObjRef> & _parameters,StringId filename, int line) :
+		FunctionCallExpr(uint32_t _sysCallId,const std::vector<ObjRef> & _parameters, int line) :
 				expRef(NULL),parameters(_parameters),constructorCall(false),sysCall(true),sysCallId(_sysCallId),
-				lineNumber(line),filenameId(filename){
+				lineNumber(line){
 		}
 
 		ObjRef expRef;
@@ -69,7 +67,6 @@ class FunctionCallExpr : public Object {
 		bool sysCall;
 		uint32_t sysCallId;
 		int lineNumber; // for debugging
-		StringId filenameId; // for debugging
 };
 }
 }

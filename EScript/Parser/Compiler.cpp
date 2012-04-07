@@ -73,20 +73,15 @@ void Compiler::log(CompilerContext & ctxt,Logger::level_t messageLevel, const st
 	logger->log(messageLevel,os.str());
 }
 
-UserFunction * Compiler::compile(const StringData & code){
-	static const StringId inline_id("[inline]");
+UserFunction * Compiler::compile(const CodeFragment & code){
 
 	// prepare container function
 	ERef<UserFunction> fun = new UserFunction();
-	fun->setCodeString(String::create(code),0,code.str().length());
+	fun->setCode(code);
 
 	// parse and build syntax tree
-	ERef<AST::BlockStatement> block(new AST::BlockStatement);
-	block->setFilename(inline_id);
-
 	Parser p(getLogger());
-	p._produceBytecode = true;
-	p.parse(block.get(),code);
+	ERef<AST::BlockStatement> block = p.parse(code);
 
 	// outerBlock is used to add a return statement: {return {block}}
 	ERef<AST::BlockStatement> outerBlock(new AST::BlockStatement);
@@ -100,24 +95,7 @@ UserFunction * Compiler::compile(const StringData & code){
 	return fun.detachAndDecrease();
 }
 
-UserFunction * Compiler::compileFile(const std::string & filename){
-	// prepare container function
-	ERef<UserFunction> fun = new UserFunction();
 
-	// parse and build syntax tree
-	Parser p(getLogger());
-	p._produceBytecode = true;
-	ERef<AST::BlockStatement> block = p.parseFile(filename);
-//	fun->setCodeString(String::create(block->get),0,code.str().length()); //! \todo add code to function!!!
-
-
-	// compile and create instructions
-	CompilerContext ctxt(*this,fun->getInstructions());
-	ctxt.compile(block.get());
-	Compiler::finalizeInstructions(fun->getInstructions());
-
-	return fun.detachAndDecrease();
-}
 //! (static) 
 void Compiler::finalizeInstructions( InstructionBlock & instructionBlock ){
 
@@ -639,8 +617,7 @@ bool initHandler(handlerRegistry_t & m){
 
 		ERef<UserFunction> fun = new UserFunction();
 		fun->setParameterCounts(self->getParamList().size(),self->getMinParamCount(),self->getMaxParamCount());
-		//! \todo set code string
-//		fun->setCodeString(String::create(code),0,code.str().length());
+		fun->setCode(self->getCode());
 
 		CompilerContext ctxt2(ctxt.getCompiler(),fun->getInstructions());
 
