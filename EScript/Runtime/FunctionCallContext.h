@@ -35,7 +35,6 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		};
 		void throwError(error_t error)const;
 
-//		ObjRef caller;
 		_CountedRef<FunctionCallContext> parent;
 		ERef<UserFunction> userFunction;
 		size_t exceptionHandlerPos;
@@ -58,7 +57,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		void enableStopExecutionAfterEnding()			{	stopExecutionAfterEnding = true;	}
 		
 		ObjPtr getCaller()const    						{   return caller; }
-		ERef<UserFunction> getUserFunction()const		{	return userFunction;	}
+		EPtr<UserFunction> getUserFunction()const		{	return userFunction;	}
 
 		size_t getExceptionHandlerPos()const			{	return exceptionHandlerPos;	}
 		size_t getInstructionCursor()const				{	return instructionCursor;	}
@@ -96,6 +95,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 				throwError(UNKNOWN_LOCAL_VARIABLE);
 			return localVariables[index];
 		}
+		std::string getLocalVariablesAsString()const;
 	// @}
 
 	//	-----------------------------
@@ -177,9 +177,9 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 				Object::removeReference(entry.value.value_ObjPtr);
 			}else if(entry.dataType == StackEntry::BOOL){
 				b = entry.value.value_bool;
-			}else if(entry.dataType == StackEntry::VOID){
-			}else{
-				throwError(STACK_WRONG_DATA_TYPE);
+			}else if(entry.dataType == StackEntry::VOID || entry.dataType == StackEntry::UNDEFINED){
+			}else{ // Number || Identifier || STRING_IDX
+				b = true;
 			}
 			valueStack.pop_back();
 			return b;

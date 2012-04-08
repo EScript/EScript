@@ -21,28 +21,9 @@ UserFunctionExpr::Parameter::Parameter(const StringId & _name,Object * defaultVa
 
 
 //! (ctor)
-UserFunctionExpr::UserFunctionExpr(AST::BlockStatement * block):
-		ExtObject(){
-
-	setBlock(block);
+UserFunctionExpr::UserFunctionExpr(AST::BlockStatement * block,const std::vector<ObjRef> & _sConstrExpressions,int _line):
+		ExtObject(), blockRef(block), sConstrExpressions(_sConstrExpressions),line(_line) {
 	//ctor
-}
-//! (ctor)
-UserFunctionExpr::UserFunctionExpr(AST::BlockStatement * block,const std::vector<ObjRef> & _sConstrExpressions):
-		ExtObject(), sConstrExpressions(_sConstrExpressions.begin(),_sConstrExpressions.end()) {
-
-	setBlock(block);
-	//ctor
-}
-
-
-void UserFunctionExpr::setBlock(AST::BlockStatement * _block){
-	blockRef=_block;
-}
-
-
-int UserFunctionExpr::getLine()const	{
-	return blockRef.isNull() ? -1 : blockRef->getLine();
 }
 
 int UserFunctionExpr::getMaxParamCount()const{

@@ -340,3 +340,14 @@ std::string StringUtils::toUpper(const std::string & s){
 	delete[]buffer;
 	return output;
 }
+std::string StringUtils::getLine(const std::string &s,const int lineIndex){
+	size_t cursor = 0;
+	for(int i=0;i<lineIndex;++i){
+		cursor = s.find('\n',cursor);
+		if(cursor == std::string::npos){
+			return "";
+		}
+		++cursor;
+	}
+	return s.substr(cursor, s.find('\n',cursor)-cursor );
+}

@@ -7,6 +7,7 @@
 #include "../EScript.h"
 #include "../Utils/Macros.h"
 #include "../Utils/Helper.h"
+#include "../Utils/StringUtils.h"
 #include "../Objects/Callables/Delegate.h"
 #include "../Objects/Collections/Array.h"
 #include "../Objects/Collections/Map.h"
@@ -79,7 +80,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 		activeInstructionPos = fcc->getInstructionCursor();
 		const Instruction & instruction = instructions->getInstruction(activeInstructionPos);
 		fcc->increaseInstructionCursor();
-//
+////
 //		std::cout << fcc->stack_toDbgString()<<"\n";
 //		std::cout << instruction.toString(*instructions)<<"\n";
 
@@ -771,10 +772,42 @@ void RuntimeInternals::setException(const std::string & s) {
 }
 
 void RuntimeInternals::setException(Exception * e){
-//	e->setStackInfo(getStackInfo());
+	e->setStackInfo(getStackInfo());
 	setExceptionState(e);
 }
 
+std::string RuntimeInternals::getStackInfo(){
+	std::ostringstream os;
+	os<<"\n\n----------------------\nCall stack:";
+	int nr=0;
+	const int skipStart = activeFCCs.size()>50 ? 20 : activeFCCs.size()+1;
+	const int skipEnd = activeFCCs.size()>50 ? activeFCCs.size()-20 : 0;
+	for(std::vector<_CountedRef<FunctionCallContext> >::reverse_iterator it=activeFCCs.rbegin();it!=activeFCCs.rend();++it){
+		++nr;
+		if( nr>=skipStart && nr<skipEnd){
+			continue;
+		}else if(nr==skipStart){
+			os<<"\n\n ... \n";
+		}else{
+			const _CountedRef<FunctionCallContext> & fcc = *it;
+			const EPtr<UserFunction> activeFun = fcc->getUserFunction();
+			const int activeLine = fcc->getInstructions().getLine( fcc->getInstructionCursor() );
+			os<<"\n\n"<<nr<<'.'<<
+				"\t("<< activeFun->getCode().getFilename()<<":"<<activeLine<<')';
+
+			if(activeLine>=0){
+				os<< "\nCode:\t'"<< StringUtils::trim(StringUtils::getLine(activeFun->getCode().getFullCode(),activeLine-1)) <<"'";
+			}
+			os<<"\nFun:\t" << (fcc->getCaller().isNotNull() ? fcc->getCaller()->toDbgString() : "undefined")<<
+				" -> "<<fcc->getUserFunction()->toDbgString();
+			if(nr==1){
+				os<<"\nLocals:\t" << fcc->getLocalVariablesAsString();
+			}
+		}
+	}
+	os<<"\n\n----------------------\n";
+	return os.str();
+}
 
 // -------------------------------------------------------------
 // System calls

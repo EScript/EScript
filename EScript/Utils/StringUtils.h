@@ -41,6 +41,9 @@ std::string toLower(const std::string & s);
 //! Convert lowercase letter to uppercase
 std::string toUpper(const std::string & s);
 
+//! \note the first line has index 0
+std::string getLine(const std::string &s,const int lineIndex);
+
 }
 }
 

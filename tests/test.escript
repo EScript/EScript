@@ -1,7 +1,16 @@
+1 && 2;
+exit;
+
 //
-//var f =fn(){ out("!!!");return 17;};
-//out(f());
-//exit(1);
+//var f =fn(){ 
+//	out("!!!");
+//	Runtime.exception("foo");
+////	1;
+////	throw("foo");
+//};
+//	
+//out( (1->f)());
+//exit;
 // Testcases for HasEScript Scripting-Language
 out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 

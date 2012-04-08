@@ -351,7 +351,7 @@ std::string Instruction::toString(const InstructionBlock & ctxt)const{
 			break;
 
 	}
-
+	out<<" (line "<<line<<")";
 	return out.str();
 }
 }

@@ -112,22 +112,6 @@ void Runtime::init(EScript::Namespace & globals) {
 		ObjRef resultRef=runtime.executeFunction(fun.get(),obj.get(),params);
 		return resultRef.detachAndDecrease();
 	})
-	
-	//! [ESF]  Object _callFunction2(fun[,obj[,Array params]])
-	ES_FUNCTION_DECLARE(typeObject,"_callFunction2",1,3, {
-		ObjPtr fun(parameter[0]);
-		ObjPtr obj(parameter[1].get());
-
-		EPtr<Array> paramArr( (parameter.count()>2) ? assertType<Array>(runtime,parameter[2]) : NULL );
-		ParameterValues params(paramArr.isNotNull() ? paramArr->count() : 0);
-		if(paramArr.isNotNull()){
-			int i=0;
-			for(Array::iterator it=paramArr->begin();it!=paramArr->end();++it)
-				params.set(i++,*it);
-		}
-		ObjRef resultRef=runtime.executeFunction(fun.get(),obj.get(),params);
-		return resultRef.detachAndDecrease();
-	})
 
 	//! [ESF]  Object _getCurrentCaller()
 	ESF_DECLARE(typeObject,"_getCurrentCaller",0,0, runtime.getCallingObject().get() )
@@ -224,13 +208,15 @@ ObjRef Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & caller,const P
 
 ObjPtr Runtime::getCallingObject()const				{	return internals->getCallingObject();	}
 
+std::string Runtime::getCurrentFile()const			{	return internals->getCurrentFile();	}
+
 int Runtime::getCurrentLine()const					{	return internals->getCurrentLine();	}
 
 Namespace * Runtime::getGlobals()const				{	return internals->getGlobals();	}
 
-void Runtime::info(const std::string & s)			{	logger->info(s);	}
+std::string Runtime::getStackInfo()					{	return internals->getStackInfo();	}
 
-std::string Runtime::getCurrentFile()const			{	return internals->getCurrentFile();	}
+void Runtime::info(const std::string & s)			{	logger->info(s);	}
 
 void Runtime::_setExceptionState(const ObjPtr e)	{	internals->setExceptionState(e);	}
 
@@ -264,7 +250,7 @@ void Runtime::setTreatWarningsAsError(bool b){
 void Runtime::throwException(const std::string & s,Object * obj) {
 	std::ostringstream os;
 	os<<s;
-	if(obj) os<<"("<<obj->toString()<<')';
+	if(obj) os<<'('<<obj->toString()<<')';
 	os<<getStackInfo();
 	Exception * e = new Exception(os.str(),getCurrentLine()); // \todo remove line
 	e->setFilename(getCurrentFile());
@@ -349,40 +335,6 @@ uint32_t Runtime::getLogCounter(Logger::level_t level)const{
 }
 
 
-std::string Runtime::getStackInfo(){
-//	std::ostringstream os;
-//	os<<"\n\n----------------------\nCall stack:";
-//	int nr=0;
-//	const int skipStart = functionCallStack.size()>50 ? 20 : functionCallStack.size()+1;
-//	const int skipEnd = functionCallStack.size()>50 ? functionCallStack.size()-20 : 0;
-//	for(std::vector<FunctionCallInfo>::reverse_iterator it=functionCallStack.rbegin();it!=functionCallStack.rend();++it){
-//		++nr;
-//		if(nr==skipStart)
-//			os<<"\n\n ... \n";
-//		if( nr>=skipStart && nr<skipEnd)
-//			continue;
-//		os<<"\n\n"<<nr<<'.';
-//		FunctionCallInfo & i=*it;
-//		if(i.funCall!=NULL)
-//			os<< "\t"<< i.funCall->toDbgString();
-//		if(i.callingObject!=NULL)
-//			os<< "\ncaller:\t"<<i.callingObject;
-//		if(i.function!=NULL)
-//			os<< "\nfun:\t"<<i.function->toDbgString();
-//		if(i.parameterValues!=NULL){
-//			os<< "\nparams:\t";
-//			for(ParameterValues::iterator pIt=i.parameterValues->begin();pIt!=i.parameterValues->end();++pIt){
-//				if(pIt!=i.parameterValues->begin())
-//					os<< ", ";
-//				if( (*pIt)!=NULL)
-//					os<<(*pIt)->toDbgString();
-//			}
-//		}
-//	}
-//	os<<"\n\n----------------------\n";
-//	return os.str();
-	return "STACKINFO"; //! \todo !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-}
 
 // ------------------------------------------------------------------
 

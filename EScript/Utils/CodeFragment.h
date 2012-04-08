@@ -30,7 +30,8 @@ class CodeFragment{
 		std::string getCodeString()const		{	return data.str().substr(start,length); }
 		std::string getFilename()const			{	return filename.toString(); }
 		const std::string & getFullCode()const	{	return data.str(); }
-
+		size_t getLength()const					{	return length;	}
+		size_t getStartPos()const				{	return start;	}
 };
 	
 

@@ -75,6 +75,8 @@ class RuntimeInternals  {
 	public:
 		int getCurrentLine()const;
 		std::string getCurrentFile()const;
+		
+		std::string getStackInfo();
 	// @}
 
 	// --------------------

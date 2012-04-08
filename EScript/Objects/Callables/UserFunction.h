@@ -51,14 +51,16 @@ class UserFunction : public ExtObject {
 		}
 		const InstructionBlock & getInstructions()const 	{	return instructions;	}
 		InstructionBlock & getInstructions() 				{	return instructions;	}
-	
+		int getLine()const									{	return line;	}
+		void setLine(const int l)							{	line = l;	}
 	
 		/// ---|> [Object]
 		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_USER_FUNCTION;	}
 		virtual UserFunction * clone()const					{	return new UserFunction(*this);	}
-
+		virtual std::string toDbgString()const;
 	private:
 		CodeFragment codeFragment;
+		int line;
 		size_t paramCount;
 		int minParamValueCount;
 		int maxParamValueCount;

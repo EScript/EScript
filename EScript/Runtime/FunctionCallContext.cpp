@@ -39,6 +39,17 @@ void FunctionCallContext::release(FunctionCallContext *fcc){
 
 // -------------------------------------------------------------------------
 
+std::string FunctionCallContext::getLocalVariablesAsString()const{
+	const std::vector<StringId> & vars = getInstructions().getLocalVariables();
+	std::ostringstream os;
+	for(size_t i = 0;i<vars.size();++i ){
+		ObjPtr value = getLocalVariable(i);
+		os << '$' << vars[i].toString() << '=' << (value.isNotNull() ? value->toDbgString() : "unset" )<< '\t';
+	}
+	return os.str();
+
+}
+
 void FunctionCallContext::init(const EPtr<UserFunction> _userFunction,const ObjPtr _caller){
 	caller = _caller;
 	userFunction = _userFunction;

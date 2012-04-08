@@ -1054,6 +1054,7 @@ Object * Parser::readFunctionDeclaration(ParsingContext & ctxt,int & cursor)cons
 		throwError(ctxt,"No function! ",tokens.at(cursor));
 	}
 	const size_t codeStartPos = t->getStartingPos();
+	const size_t line = t->getLine();
 
 	++cursor;
 
@@ -1113,7 +1114,7 @@ Object * Parser::readFunctionDeclaration(ParsingContext & ctxt,int & cursor)cons
 	++cursor;
 
 	{	// create function expression
-		UserFunctionExpr * uFunExpr = new UserFunctionExpr(block,superConCallExpressions);
+		UserFunctionExpr * uFunExpr = new UserFunctionExpr(block,superConCallExpressions,line);
 		uFunExpr->getParamList().swap(params);	// set parameter expressions
 
 		// store code segment in userFunction

@@ -47,16 +47,31 @@ void UserFunction::init(EScript::Namespace & globals) {
 
 //! (ctor)
 UserFunction::UserFunction(const UserFunction & other) : 
-		ExtObject(other),codeFragment(other.codeFragment),
+		ExtObject(other),codeFragment(other.codeFragment),line(other.line),
 		paramCount(other.paramCount),minParamValueCount(other.minParamValueCount),maxParamValueCount(other.maxParamValueCount),
 		instructions(other.instructions){
 }
 
 //! (ctor)
 UserFunction::UserFunction() : 
-		ExtObject(getTypeObject()),paramCount(0),minParamValueCount(0),maxParamValueCount(0) {
+		ExtObject(getTypeObject()),line(-1),paramCount(0),minParamValueCount(0),maxParamValueCount(0) {
 //	initInstructions();
 	//ctor
 }
 //! (ctor)
 UserFunction::~UserFunction(){}
+
+//! ---|> Object
+std::string UserFunction::toDbgString()const{
+	std::ostringstream os;
+	// UserFunction is created from "eval" or "load" and has no own "fn(...)"-part
+	if(getLine()<0){
+		os << toString()<<"_("<<codeFragment.getFilename()<<")";
+	}else{
+		size_t end = codeFragment.getFullCode().find('{',codeFragment.getStartPos());
+		os << codeFragment.getFullCode().substr(codeFragment.getStartPos(),end-codeFragment.getStartPos()) 
+		<< "{...}_("<<codeFragment.getFilename()<<":"<< getLine() <<")";
+	}
+	
+	return os.str();
+}

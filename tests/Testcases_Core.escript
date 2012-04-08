@@ -1,6 +1,5 @@
 return fn(){
 // -------------------
-
 var OK="\t ok\n";
 var FAILED="\t failed\n";
 

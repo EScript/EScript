@@ -76,7 +76,7 @@ void Compiler::log(CompilerContext & ctxt,Logger::level_t messageLevel, const st
 UserFunction * Compiler::compile(const CodeFragment & code){
 
 	// prepare container function
-	ERef<UserFunction> fun = new UserFunction();
+	ERef<UserFunction> fun = new UserFunction;
 	fun->setCode(code);
 
 	// parse and build syntax tree
@@ -615,9 +615,10 @@ bool initHandler(handlerRegistry_t & m){
 	// user function
 	ADD_HANDLER( _TypeIds::TYPE_USER_FUNCTION_EXPRESSION, UserFunctionExpr, {
 
-		ERef<UserFunction> fun = new UserFunction();
+		ERef<UserFunction> fun = new UserFunction;
 		fun->setParameterCounts(self->getParamList().size(),self->getMinParamCount(),self->getMaxParamCount());
 		fun->setCode(self->getCode());
+		fun->setLine(self->getLine());
 
 		CompilerContext ctxt2(ctxt.getCompiler(),fun->getInstructions());
 

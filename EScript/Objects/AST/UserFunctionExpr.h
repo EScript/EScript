@@ -56,13 +56,14 @@ class UserFunctionExpr : public ExtObject {
 
 	/*! @name Main */
 	//	@{
-		UserFunctionExpr(AST::BlockStatement * block);
-		UserFunctionExpr(AST::BlockStatement * block,const std::vector<ObjRef> & _sConstrExpressions);
+		UserFunctionExpr(AST::BlockStatement * block,const std::vector<ObjRef> & _sConstrExpressions,int line);
 		virtual ~UserFunctionExpr() {}
 
-		void setBlock(AST::BlockStatement * block);
 		AST::BlockStatement * getBlock()const				{	return blockRef.get();	}
-		int getLine()const;
+		const CodeFragment & getCode()const					{	return code;	}
+		int getLine()const									{	return line;	}
+		int getMaxParamCount()const;
+		int getMinParamCount()const;
 		const parameterList_t & getParamList()const			{	return params;	}
 		parameterList_t & getParamList()					{	return params;	}
 
@@ -70,19 +71,16 @@ class UserFunctionExpr : public ExtObject {
 		const std::vector<ObjRef> & getSConstructorExpressions()const	{	return sConstrExpressions;	}
 
 		void setCode(const CodeFragment & _code)			{	code = _code;	}
-		const CodeFragment & getCode()const					{	return code;	}
-		int getMaxParamCount()const;
-		int getMinParamCount()const;
 	
 		/// ---|> [Object]
 		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_USER_FUNCTION_EXPRESSION;	}
 
 	private:
 		ERef<AST::BlockStatement> blockRef;
-		parameterList_t params; // \todo should this really saved as a pointer???
+		parameterList_t params; 
 		std::vector<ObjRef> sConstrExpressions;
-
 		CodeFragment code;
+		int line;
 	//	@}
 };
 }
