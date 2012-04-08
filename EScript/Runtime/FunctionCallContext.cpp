@@ -44,7 +44,7 @@ std::string FunctionCallContext::getLocalVariablesAsString()const{
 	std::ostringstream os;
 	for(size_t i = 0;i<vars.size();++i ){
 		ObjPtr value = getLocalVariable(i);
-		os << '$' << vars[i].toString() << '=' << (value.isNotNull() ? value->toDbgString() : "unset" )<< '\t';
+		os << '$' << vars[i].toString() << '=' << (value.isNotNull() ? value->toDbgString() : "undefined" )<< '\t';
 	}
 	return os.str();
 

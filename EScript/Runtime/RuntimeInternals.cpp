@@ -22,7 +22,7 @@ namespace EScript{
 
 //! (ctor)
 RuntimeInternals::RuntimeInternals(Runtime & rt) : 
-		runtime(rt),activeInstructionPos(-1),state(STATE_NORMAL){
+		runtime(rt),state(STATE_NORMAL){
 	initSystemFunctions();
 	
 	globals = EScript::getSGlobals()->clone();
@@ -77,9 +77,8 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 		}
 
 		//! \todo this could probably improved by using iterators internally!
-		activeInstructionPos = fcc->getInstructionCursor();
-		const Instruction & instruction = instructions->getInstruction(activeInstructionPos);
-		fcc->increaseInstructionCursor();
+		const Instruction & instruction = instructions->getInstruction(fcc->getInstructionCursor());
+		
 ////
 //		std::cout << fcc->stack_toDbgString()<<"\n";
 //		std::cout << instruction.toString(*instructions)<<"\n";
@@ -112,6 +111,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			}else{
 				warn("Attribute not found..."); //! \todo proper warning!
 			}
+			fcc->increaseInstructionCursor();
 			continue;
 		}
 		case Instruction::I_ASSIGN_LOCAL:{
@@ -120,6 +120,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				pop value
 				$variableIndex = value	*/
 			fcc->assignToLocalVariable(instruction.getValue_uint32(), fcc->stack_popObjectValue());
+			fcc->increaseInstructionCursor();
 			continue;
 		}
 
@@ -142,6 +143,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			}else{
 				warn("Attribute not found..."); //! \todo proper warning!
 			}
+			fcc->increaseInstructionCursor();
 			continue;
 		}
 		case Instruction::I_CALL:{ 
@@ -169,6 +171,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 
 			// returnValue , newUserFunctionCallContext
 			executeFunctionResult_t result = startFunctionExecution(fun,caller,params);
+			fcc->increaseInstructionCursor();
 			if(result.second){
 				fcc = result.second;
 				pushActiveFCC(fcc);
@@ -207,6 +210,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			}
 
 			executeFunctionResult_t result = startInstanceCreation(type,params);
+			fcc->increaseInstructionCursor();
 			if(result.second){
 				fcc = result.second;
 				pushActiveFCC(fcc);
@@ -229,11 +233,13 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			const ObjPtr localVariable = fcc->getLocalVariable(instruction.getValue_uint32());
 			const ObjRef typeOrObj = fcc->stack_popObject();
 			fcc->stack_pushBool( checkParameterConstraint(runtime,localVariable,typeOrObj) );
+			fcc->increaseInstructionCursor();
 			continue;
 		}
 		case Instruction::I_DUP:{
 			// duplicate topmost stack entry
 			fcc->stack_dup();
+			fcc->increaseInstructionCursor();
 			continue;
 		}
 		case Instruction::I_FIND_VARIABLE:{
@@ -244,6 +250,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				if(attr.isNotNull()){
 					fcc->stack_pushObject(fcc->getCaller());
 					fcc->stack_pushObject(attr.getValue());
+					fcc->increaseInstructionCursor();
 					continue;
 				}
 			}
@@ -256,6 +263,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				fcc->stack_pushVoid();
 				fcc->stack_pushVoid();
 			}
+			fcc->increaseInstructionCursor();
 			break;
 		}
 		case Instruction::I_GET_ATTRIBUTE:{ //! \todo check for @(private)
@@ -272,6 +280,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			}else{
 				fcc->stack_pushObject( attr.getValue() );
 			}
+			fcc->increaseInstructionCursor();
 			continue;
 		}
 		case Instruction::I_GET_VARIABLE:{
@@ -281,6 +290,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				const Attribute & attr = fcc->getCaller()->getAttribute(instruction.getValue_Identifier());
 				if(attr.isNotNull()){
 					fcc->stack_pushObject(attr.getValue());
+					fcc->increaseInstructionCursor();
 					continue;
 				}
 			}
@@ -291,6 +301,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				warn("Variable not found: "); //! \todo proper warning!
 				fcc->stack_pushVoid();
 			}
+			fcc->increaseInstructionCursor();
 			break;
 		}
 		case Instruction::I_GET_LOCAL_VARIABLE:{
@@ -298,6 +309,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				------------
 				push $variableIndex	*/
 			fcc->stack_pushObject( fcc->getLocalVariable(instruction.getValue_uint32()).get() );
+			fcc->increaseInstructionCursor();
 			continue;
 		}
 		case Instruction::I_INIT_CALLER:{
@@ -308,6 +320,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 					warn("Calling constructor function with @(super) attribute as normal function.");
 				}
 //				fcc->initCaller(fcc->getCaller()); ???????
+				fcc->increaseInstructionCursor();
 				continue;
 			}
 
@@ -324,6 +337,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			// call super constructor
 			ObjRef superConstructor = fcc->stack_popObjectValue();
 			executeFunctionResult_t result = startFunctionExecution(superConstructor,fcc->getCaller(),params);
+			fcc->increaseInstructionCursor();
 			std::vector<ObjPtr> constructors;
 			while(!fcc->stack_empty()){
 				constructors.push_back(fcc->stack_popObject());
@@ -363,16 +377,22 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				jmp if variable != NULL */
 			if( fcc->getLocalVariable( fcc->stack_popUInt32() ).isNotNull() )
 				fcc->setInstructionCursor( instruction.getValue_uint32() );
+			else
+				fcc->increaseInstructionCursor();
 			continue;
 		}
 		case Instruction::I_JMP_ON_TRUE:{
 			if(fcc->stack_popBool())
 				fcc->setInstructionCursor( instruction.getValue_uint32() );
+			else
+				fcc->increaseInstructionCursor();
 			continue;
 		}
 		case Instruction::I_JMP_ON_FALSE:{
 			if(!fcc->stack_popBool())
 				fcc->setInstructionCursor( instruction.getValue_uint32() );
+			else
+				fcc->increaseInstructionCursor();
 			continue;
 		}
 		case Instruction::I_NOT:{
@@ -381,48 +401,59 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				bool b = popBool
 				push !b	*/
 			fcc->stack_pushBool( !fcc->stack_popBool() );
+			fcc->increaseInstructionCursor();
 			continue;
 		}
 		case Instruction::I_POP:{
 			// remove entry from stack
 			fcc->stack_pop();
+			fcc->increaseInstructionCursor();
 			continue;
 		}
 		case Instruction::I_PUSH_BOOL:{
 			fcc->stack_pushBool( instruction.getValue_Bool() );
+			fcc->increaseInstructionCursor();
 			continue;
 		}
 		case Instruction::I_PUSH_ID:{
 			fcc->stack_pushIdentifier( instruction.getValue_Identifier() );
+			fcc->increaseInstructionCursor();
 			continue;
 		}
 		case Instruction::I_PUSH_FUNCTION:{
 			fcc->stack_pushFunction( instruction.getValue_uint32() );
+			fcc->increaseInstructionCursor();
 			continue;
 		}
 		case Instruction::I_PUSH_NUMBER:{
 			fcc->stack_pushNumber( instruction.getValue_Number() );
+			fcc->increaseInstructionCursor();
 			continue;
 		}
 		case Instruction::I_PUSH_STRING:{
 			fcc->stack_pushStringIndex( instruction.getValue_uint32() );
+			fcc->increaseInstructionCursor();
 			continue;
 		}
 		case Instruction::I_PUSH_UINT:{
 			fcc->stack_pushUInt32( instruction.getValue_uint32() );
+			fcc->increaseInstructionCursor();
 			continue;
 		}
 		case Instruction::I_PUSH_UNDEFINED:{
 			fcc->stack_pushUndefined();
+			fcc->increaseInstructionCursor();
 			continue;
 		}		
 		case Instruction::I_PUSH_VOID:{
 			fcc->stack_pushVoid( );
+			fcc->increaseInstructionCursor();
 			continue;
 		}
 		case Instruction::I_RESET_LOCAL_VARIABLE:{
 			// $localVarId = NULL
 			fcc->assignToLocalVariable(instruction.getValue_uint32(), NULL);
+			fcc->increaseInstructionCursor();
 			continue;
 		}
 		case Instruction::I_SET_ATTRIBUTE:{
@@ -442,10 +473,12 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			if(!obj->setAttribute(instruction.getValue_Identifier(),Attribute(value,properties))){
 				warn("Could not set Attribute..."); //! \todo proper warning!
 			}
+			fcc->increaseInstructionCursor();
 			continue;
 		}
 		case Instruction::I_SET_EXCEPTION_HANDLER:{
 			fcc->setExceptionHandlerPos(instruction.getValue_uint32());
+			fcc->increaseInstructionCursor();
 			continue;
 		}
 		case Instruction::I_SYS_CALL:{
@@ -467,6 +500,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				paramRefHolder.push_back(paramValue);
 			}
 			fcc->stack_pushObject( sysCall(funId,params) );
+			fcc->increaseInstructionCursor();
 			break;
 		}
 		case Instruction::I_YIELD:{
@@ -477,6 +511,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			ERef<YieldIterator> yIt = new YieldIterator();
 			yIt->setFCC(fcc);
 			yIt->setValue(value);
+			fcc->increaseInstructionCursor();
 			if(fcc->isExecutionStoppedAfterEnding()){
 				popActiveFCC();
 				return yIt.detachAndDecrease();
@@ -494,6 +529,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 		case Instruction::I_UNDEFINED:
 		case Instruction::I_SET_MARKER:
 		default:{
+			fcc->increaseInstructionCursor();
 			warn("Unknown Instruction");
 		}
 		}
@@ -757,8 +793,8 @@ std::string RuntimeInternals::getCurrentFile()const{
 }
 
 int RuntimeInternals::getCurrentLine()const{
-	if(getActiveFCC().isNotNull() && activeInstructionPos>=0){
-		return getActiveFCC()->getInstructions().getLine(activeInstructionPos);
+	if(getActiveFCC().isNotNull()){
+		return getActiveFCC()->getInstructions().getLine(getActiveFCC()->getInstructionCursor());
 	}else{
 		return -1;
 	}

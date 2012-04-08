@@ -1,6 +1,4 @@
-1 && 2;
-exit;
-
+//
 //
 //var f =fn(){ 
 //	out("!!!");
@@ -8,7 +6,7 @@ exit;
 ////	1;
 ////	throw("foo");
 //};
-//	
+////	
 //out( (1->f)());
 //exit;
 // Testcases for HasEScript Scripting-Language

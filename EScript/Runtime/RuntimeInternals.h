@@ -47,8 +47,7 @@ class RuntimeInternals  {
 
 	private:
 		std::vector<_CountedRef<FunctionCallContext> > activeFCCs;
-		int activeInstructionPos;	
-	
+
 		static bool checkParameterConstraint(Runtime & rt,const ObjPtr & value,const ObjPtr & constraint);
 		_Ptr<FunctionCallContext> getActiveFCC()const			{	return activeFCCs.empty() ? NULL : activeFCCs.back();	}
 
