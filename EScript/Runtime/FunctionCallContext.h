@@ -37,7 +37,6 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		};
 		void throwError(error_t error)const;
 
-		_CountedRef<FunctionCallContext> parent;
 		ERef<UserFunction> userFunction;
 		size_t exceptionHandlerPos;
 		instructionCursor_t instructionCursor;

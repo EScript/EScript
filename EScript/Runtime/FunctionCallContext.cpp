@@ -74,6 +74,7 @@ void FunctionCallContext::initCaller(const ObjPtr _caller){
 
 
 void FunctionCallContext::reset(){
+	caller = NULL;
 	userFunction = NULL;
 	localVariables.clear();
 	while(!valueStack.empty())
