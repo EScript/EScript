@@ -46,6 +46,9 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 
 //	std::cout << fcc->getInstructions().toString()<<"\n";
 
+	while( true ){ // \note this is only used to add an additional block for the exception catching for performance. \todo The benefit has to be evaluated! 
+	try{
+
 	while( true ){
 		// end of function? continue with calling function
 		if(fcc->getInstructionCursor() >= instructions->getNumInstructions()){
@@ -106,6 +109,10 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 						break;
 					}else if(attr->isPrivate() && fcc->getCaller()!=obj ) {
 						setException("Cannot access private attribute from outside of its owning object.");
+						break;
+					}else if(attr->isReference() && attr->getValue()!=NULL  ) {
+						attr->getValue()->_assignValue(value);
+						fcc->increaseInstructionCursor();
 						break;
 					}
 				}
@@ -538,7 +545,54 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 		// --------------------------------------------------------------------------------------------------------------
 		if(getState()==STATE_NORMAL){
 			continue;
-		}else if(getState()==STATE_EXCEPTION){
+		}else {
+			break;
+		}
+//		if(getState()==STATE_EXCEPTION){
+//			while(true){
+//				fcc->stack_clear(); // remove current stack content
+//				
+//				// catch-block available?
+//				if(fcc->getExceptionHandlerPos()!=Instruction::INVALID_JUMP_ADDRESS){
+//					fcc->assignToLocalVariable(Consts::LOCAL_VAR_INDEX_internalResult,getResult()); // ___result = exceptionResult
+//					resetState();
+//					fcc->setInstructionCursor(fcc->getExceptionHandlerPos());
+//					break;
+//				} // execution stops here? Keep the exception-state and return;
+//				else if(fcc->isExecutionStoppedAfterEnding()){
+//					popActiveFCC();
+//					return NULL;
+//				} // continue with the next fcc...
+//				else{
+//					popActiveFCC();
+//					fcc = getActiveFCC();
+//					if(fcc.isNull())
+//						return NULL;
+//					instructions = &fcc->getInstructions();
+//				}
+//			}
+//		} else if(getState()==STATE_EXITING){
+//			while(true){
+//				// execution stops here? Keep the exiting-state and return;
+//				if(fcc->isExecutionStoppedAfterEnding()){
+//					popActiveFCC();
+//					return NULL;
+//				} // continue with the next fcc...
+//				else{
+//					popActiveFCC();
+//					fcc = getActiveFCC();
+//					if(fcc.isNull())
+//						return NULL;
+//					instructions = &fcc->getInstructions();
+//				}
+//			}
+//		}
+	}
+	// -----------
+	}catch(Object * e){
+		setException(dynamic_cast<Exception*>(e));
+	}
+	if(getState()==STATE_EXCEPTION){
 			while(true){
 				fcc->stack_clear(); // remove current stack content
 				
@@ -577,6 +631,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				}
 			}
 		}
+	
 	}
 	return Void::get();
 }

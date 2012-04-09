@@ -1,5 +1,3 @@
-//
-//
 //var f =fn(){ 
 //	out("!!!");
 //	Runtime.exception("foo");
@@ -9,6 +7,7 @@
 ////	
 //out( (1->f)());
 //exit;
+(fn(){})._asm();
 // Testcases for HasEScript Scripting-Language
 out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 
@@ -144,7 +143,7 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 
 //----
 // init
-GLOBALS.benchmark:=false;
+GLOBALS.benchmark:=true;
 GLOBALS.errors:=0; // error count
 //! new testing function
 GLOBALS.test := fn(description,result,checkCoverageType=false){
