@@ -85,7 +85,9 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 
 		// --------------------------------------------------------------------------------------------------------------
 		// Instructio execution...
-		
+		/* \note
+			Use a 'break' to end a case to check the state before continuing.
+			In other words: Use 'continue' only if no exception or warning may occur.*/
 		switch(instruction.getType()){
 
 		case Instruction::I_ASSIGN_ATTRIBUTE:{
@@ -112,7 +114,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				warn("Attribute not found: '"+instruction.getValue_Identifier().toString()+'\''); 
 			}
 			fcc->increaseInstructionCursor();
-			continue;
+			break;					
 		}
 		case Instruction::I_ASSIGN_LOCAL:{
 			/* 	assignLocal (uint32_t) variableIndex
@@ -144,7 +146,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				warn("Attribute not found: '"+instruction.getValue_Identifier().toString()+'\''); 
 			}
 			fcc->increaseInstructionCursor();
-			continue;
+			break;
 		}
 		case Instruction::I_CALL:{ 
 			/*	call (uint32_t) numParams
@@ -234,7 +236,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			const ObjRef typeOrObj = fcc->stack_popObject();
 			fcc->stack_pushBool( checkParameterConstraint(runtime,localVariable,typeOrObj) );
 			fcc->increaseInstructionCursor();
-			continue;
+			break;
 		}
 		case Instruction::I_DUP:{
 			// duplicate topmost stack entry
@@ -281,7 +283,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				fcc->stack_pushObject( attr.getValue() );
 			}
 			fcc->increaseInstructionCursor();
-			continue;
+			break;
 		}
 		case Instruction::I_GET_VARIABLE:{
 			/*	if caller.Identifier -> push (caller.Identifier)
