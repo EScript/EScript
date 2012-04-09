@@ -143,7 +143,7 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 
 //----
 // init
-GLOBALS.benchmark:=true;
+GLOBALS.benchmark:=false;
 GLOBALS.errors:=0; // error count
 //! new testing function
 GLOBALS.test := fn(description,result,checkCoverageType=false){
