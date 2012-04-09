@@ -27,6 +27,8 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 
 	//! @name Main
 	// @{
+	public:
+		typedef std::vector<Instruction>::const_iterator instructionCursor_t;
 	private:
 		enum error_t{
 			STACK_EMPTY_ERROR,
@@ -38,10 +40,10 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		_CountedRef<FunctionCallContext> parent;
 		ERef<UserFunction> userFunction;
 		size_t exceptionHandlerPos;
-		size_t instructionCursor;
+		instructionCursor_t instructionCursor;
 		ObjRef caller;
 
-		FunctionCallContext() : instructionCursor(0) {}
+		FunctionCallContext()  {}
 		~FunctionCallContext(){}
 		void reset();
 		void init(const EPtr<UserFunction> userFunction,const ObjPtr _caller);
@@ -57,10 +59,16 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		void enableStopExecutionAfterEnding()			{	stopExecutionAfterEnding = true;	}
 		
 		ObjPtr getCaller()const    						{   return caller; }
+		int getCurrentLine()const{
+			return instructionCursor == getInstructions().end() ? -1 : instructionCursor->getLine();	
+		}
+		size_t getExceptionHandlerPos()const			{	return exceptionHandlerPos;	}
+		const InstructionBlock & getInstructionBlock()const		{	return userFunction->getInstructionBlock();	}
+		const instructionCursor_t & getInstructionCursor()const	{	return instructionCursor;	}
+		const std::vector<Instruction> & getInstructions()const	{	return userFunction->getInstructionBlock().getInstructions();	}
 		EPtr<UserFunction> getUserFunction()const		{	return userFunction;	}
 
-		size_t getExceptionHandlerPos()const			{	return exceptionHandlerPos;	}
-		size_t getInstructionCursor()const				{	return instructionCursor;	}
+		void increaseInstructionCursor()				{	++instructionCursor;	}
 		
 		//! Set the caller-object; the caller-member as well as the local-'this'-variable
 		void initCaller(const ObjPtr _caller);
@@ -69,13 +77,10 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		bool isExecutionStoppedAfterEnding()const		{	return stopExecutionAfterEnding;	}
 		void markAsConstructorCall()					{	constructorCall = true;	}
 		void setExceptionHandlerPos(const size_t p)		{	exceptionHandlerPos = p;	}
-		void setInstructionCursor(const size_t p)		{	instructionCursor = p;	}
-		void increaseInstructionCursor()				{	++instructionCursor;	}
-
-		const InstructionBlock & getInstructions()const	{	return userFunction->getInstructions();	}
-		InstructionBlock & getInstructions()			{	return userFunction->getInstructions();	}
-//		const Instruction & getNextInstruction()const	{	instructionCursor._accessInstructions(instructionCursor); }
-//		bool isInstructionAvailable()const				{	instructionCursor<}
+		void setInstructionCursor(const size_t p){
+			const std::vector<Instruction> & instructions = getInstructions();
+			instructionCursor = (p>=instructions.size() ? instructions.end() : instructions.begin()+p);	
+		}
 	// @}
 
 	//	-----------------------------
@@ -144,7 +149,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		void stack_pushBool(const bool value)			{	valueStack.insert(valueStack.end(),StackEntry::BOOL)->value.value_bool = value; }
 		void stack_pushUndefined()						{	valueStack.push_back(StackEntry::UNDEFINED);	 }
 		void stack_pushFunction(const uint32_t functionIndex){
-			UserFunction * uFun = userFunction->getInstructions().getUserFunction(functionIndex);
+			UserFunction * uFun = userFunction->getInstructionBlock().getUserFunction(functionIndex);
 			Object::addReference(uFun);
 			valueStack.insert(valueStack.end(),StackEntry::OBJECT_PTR)->value.value_ObjPtr = uFun;
 		}

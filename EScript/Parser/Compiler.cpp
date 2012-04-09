@@ -86,9 +86,9 @@ UserFunction * Compiler::compile(const CodeFragment & code){
 	outerBlock->addStatement(AST::Statement(AST::Statement::TYPE_RETURN,block.get()));
 	
 	// compile and create instructions
-	CompilerContext ctxt(*this,fun->getInstructions(),code);
+	CompilerContext ctxt(*this,fun->getInstructionBlock(),code);
 	ctxt.compile(outerBlock.get());
-	Compiler::finalizeInstructions(fun->getInstructions());
+	Compiler::finalizeInstructions(fun->getInstructionBlock());
 
 	return fun.detachAndDecrease();
 }
@@ -623,12 +623,12 @@ bool initHandler(handlerRegistry_t & m){
 		fun->setCode(self->getCode());
 		fun->setLine(self->getLine());
 
-		CompilerContext ctxt2(ctxt.getCompiler(),fun->getInstructions(),self->getCode());
+		CompilerContext ctxt2(ctxt.getCompiler(),fun->getInstructionBlock(),self->getCode());
 		ctxt2.setLine(self->getLine()); // set the line of all initializations to the line of the function declaration
 		
 		// declare a local variables for each parameter expression
 		for(UserFunctionExpr::parameterList_t::const_iterator it = self->getParamList().begin();it!=self->getParamList().end();++it){
-			fun->getInstructions().declareLocalVariable( it->getName() );
+			fun->getInstructionBlock().declareLocalVariable( it->getName() );
 		}
 
 		ctxt2.pushSetting_basicLocalVars(); // make 'this' and parameters available
@@ -698,10 +698,6 @@ bool initHandler(handlerRegistry_t & m){
 					ctxt2.addInstruction(Instruction::createPop());
 				}
 			}
-//			ctxt2.addInstruction(Instruction::createSetMarker(lastTypeOkMarker));
-//			ctxt2.addInstruction(Instruction::createPop()); //the last constraint was the right one -> remove the unused type info from the stack.
-//			
-//			ctxt2.addInstruction(Instruction::createSetMarker(typeOkMarker));
 		}
 
 		// add super-constructor parameters
@@ -714,7 +710,7 @@ bool initHandler(handlerRegistry_t & m){
 
 		ctxt2.compile(Statement(Statement::TYPE_STATEMENT,self->getBlock()));
 		ctxt2.popSetting();
-		Compiler::finalizeInstructions(fun->getInstructions());
+		Compiler::finalizeInstructions(fun->getInstructionBlock());
 
 		ctxt.addInstruction(Instruction::createPushFunction(ctxt.registerInternalFunction(fun.get())));
 

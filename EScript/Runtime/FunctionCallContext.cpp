@@ -40,7 +40,7 @@ void FunctionCallContext::release(FunctionCallContext *fcc){
 // -------------------------------------------------------------------------
 
 std::string FunctionCallContext::getLocalVariablesAsString(const bool includeUndefined)const{
-	const std::vector<StringId> & vars = getInstructions().getLocalVariables();
+	const std::vector<StringId> & vars = getInstructionBlock().getLocalVariables();
 	std::ostringstream os;
 	for(size_t i = 0;i<vars.size();++i ){
 		ObjPtr value = getLocalVariable(i);
@@ -55,13 +55,13 @@ std::string FunctionCallContext::getLocalVariablesAsString(const bool includeUnd
 void FunctionCallContext::init(const EPtr<UserFunction> _userFunction,const ObjPtr _caller){
 	caller = _caller;
 	userFunction = _userFunction;
-	instructionCursor = 0;
+	instructionCursor = getInstructions().begin();
 	constructorCall = false;
 	awaitsCaller = false;
 	stopExecutionAfterEnding = false;
 	exceptionHandlerPos = Instruction::INVALID_JUMP_ADDRESS;
 	
-	localVariables.resize(userFunction->getInstructions().getNumLocalVars());
+	localVariables.resize(getInstructionBlock().getNumLocalVars());
 	
 	localVariables[Consts::LOCAL_VAR_INDEX_this] = caller; // ?????????????????
 	localVariables[Consts::LOCAL_VAR_INDEX_thisFn] = userFunction.get();
@@ -109,7 +109,7 @@ Object * FunctionCallContext::stack_popObject(){
 		break;
 	}	
 	case StackEntry::STRING_IDX:{
-		obj = String::create(getInstructions().getStringConstant(entry.value.value_stringIndex));
+		obj = String::create(getInstructionBlock().getStringConstant(entry.value.value_stringIndex));
 		break;
 	}	
 	case StackEntry::UNDEFINED:{
@@ -160,7 +160,7 @@ Object * FunctionCallContext::stack_popObjectValue(){
 	case StackEntry::STRING_IDX:{
 		const uint32_t value = entry.value.value_stringIndex;
 		valueStack.pop_back();
-		return String::create(getInstructions().getStringConstant(value));
+		return String::create(getInstructionBlock().getStringConstant(value));
 	}
 	case StackEntry::UNDEFINED:{
 		valueStack.pop_back();

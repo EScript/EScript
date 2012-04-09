@@ -67,7 +67,7 @@ std::string InstructionBlock::toString()const{
 			UserFunction * uFun = getUserFunction(i);
 			if(uFun){
 				out << "<Function #"<<i<<"\n";
-				out << uFun->getInstructions().toString();
+				out << uFun->getInstructionBlock().toString();
 				out << "Function #"<<i<<">\n";
 			}
 		}

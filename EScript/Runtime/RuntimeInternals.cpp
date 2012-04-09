@@ -42,14 +42,15 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 
 	fcc->enableStopExecutionAfterEnding();
 	pushActiveFCC(fcc);
-	InstructionBlock * instructions = &fcc->getInstructions();
 
 //	std::cout << fcc->getInstructions().toString()<<"\n";
 
 	while( true ){
 
+		const std::vector<Instruction> & instructions = fcc->getInstructions();
+
 		// end of function? continue with calling function
-		if(fcc->getInstructionCursor() >= instructions->getNumInstructions()){
+		if(fcc->getInstructionCursor() == instructions.end()){
 			ObjRef result = fcc->getLocalVariable(Consts::LOCAL_VAR_INDEX_internalResult);
 			if(fcc->isConstructorCall()){
 				if(result.isNotNull()){
@@ -68,7 +69,6 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				return result.detachAndDecrease();
 			}
 			
-			instructions = &fcc->getInstructions();
 			if(fcc->isAwaitingCaller()){
 				fcc->initCaller(result);
 			}else{
@@ -78,7 +78,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 		}
 
 		//! \todo this could probably improved by using iterators internally!
-		const Instruction & instruction = instructions->getInstruction(fcc->getInstructionCursor());
+		const Instruction & instruction = *fcc->getInstructionCursor();
 		
 ////
 //		std::cout << fcc->stack_toDbgString()<<"\n";
@@ -184,7 +184,6 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			if(result.second){
 				fcc = result.second;
 				pushActiveFCC(fcc);
-				instructions = &fcc->getInstructions();
 			}else{
 				fcc->stack_pushObject(result.first);
 			}
@@ -223,7 +222,6 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			if(result.second){
 				fcc = result.second;
 				pushActiveFCC(fcc);
-				instructions = &fcc->getInstructions();
 			}else{
 				fcc->stack_pushObject(result.first);
 			}
@@ -356,7 +354,6 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				// pass remaining super constructors to new calling context
 				fcc = result.second;
 				pushActiveFCC(fcc);
-				instructions = &fcc->getInstructions();
 				for(std::vector<ObjPtr>::const_reverse_iterator it = constructors.rbegin();it!=constructors.rend();++it) 
 					fcc->stack_pushObject( *it );
 				fcc->enableAwaitingCaller();
@@ -530,7 +527,6 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				fcc = getActiveFCC();
 				if(fcc.isNull())
 					return NULL;
-				instructions = &fcc->getInstructions();
 				fcc->stack_pushObject(yIt.get());
 			}
 			break;
@@ -568,7 +564,6 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 					fcc = getActiveFCC();
 					if(fcc.isNull())
 						return NULL;
-					instructions = &fcc->getInstructions();
 				}
 			}
 		} else if(getState()==STATE_EXITING){
@@ -583,7 +578,6 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 					fcc = getActiveFCC();
 					if(fcc.isNull())
 						return NULL;
-					instructions = &fcc->getInstructions();
 				}
 			}
 		}
@@ -807,7 +801,7 @@ std::string RuntimeInternals::getCurrentFile()const{
 
 int RuntimeInternals::getCurrentLine()const{
 	if(getActiveFCC().isNotNull()){
-		return getActiveFCC()->getInstructions().getLine(getActiveFCC()->getInstructionCursor());
+		return getActiveFCC()->getCurrentLine();
 	}else{
 		return -1;
 	}
@@ -840,7 +834,7 @@ std::string RuntimeInternals::getStackInfo(){
 		}else{
 			const _CountedRef<FunctionCallContext> & fcc = *it;
 			const EPtr<UserFunction> activeFun = fcc->getUserFunction();
-			const int activeLine = fcc->getInstructions().getLine( fcc->getInstructionCursor() );
+			const int activeLine = -1; // fcc->getInstructions().getLine( fcc->getInstructionCursor() ); //////////////////////////////////
 			os<<"\n\n"<<nr<<'.'<<
 				"\t("<< activeFun->getCode().getFilename()<<":"<<activeLine<<')';
 

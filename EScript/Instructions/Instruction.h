@@ -18,7 +18,6 @@ class InstructionBlock;
 class Instruction {
 	public:
 		enum type_t{
-			I_UNDEFINED,
 			I_ASSIGN_ATTRIBUTE,				// -2
 			I_ASSIGN_LOCAL,					// -1
 			I_ASSIGN_VARIABLE,				// -1
@@ -48,9 +47,10 @@ class Instruction {
 			I_RESET_LOCAL_VARIABLE,			// -x
 			I_SET_ATTRIBUTE,				// -3
 			I_SET_EXCEPTION_HANDLER,		// +-0
-			I_SET_MARKER,					// +-0
 			I_SYS_CALL,						// -1+x +1 \todo use a parameter pair????
 			I_YIELD,						// -1
+			I_UNDEFINED,
+			I_SET_MARKER,					// +-0
 		};
 		static const uint32_t JMP_TO_MARKER_OFFSET = 0x100000; //! if a jump target is >= JMP_TO_MARKER_OFFSET, the target is a marker and not an address.
 		static const uint32_t INVALID_JUMP_ADDRESS = 0x0FFFFF; //! A jump to this address always ends the current function. \todo assure that no IntructionBlock can have so many Instructions

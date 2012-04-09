@@ -49,8 +49,8 @@ class UserFunction : public ExtObject {
 		void setParameterCounts(size_t paramsCount,int minValues,int maxValues)	{	
 			paramCount = paramsCount , minParamValueCount = minValues,maxParamValueCount = maxValues;	
 		}
-		const InstructionBlock & getInstructions()const 	{	return instructions;	}
-		InstructionBlock & getInstructions() 				{	return instructions;	}
+		const InstructionBlock & getInstructionBlock()const	{	return instructions;	}
+		InstructionBlock & getInstructionBlock() 			{	return instructions;	}
 		int getLine()const									{	return line;	}
 		void setLine(const int l)							{	line = l;	}
 	
