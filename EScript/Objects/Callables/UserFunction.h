@@ -12,7 +12,7 @@
 
 namespace EScript {
 namespace AST{
-class BlockStatement;
+class BlockExpr;
 }
 class String;
 

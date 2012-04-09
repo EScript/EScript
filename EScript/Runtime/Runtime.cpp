@@ -258,7 +258,7 @@ void Runtime::throwException(const std::string & s,Object * obj) {
 	os<<s;
 	if(obj) os<<'('<<obj->toString()<<')';
 	os<<getStackInfo();
-	Exception * e = new Exception(os.str(),getCurrentLine()); // \todo remove line
+	Exception * e = new Exception(os.str(),getCurrentLine());
 	e->setFilename(getCurrentFile());
 	throw e;
 }

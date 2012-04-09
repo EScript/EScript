@@ -32,10 +32,10 @@ class CompilerContext {
 		typedef std::map<StringId,size_t> nameToIndexMapping_t;
 	public:
 		enum setting_t{
-			VISIBLE_LOCAL_VARIABLES, //!< the local variables declared in a BlockStatement
+			VISIBLE_LOCAL_VARIABLES, //!< the local variables declared in a BlockExpr
 			BREAK_MARKER,
 			CONTINUE_MARKER,
-			EXCEPTION_MARKER //!< the marker of the next variables declared in a BlockStatement
+			EXCEPTION_MARKER //!< the marker of the next variables declared in a BlockExpr
 		};
 	
 	private:

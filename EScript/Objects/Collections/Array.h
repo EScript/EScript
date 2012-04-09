@@ -133,7 +133,6 @@ class Array : public Collection {
 				virtual bool end();
 
 				/// ---|> [Object]
-				// todo: clone!
 			private:
 				ERef<Array> arrayRef;
 				size_t index;

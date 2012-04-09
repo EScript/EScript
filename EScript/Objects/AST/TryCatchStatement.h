@@ -6,7 +6,7 @@
 #define TRY_CATCH_STATEMENT_H
 
 #include "../Object.h"
-#include "BlockStatement.h"
+#include "BlockExpr.h"
 
 namespace EScript {
 namespace AST {
@@ -15,7 +15,7 @@ namespace AST {
 class TryCatchStatement : public Object {
 		ES_PROVIDES_TYPE_NAME(TryCatchStatement)
 	public:
-		TryCatchStatement( EPtr<BlockStatement> _tryBlock, EPtr<BlockStatement> _catchBlock, StringId _exceptionVariableName) :
+		TryCatchStatement( EPtr<BlockExpr> _tryBlock, EPtr<BlockExpr> _catchBlock, StringId _exceptionVariableName) :
 				tryBlock(_tryBlock), catchBlock(_catchBlock), exceptionVariableName(_exceptionVariableName){}
 		virtual ~TryCatchStatement(){}
 
@@ -28,8 +28,8 @@ class TryCatchStatement : public Object {
 
 	private:
 		ObjRef conditionRef;
-		ERef<BlockStatement> tryBlock;
-		ERef<BlockStatement> catchBlock;
+		ERef<BlockExpr> tryBlock;
+		ERef<BlockExpr> catchBlock;
 		StringId exceptionVariableName;
 };
 }

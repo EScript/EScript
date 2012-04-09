@@ -1,4 +1,4 @@
-// BlockStatement.h
+// BlockExpr.h
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
@@ -14,17 +14,17 @@
 namespace EScript {
 namespace AST {
 
-/*! [BlockStatement]  ---|> [Object] */
-class BlockStatement : public Object {
-		ES_PROVIDES_TYPE_NAME(BlockStatement)
+/*! [BlockExpr]  ---|> [Object] */
+class BlockExpr : public Object {
+		ES_PROVIDES_TYPE_NAME(BlockExpr)
 	public:
 		typedef std::deque<Statement > statementList;
 		typedef statementList::iterator statementCursor;
 		typedef statementList::const_iterator cStatementCursor;
 		typedef std::set<StringId>  declaredVariableMap_t;
 
-		BlockStatement(int lineNr=-1);
-		virtual ~BlockStatement();
+		BlockExpr(int lineNr=-1);
+		virtual ~BlockExpr();
 
 		statementList & getStatements()                 {   return statements;  }
 		const statementList & getStatements()const      {   return statements;  }

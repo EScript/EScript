@@ -101,8 +101,8 @@ void Parser::log(ParsingContext & ctxt,Logger::level_t messageLevel, const std::
 	logger->log(messageLevel,os.str());
 }
 
-ERef<AST::BlockStatement> Parser::parse(const CodeFragment & code) {
-	ERef<AST::BlockStatement> rootBlock = new AST::BlockStatement;
+ERef<AST::BlockExpr> Parser::parse(const CodeFragment & code) {
+	ERef<AST::BlockExpr> rootBlock = new AST::BlockExpr;
 	
 	tokenizer.defineToken("__FILE__",new TObject(String::create(code.getFilename())));
 	tokenizer.defineToken("__DIR__",new TObject(String::create(IO::dirname(code.getFilename()))));
@@ -159,7 +159,7 @@ struct _BlockInfo {
  * Pass 1
  * =========
  * - check Syntax of Brackets () [] {}
- * - disambiguate Map/BlockStatement
+ * - disambiguate Map/BlockExpr
  * - colon ( Mapdelimiter / shortIf ?:)
  */
 void Parser::pass_1(ParsingContext & ctxt) {
@@ -198,7 +198,7 @@ void Parser::pass_1(ParsingContext & ctxt) {
 				if (!cbi.isCommandBlock) {
 					throwError(ctxt,"Syntax Error: '}'",token);
 				}
-				/// BlockStatement is Map Constructor
+				/// BlockExpr is Map Constructor
 				if ( cbi.containsColon) {
 					unsigned int startIndex=cbi.index;
 
@@ -231,7 +231,7 @@ void Parser::pass_1(ParsingContext & ctxt) {
 				if (cbi.shortIf>0) {
 					cbi.shortIf--;
 				} else if (cbi.containsCommands) {
-					throwError(ctxt,"Syntax Error in BlockStatement: ':'",token);
+					throwError(ctxt,"Syntax Error in BlockExpr: ':'",token);
 				} else {
 					cbi.containsColon=true;
 					Token * t=new TMapDelimiter();
@@ -264,7 +264,7 @@ void Parser::pass_1(ParsingContext & ctxt) {
 /**
  * Pass 2
  * =========
- * - Create BlockStatement-Objects
+ * - Create BlockExpr-Objects
  * - Parse declarations (var)
  * - Wrap parts of "fn" in brackets for easier processing: fn(foo,bar){...}  --->  fn( (foo,bar){} )
  * - Change loop brackets to blocks to handle loop wide scope handling: while(...) ---> while{...}
@@ -274,7 +274,7 @@ void Parser::pass_1(ParsingContext & ctxt) {
 void Parser::pass_2(ParsingContext & ctxt,
 					Tokenizer::tokenList_t & enrichedTokens)const  {
 
-	std::stack<BlockStatement *> blockStack;
+	std::stack<BlockExpr *> blockStack;
 	blockStack.push(ctxt.rootBlock);
 
 	/// Counts the currently open brackets and blocks for the current function declaration.
@@ -330,7 +330,7 @@ void Parser::pass_2(ParsingContext & ctxt,
 
 					enrichedTokens.push_back(token);
 					++cursor;
-					BlockStatement * loopConditionBlock=new BlockStatement(tc->getLine());
+					BlockExpr * loopConditionBlock=new BlockExpr(tc->getLine());
 					blockStack.push(loopConditionBlock);
 
 					TStartBlock * sb=new TStartBlock(loopConditionBlock);
@@ -347,10 +347,10 @@ void Parser::pass_2(ParsingContext & ctxt,
 				continue;
 				/// name='static' ??????
 			}
-			/// Open new BlockStatement
+			/// Open new BlockExpr
 			case TStartBlock::TYPE_ID:{
 				TStartBlock * sb=Token::cast<TStartBlock>(token);
-				BlockStatement * currentBlock=new BlockStatement(sb->getLine());//currentBlock);
+				BlockExpr * currentBlock=new BlockExpr(sb->getLine());//currentBlock);
 
 				blockStack.push(currentBlock);
 				sb->setBlock(currentBlock);
@@ -361,7 +361,7 @@ void Parser::pass_2(ParsingContext & ctxt,
 
 				continue;
 			}
-			/// Close BlockStatement
+			/// Close BlockExpr
 			case TEndBlock::TYPE_ID:{
 				enrichedTokens.push_back(token);
 
@@ -459,7 +459,7 @@ Object * Parser::readExpression(ParsingContext & ctxt,int & cursor,int to)const 
 	else if (Token::isA<TControl>(tokens.at(cursor))) {
 		log(ctxt,Logger::LOG_WARNING, "No control statement here!",tokens.at(cursor));
 		return NULL;
-	} /// BlockStatement: {...}
+	} /// BlockExpr: {...}
 	else if (Token::isA<TStartBlock>(tokens.at(cursor))) {
 		return readBlock(ctxt,cursor);
 	}
@@ -492,7 +492,7 @@ Object * Parser::readExpression(ParsingContext & ctxt,int & cursor,int to)const 
 		else if (TIdentifier * ident=Token::cast<TIdentifier>(t)) {
 		// is local variable?
 			for(int i=ctxt.blocks.size()-1;i>=0;--i){
-				BlockStatement * b=ctxt.blocks.at(i);
+				BlockExpr * b=ctxt.blocks.at(i);
 				if(b==NULL)
 					break;
 				 else if(b->isLocalVar(ident->getId())){
@@ -558,7 +558,7 @@ Statement Parser::readStatement(ParsingContext & ctxt,int & cursor,int to)const{
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	if (Token::isA<TControl>(tokens.at(cursor))) {
 		return readControl(ctxt,cursor);
-	} /// sub-BlockStatement: {...}
+	} /// sub-BlockExpr: {...}
 	else if (Token::isA<TStartBlock>(tokens.at(cursor))) {
 		return Statement(Statement::TYPE_STATEMENT, readBlock(ctxt,cursor));
 	}else{
@@ -574,22 +574,22 @@ Statement Parser::readStatement(ParsingContext & ctxt,int & cursor,int to)const{
  * Get block of statements
  * {out("foo");exit;}
  */
-BlockStatement * Parser::readBlock(ParsingContext & ctxt,int & cursor)const {
+BlockExpr * Parser::readBlock(ParsingContext & ctxt,int & cursor)const {
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	TStartBlock * tsb=Token::cast<TStartBlock>(tokens.at(cursor));
-	BlockStatement * b=tsb?reinterpret_cast<BlockStatement *>(tsb->getBlock()):NULL;
+	BlockExpr * b=tsb?reinterpret_cast<BlockExpr *>(tsb->getBlock()):NULL;
 	if (b==NULL)
-		throwError(ctxt,"No BlockStatement!",tokens.at(cursor));
+		throwError(ctxt,"No BlockExpr!",tokens.at(cursor));
 
 	/// Check for shadowed local variables
 	if(!ctxt.blocks.empty()){
-		const BlockStatement::declaredVariableMap_t * vars = b->getVars();
+		const BlockExpr::declaredVariableMap_t * vars = b->getVars();
 		if(vars!=NULL){
 			for(int i = ctxt.blocks.size()-1; i>=0 && ctxt.blocks[i]!=NULL; --i ){
-				const BlockStatement::declaredVariableMap_t * vars2 = ctxt.blocks[i]->getVars();
+				const BlockExpr::declaredVariableMap_t * vars2 = ctxt.blocks[i]->getVars();
 				if(vars2==NULL)
 					continue;
-				for(BlockStatement::declaredVariableMap_t::const_iterator it=vars->begin();it!=vars->end();++it){
+				for(BlockExpr::declaredVariableMap_t::const_iterator it=vars->begin();it!=vars->end();++it){
 					if(vars2->count(*it)>0){
 						log(ctxt,Logger::LOG_PEDANTIC_WARNING,"Shadowed local variable  '"+(*it).toString()+"' in block.",tokens.at(cursor));
 					}
@@ -607,7 +607,7 @@ BlockStatement * Parser::readBlock(ParsingContext & ctxt,int & cursor)const {
 	/// Read commands.
 	while (!Token::isA<TEndBlock>(tokens.at(cursor))) {
 		if (Token::isA<TEndScript>(tokens.at(cursor)))
-			throwError(ctxt,"Unclosed BlockStatement {...",tsb);
+			throwError(ctxt,"Unclosed BlockExpr {...",tsb);
 
 		int line=tokens.at(cursor)->getLine();
 		Statement stmt=readStatement(ctxt,cursor);
@@ -620,7 +620,7 @@ BlockStatement * Parser::readBlock(ParsingContext & ctxt,int & cursor)const {
 		/// Commands have to end on ";" or "}".
 		if (!(Token::isA<TEndCommand>(tokens.at(cursor)) || Token::isA<TEndBlock>(tokens.at(cursor)))) {
 			log(ctxt,Logger::LOG_DEBUG, tokens.at(cursor)->toString(),tokens.at(cursor));
-			throwError(ctxt,"Syntax Error in BlockStatement.",tokens.at(cursor));
+			throwError(ctxt,"Syntax Error in BlockExpr.",tokens.at(cursor));
 		}
 		++cursor;
 	}
@@ -1102,9 +1102,9 @@ Object * Parser::readFunctionDeclaration(ParsingContext & ctxt,int & cursor)cons
 
 
 	ctxt.blocks.push_back(NULL); // mark beginning of new local namespace
-	BlockStatement * block=dynamic_cast<BlockStatement*>(readExpression(ctxt,cursor));
+	BlockExpr * block=dynamic_cast<BlockExpr*>(readExpression(ctxt,cursor));
 	if (block==NULL) {
-		throwError(ctxt,"[fn] Expects BlockStatement of statements.",tokens.at(cursor));
+		throwError(ctxt,"[fn] Expects BlockExpr of statements.",tokens.at(cursor));
 	}
 	ctxt.blocks.pop_back(); // remove marking for local namespace
 
@@ -1184,7 +1184,7 @@ Statement Parser::readControl(ParsingContext & ctxt,int & cursor)const  {
 		if (!Token::isA<TStartBlock>(tokens.at(cursor))) // for{...;...;...}
 			throwError(ctxt,"[for] expects (",tokens.at(cursor));
 		// this block stores the running variables, defined in the loop condition
-		BlockStatement * loopWrappingBlock = Token::cast<TStartBlock>(tokens.at(cursor))->getBlock();
+		BlockExpr * loopWrappingBlock = Token::cast<TStartBlock>(tokens.at(cursor))->getBlock();
 		++cursor;
 		Statement initExp = readStatement(ctxt,cursor);
 		if (!Token::isA<TEndCommand>(tokens.at(cursor))) {
@@ -1226,7 +1226,7 @@ Statement Parser::readControl(ParsingContext & ctxt,int & cursor)const  {
 		if (!Token::isA<TStartBlock>(tokens.at(cursor))) // while{...}
 			throwError(ctxt,"[while] expects (",tokens.at(cursor));
 		// this block stores the running variables, defined in the loop condition
-		BlockStatement * loopWrappingBlock = Token::cast<TStartBlock>(tokens.at(cursor))->getBlock();
+		BlockExpr * loopWrappingBlock = Token::cast<TStartBlock>(tokens.at(cursor))->getBlock();
 		++cursor;
 		Object * condition=readExpression(ctxt,cursor);
 		++cursor;
@@ -1259,7 +1259,7 @@ Statement Parser::readControl(ParsingContext & ctxt,int & cursor)const  {
 		if (!Token::isA<TStartBlock>(tokens.at(cursor))) // do{} while{...};
 			throwError(ctxt,"[do-while] expects (",tokens.at(cursor));
 		// this block stores the running variables, defined in the loop condition
-		BlockStatement * loopWrappingBlock = Token::cast<TStartBlock>(tokens.at(cursor))->getBlock();
+		BlockExpr * loopWrappingBlock = Token::cast<TStartBlock>(tokens.at(cursor))->getBlock();
 		++cursor;
 		Object * condition=readExpression(ctxt,cursor);
 		++cursor;
@@ -1305,7 +1305,7 @@ Statement Parser::readControl(ParsingContext & ctxt,int & cursor)const  {
 		if (!Token::isA<TStartBlock>(tokens.at(cursor)))  // foreach{...as...}
 			throwError(ctxt,"[foreach] expects (",tokens.at(cursor));
 		// this block stores the running variables, defined in the loop condition
-		BlockStatement * loopWrappingBlock = Token::cast<TStartBlock>(tokens.at(cursor))->getBlock();
+		BlockExpr * loopWrappingBlock = Token::cast<TStartBlock>(tokens.at(cursor))->getBlock();
 		++cursor;
 		Object * arrayExpression=readExpression(ctxt,cursor);
 		++cursor;
@@ -1358,7 +1358,7 @@ Statement Parser::readControl(ParsingContext & ctxt,int & cursor)const  {
 				FunctionCallExpr::createFunctionCall(
 					new GetAttributeExpr(new GetAttributeExpr(NULL,itId), Consts::IDENTIFIER_fn_it_next),std::vector<ObjRef>() ));
 		
-		BlockStatement * actionWrapper = new BlockStatement();
+		BlockExpr * actionWrapper = new BlockExpr();
 		
 		// key = __it.key();
 		if(keyIdent){
@@ -1402,7 +1402,7 @@ Statement Parser::readControl(ParsingContext & ctxt,int & cursor)const  {
 		} A:
 	*/
 	else if(cId==Consts::IDENTIFIER_try) {
-		BlockStatement * tryBlock=dynamic_cast<BlockStatement*>(readExpression(ctxt,cursor));
+		BlockExpr * tryBlock=dynamic_cast<BlockExpr*>(readExpression(ctxt,cursor));
 		if(!tryBlock){
 			throwError(ctxt,"[try-catch] expects an try block. ",tokens.at(cursor));
 		}
@@ -1429,10 +1429,10 @@ Statement Parser::readControl(ParsingContext & ctxt,int & cursor)const  {
 
 		TStartBlock * tStartCatchBlock = Token::cast<TStartBlock>(tokens.at(cursor));
 		if(tStartCatchBlock==NULL){
-			throwError(ctxt,"[catch] expects BlockStatement {...}",tokens.at(cursor));
+			throwError(ctxt,"[catch] expects BlockExpr {...}",tokens.at(cursor));
 		}
 
-		BlockStatement * catchBlock=tStartCatchBlock->getBlock();
+		BlockExpr * catchBlock=tStartCatchBlock->getBlock();
 		readExpression(ctxt,cursor); // fill rest of catch block
 		return Statement(Statement::TYPE_STATEMENT,new TryCatchStatement(tryBlock,catchBlock,varName));
 	}
@@ -1493,7 +1493,6 @@ Parser::lValue_t Parser::getLValue(ParsingContext & ctxt,int from,int to,Object 
 			return LVALUE_MEMBER;
 		}
 	}
-// !!!!!!!!!!!!!!!!!!!!!!!!!! \todo ..............................
 	if(TObject * tObj=Token::cast<TObject>(tokens[to])){
 		/// ".'a'"
 		/// "a.b.'c'"
@@ -1519,7 +1518,6 @@ Parser::lValue_t Parser::getLValue(ParsingContext & ctxt,int from,int to,Object 
 		}
 	}
 	/// Index "a[1]"
-	/// [a,b,c] //TODO!?
 	if (Token::isA<TEndIndex>(tokens[to])) {
 
 		int indexOpenPos=findCorrespondingBracket<TEndIndex,TStartIndex>(ctxt,to,from,-1);

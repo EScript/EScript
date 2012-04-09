@@ -77,16 +77,15 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			continue;
 		}
 
-		//! \todo this could probably improved by using iterators internally!
-		const Instruction & instruction = *fcc->getInstructionCursor();
-		
-////
-//		std::cout << fcc->stack_toDbgString()<<"\n";
-//		std::cout << instruction.toString(*instructions)<<"\n";
 
 		// --------------------------------------------------------------------------------------------------------------
 		// Instructio execution...
 		try{
+
+		const Instruction & instruction = *fcc->getInstructionCursor();
+		
+//		std::cout << fcc->stack_toDbgString()<<"\n";
+//		std::cout << instruction.toString(*instructions)<<"\n";
 		
 		/* \note
 			Use a 'break' to end a case to check the state before continuing.
@@ -105,10 +104,10 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			if(attr){
 				if(attr->getProperties()&Attribute::ASSIGNMENT_RELEVANT_BITS){
 					if(attr->isConst()){
-						setException("Cannot assign to const attribute.");
+						setException("Cannot assign to const attribute '"+instruction.getValue_Identifier().toString()+"'.");
 						break;
 					}else if(attr->isPrivate() && fcc->getCaller()!=obj ) {
-						setException("Cannot access private attribute from outside of its owning object.");
+						setException("Cannot access private attribute '"+instruction.getValue_Identifier().toString()+"' from outside of its owning object.");
 						break;
 					}else if(attr->isReference() && attr->getValue()!=NULL  ) {
 						attr->getValue()->_assignValue(value);
@@ -145,7 +144,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 					globals->_accessAttribute(instruction.getValue_Identifier(),true);
 			if(attr){
 				if(attr->isConst()){
-					setException("Cannot assign to const attribute.");
+					setException("Cannot assign to const attribute '"+instruction.getValue_Identifier().toString()+"'.");
 				}else{
 					attr->setValue(value.get());
 				}
@@ -266,14 +265,14 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				fcc->stack_pushObject(globals.get());
 				fcc->stack_pushObject(obj);
 			}else{
-				warn("Variable not found: "); //! \todo proper warning!
+				warn("Variable '"+instruction.getValue_Identifier().toString()+"' not found: ");
 				fcc->stack_pushVoid();
 				fcc->stack_pushVoid();
 			}
 			fcc->increaseInstructionCursor();
 			break;
 		}
-		case Instruction::I_GET_ATTRIBUTE:{ //! \todo check for @(private)
+		case Instruction::I_GET_ATTRIBUTE:{
 			/*	pop Object
 				push Object.Identifier (or NULL + Warning)	*/
 			ObjRef obj = fcc->stack_popObject();
@@ -282,7 +281,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				warn("Attribute not found: '"+instruction.getValue_Identifier().toString()+'\''); 
 				fcc->stack_pushVoid();
 			}else if(attr.isPrivate() && fcc->getCaller()!=obj ) {
-				setException("Cannot access private attribute from outside of its owning object.");
+				setException("Cannot access private attribute '"+instruction.getValue_Identifier().toString()+"' from outside of its owning object.");
 				break;
 			}else{
 				fcc->stack_pushObject( attr.getValue() );
@@ -366,7 +365,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 					break;
 				}
 				// init attributes
-				newObj->_initAttributes(runtime); //! \todo catch exceptions!!!!!!!!
+				newObj->_initAttributes(runtime);
 				fcc->initCaller(newObj);
 			}
 
@@ -477,7 +476,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				warn("Attribute marked with @(override) does not override.");
 			} 
 			if(!obj->setAttribute(instruction.getValue_Identifier(),Attribute(value,properties))){
-				warn("Could not set Attribute..."); //! \todo proper warning!
+				warn("Could not set attribute '"+instruction.getValue_Identifier().toString()+"'.");
 			}
 			fcc->increaseInstructionCursor();
 			break;
@@ -596,7 +595,9 @@ RuntimeInternals::executeFunctionResult_t RuntimeInternals::startFunctionExecuti
 
 			// check for too few parameter values -> throw exception
 			if(userFunction->getMinParamCount()>=0 && params.size()<static_cast<size_t>(userFunction->getMinParamCount())){
-				setException("Too few parameters given."); //! \todo improve error message (which parameters are missing?)
+				std::ostringstream os;
+				os << "Too few parameters: Expected " << userFunction->getMinParamCount() << ", got " << params.size() << '.';
+				setException(os.str());
 				return std::make_pair(result.get(),static_cast<FunctionCallContext*>(NULL));
 			}
 			ParameterValues::const_iterator paramsEnd;
@@ -617,8 +618,10 @@ RuntimeInternals::executeFunctionResult_t RuntimeInternals::startFunctionExecuti
 				fcc->assignToLocalVariable(Consts::LOCAL_VAR_INDEX_firstParameter + (userFunction->getParamCount()-1) ,multiParamArray.get());
 			} // too many parameters
 			else if( params.size()>static_cast<size_t>(maxParamCount) ){
-				warn("Too many parameters given.");  //! \todo improve warning message (how many?)
-				paramsEnd = params.begin()+maxParamCount; // std::next(...)
+				std::ostringstream os;
+				os<<"Too many parameters given: Expected "<<maxParamCount<<", got "<<params.size()<<'.';
+				warn(os.str());
+				paramsEnd = params.begin()+maxParamCount; // \todo c++11 std::next(...)
 			} // normal parameter count range
 			else{
 				paramsEnd = params.end();
@@ -642,16 +645,14 @@ RuntimeInternals::executeFunctionResult_t RuntimeInternals::startFunctionExecuti
 				const int min = libfun->getMinParamCount();
 				const int max = libfun->getMaxParamCount();
 				if( (min>0 && static_cast<int>(params.count())<min)){
-					std::ostringstream sprinter;
-					sprinter<<"Too few parameters: Expected " <<min<<", got "<<params.count()<<'.';
-					//! \todo improve message
-					setException(sprinter.str());
+					std::ostringstream os;
+					os<<"Too few parameters: Expected " <<min<<", got "<<params.count()<<'.';
+					setException(os.str());
 					return std::make_pair(result.get(),static_cast<FunctionCallContext*>(NULL));
 				} else  if (max>=0 && static_cast<int>(params.count())>max) {
-					std::ostringstream sprinter;
-					sprinter<<"Too many parameters: Expected " <<max<<", got "<<params.count()<<'.';
-					//! \todo improve message
-					warn(sprinter.str());
+					std::ostringstream os;
+					os<<"Too many parameters: Expected " <<max<<", got "<<params.count()<<'.';
+					warn(os.str());
 				}
 			}
 			libfun->increaseCallCounter();
@@ -693,9 +694,7 @@ RuntimeInternals::executeFunctionResult_t RuntimeInternals::startFunctionExecuti
 
 				return startFunctionExecution(attr.getValue(),fun,params2);
 			}
-
 			warn("Cannot use '"+fun->toDbgString()+"' as a function.");
-	
 		}
 	}
 
@@ -755,12 +754,12 @@ RuntimeInternals::executeFunctionResult_t RuntimeInternals::startInstanceCreatio
 			createdObject = result.first;
 			if(createdObject.isNull()){
 				if(state!=STATE_EXCEPTION) // if an exception occured in the constructor, the result may be NULL
-					setException("Constructor did not create an Object."); //! \todo improve message!
+					setException("Constructor did not create an Object."); 
 				return failureResult;
 			}
 			
 			// init attribute
-			createdObject->_initAttributes(runtime); //! \todo catch exceptions!!!!!!!!
+			createdObject->_initAttributes(runtime);
 			return std::make_pair(createdObject.detachAndDecrease(),static_cast<FunctionCallContext*>(NULL));
 		}
 	}
@@ -834,7 +833,7 @@ std::string RuntimeInternals::getStackInfo(){
 		}else{
 			const _CountedRef<FunctionCallContext> & fcc = *it;
 			const EPtr<UserFunction> activeFun = fcc->getUserFunction();
-			const int activeLine = -1; // fcc->getInstructions().getLine( fcc->getInstructionCursor() ); //////////////////////////////////
+			const int activeLine = fcc->getCurrentLine();
 			os<<"\n\n"<<nr<<'.'<<
 				"\t("<< activeFun->getCode().getFilename()<<":"<<activeLine<<')';
 
@@ -976,7 +975,9 @@ Object * RuntimeInternals::sysCall(uint32_t sysFnId,ParameterValues & params){
 		fn = systemFunctions.at(sysFnId).get();
 	}
 	if(!fn){
-		runtime.setException("Unknown systemCall."); // \todo improve message
+		std::ostringstream os;
+		os << "Unknown systemCall #"<<sysFnId<<'.';
+		runtime.setException(os.str());
 		return NULL;
 	}
 	return fn->getFnPtr()(runtime,NULL,params);

@@ -1,8 +1,8 @@
-// BlockStatement.cpp
+// BlockExpr.cpp
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
-#include "BlockStatement.h"
+#include "BlockExpr.h"
 #include "../../Parser/CompilerContext.h"
 
 #include <sstream>
@@ -12,17 +12,17 @@ using namespace EScript;
 using namespace EScript::AST;
 
 //! (ctor)
-BlockStatement::BlockStatement(int lineNr):vars(NULL),line(lineNr){
+BlockExpr::BlockExpr(int lineNr):vars(NULL),line(lineNr){
 	//ctor
 }
 
 //! (dtor)
-BlockStatement::~BlockStatement() {
+BlockExpr::~BlockExpr() {
 	delete vars;
 	//dtor
 }
 
-bool BlockStatement::declareVar(StringId id) {
+bool BlockExpr::declareVar(StringId id) {
 	if(vars==NULL){
 		vars=new declaredVariableMap_t();
 	}
@@ -30,7 +30,7 @@ bool BlockStatement::declareVar(StringId id) {
 	return result.second;
 }
 
-void BlockStatement::addStatement(const Statement & s) {
+void BlockExpr::addStatement(const Statement & s) {
 	if(s.isValid())
 		statements.push_back(s);
 }

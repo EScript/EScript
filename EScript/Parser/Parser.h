@@ -22,7 +22,7 @@
 
 namespace EScript {
 namespace AST{
-class BlockStatement;
+class BlockExpr;
 class Statement;
 }
 
@@ -50,14 +50,14 @@ class Parser : public Object {
 		Parser(Logger * logger=NULL, Type * type=NULL);
 		virtual ~Parser();
 
-		ERef<AST::BlockStatement> parse(const CodeFragment & code);
+		ERef<AST::BlockExpr> parse(const CodeFragment & code);
 
 	private:
 		//! (internal)
 		struct ParsingContext{
 			Tokenizer::tokenList_t & tokens;
-			AST::BlockStatement * rootBlock;
-			std::deque<AST::BlockStatement*> blocks; // used as a stack
+			AST::BlockExpr * rootBlock;
+			std::deque<AST::BlockExpr*> blocks; // used as a stack
 			CodeFragment code;
 			ParsingContext(Tokenizer::tokenList_t & _tokens,const CodeFragment & _code ) : tokens(_tokens),rootBlock(NULL),code(_code){}
 		};
@@ -72,7 +72,7 @@ class Parser : public Object {
 		AST::Statement readStatement(ParsingContext & ctxt,int & cursor,int to=-1)const;
 		Object * readExpression(ParsingContext & ctxt,int & cursor,int to=-1)const;
 		Object * readBinaryExpression(ParsingContext & ctxt,int & cursor,int to)const;
-		AST::BlockStatement * readBlock(ParsingContext & ctxt,int & cursor)const ;
+		AST::BlockExpr * readBlock(ParsingContext & ctxt,int & cursor)const ;
 		Object * readMap(ParsingContext & ctxt,int & cursor)const;
 		Object * readFunctionDeclaration(ParsingContext & ctxt,int & cursor)const;
 		void readFunctionParameters(UserFunctionExpr::parameterList_t & params,ParsingContext & ctxt,int & cursor)const;

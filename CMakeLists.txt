@@ -27,7 +27,7 @@ set(ESCRIPT_SOURCES
 	EScript/Objects/ExtObject.cpp
 	EScript/Objects/Iterator.cpp
 	EScript/Objects/Identifier.cpp
-	EScript/Objects/AST/BlockStatement.cpp
+	EScript/Objects/AST/BlockExpr.cpp
 	EScript/Objects/AST/FunctionCallExpr.cpp
 	EScript/Objects/AST/GetAttributeExpr.cpp
 	EScript/Objects/AST/SetAttributeExpr.cpp

@@ -3,7 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "UserFunctionExpr.h"
-#include "../AST/BlockStatement.h"
+#include "../AST/BlockExpr.h"
 #include "../../EScript.h"
 #include <sstream>
 
@@ -21,7 +21,7 @@ UserFunctionExpr::Parameter::Parameter(const StringId & _name,Object * defaultVa
 
 
 //! (ctor)
-UserFunctionExpr::UserFunctionExpr(AST::BlockStatement * block,const std::vector<ObjRef> & _sConstrExpressions,int _line):
+UserFunctionExpr::UserFunctionExpr(AST::BlockExpr * block,const std::vector<ObjRef> & _sConstrExpressions,int _line):
 		ExtObject(), blockRef(block), sConstrExpressions(_sConstrExpressions),line(_line) {
 	//ctor
 }

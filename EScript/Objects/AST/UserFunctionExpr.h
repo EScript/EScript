@@ -11,7 +11,7 @@
 
 namespace EScript {
 namespace AST{
-class BlockStatement;
+class BlockExpr;
 }
 class String;
 
@@ -56,10 +56,10 @@ class UserFunctionExpr : public ExtObject {
 
 	/*! @name Main */
 	//	@{
-		UserFunctionExpr(AST::BlockStatement * block,const std::vector<ObjRef> & _sConstrExpressions,int line);
+		UserFunctionExpr(AST::BlockExpr * block,const std::vector<ObjRef> & _sConstrExpressions,int line);
 		virtual ~UserFunctionExpr() {}
 
-		AST::BlockStatement * getBlock()const				{	return blockRef.get();	}
+		AST::BlockExpr * getBlock()const				{	return blockRef.get();	}
 		const CodeFragment & getCode()const					{	return code;	}
 		int getLine()const									{	return line;	}
 		int getMaxParamCount()const;
@@ -76,7 +76,7 @@ class UserFunctionExpr : public ExtObject {
 		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_USER_FUNCTION_EXPRESSION;	}
 
 	private:
-		ERef<AST::BlockStatement> blockRef;
+		ERef<AST::BlockExpr> blockRef;
 		parameterList_t params; 
 		std::vector<ObjRef> sConstrExpressions;
 		CodeFragment code;

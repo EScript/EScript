@@ -5,7 +5,7 @@
 #ifndef TOKENS_H
 #define TOKENS_H
 
-#include "../Objects/AST/BlockStatement.h"
+#include "../Objects/AST/BlockExpr.h"
 #include "../Objects/Object.h"
 #include "../Utils/EReferenceCounter.h"
 #include "../Utils/Hashing.h"
@@ -119,14 +119,14 @@ struct TEndScript :  public Token	{
 struct TStartBlock :  public Token {
 	static const uint32_t TYPE_ID=0x01 << 4;
 	static uint32_t getTypeId()			{	return TYPE_ID;	}
-	TStartBlock(AST::BlockStatement * _block=NULL) : Token(getTypeId()),block(_block) {}
-	void setBlock(AST::BlockStatement * _block)    	{   block=_block;   }
-	AST::BlockStatement * getBlock()const          	{   return block.get();   }
+	TStartBlock(AST::BlockExpr * _block=NULL) : Token(getTypeId()),block(_block) {}
+	void setBlock(AST::BlockExpr * _block)    	{   block=_block;   }
+	AST::BlockExpr * getBlock()const          	{   return block.get();   }
 	virtual std::string toString()const  	{   return "{"; }
 	virtual Token * clone()const   		{   return new TStartBlock(block.get());  }
 
 	private:
-		ERef<AST::BlockStatement> block;
+		ERef<AST::BlockExpr> block;
 };
 
 // -----

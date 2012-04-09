@@ -7,7 +7,7 @@
 #include "CompilerContext.h"
 #include "../Consts.h"
 #include "../Objects/typeIds.h"
-#include "../Objects/AST/BlockStatement.h"
+#include "../Objects/AST/BlockExpr.h"
 #include "../Objects/AST/ConditionalExpr.h"
 #include "../Objects/AST/FunctionCallExpr.h"
 #include "../Objects/AST/GetAttributeExpr.h"
@@ -79,10 +79,10 @@ UserFunction * Compiler::compile(const CodeFragment & code){
 
 	// parse and build syntax tree
 	Parser p(getLogger());
-	ERef<AST::BlockStatement> block = p.parse(code);
+	ERef<AST::BlockExpr> block = p.parse(code);
 
 	// outerBlock is used to add a return statement: {return {block}}
-	ERef<AST::BlockStatement> outerBlock(new AST::BlockStatement);
+	ERef<AST::BlockExpr> outerBlock(new AST::BlockExpr);
 	outerBlock->addStatement(AST::Statement(AST::Statement::TYPE_RETURN,block.get()));
 	
 	// compile and create instructions
@@ -189,12 +189,12 @@ void Compiler::compileStatement(CompilerContext & ctxt,const AST::Statement & st
 		
 		// block - statement (NOT block - expression)
 		if(statement.getExpression().isNotNull() && statement.getExpression()->_getInternalTypeId() == _TypeIds::TYPE_BLOCK_STATEMENT ){
-			const AST::BlockStatement * blockStatement = statement.getExpression().toType<AST::BlockStatement>();
+			const AST::BlockExpr * blockStatement = statement.getExpression().toType<AST::BlockExpr>();
 			
 			if(blockStatement->hasLocalVars())
 				ctxt.pushSetting_localVars(*blockStatement->getVars());
 
-			for ( AST::BlockStatement::cStatementCursor c = blockStatement->getStatements().begin();  c != blockStatement->getStatements().end(); ++c) {
+			for ( AST::BlockExpr::cStatementCursor c = blockStatement->getStatements().begin();  c != blockStatement->getStatements().end(); ++c) {
 					ctxt.compile(*c);
 			}
 			if(blockStatement->hasLocalVars()){
@@ -278,16 +278,14 @@ bool initHandler(handlerRegistry_t & m){
 	// AST
 	using namespace AST;
 
-
-	// BlockStatement // \todo ---> Block expression!
-	ADD_HANDLER( _TypeIds::TYPE_BLOCK_STATEMENT, BlockStatement, {
+	ADD_HANDLER( _TypeIds::TYPE_BLOCK_STATEMENT, BlockExpr, {
 		if(self->hasLocalVars())
 			ctxt.pushSetting_localVars(*self->getVars());
 
 		if(self->getStatements().empty()){
 			ctxt.addInstruction(Instruction::createPushVoid());
 		}else{
-			for ( BlockStatement::cStatementCursor c = self->getStatements().begin();  c != self->getStatements().end(); ++c) {
+			for ( BlockExpr::cStatementCursor c = self->getStatements().begin();  c != self->getStatements().end(); ++c) {
 				if(c+1 == self->getStatements().end()){ // last statemenet ? --> keep the result
 					if( c->getType() == Statement::TYPE_EXPRESSION ){
 						ctxt.compile( c->getExpression() );
