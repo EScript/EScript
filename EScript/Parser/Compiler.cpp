@@ -624,7 +624,8 @@ bool initHandler(handlerRegistry_t & m){
 		fun->setLine(self->getLine());
 
 		CompilerContext ctxt2(ctxt.getCompiler(),fun->getInstructions(),self->getCode());
-
+		ctxt2.setLine(self->getLine()); // set the line of all initializations to the line of the function declaration
+		
 		// declare a local variables for each parameter expression
 		for(UserFunctionExpr::parameterList_t::const_iterator it = self->getParamList().begin();it!=self->getParamList().end();++it){
 			fun->getInstructions().declareLocalVariable( it->getName() );
@@ -649,7 +650,6 @@ bool initHandler(handlerRegistry_t & m){
 				ctxt2.addInstruction(Instruction::createAssignLocal(varIdx));
 
 				ctxt2.addInstruction(Instruction::createSetMarker(parameterAvailableMarker));
-//
 			}
 		}
 
@@ -666,7 +666,6 @@ bool initHandler(handlerRegistry_t & m){
 			// if the parameter has value constrains AND is a multi parameter, use a special system-call for this (instead of manually creating a foreach-loop here)
 			// e.g. fn([Bool,Number] p*){...}
 			if(param.isMultiParam()){
-//				ctxt2.addInstruction(Instruction::createPush(varIdx));
 				for(std::vector<ObjRef>::const_iterator it2 = typeExpressions.begin();it2!=typeExpressions.end();++it2){
 					ctxt2.compile( *it2 );
 				}
@@ -713,7 +712,7 @@ bool initHandler(handlerRegistry_t & m){
 		// init 'this' (or create it if this is a constructor call)
 		ctxt2.addInstruction(Instruction::createInitCaller(superConstrParams.size()));
 
-		ctxt2.compile(self->getBlock());
+		ctxt2.compile(Statement(Statement::TYPE_STATEMENT,self->getBlock()));
 		ctxt2.popSetting();
 		Compiler::finalizeInstructions(fun->getInstructions());
 

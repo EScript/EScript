@@ -112,7 +112,7 @@
 //   Does not create Syntax error
 	var errorFound=false;
 	try{
-		parse('var f=fn(){ out("!!");  } bla bla bla;');
+		eval('var f=fn(){ out("!!");  } bla bla bla;');
 	}catch(e){
 		errorFound=true;
 	}
@@ -125,7 +125,7 @@
 	var errorFound=false;
 	Runtime.setTreatWarningsAsError(true);
 	try{
-		parse('+out("");').execute();
+		eval('+out("");');
 	}catch(e){
 		errorFound=true;
 	}
@@ -151,7 +151,7 @@
 }
 {
 	// Calling object is not set properly when calling member function without this.
-	parse("-1;"); // resulted in crash of the tokenizer when first token is a '-'
+	eval("-1;"); // resulted in crash of the tokenizer when first token is a '-'
 	   test( "BUG[20090107]", true );
 }
 {
@@ -175,7 +175,7 @@
 //
 //    var errorFound=false;
 //    try{
-//        parse('f("a")out("b");');
+//        eval('f("a")out("b");');
 //    }catch(e){
 //        errorFound=true;
 //    }
@@ -312,7 +312,7 @@
 
 	var ok=true;
 	try{
-		parse("fn(a=fn(){}){}; fn(a={1:2}){};");
+		eval("fn(a=fn(){}){}; fn(a={1:2}){};");
 	}catch(e){
 		ok=false;
 	}
@@ -357,7 +357,6 @@
 		lineOfException=e.getLine();
 //		out(lineOfException,":",lineOfFunction);
 	}
-
 	// check exception line
 	var exceptionLineCorrect=false;
 	try{
@@ -521,7 +520,6 @@
 	test( "BUG[20110918]", exceptionCounter == 6 );
 }
 
-
 {	// assignment to inherited static attributes does not work.
 //	Runtime.setTreatWarningsAsError(true);
 	var errorFound=false;
@@ -562,7 +560,7 @@
 	try{
 		/* this should produce a warning, which is transformed
 			into an exception before the 'execute()' is executed. */
-		result1 = parse("var a; a:=true; out('Should not be executed!'); a;").execute(); 
+		result1 = eval("var a; a:=true; out('Should not be executed!'); a;"); 
 	}catch(e){
 		errorFound = true;
 	}
@@ -570,7 +568,7 @@
 	// but it should work like an ordenary assignment
 	var l = Runtime.getLoggingLevel();
 	Runtime.setLoggingLevel(Runtime.LOG_ERROR); // ignore warnings
-	result2 = parse("var a; a:=true; a;").execute(); 
+	result2 = eval("var a; a:=true; a;"); 
 	Runtime.setLoggingLevel(l);
 	
 	test( "BUG[20120226.2]", !result1 && result2 && errorFound );
