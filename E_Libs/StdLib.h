@@ -4,6 +4,7 @@
 // ------------------------------------------------------
 #ifndef STDLIB_H
 #define STDLIB_H
+#include "../EScript/Utils/ObjRef.h"
 #include <string>
 
 namespace EScript{
@@ -21,7 +22,7 @@ void init(EScript::Namespace * o);
 	Returns the return value; 
 	\note May throw 'Object *' on error!
  */
-Object * loadOnce(Runtime & runtime,const std::string & filename);
+ObjRef loadOnce(Runtime & runtime,const std::string & filename);
 
 /*! formatted output */
 void print_r(Object * o,int maxLevel=7,int level=1);

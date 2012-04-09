@@ -5,6 +5,7 @@
 #include "Consts.h"
 
 namespace EScript{
+const StringId Consts::FILENAME_INLINE("[inline]");
 
 const StringId Consts::IDENTIFIER_attr_printableName("_printableName");
 const StringId Consts::IDENTIFIER_this("this");

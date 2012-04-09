@@ -57,21 +57,19 @@ void Compiler::compileExpression(CompilerContext & ctxt,ObjPtr expression)const{
 	handlerRegistry_t::iterator it = handlerRegistry.find(typeId);
 	if(it==handlerRegistry.end()){
 			std::cout << reinterpret_cast<void*>(typeId)<<"\n";
-		throw std::invalid_argument("Expression can't be compiled.");
+		throwError(ctxt,"Expression can't be compiled.");
 	}
 	(*it->second)(ctxt,expression);
 }
 
-
-void Compiler::log(CompilerContext & ctxt,Logger::level_t messageLevel, const std::string & msg)const{
+void Compiler::throwError(CompilerContext & ctxt,const std::string & msg)const{
 	std::ostringstream os;
-	os << "[Compiler] " << msg ;
-//	<< " (" << getCurrentFilename();
-//	if(token!=NULL)
-//		os << ':' << token->getLine();
-//	os << ").";
-	logger->log(messageLevel,os.str());
+	os << "Compiler: " << msg;
+	Exception * e = new Exception(os.str(),ctxt.getCurrentLine());
+	e->setFilename(ctxt.getCode().getFilename());
+	throw e;
 }
+
 
 UserFunction * Compiler::compile(const CodeFragment & code){
 
@@ -88,7 +86,7 @@ UserFunction * Compiler::compile(const CodeFragment & code){
 	outerBlock->addStatement(AST::Statement(AST::Statement::TYPE_RETURN,block.get()));
 	
 	// compile and create instructions
-	CompilerContext ctxt(*this,fun->getInstructions());
+	CompilerContext ctxt(*this,fun->getInstructions(),code);
 	ctxt.compile(outerBlock.get());
 	Compiler::finalizeInstructions(fun->getInstructions());
 
@@ -141,11 +139,13 @@ void Compiler::finalizeInstructions( InstructionBlock & instructionBlock ){
 //! (internal)
 void Compiler::compileStatement(CompilerContext & ctxt,const AST::Statement & statement)const{
 	using AST::Statement;
+	if(statement.getLine()>=0)
+		ctxt.setLine(statement.getLine());
 	
 	if(statement.getType() == Statement::TYPE_CONTINUE){
 		const uint32_t target = ctxt.getCurrentMarker(CompilerContext::CONTINUE_MARKER);
 		if(target==Instruction::INVALID_JUMP_ADDRESS){
-			std::cout << "\nError: Continue outside a loop!\n"; //! \todo Compiler error
+			throwError(ctxt,"'continue' outside a loop."); 
 		}
 		std::vector<size_t> variablesToReset;
 		ctxt.collectLocalVariables(CompilerContext::CONTINUE_MARKER,variablesToReset);
@@ -157,7 +157,7 @@ void Compiler::compileStatement(CompilerContext & ctxt,const AST::Statement & st
 	}else if(statement.getType() == Statement::TYPE_BREAK){
 		const uint32_t target = ctxt.getCurrentMarker(CompilerContext::BREAK_MARKER);
 		if(target==Instruction::INVALID_JUMP_ADDRESS){
-			std::cout << "\nError: Break outside a loop!\n"; //! \todo Compiler error
+			throwError(ctxt,"'break' outside a loop."); 
 		}
 		std::vector<size_t> variablesToReset;
 		ctxt.collectLocalVariables(CompilerContext::BREAK_MARKER,variablesToReset);
@@ -173,7 +173,7 @@ void Compiler::compileStatement(CompilerContext & ctxt,const AST::Statement & st
 		ctxt.addInstruction(Instruction::createSysCall(statement.getExpression().isNotNull() ? 1 : 0));
 	
 	}else if(statement.getType() == Statement::TYPE_EXPRESSION){
-		ctxt.setLine(statement.getLine());
+//		ctxt.setLine(statement.getLine());
 		ctxt.compile(statement.getExpression());
 		ctxt.addInstruction(Instruction::createPop());
 	
@@ -185,7 +185,7 @@ void Compiler::compileStatement(CompilerContext & ctxt,const AST::Statement & st
 		ctxt.addInstruction(Instruction::createJmp(Instruction::INVALID_JUMP_ADDRESS));
 	
 	}else if(statement.getType() == Statement::TYPE_STATEMENT){
-		ctxt.setLine(statement.getLine());
+//		ctxt.setLine(statement.getLine());
 		
 		// block - statement (NOT block - expression)
 		if(statement.getExpression().isNotNull() && statement.getExpression()->_getInternalTypeId() == _TypeIds::TYPE_BLOCK_STATEMENT ){
@@ -223,7 +223,7 @@ void Compiler::compileStatement(CompilerContext & ctxt,const AST::Statement & st
 		ctxt.addInstruction(Instruction::createYield());
 	
 	}else if(statement.getExpression().isNotNull()){
-		std::cout << "\nError: Unknown statement!\n"; //! \todo Compiler error
+		throwError(ctxt,"Unknown statement."); 
 	}
 }
 
@@ -569,11 +569,14 @@ bool initHandler(handlerRegistry_t & m){
 		// collect all variables that are declared inside the try-block (excluding nested try-blocks)
 		std::vector<size_t> collectedVariableIndices;
 		ctxt.pushLocalVarsCollector(&collectedVariableIndices);
-		ctxt.compile(self->getTryBlock().get());
+		ctxt.compile(self->getTryBlock());
 		ctxt.popLocalVarsCollector();
 
+		ctxt.popSetting(); // restore previous EXCEPTION_MARKER
+		
+		// try block without exception --> reset catchMarker and jump to endMarker
+		ctxt.addInstruction(Instruction::createSetExceptionHandler(ctxt.getCurrentMarker(CompilerContext::EXCEPTION_MARKER)));
 		ctxt.addInstruction(Instruction::createJmp(endMarker));
-		ctxt.popSetting(); // EXCEPTION_MARKER
 
 		// catch
 		// ------
@@ -602,7 +605,7 @@ bool initHandler(handlerRegistry_t & m){
 		ctxt.addInstruction(Instruction::createResetLocalVariable(Consts::LOCAL_VAR_INDEX_internalResult));
 
 		// execute catch block
-		ctxt.compile(self->getCatchBlock().get());
+		ctxt.compile(self->getCatchBlock());
 		// pop exception variable
 		if(!exceptionVariableName.empty()){
 			ctxt.addInstruction(Instruction::createResetLocalVariable(ctxt.getCurrentVarIndex(exceptionVariableName)));
@@ -620,7 +623,7 @@ bool initHandler(handlerRegistry_t & m){
 		fun->setCode(self->getCode());
 		fun->setLine(self->getLine());
 
-		CompilerContext ctxt2(ctxt.getCompiler(),fun->getInstructions());
+		CompilerContext ctxt2(ctxt.getCompiler(),fun->getInstructions(),self->getCode());
 
 		// declare a local variables for each parameter expression
 		for(UserFunctionExpr::parameterList_t::const_iterator it = self->getParamList().begin();it!=self->getParamList().end();++it){
@@ -722,7 +725,5 @@ bool initHandler(handlerRegistry_t & m){
 	#undef ADD_HANDLER
 	return true;
 }
-
-
 
 }

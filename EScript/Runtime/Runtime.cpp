@@ -47,15 +47,15 @@ void Runtime::init(EScript::Namespace & globals) {
 	declareConstant(typeObject,"LOG_ERROR",Number::create(static_cast<int>(Logger::LOG_ERROR)));
 	declareConstant(typeObject,"LOG_FATAL",Number::create(static_cast<int>(Logger::LOG_FATAL)));
 
-//	//!	[ESMF] Number Runtime._getStackSize();
-//	ESF_DECLARE(typeObject,"_getStackSize",0,0, Number::create(runtime.getStackSize()))
-//
-//	//!	[ESMF] Number Runtime._getStackSizeLimit();
-//	ESF_DECLARE(typeObject,"_getStackSizeLimit",0,0, Number::create(runtime.getStackSizeLimit()))
-//
-//	//!	[ESMF] void Runtime._setStackSizeLimit(number);
-//	ESF_DECLARE(typeObject,"_setStackSizeLimit",1,1,
-//				(runtime.setStackSizeLimit(static_cast<size_t>(parameter[0].toInt())),Void::get()) )
+	//!	[ESMF] Number Runtime._getStackSize();
+	ESF_DECLARE(typeObject,"_getStackSize",0,0, Number::create(runtime.getStackSize()))
+
+	//!	[ESMF] Number Runtime._getStackSizeLimit();
+	ESF_DECLARE(typeObject,"_getStackSizeLimit",0,0, Number::create(runtime._getStackSizeLimit()))
+
+	//!	[ESMF] void Runtime._setStackSizeLimit(number);
+	ESF_DECLARE(typeObject,"_setStackSizeLimit",1,1,
+				(runtime._setStackSizeLimit(parameter[0].toUInt()),Void::get()) )
 
 	//!	[ESMF] void Runtime.disableLogCounting( );
 	ESF_DECLARE(typeObject,"disableLogCounting",0,1, (runtime.disableLogCounting(),Void::get()))
@@ -201,7 +201,7 @@ ObjRef Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & caller,const P
 	if(internals->getState()==RuntimeInternals::STATE_EXCEPTION){
 		realResult = internals->getResult();
 		internals->resetState();
-		throw(realResult.detachAndDecrease());
+		throw realResult.detachAndDecrease();
 	}
 	return realResult;
 }
@@ -216,6 +216,10 @@ Namespace * Runtime::getGlobals()const				{	return internals->getGlobals();	}
 
 std::string Runtime::getStackInfo()					{	return internals->getStackInfo();	}
 
+size_t Runtime::getStackSize()const					{	return internals->getStackSize();	}
+
+size_t Runtime::_getStackSizeLimit()const			{	return internals->_getStackSizeLimit();	}
+
 void Runtime::info(const std::string & s)			{	logger->info(s);	}
 
 void Runtime::_setExceptionState(const ObjPtr e)	{	internals->setExceptionState(e);	}
@@ -225,6 +229,8 @@ void Runtime::setException(const std::string & s)	{	internals->setException(s);	
 void Runtime::setException(Exception * e)			{	internals->setException(e);	}
 
 void Runtime::_setExitState(const ObjPtr e)			{	internals->setExitState(e);	}
+
+void Runtime::_setStackSizeLimit(const size_t s)	{	internals->_setStackSizeLimit(s);	}
 
 void Runtime::setTreatWarningsAsError(bool b){
 	if(b){ // --> disable coutLogger and add throwLogger
@@ -257,18 +263,7 @@ void Runtime::throwException(const std::string & s,Object * obj) {
 	throw e;
 }
 
-void Runtime::warn(const std::string & s) {
-	std::ostringstream os;
-	os << s;
-//	if(getActiveFCC()!=NULL){
-//		AST::BlockStatement * b=getCurrentContext()->getCurrentRTB()->getStaticBlock();
-//		if(b!=NULL)
-//			os<<" ('"<<b->getFilename()<<"':~"<<getCurrentLine()<<")";
-			os<<" ('"<<"':~"<<getCurrentLine()<<")";
-//	}
-	logger->warn(os.str());
-}
-
+void Runtime::warn(const std::string & s) 	{	internals->warn(s);	}
 
 void Runtime::yieldNext(YieldIterator & yIt){
 	_Ptr<FunctionCallContext> fcc = yIt.getFCC();

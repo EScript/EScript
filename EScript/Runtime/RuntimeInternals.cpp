@@ -22,7 +22,7 @@ namespace EScript{
 
 //! (ctor)
 RuntimeInternals::RuntimeInternals(Runtime & rt) : 
-		runtime(rt),state(STATE_NORMAL){
+		runtime(rt),stackSizeLimit(100000),state(STATE_NORMAL){
 	initSystemFunctions();
 	
 	globals = EScript::getSGlobals()->clone();
@@ -109,7 +109,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				}
 				attr->setValue(value.get());
 			}else{
-				warn("Attribute not found..."); //! \todo proper warning!
+				warn("Attribute not found: '"+instruction.getValue_Identifier().toString()+'\''); 
 			}
 			fcc->increaseInstructionCursor();
 			continue;
@@ -141,7 +141,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 					attr->setValue(value.get());
 				}
 			}else{
-				warn("Attribute not found..."); //! \todo proper warning!
+				warn("Attribute not found: '"+instruction.getValue_Identifier().toString()+'\''); 
 			}
 			fcc->increaseInstructionCursor();
 			continue;
@@ -272,7 +272,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			ObjRef obj = fcc->stack_popObject();
 			const Attribute & attr = obj->getAttribute(instruction.getValue_Identifier());
 			if(attr.isNull()) {
-				warn("Attribute not found: "); //! \todo add proper warning
+				warn("Attribute not found: '"+instruction.getValue_Identifier().toString()+'\''); 
 				fcc->stack_pushVoid();
 			}else if(attr.isPrivate() && fcc->getCaller()!=obj ) {
 				setException("Cannot access private attribute from outside of its owning object.");
@@ -298,7 +298,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			if(obj.isNotNull()){
 				fcc->stack_pushObject(obj);
 			}else{
-				warn("Variable not found: "); //! \todo proper warning!
+				warn("Variable not found: '"+instruction.getValue_Identifier().toString()+'\''); 
 				fcc->stack_pushVoid();
 			}
 			fcc->increaseInstructionCursor();
@@ -316,11 +316,11 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			const uint32_t numParams = instruction.getValue_uint32();
 
 			if(fcc->stack_empty()){ // no constructor call
+				fcc->increaseInstructionCursor();
 				if(numParams>0){
 					warn("Calling constructor function with @(super) attribute as normal function.");
+					break;
 				}
-//				fcc->initCaller(fcc->getCaller()); ???????
-				fcc->increaseInstructionCursor();
 				continue;
 			}
 
@@ -474,7 +474,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				warn("Could not set Attribute..."); //! \todo proper warning!
 			}
 			fcc->increaseInstructionCursor();
-			continue;
+			break;
 		}
 		case Instruction::I_SET_EXCEPTION_HANDLER:{
 			fcc->setExceptionHandlerPos(instruction.getValue_uint32());
@@ -837,7 +837,7 @@ std::string RuntimeInternals::getStackInfo(){
 			os<<"\nFun:\t" << (fcc->getCaller().isNotNull() ? fcc->getCaller()->toDbgString() : "undefined")<<
 				" -> "<<fcc->getUserFunction()->toDbgString();
 			if(nr==1){
-				os<<"\nLocals:\t" << fcc->getLocalVariablesAsString();
+				os<<"\nLocals:\t" << fcc->getLocalVariablesAsString(false);
 			}
 		}
 	}
@@ -956,6 +956,12 @@ void RuntimeInternals::initSystemFunctions(){
 	}
 }
 
+void RuntimeInternals::stackSizeError(){
+	std::ostringstream os;
+	os << "The number of active functions ("<<getStackSize()<< ") reached its limit.";
+	setException(os.str());
+}
+
 //! (static)
 Object * RuntimeInternals::sysCall(uint32_t sysFnId,ParameterValues & params){
 	Function * fn = NULL;
@@ -967,6 +973,15 @@ Object * RuntimeInternals::sysCall(uint32_t sysFnId,ParameterValues & params){
 		return NULL;
 	}
 	return fn->getFnPtr()(runtime,NULL,params);
+}
+
+void RuntimeInternals::warn(const std::string & s)const {
+	std::ostringstream os;
+	os << s;
+	if(getActiveFCC().isNotNull()){
+		os<<" ('" << getActiveFCC()->getUserFunction()->getCode().getFilename() << "':~"<<getCurrentLine()<<")";
+	}
+	runtime.getLogger()->warn(os.str());
 }
 
 // -------------------------------------------------------------

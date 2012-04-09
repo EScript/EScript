@@ -95,7 +95,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 				throwError(UNKNOWN_LOCAL_VARIABLE);
 			return localVariables[index];
 		}
-		std::string getLocalVariablesAsString()const;
+		std::string getLocalVariablesAsString(const bool includeUndefined)const;
 	// @}
 
 	//	-----------------------------

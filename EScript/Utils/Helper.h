@@ -19,6 +19,7 @@ namespace EScript {
 namespace AST{
 class BlockStatement;
 }
+class CodeFragment;
 class Namespace;
 class Object;
 class Runtime;
@@ -26,6 +27,8 @@ class Type;
 class Logger;
 class StringData;
 class UserFunction;
+
+// ---------------------------------------------------
 
 //! @name Declaration
 //@{
@@ -47,6 +50,8 @@ void declareConstant(Namespace * nameSpace, const char * name, Object * value);
 
 void initPrintableName(Type * type, const std::string & printableName);
 //@}
+
+// ---------------------------------------------------
 
 //! @name Runtime helper
 //@{
@@ -85,19 +90,28 @@ ObjRef callMemberFunction(Runtime & rt, ObjPtr obj, StringId fnNameId, const Par
 ObjRef callMemberFunction(Runtime & rt, ObjPtr obj, const std::string & fnName, const ParameterValues & params);
 ObjRef callFunction(Runtime & rt, Object * function, const ParameterValues & params);
 
-void out(Object * obj);
+/*! Compile and execute the given code and return the result.
+	\note may throw 'std::exception' or 'Object *' on failure. */
+ObjRef _eval(Runtime & runtime, const CodeFragment & code);
 
-////! @return (success, result)
-//std::pair<bool, ObjRef> execute(Runtime & runtime, AST::BlockStatement * block);
-
-//! @return (success, result)
-std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & filename);
+/*! Compile and execute the given code. If the code could be executed without an exception, (true,result) is returned;
+	if an exception (of type Object*) occured (false,exception) is returned and the error message is sent to the runtime's logger.
+	@param fileId Name used to identify the executed code in exception messages and stack traces; the default is '[inline]'
+	@return (success, result) 
+*/
+std::pair<bool, ObjRef> eval(Runtime & runtime, const StringData & code,const StringId fileId = StringId());
 
 //! @return (success, result)
 std::pair<bool, ObjRef> executeStream(Runtime & runtime, std::istream & stream);
 
 //! @return (success, result)
-std::pair<bool, ObjRef> eval(Runtime & runtime, const StringData & code);
+ObjRef _loadAndExecute(Runtime & runtime, const std::string & filename);
+
+//! @return (success, result)
+std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & filename);
+
+//void out(Object * obj);
+
 
 //@}
 

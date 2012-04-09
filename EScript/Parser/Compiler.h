@@ -37,7 +37,6 @@ class Compiler {
 	public:
 		Logger * getLogger()const				{	return logger.get();	}
 	private:
-		void log(CompilerContext & ctxt,Logger::level_t messageLevel, const std::string & msg)const;
 		_CountedRef<Logger> logger;
 	//	@}
 
@@ -54,9 +53,9 @@ class Compiler {
 
 
 		void compileExpression(CompilerContext & ctxt,ObjPtr expression)const;
-		
 		void compileStatement(CompilerContext & ctxt,const AST::Statement & statement)const;
 
+		void throwError(CompilerContext & ctxt,const std::string & message)const;
 	//	@}
 
 };

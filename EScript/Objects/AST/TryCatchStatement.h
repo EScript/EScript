@@ -20,8 +20,8 @@ class TryCatchStatement : public Object {
 		virtual ~TryCatchStatement(){}
 
 		StringId getExceptionVariableName()const		{	return exceptionVariableName;	}
-		EPtr<BlockStatement> getTryBlock()const			{	return tryBlock;	}
-		EPtr<BlockStatement> getCatchBlock()const		{	return catchBlock;	}
+		Statement getTryBlock()const					{	return Statement(Statement::TYPE_STATEMENT,tryBlock.get());	}
+		Statement getCatchBlock()const					{	return Statement(Statement::TYPE_STATEMENT,catchBlock.get());	}
 
 		//! ---|> Object
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_TRY_CATCH_STATEMENT; }

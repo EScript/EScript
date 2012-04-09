@@ -471,12 +471,12 @@
 {	// continue without loop crashes the runtime.
 	var exceptionCounter=0;
 	try{
-		(fn(){	continue; })();
+		eval("(fn(){	continue; })();" );
 	}catch(e){
 		++exceptionCounter;
 	}
 	try{
-		(fn(){	break; })();
+		eval("(fn(){	break; })();" );
 	}catch(e){
 		++exceptionCounter;
 	}

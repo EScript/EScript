@@ -5,6 +5,7 @@
 #ifndef COMPILER_CONTEXT_H
 #define COMPILER_CONTEXT_H
 
+#include "../Utils/CodeFragment.h"
 #include "../Utils/StringId.h"
 #include "../Instructions/Instruction.h"
 #include "../Instructions/InstructionBlock.h"
@@ -56,10 +57,10 @@ class CompilerContext {
 		int currentLine;
 		uint32_t currentMarkerId;
 		
-
+		CodeFragment code;
 	public:
-		CompilerContext(Compiler & _compiler,InstructionBlock & _instructions) : 
-				compiler(_compiler),instructions(_instructions),currentLine(-1),currentMarkerId(Instruction::JMP_TO_MARKER_OFFSET){}
+		CompilerContext(Compiler & _compiler,InstructionBlock & _instructions,const CodeFragment & _code) : 
+				compiler(_compiler),instructions(_instructions),currentLine(-1),currentMarkerId(Instruction::JMP_TO_MARKER_OFFSET),code(_code){}
 		
 		void addInstruction(const Instruction & newInstruction)			{	instructions.addInstruction(newInstruction,currentLine);	}
 
@@ -74,7 +75,9 @@ class CompilerContext {
 		uint32_t createMarker()											{	return currentMarkerId++;	}
 		uint32_t declareString(const std::string & str)					{	return instructions.declareString(str);	}
 
+		const CodeFragment & getCode()const								{	return code;	}
 		Compiler & getCompiler()										{	return compiler;	}
+		int getCurrentLine()const										{	return currentLine;	}
 		//! if the setting is not defined, Instruction::INVALID_JUMP_ADDRESS is returned.
 		uint32_t getCurrentMarker(setting_t markerType)const;
 		

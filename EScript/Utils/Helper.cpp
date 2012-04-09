@@ -127,89 +127,76 @@ ObjRef callFunction(Runtime & rt, Object * function, const ParameterValues & par
 	if (function == NULL) {
 		return NULL;
 	}
-	return rt.executeFunction(function, NULL, params);;
+	return rt.executeFunction(function, NULL, params);
+}
+
+
+////! (static)
+//void out(Object * obj) {
+//	if (obj == NULL) {
+//		std::cout << "NULL";
+//	} else {
+//		std::cout << obj->toString();
+//	}
+//}
+
+
+//! (static)
+ObjRef _eval(Runtime & runtime, const CodeFragment & code){
+	Compiler compiler(runtime.getLogger());
+	ERef<UserFunction> script = compiler.compile(code);
+	if(script.isNull())
+		return ObjRef();
+	return runtime.executeFunction(script.get(),NULL,ParameterValues());	
 }
 
 
 //! (static)
-void out(Object * obj) {
-	if (obj == NULL) {
-		std::cout << "NULL";
-	} else {
-		std::cout << obj->toString();
-	}
+ObjRef _loadAndExecute(Runtime & runtime, const std::string & filename) {
+	const StringData file = IO::loadFile(filename);
+	return _eval(runtime,CodeFragment(StringId(filename),file));
 }
 
 //! (static)
 std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & filename) {
-	ERef<UserFunction> script;
 	try {
-		StringData file = IO::loadFile(filename);
-		Compiler compiler(runtime.getLogger());
-		script = compiler.compile(CodeFragment(StringId(filename),file));
+		ObjRef result = _loadAndExecute(runtime,filename);
+		return std::make_pair(true,result);
 	} catch (Object * error) {
-		std::cerr << "\nError occurred while loading file '" << filename << "':\n" << error->toString() << std::endl;
+		std::ostringstream os;
+		os << "Error occurred while loading file '" << filename << "':\n" << error->toString() << std::endl;
+		runtime.log(Logger::LOG_ERROR,os.str());
 		return std::make_pair(false, error);
 	}
-	ObjRef result;
-	try {
-		result = runtime.executeFunction(script.get(),NULL,ParameterValues());	//! \todo handle exceptions
-	}catch(Object * error){
-		std::cerr << "\nError occurred while executing file '" << filename << "':\n" << error->toString() << std::endl;
-		return std::make_pair(false, error);
 //	}catch(...){
 //		std::cout << "\nCaught unknown C++ exception." << std::endl;
 //		return std::make_pair(false, result.detachAndDecrease());
+}
+
+
+//! (static)
+std::pair<bool, ObjRef> eval(Runtime & runtime, const StringData & code,const StringId fileId) {
+	try {
+		ObjRef result = _eval(runtime,CodeFragment( (fileId.empty() ? Consts::FILENAME_INLINE : fileId), code));
+		return std::make_pair(true,result);
+	} catch (Object * error) {
+		std::ostringstream os;
+		os << "Error occurred while evaluating '" << code.str() << "':\n" << error->toString();
+		runtime.log(Logger::LOG_ERROR,os.str());
+		return std::make_pair(false, error);
 	}
-	
-	return std::make_pair(true,result.detachAndDecrease());
 }
 
 //! (static)
-std::pair<bool, ObjRef> eval(Runtime & runtime, const StringData & code) {
-	ERef<UserFunction> script;
-	try {
-		static const StringId inlineId("[inline]");
-		Compiler compiler(runtime.getLogger());
-		script = compiler.compile(CodeFragment(inlineId, code));
-	} catch (Object * error) {
-		std::cerr << "\nError occurred while compiling code '" << code.str() << "':\n" << error->toString() << std::endl;
-		return std::make_pair(false, error);
+std::pair<bool, ObjRef> executeStream(Runtime & runtime, std::istream & stream) {
+	std::string streamData;
+	while(stream.good()) {
+		char buffer[256];
+		stream.read(buffer, 256);
+		streamData.append(buffer, stream.gcount());
 	}
-	ObjRef result;
-	try {
-		result = runtime.executeFunction(script.get(),NULL,ParameterValues());	//! \todo handle exceptions
-	}catch(Object * error){
-		std::cerr << "\nError occurred while executing code '" << code.str() << "':\n" << error->toString() << std::endl;
-		return std::make_pair(false, error);
-//	}catch(...){
-//		std::cout << "\nCaught unknown C++ exception." << std::endl;
-//		return std::make_pair(false, result.detachAndDecrease());
-	}
-	
-	return std::make_pair(true,result.detachAndDecrease());
+	static const StringId stdinId("stdin");
+	return eval(runtime,StringData(streamData),stdinId);
 }
-
-//////////! (static)
-////////std::pair<bool, ObjRef> executeStream(Runtime & runtime, std::istream & stream) {
-////////	ERef<AST::BlockStatement> rootBlock = new AST::BlockStatement;
-////////	rootBlock->setFilename(StringId("stdin"));
-////////
-////////	std::string streamData;
-////////	while(stream.good()) {
-////////		char buffer[256];
-////////		stream.read(buffer, 256);
-////////		streamData.append(buffer, stream.gcount());
-////////	}
-////////
-////////	try {
-////////		Parser parser(runtime.getLogger());
-////////		parser.parse(rootBlock.get(), StringData(streamData));
-////////	} catch (Exception * error) {
-////////		return std::make_pair(false, error);
-////////	}
-////////
-////////	return execute(runtime, rootBlock.get());
-////////}
 
 }

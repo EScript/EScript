@@ -50,12 +50,6 @@ class Runtime : public ExtObject  {
 		Namespace * getGlobals()const;
 
 		bool assignToAttribute(ObjPtr obj,StringId attrId,ObjPtr value);
-	public:
-//		/*! returns the object's attribute with the given id. If the attribute can not be found, NULL is returned.
-//			If the attribute can be found but not accessed, a warning is emitted and NULL is returned. */
-//		ObjPtr readMemberAttribute(ObjPtr obj,const StringId id);
-
-
 	// 	@}
 
 	// ------------------------------------------------
@@ -69,6 +63,10 @@ class Runtime : public ExtObject  {
 		ObjRef createInstance(const EPtr<Type> & type,const ParameterValues & params);
 		
 		void yieldNext(YieldIterator & yIt);
+		
+		size_t getStackSize()const;
+		size_t _getStackSizeLimit()const;
+		void _setStackSizeLimit(const size_t limit);
 	//	@}
 
 	// ------------------------------------------------

@@ -22,7 +22,7 @@ class RuntimeInternals  {
 		RuntimeInternals(Runtime & rt);
 		~RuntimeInternals();
 		
-		void warn(const std::string & message)const			{	runtime.warn(message);	}
+		void warn(const std::string & message)const;
 		void setException(const std::string & message)const	{	runtime.setException(message);	}
 	// @}
 
@@ -45,15 +45,23 @@ class RuntimeInternals  {
 		
 		ObjPtr getCallingObject()const 							{  return activeFCCs.empty() ? NULL : activeFCCs.back()->getCaller();	}
 
+		size_t getStackSize()const								{	return activeFCCs.size();	}
+		size_t _getStackSizeLimit()const						{	return stackSizeLimit;	}
+		void _setStackSizeLimit(const size_t limit)				{	stackSizeLimit = limit;	}
+
 	private:
 		std::vector<_CountedRef<FunctionCallContext> > activeFCCs;
+		size_t stackSizeLimit;
 
 		static bool checkParameterConstraint(Runtime & rt,const ObjPtr & value,const ObjPtr & constraint);
 		_Ptr<FunctionCallContext> getActiveFCC()const			{	return activeFCCs.empty() ? NULL : activeFCCs.back();	}
 
-		void pushActiveFCC(const _Ptr<FunctionCallContext> fcc)	{	activeFCCs.push_back(fcc);	}
+		void pushActiveFCC(const _Ptr<FunctionCallContext> fcc)	{	
+			activeFCCs.push_back(fcc);	
+			if(activeFCCs.size()>stackSizeLimit) stackSizeError();
+		}
 		void popActiveFCC()										{	activeFCCs.pop_back();	}
-		
+		void stackSizeError();
 	// @}
 
 	// --------------------

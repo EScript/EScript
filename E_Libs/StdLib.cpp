@@ -117,7 +117,7 @@ static std::string findFile(Runtime & runtime, const std::string & filename){
 }
 
 //! (static)
-Object * StdLib::loadOnce(Runtime & runtime,const std::string & filename){
+ObjRef StdLib::loadOnce(Runtime & runtime,const std::string & filename){
 	static const StringId mapId("__loadOnce_loadedFiles");
 
 	std::string condensedFilename( IO::condensePath(findFile(runtime,filename)) );
@@ -131,7 +131,7 @@ Object * StdLib::loadOnce(Runtime & runtime,const std::string & filename){
 		return NULL;
 	}
 	m->setValue(String::create(condensedFilename),Bool::create(true));
-	return loadAndExecute(runtime,condensedFilename).second.detachAndDecrease(); //! \todo handle exceptions properly!
+	return _loadAndExecute(runtime,condensedFilename);
 }
 
 #if defined(_WIN32)
@@ -204,17 +204,9 @@ void StdLib::init(EScript::Namespace * globals) {
 	#endif
 	}
 	
-	typedef std::pair<bool,ObjRef> result_t; // compiler...grmpf \todo c++11 use auto
 	//!	[ESF]  Object eval(string) 
-	ES_FUNCTION_DECLARE(globals,"eval",1,1, {
-		result_t result = eval(runtime,StringData(parameter[0].toString()));
-		if(result.first){
-			return result.second.detachAndDecrease();
-		}else{
-			throw result.second.detachAndDecrease(); // \todo set exception
-			return Void::get();
-		}
-	})
+	ESF_DECLARE(globals,"eval",1,1,
+				_eval(runtime,CodeFragment(Consts::FILENAME_INLINE, StringData(parameter[0].toString()))).detachAndDecrease())
 
 	/*!	[ESF]  Map getDate([time])
 		like http://de3.php.net/manual/de/function.getdate.php	*/
@@ -241,10 +233,10 @@ void StdLib::init(EScript::Namespace * globals) {
 	ESF_DECLARE(globals,"getRuntime",0,0, &runtime)
 
 	//!	[ESF] mixed load(string filename)
-	ESF_DECLARE(globals,"load",1,1,loadAndExecute(runtime,findFile(runtime,parameter[0].toString())).second.detachAndDecrease()) //! \todo handle exceptions during lo
+	ESF_DECLARE(globals,"load",1,1,_loadAndExecute(runtime,findFile(runtime,parameter[0].toString())).detachAndDecrease())
 
 	//!	[ESF] mixed loadOnce(string filename)
-	ESF_DECLARE(globals,"loadOnce",1,1,StdLib::loadOnce(runtime,parameter[0].toString()))
+	ESF_DECLARE(globals,"loadOnce",1,1,StdLib::loadOnce(runtime,parameter[0].toString()).detachAndDecrease())
 
 	//! [ESF] void out(...)
 	ES_FUNCTION_DECLARE(globals,"out",0,-1, {
@@ -258,9 +250,8 @@ void StdLib::init(EScript::Namespace * globals) {
 	ES_FUNCTION_DECLARE(globals,"parse",1,1, {
 		ERef<UserFunction> script;
 
-		static const StringId inlineId("[inline]");
 		Compiler compiler(runtime.getLogger());
-		script = compiler.compile(CodeFragment(inlineId, StringData(parameter[0].toString())));
+		script = compiler.compile(CodeFragment(Consts::FILENAME_INLINE, StringData(parameter[0].toString())));
 
 		return script.detachAndDecrease();
 	})

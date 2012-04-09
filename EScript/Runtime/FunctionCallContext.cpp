@@ -39,11 +39,13 @@ void FunctionCallContext::release(FunctionCallContext *fcc){
 
 // -------------------------------------------------------------------------
 
-std::string FunctionCallContext::getLocalVariablesAsString()const{
+std::string FunctionCallContext::getLocalVariablesAsString(const bool includeUndefined)const{
 	const std::vector<StringId> & vars = getInstructions().getLocalVariables();
 	std::ostringstream os;
 	for(size_t i = 0;i<vars.size();++i ){
 		ObjPtr value = getLocalVariable(i);
+		if(value.isNull() && !includeUndefined )
+			continue;
 		os << '$' << vars[i].toString() << '=' << (value.isNotNull() ? value->toDbgString() : "undefined" )<< '\t';
 	}
 	return os.str();
