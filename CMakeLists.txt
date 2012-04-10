@@ -3,8 +3,10 @@ project(EScript CXX)
 
 set(ESCRIPT_VERSION_MAJOR 0)
 set(ESCRIPT_VERSION_MINOR 6)
-set(ESCRIPT_VERSION_PATCH 0)
+set(ESCRIPT_VERSION_PATCH 1)
 set(ESCRIPT_VERSION ${ESCRIPT_VERSION_MAJOR}.${ESCRIPT_VERSION_MINOR}.${ESCRIPT_VERSION_PATCH})
+
+message(WARNING "Experimental EScript version ${ESCRIPT_VERSION}")
 
 # Set up install directories
 set(INCLUDE_INSTALL_DIR include)
@@ -15,8 +17,12 @@ set(CMAKECONFIG_INSTALL_DIR ${LIB_INSTALL_DIR}/cmake/EScript)
 set(ESCRIPT_SOURCES
 	EScript/Consts.cpp
 	EScript/EScript.cpp
-	EScript/Instructions/Instruction.cpp
 	EScript/Instructions/InstructionBlock.cpp
+	EScript/Instructions/Instruction.cpp
+	EScript/Objects/AST/BlockExpr.cpp
+	EScript/Objects/AST/SetAttributeExpr.cpp
+	EScript/Objects/AST/Statement.cpp
+	EScript/Objects/AST/UserFunctionExpr.cpp
 	EScript/Objects/Callables/Delegate.cpp
 	EScript/Objects/Callables/Function.cpp
 	EScript/Objects/Callables/UserFunction.cpp
@@ -25,14 +31,8 @@ set(ESCRIPT_SOURCES
 	EScript/Objects/Collections/Map.cpp
 	EScript/Objects/Exception.cpp
 	EScript/Objects/ExtObject.cpp
-	EScript/Objects/Iterator.cpp
 	EScript/Objects/Identifier.cpp
-	EScript/Objects/AST/BlockExpr.cpp
-	EScript/Objects/AST/FunctionCallExpr.cpp
-	EScript/Objects/AST/GetAttributeExpr.cpp
-	EScript/Objects/AST/SetAttributeExpr.cpp
-	EScript/Objects/AST/Statement.cpp
-	EScript/Objects/AST/UserFunctionExpr.cpp
+	EScript/Objects/Iterator.cpp
 	EScript/Objects/Namespace.cpp
 	EScript/Objects/Object.cpp
 	EScript/Objects/Type.cpp
@@ -42,8 +42,8 @@ set(ESCRIPT_SOURCES
 	EScript/Objects/Values/String.cpp
 	EScript/Objects/Values/Void.cpp
 	EScript/Objects/YieldIterator.cpp
-	EScript/Parser/Compiler.cpp
 	EScript/Parser/CompilerContext.cpp
+	EScript/Parser/Compiler.cpp
 	EScript/Parser/Operators.cpp
 	EScript/Parser/Parser.cpp
 	EScript/Parser/Token.cpp
@@ -60,11 +60,11 @@ set(ESCRIPT_SOURCES
 	EScript/Utils/Logger.cpp
 	EScript/Utils/StringData.cpp
 	EScript/Utils/StringUtils.cpp
-	E_Libs/ext/Rand.cpp
 	E_Libs/ext/JSON.cpp
+	E_Libs/ext/Rand.cpp
 	E_Libs/IOLib.cpp
-	E_Libs/StdLib.cpp
 	E_Libs/MathLib.cpp
+	E_Libs/StdLib.cpp
 )
 if(WIN32)
 	list(APPEND ESCRIPT_SOURCES E_Libs/Win32Lib.cpp)
