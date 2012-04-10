@@ -24,8 +24,7 @@ class Statement {
 			TYPE_YIELD,
 			TYPE_THROW,
 			TYPE_EXIT,
-			TYPE_UNDEFINED,
-			
+			TYPE_UNDEFINED
 		};
 
 		Statement( const Statement & other);

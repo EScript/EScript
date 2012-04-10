@@ -33,7 +33,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		enum error_t{
 			STACK_EMPTY_ERROR,
 			STACK_WRONG_DATA_TYPE,
-			UNKNOWN_LOCAL_VARIABLE,
+			UNKNOWN_LOCAL_VARIABLE
 		};
 		void throwError(error_t error)const;
 
@@ -119,7 +119,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 				NUMBER,
 				IDENTIFIER,
 				STRING_IDX, 
-				UNDEFINED, 
+				UNDEFINED
 //				UINT32_PAIR // \todo coming with c++11
 			}dataType;
 			union value_t{
