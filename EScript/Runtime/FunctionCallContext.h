@@ -105,6 +105,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 	//	-----------------------------
 
 	//! @name Value Stack operations
+	//! 	\todo use StackEntry to manage obj ownership and return References
 	// @{
 	private:
 
@@ -137,7 +138,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		std::vector<StackEntry> valueStack;
 
 	public:
-		void stack_clear() 								{	valueStack.clear();	}
+		void stack_clear();
 		void stack_dup() {
 			StackEntry & entry = stack_top();
 			if(entry.dataType == StackEntry::OBJECT_PTR)

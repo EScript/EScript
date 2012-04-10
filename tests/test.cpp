@@ -87,7 +87,7 @@ int main(int argc,char * argv[]) {
 	E_TestObject::init(*EScript::getSGlobals());
 
 #ifdef ES_DEBUG_MEMORY
-	Tokenizer::identifyStaticToken(0); // init constants
+	Tokenizer::identifyStaticToken(StringId()); // init constants
 	Debug::clearObjects();
 #endif
 

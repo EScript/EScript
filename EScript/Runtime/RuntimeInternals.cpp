@@ -84,8 +84,8 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 
 		const Instruction & instruction = *fcc->getInstructionCursor();
 		
-		std::cout << fcc->stack_toDbgString()<<"\n";
-		std::cout << instruction.toString(fcc->getInstructionBlock())<<"\n";
+//		std::cout << fcc->stack_toDbgString()<<"\n";
+//		std::cout << instruction.toString(fcc->getInstructionBlock())<<"\n";
 		
 		/* \note
 			Use a 'break' to end a case to check the state before continuing.

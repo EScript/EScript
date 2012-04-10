@@ -80,7 +80,11 @@ void FunctionCallContext::reset(){
 	while(!valueStack.empty())
 		stack_pop();
 }
-
+void FunctionCallContext::stack_clear(){
+	while(!valueStack.empty()){
+		stack_pop();
+	}
+}
 Object * FunctionCallContext::stack_popObject(){
 	StackEntry & entry = stack_top();
 	Object * obj;
