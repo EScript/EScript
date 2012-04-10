@@ -2,119 +2,76 @@
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
-#ifndef OBJARRAY_H_INCLUDED
-#define OBJARRAY_H_INCLUDED
+#ifndef ES_OBJARRAY_H_
+#define ES_OBJARRAY_H_
 
 #include "ObjRef.h"
 #include <algorithm>
-#include <vector>
-#include <stack>
 
 namespace EScript {
 
 class Object;
 /**
  * Array of fixed size for EScript::Objects (via ObjRef or ObjPtr).
- * \todo Add functions from Util\Array???
+ * \note This array is especially optimized for sizes of < 3 (typical number of parameters). For those sizes, 
+ *	the benchmark indicates that it is a good deal faster than a std::vector.
  */
 template<typename _T>
-class  _ObjArray{
+class	_ObjArray{
 	// typedefs
 public:
-	typedef _T*            iterator;
-	typedef const _T*      const_iterator;
-	typedef std::size_t    size_type;
+	typedef _T*			iterator;
+	typedef const _T*		const_iterator;
+	typedef std::size_t	size_type;
 
 	// data
 private:
-	_T * params;
 	size_type paramCount;
-
-	static std::vector<std::stack<_T*> > & getPool(){
-		static std::vector<std::stack<_T*> > pool(8);
-		return pool;
-	}
-	static _T * createArray(size_type s){
-		if(s==0)
-			return NULL;
-		if(s<8){
-			std::stack<_T*> & p = getPool()[s];
-			if(!p.empty()){
-				_T * a = p.top();
-				p.pop();
-				return a;
-			}
-		}
-		return new _T[s];
-	}
-	static void releaseArray(_T* a,size_type s){
-		if(s>0){
-			if(s<8){
-				// clear values
-				const _T * endPtr = a+s;
-				for(_T * it = a;it<endPtr;++it)
-					*it = NULL;
-				getPool()[s].push(a);
-			}else{
-				delete []a;
-			}
-		}
-	}
+	_T internalParams[2];
+	_T * params;
 
 	_ObjArray & operator=(const _ObjArray & other); //unimplemented
 public:
 	typedef _ObjArray<_T> self_t;
 
-	_ObjArray():params(NULL),paramCount(0){
+	_ObjArray() : paramCount(0){
 	}
-	_ObjArray(ObjPtr p1):params(createArray(1)),paramCount(1){
+	_ObjArray(ObjPtr p1) : paramCount(1),params(internalParams){
 		params[0]=p1;
 	}
-	_ObjArray(ObjPtr p1,ObjPtr p2):params(createArray(2)),paramCount(2){
-		params[0]=p1,   params[1]=p2;
+	_ObjArray(ObjPtr p1,ObjPtr p2) : paramCount(2),params(internalParams){
+		params[0]=p1,	params[1]=p2;
 	}
-	_ObjArray(ObjPtr p1,ObjPtr p2,ObjPtr p3):params(createArray(3)),paramCount(3){
-		params[0]=p1,   params[1]=p2,   params[2]=p3;
+	_ObjArray(ObjPtr p1,ObjPtr p2,ObjPtr p3) : paramCount(3),params(new _T[3]){
+		params[0]=p1,	params[1]=p2,	params[0]=p3;
 	}
-	_ObjArray(ObjPtr p1,ObjPtr p2,ObjPtr p3,ObjPtr p4):params(createArray(4)),paramCount(4){
-		params[0]=p1,   params[1]=p2,   params[2]=p3,   params[3]=p4;
+	_ObjArray(ObjPtr p1,ObjPtr p2,ObjPtr p3,ObjPtr p4) : paramCount(4),params(new _T[4]){
+		params[0]=p1,	params[1]=p2,	params[2]=p3,	params[3]=p4;
 	}
-	_ObjArray(size_type _paramCount):params(createArray(_paramCount)),paramCount(_paramCount){
+	_ObjArray(size_type _paramCount) : paramCount(_paramCount),params(paramCount>2 ? new _T[paramCount] : internalParams){
 	}
-	_ObjArray(const _ObjArray & other) : params(createArray(other.paramCount)),paramCount(other.paramCount){
-		if(paramCount>0){
-			const _T * endPtr = params+paramCount;
-			const _T * it2 = other.params;
-			for(_T * it = params;it<endPtr;++it,++it2)
-				*it = *it2;
-		}
+	_ObjArray(const _ObjArray & other) : paramCount(other.paramCount),params(paramCount>2 ? new _T[paramCount] : internalParams){
+		if(paramCount>0)
+			std::copy(other.begin(),other.end(),begin());
 	}
 
-	~_ObjArray()                            {   releaseArray(params,paramCount); }
-	inline void set(size_type i,ObjPtr v)   {  	params[i]=v; }
+	~_ObjArray()								{	if(paramCount > 2) delete [] params; }
+	//! \note no range check is performed.
+	inline void set(size_type i,ObjPtr v)		{	params[i]=v; }
 
-	inline void clear(){
-		releaseArray(params,paramCount);
-		paramCount = 0;
-		params = NULL;
-	}
-	inline size_type count()const           {   return paramCount;  }
-	inline size_type size()const            {   return paramCount;  }
-	inline bool empty()const            	{   return paramCount==0;  }
-	inline void swap(self_t &other){
-		std::swap(paramCount,other.paramCount);
-		std::swap(params,other.params);
-	}
+	inline size_type count()const				{	return paramCount;	}
+	inline size_type size()const				{	return paramCount;	}
+	inline bool empty()const					{	return paramCount==0;	}
 
-	inline ObjPtr operator[](size_type i)const      {   return i<paramCount ?  params[i] : NULL;    }
-	inline ObjPtr get(size_type i)const             {   return i<paramCount ?  params[i] : NULL;    }
-	inline iterator                begin()          {   return params; }
-	inline const_iterator          begin()  const   {   return params; }
-	inline iterator                end()            {   return params+size(); }
-	inline const_iterator          end()    const   {   return params+size(); }
+	inline ObjPtr operator[](size_type i)const	{	return i<paramCount ?	params[i] : NULL;	}
+	inline ObjPtr get(size_type i)const			{	return i<paramCount ?	params[i] : NULL;	}
+	inline iterator			begin()				{	return params; }
+	inline const_iterator 	begin()const		{	return params; }
+	inline iterator			end()				{	return params+size(); }
+	inline const_iterator	end()const			{	return params+size(); }
 };
 
 typedef _ObjArray<ObjRef> ParameterValues; 
 
 }
-#endif // OBJARRAY_H_INCLUDED
+#endif // ES_OBJARRAY_H_
