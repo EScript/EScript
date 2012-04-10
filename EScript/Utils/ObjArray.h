@@ -31,13 +31,13 @@ private:
 	size_type paramCount;
 
 	static std::vector<std::stack<_T*> > & getPool(){
-		static std::vector<std::stack<_T*> > pool;
+		static std::vector<std::stack<_T*> > pool(8);
 		return pool;
 	}
 	static _T * createArray(size_type s){
 		if(s==0)
 			return NULL;
-		if(s<8 && s < getPool().size()){
+		if(s<8){
 			std::stack<_T*> & p = getPool()[s];
 			if(!p.empty()){
 				_T * a = p.top();
@@ -50,9 +50,10 @@ private:
 	static void releaseArray(_T* a,size_type s){
 		if(s>0){
 			if(s<8){
-				if(s>=getPool().size()){
-					getPool().resize(s+1);
-				}
+				// clear values
+				const _T * endPtr = a+s;
+				for(_T * it = a;it<endPtr;++it)
+					*it = NULL;
 				getPool()[s].push(a);
 			}else{
 				delete []a;
@@ -81,8 +82,12 @@ public:
 	_ObjArray(size_type _paramCount):params(createArray(_paramCount)),paramCount(_paramCount){
 	}
 	_ObjArray(const _ObjArray & other) : params(createArray(other.paramCount)),paramCount(other.paramCount){
-		for(size_type i=0;i<paramCount;++i)
-			params[i] = other.params[i];
+		if(paramCount>0){
+			const _T * endPtr = params+paramCount;
+			const _T * it2 = other.params;
+			for(_T * it = params;it<endPtr;++it,++it2)
+				*it = *it2;
+		}
 	}
 
 	~_ObjArray()                            {   releaseArray(params,paramCount); }
@@ -109,7 +114,7 @@ public:
 	inline const_iterator          end()    const   {   return params+size(); }
 };
 
-typedef _ObjArray<ObjPtr> ParameterValues; //! \todo use References here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+typedef _ObjArray<ObjRef> ParameterValues; 
 
 }
 #endif // OBJARRAY_H_INCLUDED

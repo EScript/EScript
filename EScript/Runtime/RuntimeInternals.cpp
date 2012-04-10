@@ -164,13 +164,9 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				push result (or jump to exception point)	*/
 			const uint32_t numParams = instruction.getValue_uint32();
 
-			std::vector<ObjRef> paramRefHolder; //! \todo why doesn't the ParameterValues keep a reference?
-			paramRefHolder.reserve(numParams);
 			ParameterValues params(numParams);
 			for(int i=numParams-1;i>=0;--i ){
-				Object * paramValue = fcc->stack_popObjectValue();
-				params.set(i,paramValue);
-				paramRefHolder.push_back(paramValue);
+				params.set(i,fcc->stack_popObjectValue());
 			}
 
 			ObjRef fun = fcc->stack_popObject();
@@ -199,13 +195,9 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 
 			// get the parameters for the first constructor
 			const uint32_t numParams = instruction.getValue_uint32();
-			std::vector<ObjRef> paramRefHolder; //! \todo why doesn't the ParameterValues keep a reference?
-			paramRefHolder.reserve(numParams);
 			ParameterValues params(numParams);
 			for(int i=numParams-1;i>=0;--i ){
-				Object * paramValue = fcc->stack_popObjectValue();
-				params.set(i,paramValue);
-				paramRefHolder.push_back(paramValue);
+				params.set(i,fcc->stack_popObjectValue());
 			}
 
 			// collect constructor functions
@@ -331,13 +323,9 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			}
 
 			// get super constructor parameters
-			std::vector<ObjRef> paramRefHolder; //! \todo why doesn't the ParameterValues keep a reference?
-			paramRefHolder.reserve(numParams);
 			ParameterValues params(numParams);
 			for(int i=numParams-1;i>=0;--i ){
-				Object * paramValue = fcc->stack_popObjectValue();
-				params.set(i,paramValue);
-				paramRefHolder.push_back(paramValue);
+				params.set(i,fcc->stack_popObjectValue());
 			}
 
 			// call super constructor
@@ -496,13 +484,9 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			const uint32_t numParams = instruction.getValue_uint32();
 			const uint32_t funId = fcc->stack_popUInt32();
 			
-			std::vector<ObjRef> paramRefHolder; //! \todo why doesn't the ParameterValues keep a reference?
-			paramRefHolder.reserve(numParams);
 			ParameterValues params(numParams);
 			for(int i=numParams-1;i>=0;--i ){
-				Object * paramValue = fcc->stack_popObjectValue();
-				params.set(i,paramValue);
-				paramRefHolder.push_back(paramValue);
+				params.set(i,fcc->stack_popObjectValue());
 			}
 			fcc->stack_pushObject( sysCall(funId,params) );
 			fcc->increaseInstructionCursor();
