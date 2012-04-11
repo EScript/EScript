@@ -88,7 +88,7 @@ class RuntimeInternals  {
 
 	// --------------------
 	
-	/// @name Internal state
+	/// @name Internal state / Exceptions
 	// 	@{
 	public:
 		enum state_t{	STATE_NORMAL,STATE_EXITING,STATE_EXCEPTION	};
@@ -99,6 +99,9 @@ class RuntimeInternals  {
 			state = STATE_NORMAL;
 			resultValue = NULL;
 		}
+		
+		void setAddStackInfoToExceptions(bool b)		{	addStackIngfoToExceptions = b;	}
+		
 		/*! Creates an exception object including current stack info and
 			sets the state to STATE_EXCEPTION. Does NOT throw a C++ exception. */
 		void setException(const std::string & s);
@@ -127,6 +130,7 @@ class RuntimeInternals  {
 	private:
 		state_t state;
 		ObjRef resultValue;
+		bool addStackIngfoToExceptions;
 	// @}
 
 	// --------------------

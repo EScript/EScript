@@ -3,7 +3,7 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 
 //----
 // init
-GLOBALS.benchmark:=true;
+GLOBALS.benchmark:=false;
 GLOBALS.errors:=0; // error count
 //! new testing function
 GLOBALS.test := fn(description,result,checkCoverageType=false){
@@ -58,6 +58,8 @@ if(benchmark){
 	var innerLoops = 20;
 	var sum = 0;
 
+	Runtime._setAddStackInfoToExceptions(false); // disable costly stack infos 
+	
 	progress(0);
 
 	for(var i=0;i<tries;i++){
@@ -71,6 +73,8 @@ if(benchmark){
 		progress(i/tries);
 	}
 	progress(1);
+	Runtime._setAddStackInfoToExceptions(true); 
+
 //	print_r(times);
 	times.sort();
 	SGLOBALS.out("\nMin:",times.front(),"ms\tMed:",times[ (times.count()*0.5).floor() ],"ms\tMax:",times.back(),"ms\n" );

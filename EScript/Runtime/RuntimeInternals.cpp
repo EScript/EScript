@@ -22,7 +22,7 @@ namespace EScript{
 
 //! (ctor)
 RuntimeInternals::RuntimeInternals(Runtime & rt) : 
-		runtime(rt),stackSizeLimit(100000),state(STATE_NORMAL){
+		runtime(rt),stackSizeLimit(100000),state(STATE_NORMAL),addStackIngfoToExceptions(true){
 	initSystemFunctions();
 	
 	globals = EScript::getSGlobals()->clone();
@@ -791,7 +791,7 @@ int RuntimeInternals::getCurrentLine()const{
 	}
 }
 // -------------------------------------------------------------
-// State
+// State / Exceptions
 void RuntimeInternals::setException(const std::string & s) {
 	Exception * e = new Exception(s,getCurrentLine());
 	e->setFilename(getCurrentFile());
@@ -799,7 +799,8 @@ void RuntimeInternals::setException(const std::string & s) {
 }
 
 void RuntimeInternals::setException(Exception * e){
-	e->setStackInfo(getStackInfo());
+	if(addStackIngfoToExceptions)
+		e->setStackInfo(getStackInfo());
 	setExceptionState(e);
 }
 
@@ -834,6 +835,17 @@ std::string RuntimeInternals::getStackInfo(){
 	}
 	os<<"\n\n----------------------\n";
 	return os.str();
+}
+
+void RuntimeInternals::throwException(const std::string & s,Object * obj) {
+	std::ostringstream os;
+	os<<s;
+	if(obj) os<<'('<<obj->toString()<<')';
+	if(addStackIngfoToExceptions)
+		os<<getStackInfo();
+	Exception * e = new Exception(os.str(),getCurrentLine());
+	e->setFilename(getCurrentFile());
+	throw e;
 }
 
 // -------------------------------------------------------------

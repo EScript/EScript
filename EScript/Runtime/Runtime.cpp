@@ -84,6 +84,10 @@ void Runtime::init(EScript::Namespace & globals) {
 	ESF_DECLARE(typeObject,"resetLogCounter",1,1,
 				(runtime.resetLogCounter(static_cast<Logger::level_t>(parameter[0].toInt())),Void::get()) )
 
+	//!	[ESMF] void Runtime._setAddStackInfoToExceptions(bool);
+	ESF_DECLARE(typeObject,"_setAddStackInfoToExceptions",1,1,
+				(runtime.setAddStackInfoToExceptions(parameter[0].toBool()),Void::get()) )
+
 	//!	[ESMF] void Runtime.setLoggingLevel(Number);
 	ESF_DECLARE(typeObject,"setLoggingLevel",1,1,
 				(runtime.setLoggingLevel(static_cast<Logger::level_t>(parameter[0].toInt())),Void::get()) )
@@ -222,6 +226,8 @@ size_t Runtime::_getStackSizeLimit()const			{	return internals->_getStackSizeLim
 
 void Runtime::info(const std::string & s)			{	logger->info(s);	}
 
+void Runtime::setAddStackInfoToExceptions(bool b)	{	internals->setAddStackInfoToExceptions(b);	}
+
 void Runtime::_setExceptionState(const ObjPtr e)	{	internals->setExceptionState(e);	}
 
 void Runtime::setException(const std::string & s)	{	internals->setException(s);	}
@@ -253,15 +259,7 @@ void Runtime::setTreatWarningsAsError(bool b){
 		logger->removeLogger("throwLogger");
 	}
 }
-void Runtime::throwException(const std::string & s,Object * obj) {
-	std::ostringstream os;
-	os<<s;
-	if(obj) os<<'('<<obj->toString()<<')';
-	os<<getStackInfo();
-	Exception * e = new Exception(os.str(),getCurrentLine());
-	e->setFilename(getCurrentFile());
-	throw e;
-}
+void Runtime::throwException(const std::string & s,Object * obj){	internals->throwException(s,obj);	}
 
 void Runtime::warn(const std::string & s) 	{	internals->warn(s);	}
 

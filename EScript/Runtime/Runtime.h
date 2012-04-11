@@ -109,22 +109,23 @@ class Runtime : public ExtObject  {
 	/// @name Debugging
 	// 	@{
 	public:
-		Logger::level_t getLoggingLevel()				{	return logger->getMinLevel();	}
-		void setLoggingLevel(Logger::level_t level)		{	logger->setMinLevel(level);	}
-		void setTreatWarningsAsError(bool b);
+		void enableLogCounting();
+		void disableLogCounting();
 
-		int getCurrentLine()const;
 		std::string getCurrentFile()const;
+		int getCurrentLine()const;
+		uint32_t getLogCounter(Logger::level_t level)const;
 		LoggerGroup * getLogger()const					{	return logger.get();	}
-
+		Logger::level_t getLoggingLevel()				{	return logger->getMinLevel();	}
 		std::string getStackInfo();
 
 		void log(Logger::level_t l,const std::string & s)	{	logger->log(l,s);	}
-
-		void enableLogCounting();
-		void disableLogCounting();
 		void resetLogCounter(Logger::level_t level);
-		uint32_t getLogCounter(Logger::level_t level)const;
+
+		void setAddStackInfoToExceptions(bool b);
+		void setLoggingLevel(Logger::level_t level)		{	logger->setMinLevel(level);	}
+		void setTreatWarningsAsError(bool b);
+
 	private:
 		_CountedRef<LoggerGroup> logger;
 	// 	@}
