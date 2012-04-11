@@ -7,7 +7,6 @@
 #include "../EScript/EScript.h"
 #include "../EScript/Parser/Compiler.h"
 #include "../EScript/Parser/Parser.h"
-#include "../EScript/Parser/CompilerContext.h"
 #include "../EScript/Utils/IO/IO.h"
 #include "ext/JSON.h"
 

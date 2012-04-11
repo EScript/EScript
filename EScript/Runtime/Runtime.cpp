@@ -13,11 +13,9 @@
 #include "../Objects/Callables/UserFunction.h"
 #include "../Objects/Callables/Delegate.h"
 #include "../Objects/YieldIterator.h"
-#include "../Parser/Parser.h"
 #include "../Utils/Logger.h"
 #include <algorithm>
 #include <iostream>
-#include <list>
 #include <sstream>
 #include <stack>
 

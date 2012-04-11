@@ -2,8 +2,8 @@
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
-#ifndef SETATTRIBUTE_H
-#define SETATTRIBUTE_H
+#ifndef ES_SETATTRIBUTE_H
+#define ES_SETATTRIBUTE_H
 
 #include "../Object.h"
 #include "../../Utils/Attribute.h"
@@ -16,10 +16,16 @@ namespace AST {
 class SetAttributeExpr : public Object {
 		ES_PROVIDES_TYPE_NAME(SetAttributeExpr)
 	public:
-		static SetAttributeExpr * createAssignment(Object * obj,StringId attrId,Object * valueExp,int _line=-1);
+		static SetAttributeExpr * createAssignment(ObjPtr obj,StringId attrId,Object * valueExp,int _line=-1){
+			SetAttributeExpr * sa  = new SetAttributeExpr(obj,attrId,valueExp,0,_line) ;
+			sa->assign = true;
+			return sa;
+		}
 
-		SetAttributeExpr(Object * obj,StringId attrId,Object * valueExp,Attribute::flag_t _attrFlags,int _line=-1);
-		virtual ~SetAttributeExpr();
+		SetAttributeExpr(ObjPtr obj,StringId _attrId,ObjPtr _valueExp,Attribute::flag_t _attrFlags,int _line=-1) :
+			objExpr(obj),valueExpr(_valueExp),attrId(_attrId),attrFlags(_attrFlags),line(_line),assign(false) {}
+
+		virtual ~SetAttributeExpr(){}
 
 		StringId getAttrId()const   					{   return attrId;  }
 		ObjPtr getObjectExpression()const				{   return objExpr;   }
@@ -31,7 +37,6 @@ class SetAttributeExpr : public Object {
 		int getLine()const								{	return line;	}
 
 		/// ---|> [Object]
-		virtual std::string toString()const;
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_SET_ATTRIBUTE_EXPRESSION; }
 
 	private:
@@ -46,4 +51,4 @@ class SetAttributeExpr : public Object {
 }
 }
 
-#endif // SETATTRIBUTE_H
+#endif // ES_SETATTRIBUTE_H

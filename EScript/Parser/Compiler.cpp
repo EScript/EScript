@@ -192,13 +192,13 @@ void Compiler::compileStatement(CompilerContext & ctxt,const AST::Statement & st
 			const AST::BlockExpr * blockStatement = statement.getExpression().toType<AST::BlockExpr>();
 			
 			if(blockStatement->hasLocalVars())
-				ctxt.pushSetting_localVars(*blockStatement->getVars());
+				ctxt.pushSetting_localVars(blockStatement->getVars());
 
 			for ( AST::BlockExpr::cStatementCursor c = blockStatement->getStatements().begin();  c != blockStatement->getStatements().end(); ++c) {
 					ctxt.compile(*c);
 			}
 			if(blockStatement->hasLocalVars()){
-				for(std::set<StringId>::const_iterator it = blockStatement->getVars()->begin();it!=blockStatement->getVars()->end();++it){
+				for(std::set<StringId>::const_iterator it = blockStatement->getVars().begin();it!=blockStatement->getVars().end();++it){
 					ctxt.addInstruction(Instruction::createResetLocalVariable(ctxt.getCurrentVarIndex(*it)));
 				}
 				ctxt.popSetting();
@@ -280,7 +280,7 @@ bool initHandler(handlerRegistry_t & m){
 
 	ADD_HANDLER( _TypeIds::TYPE_BLOCK_STATEMENT, BlockExpr, {
 		if(self->hasLocalVars())
-			ctxt.pushSetting_localVars(*self->getVars());
+			ctxt.pushSetting_localVars(self->getVars());
 
 		if(self->getStatements().empty()){
 			ctxt.addInstruction(Instruction::createPushVoid());
@@ -299,7 +299,7 @@ bool initHandler(handlerRegistry_t & m){
 			}
 		}
 		if(self->hasLocalVars()){
-			for(std::set<StringId>::const_iterator it = self->getVars()->begin();it!=self->getVars()->end();++it){
+			for(std::set<StringId>::const_iterator it = self->getVars().begin();it!=self->getVars().end();++it){
 				ctxt.addInstruction(Instruction::createResetLocalVariable(ctxt.getCurrentVarIndex(*it)));
 			}
 			ctxt.popSetting();

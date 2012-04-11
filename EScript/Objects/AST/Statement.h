@@ -2,14 +2,13 @@
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
-#ifndef STATEMENT_H
-#define STATEMENT_H
+#ifndef ES_STATEMENT_H
+#define ES_STATEMENT_H
 
 #include "../Object.h"
 #include "../../Utils/ObjRef.h"
 
 namespace EScript {
-class CompilerContext;
 
 namespace AST {
 /*! [Statement]  */
@@ -27,11 +26,11 @@ class Statement {
 			TYPE_UNDEFINED
 		};
 
-		Statement( const Statement & other);
-		Statement( type_t _type, ObjPtr _expression);
-		explicit Statement( type_t _type=TYPE_UNDEFINED );
+		Statement( type_t _type, ObjPtr _expression) : 
+				type(_type),expression(_expression),line(-1) {}
+		explicit Statement( type_t _type=TYPE_UNDEFINED ) : type(_type),line(-1) {}
 
-		~Statement();
+		~Statement(){}
 
 		type_t getType()const			{	return type;	}
 		ObjPtr getExpression()const		{	return expression;	}
@@ -43,15 +42,6 @@ class Statement {
 		bool operator==(const Statement & other) const {
 			return type==other.type && expression==other.expression && line==other.line;
 		}
-		Statement & operator=(const Statement & other){
-			if(this!=&other){
-				type=other.type;
-				expression=other.expression;
-				line=other.line;
-			}
-			return *this;
-		}
-
 		
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_STATEMENT; }
 
@@ -63,4 +53,4 @@ class Statement {
 }
 }
 
-#endif // STATEMENT_H
+#endif // ES_STATEMENT_H

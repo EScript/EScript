@@ -2,8 +2,8 @@
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
-#ifndef GETATTRIBUTE_H
-#define GETATTRIBUTE_H
+#ifndef ES_GETATTRIBUTE_EXPR_H
+#define ES_GETATTRIBUTE_EXPR_H
 
 #include "../Object.h"
 #include <string>
@@ -15,7 +15,7 @@ namespace AST {
 class GetAttributeExpr : public Object {
 		ES_PROVIDES_TYPE_NAME(GetAttributeExpr)
 	public:
-		GetAttributeExpr(Object * _obj,StringId _attrId) : objExpression(_obj),attrId(_attrId) {}
+		GetAttributeExpr(ObjPtr _obj,StringId _attrId) : objExpression(_obj),attrId(_attrId) {}
 		virtual ~GetAttributeExpr(){}
 
 		StringId getAttrId()const				{   return attrId;  }
@@ -33,4 +33,4 @@ class GetAttributeExpr : public Object {
 }
 }
 
-#endif // GETATTRIBUTE_H
+#endif // ES_GETATTRIBUTE_EXPR_H

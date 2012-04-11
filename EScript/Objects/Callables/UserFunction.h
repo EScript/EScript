@@ -11,10 +11,7 @@
 #include <vector>
 
 namespace EScript {
-namespace AST{
-class BlockExpr;
-}
-class String;
+
 
 /*! [UserFunction]  ---|> [ExtObject]	*/
 class UserFunction : public ExtObject {

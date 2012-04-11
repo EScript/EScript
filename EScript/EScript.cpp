@@ -5,7 +5,6 @@
 #include "EScript.h"
 #include "Objects/Identifier.h"
 #include "Objects/YieldIterator.h"
-#include "Parser/Parser.h"
 
 #include "../E_Libs/StdLib.h"
 #ifdef _WIN32
@@ -41,7 +40,6 @@ void init() {
 	UserFunction::init(*SGLOBALS);
 	YieldIterator::init(*SGLOBALS);
 
-	Parser::init(*SGLOBALS);
 	Runtime::init(*SGLOBALS);
 
 	declareConstant(SGLOBALS,"SGLOBALS",SGLOBALS);

@@ -19,9 +19,6 @@ set(ESCRIPT_SOURCES
 	EScript/EScript.cpp
 	EScript/Instructions/InstructionBlock.cpp
 	EScript/Instructions/Instruction.cpp
-	EScript/Objects/AST/BlockExpr.cpp
-	EScript/Objects/AST/SetAttributeExpr.cpp
-	EScript/Objects/AST/Statement.cpp
 	EScript/Objects/AST/UserFunctionExpr.cpp
 	EScript/Objects/Callables/Delegate.cpp
 	EScript/Objects/Callables/Function.cpp

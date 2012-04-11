@@ -16,9 +16,6 @@
 
 namespace EScript {
 // Forward declarations.
-namespace AST{
-class BlockExpr;
-}
 class CodeFragment;
 class Namespace;
 class Object;

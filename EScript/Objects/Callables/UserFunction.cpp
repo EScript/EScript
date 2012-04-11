@@ -3,10 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "UserFunction.h"
-#include "../AST/BlockExpr.h"
 #include "../../EScript.h"
-#include "../../Parser/CompilerContext.h"
-#include "../../Parser/Compiler.h"
 #include <sstream>
 
 using namespace EScript;

@@ -7,7 +7,7 @@
 
 #include "Token.h"
 #include "../Objects/Exception.h"
-#include "../Utils/Hashing.h"
+#include "../Utils/StringId.h"
 #include "../Utils/ObjRef.h"
 
 #include <cstddef>

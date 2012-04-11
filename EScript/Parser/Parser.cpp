@@ -58,39 +58,16 @@ int findCorrespondingBracket(const Parser::ParsingContext & ctxt,int from,int to
 	return -1;
 }
 
-// -------------------------------------------------------------------------------------------------------------------
-//! (static)
-Type * Parser::getTypeObject(){
-	// [Parser] ---|> [Object]
-	static Type * typeObject=new Type(Object::getTypeObject());
-	return typeObject;
-}
-
-
-//! (static) initMembers
-void Parser::init(EScript::Namespace & globals) {
-	Type * typeObject = getTypeObject();
-	initPrintableName(typeObject,getClassName());
-
-	declareConstant(&globals,getClassName(),typeObject);
-
-	//!	[ESMF] Parser new Parser();  @deprecated
-	ESF_DECLARE(typeObject,"_constructor",0,0,new Parser(runtime.getLogger()))
-
-}
 
 // -------------------------------------------------------------------------------------------------------------------
 
 //!	(ctor)
-Parser::Parser(Logger * _logger,Type * type) :
-		Object(type?type:getTypeObject()), logger(_logger ? _logger : new StdLogger(std::cout)) {
+Parser::Parser(Logger * _logger) :
+		logger(_logger ? _logger : new StdLogger(std::cout)) {
 	//ctor
 }
+Parser::~Parser(){}
 
-//!	(dtor)
-Parser::~Parser() {
-	//dtor
-}
 
 void Parser::log(ParsingContext & ctxt,Logger::level_t messageLevel, const std::string & msg,const _CountedRef<Token> & token)const{
 	std::ostringstream os;
@@ -583,14 +560,14 @@ BlockExpr * Parser::readBlock(ParsingContext & ctxt,int & cursor)const {
 
 	/// Check for shadowed local variables
 	if(!ctxt.blocks.empty()){
-		const BlockExpr::declaredVariableMap_t * vars = b->getVars();
-		if(vars!=NULL){
+		const BlockExpr::declaredVariableMap_t & vars = b->getVars();
+		if(!vars.empty()){
 			for(int i = ctxt.blocks.size()-1; i>=0 && ctxt.blocks[i]!=NULL; --i ){
-				const BlockExpr::declaredVariableMap_t * vars2 = ctxt.blocks[i]->getVars();
-				if(vars2==NULL)
+				const BlockExpr::declaredVariableMap_t & vars2 = ctxt.blocks[i]->getVars();
+				if(vars2.empty())
 					continue;
-				for(BlockExpr::declaredVariableMap_t::const_iterator it=vars->begin();it!=vars->end();++it){
-					if(vars2->count(*it)>0){
+				for(BlockExpr::declaredVariableMap_t::const_iterator it=vars.begin();it!=vars.end();++it){
+					if(vars2.count(*it)>0){
 						log(ctxt,Logger::LOG_PEDANTIC_WARNING,"Shadowed local variable  '"+(*it).toString()+"' in block.",tokens.at(cursor));
 					}
 

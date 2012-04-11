@@ -26,12 +26,9 @@ class BlockExpr;
 class Statement;
 }
 
-/*! [Parser] ---|> [Object] */
-class Parser : public Object {
-		ES_PROVIDES_TYPE_NAME(Parser)
+/*! [Parser] */
+class Parser {
 	public:
-		static Type * getTypeObject();
-		static void init(EScript::Namespace & globals);
 
 		/*! [ParserException] ---|> [Exception] ---|> [Object]    */
 		class ParserException:public Exception {
@@ -47,8 +44,8 @@ class Parser : public Object {
 		};
 		//-----------
 
-		Parser(Logger * logger=NULL, Type * type=NULL);
-		virtual ~Parser();
+		Parser(Logger * logger=NULL);
+		~Parser();
 
 		ERef<AST::BlockExpr> parse(const CodeFragment & code);
 

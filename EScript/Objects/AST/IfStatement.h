@@ -2,8 +2,8 @@
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
-#ifndef IFCONTROL_H
-#define IFCONTROL_H
+#ifndef ES_IF_STAMTEN_H
+#define ES_IF_STAMTEN_H
 
 #include "../Object.h"
 #include "Statement.h"
@@ -34,4 +34,4 @@ class IfStatement : public Object {
 }
 }
 
-#endif // IFCONTROL_H
+#endif // ES_IF_STAMTEN_H

@@ -2,8 +2,8 @@
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
-#ifndef FUNCTIONCALL_H
-#define FUNCTIONCALL_H
+#ifndef ES_FUNCTIONCALL_EXPR_H
+#define ES_FUNCTIONCALL_EXPR_H
 
 #include "../Object.h"
 #include <vector>
@@ -15,11 +15,11 @@ namespace AST {
 class FunctionCallExpr : public Object {
 		ES_PROVIDES_TYPE_NAME(FunctionCallExpr)
 	public:
-		static FunctionCallExpr * createConstructorCall(Object * objExpr,const std::vector<ObjRef> & parameterExpr, int line=-1){
+		static FunctionCallExpr * createConstructorCall(ObjPtr objExpr,const std::vector<ObjRef> & parameterExpr, int line=-1){
 			return new FunctionCallExpr(objExpr,parameterExpr,true,line);
 		}
 
-		static FunctionCallExpr * createFunctionCall(Object * getFunctionExpr,const std::vector<ObjRef> & parameterExpr, int line=-1){
+		static FunctionCallExpr * createFunctionCall(ObjPtr getFunctionExpr,const std::vector<ObjRef> & parameterExpr, int line=-1){
 			return new FunctionCallExpr(getFunctionExpr,parameterExpr,false,line);
 		}
 
@@ -51,7 +51,7 @@ class FunctionCallExpr : public Object {
 
 	protected:
 
-		FunctionCallExpr(Object * exp,const std::vector<ObjRef> & _parameters,bool _isConstructorCall, int line) :
+		FunctionCallExpr(ObjPtr exp,const std::vector<ObjRef> & _parameters,bool _isConstructorCall, int line) :
 				expRef(exp),parameters(_parameters),constructorCall(_isConstructorCall),sysCall(false),sysCallId(0),
 				lineNumber(line){
 		}
@@ -71,4 +71,4 @@ class FunctionCallExpr : public Object {
 }
 }
 
-#endif // FUNCTIONCALL_H
+#endif // ES_FUNCTIONCALL_EXPR_H

@@ -32,7 +32,7 @@ class UserFunctionExpr : public ExtObject {
 				std::vector<ObjRef> typeExpressions;
 				bool multiParam;
 			public:
-				Parameter(const StringId & name,Object * defaultValueExpression,std::vector<ObjRef> & _typeExpressions);
+				Parameter(const StringId & name,ObjPtr defaultValueExpression,std::vector<ObjRef> & _typeExpressions);
 
 				StringId getName()const									{   return name;    }
 				const std::vector<ObjRef>  & getTypeExpressions()const	{   return typeExpressions;   }
@@ -40,8 +40,8 @@ class UserFunctionExpr : public ExtObject {
 				void setMultiParam(bool b)								{   multiParam=b;   }
 				bool isMultiParam()const								{   return multiParam;  }
 
-				Object * getDefaultValueExpression()const {
-					return defaultValueExpressionRef.get();
+				ObjPtr getDefaultValueExpression()const {
+					return defaultValueExpressionRef;
 				}
 				void setDefaultValueExpression(Object * newDefaultExpression) {
 					defaultValueExpressionRef=newDefaultExpression;
@@ -59,7 +59,7 @@ class UserFunctionExpr : public ExtObject {
 		UserFunctionExpr(AST::BlockExpr * block,const std::vector<ObjRef> & _sConstrExpressions,int line);
 		virtual ~UserFunctionExpr() {}
 
-		AST::BlockExpr * getBlock()const				{	return blockRef.get();	}
+		AST::BlockExpr * getBlock()const					{	return blockRef.get();	}
 		const CodeFragment & getCode()const					{	return code;	}
 		int getLine()const									{	return line;	}
 		int getMaxParamCount()const;
