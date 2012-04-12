@@ -125,7 +125,6 @@ void Runtime::init(EScript::Namespace & globals) {
 //! (ctor)
 Runtime::Runtime() :
 		ExtObject(Runtime::getTypeObject()), internals(new RuntimeInternals(*this)), 
-//		stackSizeLimit(512),
 		logger(new LoggerGroup(Logger::LOG_WARNING)){
 
 	logger->addLogger("coutLogger",new StdLogger(std::cout));
@@ -137,7 +136,9 @@ Runtime::~Runtime() {
 	//dtor
 }
 
-
+bool Runtime::assertNormalState()const {
+	return internals->checkNormalState();
+}
 
 bool Runtime::assignToAttribute(ObjPtr obj,StringId attrId,ObjPtr value){
 	Attribute * attr = obj->_accessAttribute(attrId,false);

@@ -139,9 +139,13 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				else warning */
 			ObjRef value = fcc->stack_popObjectValue();
 
-			Attribute * attr = fcc->getCaller().isNotNull() ?
-					fcc->getCaller()->_accessAttribute(instruction.getValue_Identifier(),false) :
-					globals->_accessAttribute(instruction.getValue_Identifier(),true);
+			Attribute * attr = NULL;
+			if( fcc->getCaller().isNotNull() ){
+				attr = fcc->getCaller()->_accessAttribute(instruction.getValue_Identifier(),false);
+			}
+			if(!attr){
+				attr = globals->_accessAttribute(instruction.getValue_Identifier(),true);
+			}
 			if(attr){
 				if(attr->isConst()){
 					setException("Cannot assign to const attribute '"+instruction.getValue_Identifier().toString()+"'.");
@@ -688,7 +692,7 @@ RuntimeInternals::executeFunctionResult_t RuntimeInternals::startFunctionExecuti
 
 
 //! (internal)
-RuntimeInternals::executeFunctionResult_t RuntimeInternals::startInstanceCreation(EPtr<Type> type,ParameterValues & params){
+RuntimeInternals::executeFunctionResult_t RuntimeInternals::startInstanceCreation(EPtr<Type> type,ParameterValues & params){ // add caller as parameter?
 	static const executeFunctionResult_t failureResult = std::make_pair(static_cast<Object*>(NULL),static_cast<FunctionCallContext*>(NULL));
 	ObjRef createdObject;
 	
@@ -700,7 +704,9 @@ RuntimeInternals::executeFunctionResult_t RuntimeInternals::startInstanceCreatio
 		if(ctorAttr==NULL){
 			typeCursor = typeCursor->getBaseType();
 			continue;
-		}else if(constructors.empty() && ctorAttr->isPrivate()){ // first constructor must not be private!
+		}// first constructor must not be private -- if it is not an attribute of the calling object or of a base class (needed for factory functions!)
+		else if(constructors.empty() && ctorAttr->isPrivate() && 
+				(getCallingObject().isNull() || !(getCallingObject() == typeCursor.get() || getCallingObject()->isA(typeCursor.get())))){
 			setException("Can't instanciate Type with private _contructor."); //! \todo check this!
 			return failureResult; // failure
 		}else{

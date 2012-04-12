@@ -581,5 +581,12 @@
 	var a=new A();
 
 	test( "BUG[20120228]", a.result == 5 );
-	
+}
+{ // Global attributes can not be assigned from within an member function
+	GLOBALS.foo := 1;
+	var f = fn(){
+		foo = 2;
+	};
+	(17->f)();
+	test( "BUG[20120412]", GLOBALS.foo == 2 );
 }

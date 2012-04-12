@@ -973,7 +973,20 @@ if(!benchmark)
 
 	++b.constant; // constant = 100
 
-	test("@(const,private):",exceptionCount==5 && b.publicFunction()==117);
+
+	// private constructors and factory methods
+	var C = new Type();
+	C.create ::= fn(){	return new this;	};
+	C._constructor @(private) ::= fn(){	};
+	var D = new Type(C);
+	D.create2 ::= fn(){		return new this;	};
+	C.create();
+	D.create();
+	D.create2();
+	try{	new C();	}catch(e){	++exceptionCount;	}
+	
+
+	test("@(const,private):",exceptionCount==6 && b.publicFunction()==117);
 }
 
 {	//@(override)

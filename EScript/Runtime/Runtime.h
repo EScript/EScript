@@ -59,9 +59,13 @@ class Runtime : public ExtObject  {
 	public:
 		ObjPtr getCallingObject()const;
 
+		//! \note throws an exception (Object *) on failure
 		ObjRef executeFunction(const ObjPtr & fun,const ObjPtr & callingObject,const ParameterValues & params);
+
+		//! \note throws an exception (Object *) on failure
 		ObjRef createInstance(const EPtr<Type> & type,const ParameterValues & params);
 		
+		//! \note throws an exception (Object *) on failure
 		void yieldNext(YieldIterator & yIt);
 		
 		size_t getStackSize()const;
@@ -74,6 +78,7 @@ class Runtime : public ExtObject  {
 	/// @name Internal state / Exceptions
 	// 	@{
 	public:
+		bool assertNormalState()const __attribute__((deprecated));
 
 		void info(const std::string & s);
 		void warn(const std::string & s);
