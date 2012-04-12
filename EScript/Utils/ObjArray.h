@@ -43,7 +43,7 @@ public:
 		params[0]=p1,	params[1]=p2;
 	}
 	_ObjArray(ObjPtr p1,ObjPtr p2,ObjPtr p3) : paramCount(3),params(new _T[3]){
-		params[0]=p1,	params[1]=p2,	params[0]=p3;
+		params[0]=p1,	params[1]=p2,	params[2]=p3;
 	}
 	_ObjArray(ObjPtr p1,ObjPtr p2,ObjPtr p3,ObjPtr p4) : paramCount(4),params(new _T[4]){
 		params[0]=p1,	params[1]=p2,	params[2]=p3,	params[3]=p4;
