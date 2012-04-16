@@ -49,7 +49,6 @@ class Parser {
 
 		ERef<AST::BlockExpr> parse(const CodeFragment & code);
 
-	private:
 		//! (internal)
 		struct ParsingContext{
 			Tokenizer::tokenList_t & tokens;
@@ -58,6 +57,8 @@ class Parser {
 			CodeFragment code;
 			ParsingContext(Tokenizer::tokenList_t & _tokens,const CodeFragment & _code ) : tokens(_tokens),rootBlock(NULL),code(_code){}
 		};
+
+	private:
 
 		_CountedRef<Logger> logger;
 		void log(ParsingContext & ctxt,Logger::level_t messageLevel, const std::string & msg,const _CountedRef<Token> & token=NULL)const;
