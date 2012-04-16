@@ -244,6 +244,15 @@ void StdLib::init(EScript::Namespace * globals) {
 		std::cout.flush();
 		return NULL;
 	})
+	
+	//! [ESF] void out(...)
+	ES_FUNCTION_DECLARE(globals,"outln",0,-1, {
+		for(ParameterValues::const_iterator it=parameter.begin();it!=parameter.end();++it)
+			std::cout << (*it).toString();
+		std::cout << std::endl;
+		std::cout.flush();
+		return NULL;
+	})
 
 	//!	[ESF]  BlockStatement parse(string) @deprecated
 	ES_FUNCTION_DECLARE(globals,"parse",1,1, {
