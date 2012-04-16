@@ -245,7 +245,7 @@ void StdLib::init(EScript::Namespace * globals) {
 		return NULL;
 	})
 	
-	//! [ESF] void out(...)
+	//! [ESF] void outln(...)
 	ES_FUNCTION_DECLARE(globals,"outln",0,-1, {
 		for(ParameterValues::const_iterator it=parameter.begin();it!=parameter.end();++it)
 			std::cout << (*it).toString();
