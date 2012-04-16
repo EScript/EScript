@@ -64,10 +64,10 @@ class Runtime : public ExtObject  {
 
 		//! \note throws an exception (Object *) on failure
 		ObjRef createInstance(const EPtr<Type> & type,const ParameterValues & params);
-		
+
 		//! \note throws an exception (Object *) on failure
 		void yieldNext(YieldIterator & yIt);
-		
+
 		size_t getStackSize()const;
 		size_t _getStackSizeLimit()const;
 		void _setStackSizeLimit(const size_t limit);
@@ -92,11 +92,11 @@ class Runtime : public ExtObject  {
 		/*! Annotates the given Exception with the current stack info and set the internal state
 			to STATE_EXCEPTION. Does NOT throw a C++ exception. */
 		void setException(Exception * e);
-		
+
 		//! (internal) Like 'setException' but does NOT annotate the given exception but just uses it.
 		void _setExceptionState(const ObjPtr e);
 
-		//! (internal) 
+		//! (internal)
 		void _setExitState(const ObjPtr e);
 
 		/**

@@ -11,7 +11,7 @@
 
 namespace EScript {
 namespace AST {
-	
+
 /*! [SetAttributeExpr]  ---|> [Object]  */
 class SetAttributeExpr : public Object {
 		ES_PROVIDES_TYPE_NAME(SetAttributeExpr)

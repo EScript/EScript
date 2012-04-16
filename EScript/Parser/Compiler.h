@@ -13,7 +13,7 @@
 #include "../Instructions/InstructionBlock.h"
 
 namespace EScript {
-	
+
 class CompilerContext;
 class Logger;
 namespace AST{
@@ -27,11 +27,11 @@ class Statement;
 class Compiler {
 	public:
 		Compiler(Logger * _logger = NULL);
-	
+
 		UserFunction * compile(const CodeFragment & code);
-	
+
 	// -------------
-		
+
 	//! @name Logging
 	//	@{
 	public:
@@ -41,15 +41,15 @@ class Compiler {
 	//	@}
 
 
-	
+
 	// -------------
-		
+
 	//! @name Internal helper
 	//	@{
 	public:
 		/*! (static,internal)
 			- Replaces the markers inside the assembly by jump addresses.	*/
-		static void finalizeInstructions( InstructionBlock & instructions ); 
+		static void finalizeInstructions( InstructionBlock & instructions );
 
 
 		void compileExpression(CompilerContext & ctxt,ObjPtr expression)const;

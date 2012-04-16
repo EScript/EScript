@@ -26,7 +26,7 @@ class Statement {
 			TYPE_UNDEFINED
 		};
 
-		Statement( type_t _type, ObjPtr _expression) : 
+		Statement( type_t _type, ObjPtr _expression) :
 				type(_type),expression(_expression),line(-1) {}
 		explicit Statement( type_t _type=TYPE_UNDEFINED ) : type(_type),line(-1) {}
 
@@ -42,7 +42,7 @@ class Statement {
 		bool operator==(const Statement & other) const {
 			return type==other.type && expression==other.expression && line==other.line;
 		}
-		
+
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_STATEMENT; }
 
 	private:

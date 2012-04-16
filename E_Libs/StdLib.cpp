@@ -202,8 +202,8 @@ void StdLib::init(EScript::Namespace * globals) {
 	ESF_DECLARE(globals,"clock",0,0,Number::create( static_cast<double>(clock())/CLOCKS_PER_SEC))
 	#endif
 	}
-	
-	//!	[ESF]  Object eval(string) 
+
+	//!	[ESF]  Object eval(string)
 	ESF_DECLARE(globals,"eval",1,1,
 				_eval(runtime,CodeFragment(Consts::FILENAME_INLINE, StringData(parameter[0].toString()))).detachAndDecrease())
 

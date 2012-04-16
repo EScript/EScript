@@ -27,7 +27,7 @@ class YieldIterator : public Object {
 
 		_Ptr<FunctionCallContext> getFCC()const		{	return fcc;	}
 		void setFCC(_Ptr<FunctionCallContext> _fcc)	{	fcc = _fcc;	}
-		
+
 		void next(Runtime & rt);
 		bool end()const								{	return fcc.isNull();	}
 

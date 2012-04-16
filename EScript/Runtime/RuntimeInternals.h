@@ -21,13 +21,13 @@ class RuntimeInternals  {
 	public:
 		RuntimeInternals(Runtime & rt);
 		~RuntimeInternals();
-		
+
 		void warn(const std::string & message)const;
 		void setException(const std::string & message)const	{	runtime.setException(message);	}
 	// @}
 
 	// --------------------
-	
+
 	/// @name Function execution
 	// 	@{
 	public:
@@ -40,9 +40,9 @@ class RuntimeInternals  {
 		executeFunctionResult_t startFunctionExecution(const ObjPtr & fun,const ObjPtr & callingObject,ParameterValues & params);
 
 		executeFunctionResult_t startInstanceCreation(EPtr<Type> type,ParameterValues & params);
-	
+
 		Object * executeFunctionCallContext(_Ptr<FunctionCallContext> fcc);
-		
+
 		ObjPtr getCallingObject()const 							{  return activeFCCs.empty() ? NULL : activeFCCs.back()->getCaller();	}
 
 		size_t getStackSize()const								{	return activeFCCs.size();	}
@@ -56,8 +56,8 @@ class RuntimeInternals  {
 		static bool checkParameterConstraint(Runtime & rt,const ObjPtr & value,const ObjPtr & constraint);
 		_Ptr<FunctionCallContext> getActiveFCC()const			{	return activeFCCs.empty() ? NULL : activeFCCs.back();	}
 
-		void pushActiveFCC(const _Ptr<FunctionCallContext> fcc)	{	
-			activeFCCs.push_back(fcc);	
+		void pushActiveFCC(const _Ptr<FunctionCallContext> fcc)	{
+			activeFCCs.push_back(fcc);
 			if(activeFCCs.size()>stackSizeLimit) stackSizeError();
 		}
 		void popActiveFCC()										{	activeFCCs.pop_back();	}
@@ -65,9 +65,9 @@ class RuntimeInternals  {
 	// @}
 
 	// --------------------
-	
+
 	/// @name Globals
-	// 	@{	
+	// 	@{
 	public:
 		ObjPtr getGlobalVariable(const StringId id);
 		Namespace * getGlobals()const;
@@ -76,18 +76,18 @@ class RuntimeInternals  {
 	// @}
 
 	// --------------------
-	
+
 	/// @name Information
-	// 	@{	
+	// 	@{
 	public:
 		int getCurrentLine()const;
 		std::string getCurrentFile()const;
-		
+
 		std::string getStackInfo();
 	// @}
 
 	// --------------------
-	
+
 	/// @name Internal state / Exceptions
 	// 	@{
 	public:
@@ -99,9 +99,9 @@ class RuntimeInternals  {
 			state = STATE_NORMAL;
 			resultValue = NULL;
 		}
-		
+
 		void setAddStackInfoToExceptions(bool b)		{	addStackIngfoToExceptions = b;	}
-		
+
 		/*! Creates an exception object including current stack info and
 			sets the state to STATE_EXCEPTION. Does NOT throw a C++ exception. */
 		void setException(const std::string & s);
@@ -126,7 +126,7 @@ class RuntimeInternals  {
 			resultValue = exceptionObj;
 			state = STATE_EXCEPTION;
 		}
-		
+
 	private:
 		state_t state;
 		ObjRef resultValue;
@@ -134,7 +134,7 @@ class RuntimeInternals  {
 	// @}
 
 	// --------------------
-	
+
 	/// @name System calls
 	// 	@{
 	//! (interna) Used by the Runtime.

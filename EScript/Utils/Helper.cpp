@@ -148,7 +148,7 @@ ObjRef _eval(Runtime & runtime, const CodeFragment & code){
 	ERef<UserFunction> script = compiler.compile(code);
 	if(script.isNull())
 		return ObjRef();
-	return runtime.executeFunction(script.get(),NULL,ParameterValues());	
+	return runtime.executeFunction(script.get(),NULL,ParameterValues());
 }
 
 

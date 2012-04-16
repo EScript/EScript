@@ -19,7 +19,7 @@ void init(EScript::Namespace * o);
 
 
 /*! Loads and executes the script from file __filename__ if the file has not already been loaded by this function.
-	Returns the return value; 
+	Returns the return value;
 	\note May throw 'Object *' on error!
  */
 ObjRef loadOnce(Runtime & runtime,const std::string & filename);

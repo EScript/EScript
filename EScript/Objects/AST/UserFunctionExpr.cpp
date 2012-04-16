@@ -12,7 +12,7 @@ using namespace EScript;
 //! (ctor) UserFunctionExpr::Parameter
 UserFunctionExpr::Parameter::Parameter(const StringId & _name,ObjPtr defaultValueExpression,std::vector<ObjRef> & _typeExpressions):
 		name(_name),defaultValueExpressionRef(defaultValueExpression),multiParam(false){
-			
+
 	std::swap(_typeExpressions,typeExpressions);
 }
 
@@ -44,4 +44,3 @@ int UserFunctionExpr::getMinParamCount()const{
 	}
 	return i;
 }
-

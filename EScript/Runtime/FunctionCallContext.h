@@ -46,20 +46,20 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		~FunctionCallContext(){}
 		void reset();
 		void init(const EPtr<UserFunction> userFunction,const ObjPtr _caller);
-		
+
 		bool constructorCall;
 		bool awaitsCaller;
 		bool stopExecutionAfterEnding;  //! ... or otherwise, continue with the execution of the parent-context.
 	public:
 		/*! Marks that the return value of the next returning function call (emerging from this context) should
-			be used as this context's calling object. This is the case, if a constructor call has performed its initial steps 
-			(e.g. test for parameter types), and now the superconstructor call is called to create the object. */			
+			be used as this context's calling object. This is the case, if a constructor call has performed its initial steps
+			(e.g. test for parameter types), and now the superconstructor call is called to create the object. */
 		void enableAwaitingCaller()						{	awaitsCaller = true;	}
 		void enableStopExecutionAfterEnding()			{	stopExecutionAfterEnding = true;	}
-		
+
 		ObjPtr getCaller()const    						{   return caller; }
 		int getCurrentLine()const{
-			return instructionCursor == getInstructions().end() ? -1 : instructionCursor->getLine();	
+			return instructionCursor == getInstructions().end() ? -1 : instructionCursor->getLine();
 		}
 		size_t getExceptionHandlerPos()const			{	return exceptionHandlerPos;	}
 		const InstructionBlock & getInstructionBlock()const		{	return userFunction->getInstructionBlock();	}
@@ -68,7 +68,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		EPtr<UserFunction> getUserFunction()const		{	return userFunction;	}
 
 		void increaseInstructionCursor()				{	++instructionCursor;	}
-		
+
 		//! Set the caller-object; the caller-member as well as the local-'this'-variable
 		void initCaller(const ObjPtr _caller);
 		bool isAwaitingCaller()const					{	return awaitsCaller;	}
@@ -78,7 +78,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		void setExceptionHandlerPos(const size_t p)		{	exceptionHandlerPos = p;	}
 		void setInstructionCursor(const size_t p){
 			const std::vector<Instruction> & instructions = getInstructions();
-			instructionCursor = (p>=instructions.size() ? instructions.end() : instructions.begin()+p);	
+			instructionCursor = (p>=instructions.size() ? instructions.end() : instructions.begin()+p);
 		}
 	// @}
 
@@ -118,7 +118,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 				UINT32,
 				NUMBER,
 				IDENTIFIER,
-				STRING_IDX, 
+				STRING_IDX,
 				UNDEFINED
 //				UINT32_PAIR // \todo coming with c++11
 			}dataType;

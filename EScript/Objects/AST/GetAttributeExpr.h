@@ -10,7 +10,7 @@
 
 namespace EScript {
 namespace AST {
-	
+
 /*! [GetAttributeExpr]  ---|> [Object]  */
 class GetAttributeExpr : public Object {
 		ES_PROVIDES_TYPE_NAME(GetAttributeExpr)

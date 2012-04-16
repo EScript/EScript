@@ -239,7 +239,7 @@ std::string Instruction::toString(const InstructionBlock & ctxt)const{
 	case I_INIT_CALLER:{
 		out << "initCaller " << getValue_uint32();
 		break;
-	}	
+	}
 	case I_JMP:{
 		out << "jmp ";
 		if( getValue_uint32()<JMP_TO_MARKER_OFFSET)
@@ -307,7 +307,7 @@ std::string Instruction::toString(const InstructionBlock & ctxt)const{
 	case I_PUSH_UNDEFINED:{
 		out << "push (Undefined)";
 		break;
-	}	
+	}
 	case I_PUSH_VOID:{
 		out << "push (Void) Void";
 		break;
@@ -339,7 +339,7 @@ std::string Instruction::toString(const InstructionBlock & ctxt)const{
 	case I_SYS_CALL:{
 		out << "sysCall (numParams) " << getValue_uint32();
 		break;
-	}	
+	}
 	case I_YIELD:{
 		out << "yield";
 		break;

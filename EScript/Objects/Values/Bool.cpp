@@ -138,4 +138,3 @@ bool Bool::rt_isEqual(Runtime &,const ObjPtr o){
 }
 
 } // namespace EScript
-

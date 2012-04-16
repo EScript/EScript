@@ -60,9 +60,9 @@ void FunctionCallContext::init(const EPtr<UserFunction> _userFunction,const ObjP
 	awaitsCaller = false;
 	stopExecutionAfterEnding = false;
 	exceptionHandlerPos = Instruction::INVALID_JUMP_ADDRESS;
-	
+
 	localVariables.resize(getInstructionBlock().getNumLocalVars());
-	
+
 	localVariables[Consts::LOCAL_VAR_INDEX_this] = caller; // ?????????????????
 	localVariables[Consts::LOCAL_VAR_INDEX_thisFn] = userFunction.get();
 }
@@ -112,11 +112,11 @@ Object * FunctionCallContext::stack_popObject(){
 	case StackEntry::IDENTIFIER:{
 		obj = Identifier::create(StringId(entry.value.value_indentifier));
 		break;
-	}	
+	}
 	case StackEntry::STRING_IDX:{
 		obj = String::create(getInstructionBlock().getStringConstant(entry.value.value_stringIndex));
 		break;
-	}	
+	}
 	case StackEntry::UNDEFINED:{
 		return NULL;
 	}
@@ -128,7 +128,7 @@ Object * FunctionCallContext::stack_popObject(){
 }
 Object * FunctionCallContext::stack_popObjectValue(){
 	StackEntry & entry = stack_top();
-	
+
 	switch(entry.dataType){
 	case StackEntry::VOID:
 		valueStack.pop_back();
@@ -150,18 +150,18 @@ Object * FunctionCallContext::stack_popObjectValue(){
 	case StackEntry::UINT32:{
 		const bool value = entry.value.value_uint32;
 		valueStack.pop_back();
-		return Number::create(value);		
+		return Number::create(value);
 	}
 	case StackEntry::NUMBER:{
 		const double value = entry.value.value_number;
 		valueStack.pop_back();
-		return Number::create(value);		
+		return Number::create(value);
 	}
 	case StackEntry::IDENTIFIER:{
 		const StringId value(entry.value.value_indentifier);
 		valueStack.pop_back();
 		return Identifier::create(value);
-	}	
+	}
 	case StackEntry::STRING_IDX:{
 		const uint32_t value = entry.value.value_stringIndex;
 		valueStack.pop_back();
@@ -170,10 +170,10 @@ Object * FunctionCallContext::stack_popObjectValue(){
 	case StackEntry::UNDEFINED:{
 		valueStack.pop_back();
 		return NULL;
-	}	
+	}
 	default:;
 	}
-	
+
 	return Void::get();
 }
 
@@ -181,9 +181,9 @@ void FunctionCallContext::throwError(FunctionCallContext::error_t error)const{
 	static const std::string prefix("Internal error: ");
 	switch(error){
 		case STACK_EMPTY_ERROR:
-			throw std::logic_error(prefix+"Empty stack.");		
+			throw std::logic_error(prefix+"Empty stack.");
 		case STACK_WRONG_DATA_TYPE:
-			throw std::logic_error(prefix+"Wrong data type on stack.");		
+			throw std::logic_error(prefix+"Wrong data type on stack.");
 		case UNKNOWN_LOCAL_VARIABLE:
 			throw std::logic_error(prefix+"Invalid local variable.");
 		default:

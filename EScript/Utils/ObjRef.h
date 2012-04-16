@@ -110,7 +110,7 @@ class _Ptr  {
 
 		/*! Tries to convert object to given Type; returns NULL if object is NULL or not of given type. */
 		template <class _T2> _T2 * toType()const    {   return isNull()?NULL:dynamic_cast<_T2*>(obj);   }
-		
+
 	/*! @name Information */
 	// @{
 		/*! Returns a pointer to the referenced Object. */

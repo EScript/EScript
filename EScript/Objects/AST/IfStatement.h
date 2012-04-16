@@ -10,7 +10,7 @@
 
 namespace EScript {
 namespace AST {
-	
+
 /*! [IfStatement]  ---|> [Object] */
 class IfStatement : public Object {
 		ES_PROVIDES_TYPE_NAME(IfStatement)

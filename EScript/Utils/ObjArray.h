@@ -13,7 +13,7 @@ namespace EScript {
 class Object;
 /**
  * Array of fixed size for EScript::Objects (via ObjRef or ObjPtr).
- * \note This array is especially optimized for sizes of < 3 (typical number of parameters). For those sizes, 
+ * \note This array is especially optimized for sizes of < 3 (typical number of parameters). For those sizes,
  *	the benchmark indicates that it is a good deal faster than a std::vector.
  */
 template<typename _T>
@@ -71,7 +71,7 @@ public:
 	inline const_iterator	end()const			{	return params+size(); }
 };
 
-typedef _ObjArray<ObjRef> ParameterValues; 
+typedef _ObjArray<ObjRef> ParameterValues;
 
 }
 #endif // ES_OBJARRAY_H_

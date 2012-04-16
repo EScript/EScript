@@ -80,7 +80,7 @@ void Parser::log(ParsingContext & ctxt,Logger::level_t messageLevel, const std::
 
 ERef<AST::BlockExpr> Parser::parse(const CodeFragment & code) {
 	ERef<AST::BlockExpr> rootBlock = new AST::BlockExpr;
-	
+
 	tokenizer.defineToken("__FILE__",new TObject(String::create(code.getFilename())));
 	tokenizer.defineToken("__DIR__",new TObject(String::create(IO::dirname(code.getFilename()))));
 
@@ -1313,8 +1313,8 @@ Statement Parser::readControl(ParsingContext & ctxt,int & cursor)const  {
 		static const StringId itId("__it");
 
 		// var __it;
-		loopWrappingBlock->declareVar(itId);	
-		
+		loopWrappingBlock->declareVar(itId);
+
 		/* \todo speedup by using systemCall:
 			for(__it = sysCall getIterator(arr); sysCall isIteratorEnd(__it); sysCall increasIterator (__it) )
 		*/
@@ -1324,19 +1324,19 @@ Statement Parser::readControl(ParsingContext & ctxt,int & cursor)const  {
 		Statement loopInit = Statement(Statement::TYPE_EXPRESSION,
 			SetAttributeExpr::createAssignment(NULL,itId,
 				FunctionCallExpr::createSysCall(Consts::SYS_CALL_GET_ITERATOR,loopInitParams,tokens.at(cursor)->getLine())));
-		
+
 		// ! __it.end()
 		Object * checkExpression = LogicOpExpr::createNot(
 				FunctionCallExpr::createFunctionCall(
 					new GetAttributeExpr(new GetAttributeExpr(NULL,itId), Consts::IDENTIFIER_fn_it_end),std::vector<ObjRef>() ));
-		
+
 		// __it.next()
 		Statement increaseStatement = Statement(Statement::TYPE_EXPRESSION,
 				FunctionCallExpr::createFunctionCall(
 					new GetAttributeExpr(new GetAttributeExpr(NULL,itId), Consts::IDENTIFIER_fn_it_next),std::vector<ObjRef>() ));
-		
+
 		BlockExpr * actionWrapper = new BlockExpr();
-		
+
 		// key = __it.key();
 		if(keyIdent){
 			actionWrapper->addStatement(Statement(Statement::TYPE_EXPRESSION,
@@ -1345,7 +1345,7 @@ Statement Parser::readControl(ParsingContext & ctxt,int & cursor)const  {
 						new GetAttributeExpr(
 							new GetAttributeExpr(NULL,itId), Consts::IDENTIFIER_fn_it_key),std::vector<ObjRef>() ),tokens.at(cursor)->getLine())));
 		}
-		
+
 		// value = __it.value();
 		if(valueIdent){
 			actionWrapper->addStatement(Statement(Statement::TYPE_EXPRESSION,
@@ -1355,13 +1355,13 @@ Statement Parser::readControl(ParsingContext & ctxt,int & cursor)const  {
 							new GetAttributeExpr(NULL,itId), Consts::IDENTIFIER_fn_it_value),std::vector<ObjRef>() ),tokens.at(cursor)->getLine())));
 		}
 		actionWrapper->addStatement(action);
-		
+
 		loopWrappingBlock->addStatement(Statement(Statement::TYPE_STATEMENT,
 				LoopStatement::createForLoop(loopInit,checkExpression,increaseStatement,
 												Statement(Statement::TYPE_STATEMENT,actionWrapper))));
 
 		return Statement(Statement::TYPE_STATEMENT,loopWrappingBlock);
-		
+
 	}
 
 	/// try-catch-control
@@ -1680,7 +1680,7 @@ void Parser::readFunctionParameters(UserFunctionExpr::parameterList_t & params,P
 		if(	idPos>cursor ){
 			int c2 = cursor;
 			Token * t = tokens.at(c2).get();
-			
+
 			// multiple possibilities: fn([Number,'yes'] a){...}
 			if(Token::isA<TStartIndex>(t)){
 				++c2;
@@ -1696,7 +1696,7 @@ void Parser::readFunctionParameters(UserFunctionExpr::parameterList_t & params,P
 						throwError(ctxt,"Expected ]",tokens.at(c2));
 					}
 				}while(!Token::isA<TEndIndex>(tokens.at(c2)));
-				
+
 			} // single type criterium: fn( Bool a){...}
 			else{
 				typeExpressions.push_back(readExpression(ctxt,c2,idPos-1));

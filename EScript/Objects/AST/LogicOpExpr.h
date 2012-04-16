@@ -10,7 +10,7 @@
 
 namespace EScript {
 namespace AST {
-	
+
 /*! [LogicOpExpr]  ---|> [Object]   */
 class LogicOpExpr : public Object {
 		ES_PROVIDES_TYPE_NAME(LogicOpExpr)
@@ -22,7 +22,7 @@ class LogicOpExpr : public Object {
 		static LogicOpExpr * createAnd(ObjPtr _left,Object * _right)	{	return new LogicOpExpr(_left,_right,LogicOpExpr::AND);	}
 		static LogicOpExpr * createNot(ObjPtr expr)						{	return new LogicOpExpr(expr,NULL,LogicOpExpr::NOT);	}
 		static LogicOpExpr * createOr(ObjPtr _left,Object * _right)		{	return new LogicOpExpr(_left,_right,LogicOpExpr::OR);	}
-		
+
 		virtual ~LogicOpExpr(){}
 
 		ObjPtr getLeft()const  			{   return left;   }

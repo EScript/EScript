@@ -10,7 +10,7 @@
 
 namespace EScript {
 namespace AST {
-	
+
 /*! [LoopStatement]  ---|> [Object] */
 class LoopStatement : public Object {
 		ES_PROVIDES_TYPE_NAME(LoopStatement)
@@ -20,19 +20,19 @@ class LoopStatement : public Object {
 		static LoopStatement * createForLoop(const Statement & _initStmt,ObjPtr cond,const Statement & increaseStmt,const Statement & action){
 			return new LoopStatement(_initStmt,cond,action,NULL,increaseStmt);
 		}
-						 
+
 		//! (static) Factory: while( @p cond ) @p action
 		static LoopStatement * createWhileLoop(ObjPtr cond,const Statement & _action){
 			return new LoopStatement(Statement(),cond,_action,NULL,Statement());
-		}						 
-		
+		}
+
 		//! (static) Factory: do @p action while( @p cond )
 		static LoopStatement * createDoWhileLoop(ObjPtr cond,const Statement & _action){
 			return new LoopStatement(Statement(),NULL,_action,cond,Statement());
 		}
-		
+
 		virtual ~LoopStatement(){}
-	
+
 		const Statement & getInitStatement()const			{	return initStmt;	}
 		ObjPtr getPreConditionExpression()const				{	return preConditionExpression;	}
 		const Statement & getAction()const					{	return action;	}
@@ -43,9 +43,9 @@ class LoopStatement : public Object {
 		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_LOOP_STATEMENT; }
 
 	private:
-		LoopStatement( const Statement & _initStmt,	ObjPtr _preConditionExpression, const Statement & _action, ObjPtr _postConditionExpression, const Statement & _increaseStmt) : 
+		LoopStatement( const Statement & _initStmt,	ObjPtr _preConditionExpression, const Statement & _action, ObjPtr _postConditionExpression, const Statement & _increaseStmt) :
 				initStmt(_initStmt),preConditionExpression(_preConditionExpression),action(_action),postConditionExpression(_postConditionExpression),increaseStmt(_increaseStmt){}
-			
+
 		Statement initStmt;
 		ObjRef preConditionExpression;
 		Statement action;

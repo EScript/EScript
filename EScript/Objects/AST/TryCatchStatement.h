@@ -10,7 +10,7 @@
 
 namespace EScript {
 namespace AST {
-	
+
 /*! [TryCatchStatement]  ---|> [Object] */
 class TryCatchStatement : public Object {
 		ES_PROVIDES_TYPE_NAME(TryCatchStatement)

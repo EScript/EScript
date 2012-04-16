@@ -1,4 +1,4 @@
-// CompilerContext.h
+// CompilerContext.cpp
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
@@ -7,10 +7,10 @@
 #include <sstream>
 
 namespace EScript{
-	
+
 void CompilerContext::compile(ObjPtr expression){
 	compiler.compileExpression(*this,expression);
-}	
+}
 void CompilerContext::compile(const AST::Statement & stmt){
 	compiler.compileStatement(*this,stmt);
 }
@@ -27,7 +27,7 @@ uint32_t CompilerContext::getCurrentMarker(setting_t type)const{
 void CompilerContext::pushSetting_basicLocalVars(){
 	settingsStack.push_back(SettingsStackEntry(VISIBLE_LOCAL_VARIABLES));
 	SettingsStackEntry & entry = settingsStack.back();
-	
+
 	const std::vector<StringId> & names = instructions.getLocalVariables();
 	for(size_t i=0;i<names.size();++i){
 		entry.localVariables[ names[i] ] = i;
@@ -40,7 +40,7 @@ void CompilerContext::pushSetting_basicLocalVars(){
 void CompilerContext::pushSetting_localVars(const std::set<StringId> & variableNames){
 	settingsStack.push_back(SettingsStackEntry(VISIBLE_LOCAL_VARIABLES));
 	SettingsStackEntry & entry = settingsStack.back();
-	
+
 	for(std::set<StringId>::const_iterator it = variableNames.begin();it!=variableNames.end();++it){
 		const size_t varIndex = instructions.declareLocalVariable(*it);
 		entry.localVariables[ *it ] = varIndex;

@@ -35,22 +35,22 @@ class UserFunction : public ExtObject {
 	public:
 		UserFunction();
 		virtual ~UserFunction();
-		
+
 		const CodeFragment & getCode()const					{	return codeFragment;	}
 		void setCode(const CodeFragment & c)				{	codeFragment = c;	}
-		
+
 		int getMaxParamCount()const							{	return maxParamValueCount;	}
 		int getMinParamCount()const							{	return minParamValueCount;	}
 		size_t getParamCount()const							{	return paramCount;	}
 
-		void setParameterCounts(size_t paramsCount,int minValues,int maxValues)	{	
-			paramCount = paramsCount , minParamValueCount = minValues,maxParamValueCount = maxValues;	
+		void setParameterCounts(size_t paramsCount,int minValues,int maxValues)	{
+			paramCount = paramsCount , minParamValueCount = minValues,maxParamValueCount = maxValues;
 		}
 		const InstructionBlock & getInstructionBlock()const	{	return instructions;	}
 		InstructionBlock & getInstructionBlock() 			{	return instructions;	}
 		int getLine()const									{	return line;	}
 		void setLine(const int l)							{	line = l;	}
-	
+
 		/// ---|> [Object]
 		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_USER_FUNCTION;	}
 		virtual UserFunction * clone()const					{	return new UserFunction(*this);	}

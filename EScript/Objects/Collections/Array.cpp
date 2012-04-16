@@ -117,7 +117,7 @@ void Array::init(EScript::Namespace & globals) {
 		}
 		return self;
 	})
-	
+
 	//! [ESMF] self Array.reverse()
 	ESMF_DECLARE(typeObject,Array,"reverse",0,0,(self->reverse(),self))
 

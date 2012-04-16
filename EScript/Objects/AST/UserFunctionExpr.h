@@ -71,13 +71,13 @@ class UserFunctionExpr : public ExtObject {
 		const std::vector<ObjRef> & getSConstructorExpressions()const	{	return sConstrExpressions;	}
 
 		void setCode(const CodeFragment & _code)			{	code = _code;	}
-	
+
 		/// ---|> [Object]
 		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_USER_FUNCTION_EXPRESSION;	}
 
 	private:
 		ERef<AST::BlockExpr> blockRef;
-		parameterList_t params; 
+		parameterList_t params;
 		std::vector<ObjRef> sConstrExpressions;
 		CodeFragment code;
 		int line;

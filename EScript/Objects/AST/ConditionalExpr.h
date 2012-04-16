@@ -24,7 +24,7 @@ class ConditionalExpr : public Object {
 
 		/// ---|> [Object]
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_CONDITIONAL_EXPRESSION; }
-		
+
 	private:
 		ObjRef condition;
 		ObjRef action;

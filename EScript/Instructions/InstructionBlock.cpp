@@ -32,7 +32,7 @@ UserFunction * InstructionBlock::getUserFunction(const uint32_t index)const{
 
 std::string InstructionBlock::toString()const{
 	std::ostringstream out;
-	
+
 	if(!localVariables.empty()){
 		out << "Local variables:";
 		uint32_t i=0;
@@ -42,7 +42,7 @@ std::string InstructionBlock::toString()const{
 		}
 		out << "\n";
 	}
-	
+
 	if(!stringConstants.empty()){
 		out << "String constants:";
 		uint32_t i=0;

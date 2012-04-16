@@ -1,4 +1,4 @@
-// Compiler.h
+// Compiler.cpp
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
@@ -84,7 +84,7 @@ UserFunction * Compiler::compile(const CodeFragment & code){
 	// outerBlock is used to add a return statement: {return {block}}
 	ERef<AST::BlockExpr> outerBlock(new AST::BlockExpr);
 	outerBlock->addStatement(AST::Statement(AST::Statement::TYPE_RETURN,block.get()));
-	
+
 	// compile and create instructions
 	CompilerContext ctxt(*this,fun->getInstructionBlock(),code);
 	ctxt.compile(outerBlock.get());
@@ -94,14 +94,14 @@ UserFunction * Compiler::compile(const CodeFragment & code){
 }
 
 
-//! (static) 
+//! (static)
 void Compiler::finalizeInstructions( InstructionBlock & instructionBlock ){
 
 	std::vector<Instruction> & instructions = instructionBlock._accessInstructions();
-	
+
 //	if(instructionBlock.hasJumpMarkers()){
 		std::map<uint32_t,uint32_t> markerToPosition;
-	
+
 		{ // pass 1: remove setMarker-instructions and store position
 			std::vector<Instruction> tmp;
 			for(std::vector<Instruction>::const_iterator it=instructions.begin();it!=instructions.end();++it){
@@ -117,22 +117,22 @@ void Compiler::finalizeInstructions( InstructionBlock & instructionBlock ){
 
 		{ // pass 2: adapt jump instructions
 			for(std::vector<Instruction>::iterator it=instructions.begin();it!=instructions.end();++it){
-				if( it->getType() == Instruction::I_JMP 
-						|| it->getType() == Instruction::I_JMP_IF_SET 
-						|| it->getType() == Instruction::I_JMP_ON_TRUE 
+				if( it->getType() == Instruction::I_JMP
+						|| it->getType() == Instruction::I_JMP_IF_SET
+						|| it->getType() == Instruction::I_JMP_ON_TRUE
 						|| it->getType() == Instruction::I_JMP_ON_FALSE
 						|| it->getType() == Instruction::I_SET_EXCEPTION_HANDLER){
 					const uint32_t markerId = it->getValue_uint32();
-					
+
 					// is name of a marker (and not already a jump position)
 					if(markerId>=Instruction::JMP_TO_MARKER_OFFSET){
 						it->setValue_uint32(markerToPosition[markerId]);
 					}
 				}
 			}
-			
+
 		}
-		
+
 //	}
 }
 
@@ -141,11 +141,11 @@ void Compiler::compileStatement(CompilerContext & ctxt,const AST::Statement & st
 	using AST::Statement;
 	if(statement.getLine()>=0)
 		ctxt.setLine(statement.getLine());
-	
+
 	if(statement.getType() == Statement::TYPE_CONTINUE){
 		const uint32_t target = ctxt.getCurrentMarker(CompilerContext::CONTINUE_MARKER);
 		if(target==Instruction::INVALID_JUMP_ADDRESS){
-			throwError(ctxt,"'continue' outside a loop."); 
+			throwError(ctxt,"'continue' outside a loop.");
 		}
 		std::vector<size_t> variablesToReset;
 		ctxt.collectLocalVariables(CompilerContext::CONTINUE_MARKER,variablesToReset);
@@ -153,11 +153,11 @@ void Compiler::compileStatement(CompilerContext & ctxt,const AST::Statement & st
 			ctxt.addInstruction(Instruction::createResetLocalVariable(*it));
 		}
 		ctxt.addInstruction(Instruction::createJmp(target));
-		
+
 	}else if(statement.getType() == Statement::TYPE_BREAK){
 		const uint32_t target = ctxt.getCurrentMarker(CompilerContext::BREAK_MARKER);
 		if(target==Instruction::INVALID_JUMP_ADDRESS){
-			throwError(ctxt,"'break' outside a loop."); 
+			throwError(ctxt,"'break' outside a loop.");
 		}
 		std::vector<size_t> variablesToReset;
 		ctxt.collectLocalVariables(CompilerContext::BREAK_MARKER,variablesToReset);
@@ -171,26 +171,26 @@ void Compiler::compileStatement(CompilerContext & ctxt,const AST::Statement & st
 		}
 		ctxt.addInstruction(Instruction::createPushUInt(Consts::SYS_CALL_EXIT));
 		ctxt.addInstruction(Instruction::createSysCall(statement.getExpression().isNotNull() ? 1 : 0));
-	
+
 	}else if(statement.getType() == Statement::TYPE_EXPRESSION){
 //		ctxt.setLine(statement.getLine());
 		ctxt.compile(statement.getExpression());
 		ctxt.addInstruction(Instruction::createPop());
-	
+
 	}else if(statement.getType() == Statement::TYPE_RETURN){
 		if(statement.getExpression().isNotNull()){
 			ctxt.compile(statement.getExpression());
 			ctxt.addInstruction(Instruction::createAssignLocal(Consts::LOCAL_VAR_INDEX_internalResult));
 		}
 		ctxt.addInstruction(Instruction::createJmp(Instruction::INVALID_JUMP_ADDRESS));
-	
+
 	}else if(statement.getType() == Statement::TYPE_STATEMENT){
 //		ctxt.setLine(statement.getLine());
-		
+
 		// block - statement (NOT block - expression)
 		if(statement.getExpression().isNotNull() && statement.getExpression()->_getInternalTypeId() == _TypeIds::TYPE_BLOCK_STATEMENT ){
 			const AST::BlockExpr * blockStatement = statement.getExpression().toType<AST::BlockExpr>();
-			
+
 			if(blockStatement->hasLocalVars())
 				ctxt.pushSetting_localVars(blockStatement->getVars());
 
@@ -206,14 +206,14 @@ void Compiler::compileStatement(CompilerContext & ctxt,const AST::Statement & st
 		}else{
 			ctxt.compile(statement.getExpression());
 		}
-	
+
 	}else if(statement.getType() == Statement::TYPE_THROW){
 		if(statement.getExpression().isNotNull()){
 			ctxt.compile(statement.getExpression());
 		}
 		ctxt.addInstruction(Instruction::createPushUInt(Consts::SYS_CALL_THROW));
 		ctxt.addInstruction(Instruction::createSysCall(statement.getExpression().isNotNull() ? 1 : 0));
-	
+
 	}else if(statement.getType() == Statement::TYPE_YIELD){
 		if(statement.getExpression().isNotNull()){
 			ctxt.compile(statement.getExpression());
@@ -221,9 +221,9 @@ void Compiler::compileStatement(CompilerContext & ctxt,const AST::Statement & st
 			ctxt.addInstruction(Instruction::createPushVoid());
 		}
 		ctxt.addInstruction(Instruction::createYield());
-	
+
 	}else if(statement.getExpression().isNotNull()){
-		throwError(ctxt,"Unknown statement."); 
+		throwError(ctxt,"Unknown statement.");
 	}
 }
 
@@ -335,7 +335,7 @@ bool initHandler(handlerRegistry_t & m){
 	// FunctionCallExpr
 	ADD_HANDLER( _TypeIds::TYPE_FUNCTION_CALL_EXPRESSION, FunctionCallExpr, {
 		ctxt.setLine(self->getLine());
-	
+
 		if(!self->isSysCall()){
 			do{
 				GetAttributeExpr * gAttr = self->getGetFunctionExpression().toType<GetAttributeExpr>();
@@ -389,7 +389,7 @@ bool initHandler(handlerRegistry_t & m){
 		for(std::vector<ObjRef>::const_iterator it=self->getParams().begin();it!=self->getParams().end();++it){
 			if( it->isNull() ){
 				// push undefined to be able to distinguish 'someFun(void,2);' from 'someFun(,2);'
-				ctxt.addInstruction(Instruction::createPushUndefined()); 
+				ctxt.addInstruction(Instruction::createPushUndefined());
 			}else{
 				ctxt.compile(*it);
 			}
@@ -571,7 +571,7 @@ bool initHandler(handlerRegistry_t & m){
 		ctxt.popLocalVarsCollector();
 
 		ctxt.popSetting(); // restore previous EXCEPTION_MARKER
-		
+
 		// try block without exception --> reset catchMarker and jump to endMarker
 		ctxt.addInstruction(Instruction::createSetExceptionHandler(ctxt.getCurrentMarker(CompilerContext::EXCEPTION_MARKER)));
 		ctxt.addInstruction(Instruction::createJmp(endMarker));
@@ -598,7 +598,7 @@ bool initHandler(handlerRegistry_t & m){
 			ctxt.addInstruction(Instruction::createGetLocalVariable(Consts::LOCAL_VAR_INDEX_internalResult));
 			ctxt.addInstruction(Instruction::createAssignLocal(ctxt.getCurrentVarIndex(exceptionVariableName)));
 		}
-		
+
 		// clear the exception-variable
 		ctxt.addInstruction(Instruction::createResetLocalVariable(Consts::LOCAL_VAR_INDEX_internalResult));
 
@@ -623,7 +623,7 @@ bool initHandler(handlerRegistry_t & m){
 
 		CompilerContext ctxt2(ctxt.getCompiler(),fun->getInstructionBlock(),self->getCode());
 		ctxt2.setLine(self->getLine()); // set the line of all initializations to the line of the function declaration
-		
+
 		// declare a local variables for each parameter expression
 		for(UserFunctionExpr::parameterList_t::const_iterator it = self->getParamList().begin();it!=self->getParamList().end();++it){
 			fun->getInstructionBlock().declareLocalVariable( it->getName() );
@@ -658,9 +658,9 @@ bool initHandler(handlerRegistry_t & m){
 			if(typeExpressions.empty())
 				continue;
 			const int varIdx = ctxt2.getCurrentVarIndex(param.getName());	// \todo assert(varIdx>=0)
-			
 
-			
+
+
 			// if the parameter has value constrains AND is a multi parameter, use a special system-call for this (instead of manually creating a foreach-loop here)
 			// e.g. fn([Bool,Number] p*){...}
 			if(param.isMultiParam()){
@@ -671,25 +671,25 @@ bool initHandler(handlerRegistry_t & m){
 				ctxt2.addInstruction(Instruction::createPushUInt(Consts::SYS_CALL_TEST_ARRAY_PARAMETER_CONSTRAINTS));
 				ctxt2.addInstruction(Instruction::createSysCall( typeExpressions.size()+1 ));
 				ctxt2.addInstruction(Instruction::createPop());
-				
+
 			}else{
 				std::vector<uint32_t> constrainOkMarkers; // each constrain gets its own ok-marker
 				for(std::vector<ObjRef>::const_iterator it2 = typeExpressions.begin();it2!=typeExpressions.end();++it2){
 					const uint32_t constrainOkMarker = ctxt2.createMarker();
 					constrainOkMarkers.push_back(constrainOkMarker);
-					
+
 					ctxt2.compile( *it2 );
 					ctxt2.addInstruction(Instruction::createDup()); // store the constraint for the error message
 					ctxt2.addInstruction(Instruction::createCheckType(varIdx));
 					ctxt2.addInstruction(Instruction::createJmpOnTrue(constrainOkMarker));
 				}
-					
+
 				// all constraint-checks failed! -> stack contains all failed constraints
 				ctxt2.addInstruction(Instruction::createGetLocalVariable(varIdx));
 				ctxt2.addInstruction(Instruction::createPushUInt(Consts::SYS_CALL_THROW_TYPE_EXCEPTION));
 				ctxt2.addInstruction(Instruction::createSysCall( constrainOkMarkers.size()+1 ));
 				ctxt2.addInstruction(Instruction::createJmp( Instruction::INVALID_JUMP_ADDRESS ));
-				
+
 				// depending on which constraint-check succeeded, pop the constraint-values from the stack
 				for(std::vector<uint32_t>::const_reverse_iterator cIt = constrainOkMarkers.rbegin();cIt!=constrainOkMarkers.rend();++cIt){
 					ctxt2.addInstruction(Instruction::createSetMarker(*cIt));
@@ -702,7 +702,7 @@ bool initHandler(handlerRegistry_t & m){
 		const std::vector<ObjRef> & superConstrParams = self->getSConstructorExpressions();
 		for(std::vector<ObjRef>::const_iterator it = superConstrParams.begin();it!=superConstrParams.end();++it)
 			ctxt2.compile(*it);
-		
+
 		// init 'this' (or create it if this is a constructor call)
 		ctxt2.addInstruction(Instruction::createInitCaller(superConstrParams.size()));
 

@@ -16,10 +16,8 @@ foreach(files as var file){
 
 	var input=IO.fileGetContents(file); // read file
 
-	// determine ending
+	// use '\n' as line ending
 	var lineEnding="\n";
-	if(input.find("\r\n"))
-		lineEnding="\r\n";
 
 	// extract lines
 	var lines=input.split("\n");

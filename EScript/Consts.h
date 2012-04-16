@@ -13,7 +13,7 @@ namespace EScript{
 //	@{
 struct Consts{
 	static const StringId FILENAME_INLINE;
-	
+
 	static const StringId IDENTIFIER_attr_printableName;
 	static const StringId IDENTIFIER_this;
 	static const StringId IDENTIFIER_thisFn;

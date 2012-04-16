@@ -124,7 +124,7 @@ void Runtime::init(EScript::Namespace & globals) {
 
 //! (ctor)
 Runtime::Runtime() :
-		ExtObject(Runtime::getTypeObject()), internals(new RuntimeInternals(*this)), 
+		ExtObject(Runtime::getTypeObject()), internals(new RuntimeInternals(*this)),
 		logger(new LoggerGroup(Logger::LOG_WARNING)){
 
 	logger->addLogger("coutLogger",new StdLogger(std::cout));
@@ -275,9 +275,9 @@ void Runtime::yieldNext(YieldIterator & yIt){
 		internals->resetState();
 		throw(result.detachAndDecrease());
 	}
-	
+
 	ERef<YieldIterator> newYieldIterator = result.toType<YieldIterator>();
-	
+
 	// function exited with another yield? -> reuse the data for the current iterator
 	if(newYieldIterator.isNotNull()){
 		yIt.setFCC( newYieldIterator->getFCC() );

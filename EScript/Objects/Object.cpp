@@ -113,7 +113,7 @@ void Object::init(EScript::Namespace & globals) {
 
 	//! Delegate Object -> function
 	ESF_DECLARE(typeObject,"->",1,1,new Delegate(caller,parameter[0]))
-	
+
 }
 
 

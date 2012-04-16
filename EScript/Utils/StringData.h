@@ -41,7 +41,7 @@ class StringData{
 
 		bool empty()const								{	return str().empty();	}
 		size_t length()const							{	return str().length();	}
-		
+
 		bool operator==(const StringData & other)const	{	return (data==other.data) || (str()==other.str()); }
 		StringData & operator=(const StringData & other){
 			setData(other.data);
