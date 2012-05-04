@@ -4,7 +4,7 @@
 <head>
 <meta http-equiv="content-type" content="application/xhtml+xml; charset=UTF-8" />
 <meta name="author" content="Claudius Jähn" />
-<title>EScript 0.5 - Überblick</title>
+<title>EScript 0.6 - Überblick</title>
 <style type="text/css">
 pre {  margin:0.3cm; padding:0.3cm;  }
 pre.code {border: 1px dashed gray; background-color:#FFFFCC;}
@@ -20,16 +20,65 @@ h3 {  margin-top:1cm; }
 </head>
 <body>
 <!-- ______________________________________________________________________________ -->
-<h1>EScript 0.6.0 (GubbelGubbel)</h1>
+<h1>EScript 0.6.2 (GubbelGubbel)</h1>
 <p>
 EScript ist eine interpretierte, objektorientierte, C-Syntax-ähnliche Skriptsprache, die mit dem
 Fokus entwickelt wurde C++-Programme (relativ) einfach durch Skripting steuern und erweitern zu können.
 Dabei sollen insbesondere Objekte der Programmlogik direkt durch EScript Objekte dargestellt werden. 
 Dafür ist das Klassen- und Objekt System von EScript deutlicher ausgeprägt als z.B. von LUA.
-</p>
+</p><br/>
 <h3>Hallo Welt-Beispiel</h3>
 <pre class="code">out("Hallo Welt!\n");</pre>
 <pre class="output">Hallo Welt!</pre>
+
+<pre>
+
+                       SESpEES     cEStSppc
+                     EEii    iE   cp     itp
+                    pE iiiii irE  p iiiiii  p
+                    E iiiiii E p tt ri iiiii E
+                   Et iiiii pEiiSE t iS  iiii E
+                   Ei iii  pE p Eiip  Etiii   Et
+                   Ec i  ipE  c p p  riEcSSEEES
+                    E iSEpE   icpcE  tti
+                    pEp cip   SErpi tcp
+                        ppi   iEit  pp
+                       ipc    rEpt icp
+                     iEEcittEE    iiE
+                    pt       E      iE
+                   pE   ii   ci E    pi
+                   E    pE   S ip    S
+              Etri p         E      E
+               EEcctE      SE    iSEpcritrci
+             cr ppi iEESSEEcicpptci   SEiiSpEpES
+         ipEpciSi  ii  ii        iiirEcrri
+        ii   iEptSiiiiii iEpEEEp     rEpiEEE iiiir
+           tpE  pS  iiii SEEEESp irpErpEE
+              cpc EpEtc     E  rStiEEt
+                ic  pE ci   prpEtrpi Spt
+              it   icrEEErEE   cEtE    i     pptppi
+    iEcSE   ipi   Ei  p pS   E  p iEr       pc    pci
+  irEi  rp tr    p  Ep   p   p ip i pp      Et iiEi rE
+ Eci rii pE    cp cE  i  EEEppEr iii ipt iSEr iii  tpE
+E  iiii Sc pi  r pc i  iEpt   itS  iii rEr i    irii cE
+ tSiiiiii  itEE pr i tppci     itEr  ii  E   rEEpEpttE
+ rS i  ictti   pc i Epi           Sp  ii iEiEpi
+  ttctSEi  ppiiE i ES              tp iii EE
+    i        rE   pp                ES ii ip
+              p iip                iEp iii E
+             pE iiEr               icp iii p
+             Ei iiS                rcc iiiiE
+             Er i E       Ep        Eiiii rc
+             ip i tE     ipEp      Sp iii p
+              Ep   EE            iEp iii pE
+               ppr  tEpi        tES ii  pE
+                 tpi  ipEpctcpEpp     ipi
+                   EpEiiiiccrtr  itppEp
+               iptc  iirttcSE  pEcciii rSSS
+              rE E ic i     iES      ii  iiEt
+               tE pp EEcSSSScitEirEiS  pt  iE
+                                ici pE  prrc
+</pre>
 
 <h2>Inhaltsverzeichnis</h2>
 <ul>
@@ -46,6 +95,7 @@ Dafür ist das Klassen- und Objekt System von EScript deutlicher ausgeprägt als
 <li><a href="#shortreference">Kurzreferenz</a> (noch nicht fertig)</li>
 <li><a href="#extendingescript">EScript in C++ erweitern</a> (muss noch...)</li>
 </ul>
+
 <!-- ______________________________________________________________________________ -->
 <h2 id="about">Über dieses Dokument</h2>
 <p>
@@ -958,20 +1008,20 @@ Das ist vor allem praktisch fürs Debugging und um Skriptdateien aus dem gleiche
 <h3>StdLib</h3>
 <p>In der StdLib sind einige Funktionen im globalen Namensraum definiert. Im Folgenden eine kurze Übersicht über die wichtigsten.</p>
 
-<h3><code>Statement parse(String expression)</code></h3>
+<h3><code>Object eval(String expression)</code></h3>
 <p>
-Mit <code>parse</code> wird EScript-Code analysiert und die entsprechende Programmanweisung zurückgegeben.
-Diese lässt sich dann mit der Objektfunktion <code>execute</code> ausführen.
+Mit <code>eval</code> wird EScript-Code compiliert, ausgeführt und das Ergebnis zurückgegeben.
 Fehler, die beim Parsen auftreten können (z. B. Syntaxfehler), lösen eine Ausnahme aus.
 </p>
 <pre class="code">
 var s="1+2;";
+var result;
 try{
-   var statement = parse(s);    // String parsen
-   out( statement.execute() );  // Anweisung ausführen und Ergebnis ausgeben
+   result = eval(s);    // Anweisung compilieren, ausführen und Ergebnis ausgeben
 }catch(e){                      // mögliche Fehler abfangen
    out(e);
 }
+out(result);
 </pre>
 <pre class="output">
 3
@@ -1147,120 +1197,25 @@ m2:
 <h3><code>Bool</code></h3>
 <h4>Object-Member</h4>
 <pre>
-    classObject->setAttribute("+",new Function(*esmf_plus));
-    classObject->setAttribute("-",new Function(*esmf_minus));
-    classObject->setAttribute("&amp;",new Function(*esmf_and));
-    classObject->setAttribute("|",new Function(*esmf_or));
-    classObject->setAttribute("^",new Function(*esmf_not));
-    classObject->setAttribute("!_pre",new Function(*esmf_neg));
-
-    classObject->setAttribute("&gt;",new Function(*esmf_greater));
-    classObject->setAttribute("&lt;",new Function(*esmf_less));
-    classObject->setAttribute("===",new Function(*esmf_identical));
-    classObject->setAttribute("!==",new Function(*esmf_notIdentical));
+	TODO!
 </pre>
 <!-- ______________________________________________________________________________ -->
 <h3><code>Number</code></h3>
 <h4>Object-Member</h4>
 <pre>
-    classObject->setAttribute("_constructor",new Function(*esmf_constructor));
-    classObject->setAttribute("+",new Function(*esmf_plus));
-    classObject->setAttribute("_-_pre",new Function(*esmf_neg));
-    classObject->setAttribute("-",new Function(*esmf_minus));
-    classObject->setAttribute("*",new Function(*esmf_mul));
-    classObject->setAttribute("/",new Function(*esmf_div));
-    classObject->setAttribute("&amp;",new Function(*esmf_and));
-    classObject->setAttribute("|",new Function(*esmf_or));
-    classObject->setAttribute("^",new Function(*esmf_not));
-    classObject->setAttribute("%",new Function(*esmf_mod));
-
-    classObject->setAttribute("++_post",new Function(*esmf_inc));
-    classObject->setAttribute("++_pre",new Function(*esmf_incPre));
-    classObject->setAttribute("--_post",new Function(*esmf_dec));
-    classObject->setAttribute("--_pre",new Function(*esmf_decPre));
-    classObject->setAttribute("+=",new Function(*esmf_plusAssign));
-    classObject->setAttribute("-=",new Function(*esmf_minusAssign));
-    classObject->setAttribute("*=",new Function(*esmf_mulAssign));
-    classObject->setAttribute("/=",new Function(*esmf_divAssign));
-    classObject->setAttribute("%=",new Function(*esmf_modAssign));
-    classObject->setAttribute("|=",new Function(*esmf_orAssign));
-    classObject->setAttribute("&amp;=",new Function(*esmf_andAssign));
-    classObject->setAttribute("^=",new Function(*esmf_notAssign));
-
-    classObject->setAttribute("&gt;",new Function(*esmf_greater));
-    classObject->setAttribute("&gt;=",new Function(*esmf_greaterEqual));
-    classObject->setAttribute("&lt;",new Function(*esmf_less));
-    classObject->setAttribute("&lt;=",new Function(*esmf_lessEqual));
-//    classObject->setAttribute("==",new Function(*esmf_equal));
-//    classObject->setAttribute("!=",new Function(*esmf_notEqual));
-    classObject->setAttribute("===",new Function(*esmf_identical));
-    classObject->setAttribute("!==",new Function(*esmf_notIdentical));
-    classObject->setAttribute("abs",new Function(*esmf_abs));
-    classObject->setAttribute("round",new Function(*esmf_round));
-    classObject->setAttribute("floor",new Function(*esmf_floor));
-    classObject->setAttribute("ceil",new Function(*esmf_ceil));
-    classObject->setAttribute("pow",new Function(*esmf_pow));
-    classObject->setAttribute("sqrt",new Function(*esmf_sqrt));
-    classObject->setAttribute("sin",new Function(*esmf_sin));
-    classObject->setAttribute("cos",new Function(*esmf_cos));
-    classObject->setAttribute("tan",new Function(*esmf_tan));
-
-    classObject->setAttribute("degToRad",new Function(*esmf_degToRad));
-    classObject->setAttribute("radToDeg",new Function(*esmf_radToDeg));
-    //TODO: sin,cos,tan,sqrt,exp,log,...
-
-    classObject->setAttribute("toHex",new Function(*esmf_toHex));
-    classObject->setAttribute("toIntStr",new Function(*esmf_toIntStr));
+	TODO!
 </pre>
 <!-- ______________________________________________________________________________ -->
 <h3><code>String</code></h3>
 <h4>Object-Member</h4>
 <pre>
-    classObject->setAttribute("_constructor",new Function(*esmf_String_constructor));
-    classObject->setAttribute("+",new Function(*esmf_String_plus));
-    classObject->setAttribute("*",new Function(*esmf_String_mul));
-    classObject->setAttribute("+=",new Function(*esmf_String_plusAssign));
-    classObject->setAttribute("*=",new Function(*esmf_String_mulAssign));
-//
-    classObject->setAttribute("&gt;",new Function(*esmf_String_greater));
-    classObject->setAttribute("&gt;=",new Function(*esmf_String_greaterEqual));
-    classObject->setAttribute("&lt;",new Function(*esmf_String_less));
-    classObject->setAttribute("&lt;=",new Function(*esmf_String_lessEqual));
-    classObject->setAttribute("===",new Function(*esmf_String_identical));
-    classObject->setAttribute("!==",new Function(*esmf_String_notIdentical));
-
-    classObject->setAttribute("length",new Function(*esmf_String_length));
-    classObject->setAttribute("trim",new Function(*esmf_String_trim));
-    classObject->setAttribute("substr",new Function(*esmf_String_substr));
-    classObject->setAttribute("_get",new Function(*esmf_String_get));
-    classObject->setAttribute("find",new Function(*esmf_String_find));
-    classObject->setAttribute("contains",new Function(*esmf_String_contains));
-    classObject->setAttribute("rfind",new Function(*esmf_String_rfind));
-    classObject->setAttribute("replace",new Function(*esmf_String_replace));
-    classObject->setAttribute("replaceAll",new Function(*esmf_String_replaceAll));
-    classObject->setAttribute("split",new Function(*esmf_String_split));
-
-    classObject->setAttribute("beginsWith",new Function(*esmf_String_beginsWith));
-    classObject->setAttribute("endsWith",new Function(*esmf_String_endsWith));
+	TODO!
 </pre>
 <!-- ______________________________________________________________________________ -->
 <h3><code>Collection</code></h3>
 <h4>Object-Member</h4>
 <pre>
-    classObject->setAttribute("size",new Function(*esmf_Collection_count));
-
-    classObject->setAttribute("count",new Function(*esmf_Collection_count));
-    classObject->setAttribute("get",new Function(*esmf_Collection_get));
-    classObject->setAttribute("set",new Function(*esmf_Collection_set));
-    classObject->setAttribute("_get",new Function(*esmf_Collection_get)); // @depreceated ??
-    classObject->setAttribute("_set",new Function(*esmf_Collection_set));// @depreceated ??
-    classObject->setAttribute("getIterator",new Function(*esmf_Collection_getIterator));
-    classObject->setAttribute("map",new Function(*esmf_Collection_map));
-    classObject->setAttribute("==",new Function(*esmf_Collection_equal));
-    classObject->setAttribute("empty",new Function(*esmf_Collection_empty));
-    classObject->setAttribute("max",new Function(*esmf_Collection_max));
-    classObject->setAttribute("min",new Function(*esmf_Collection_min));
-    classObject->setAttribute("contains",new Function(*esmf_Collection_contains));
+	TODO!
 </pre>
 
 <!-- ______________________________________________________________________________ -->
@@ -1322,8 +1277,16 @@ array.sort( s-&gt;fn(a,b) {return (a-base).abs()&lt;(b-base).abs(); } );
 
 <!-- ______________________________________________________________________________ -->
 <h3><code>Map</code></h3>
-<h4>Object-Member</h4>
+<h4>Object-Member</h4><br/>
+<pre>
+	TODO!
+</pre>
+
 <!-- ______________________________________________________________________________ -->
 <h2 id="extendingescript">EScript in C++ erweitern</h2>
+<pre>
+	TODO!
+</pre>
+
 </body>
 </html>
