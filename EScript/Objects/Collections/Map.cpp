@@ -71,9 +71,9 @@ Map * Map::create(){
 }
 
 //! (static) Factory
-Map * Map::create(const std::map<StringId,Object *> & attr){
+Map * Map::create(const std::unordered_map<StringId,Object *> & attr){
 	Map * m=create();
-	for(std::map<StringId,Object *>::const_iterator it=attr.begin();it!=attr.end();++it)
+	for(std::unordered_map<StringId,Object *>::const_iterator it=attr.begin();it!=attr.end();++it)
 		m->setValue(String::create( (it->first).toString() ), it->second->getRefOrCopy());
 	return m;
 }

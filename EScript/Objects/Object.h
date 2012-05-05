@@ -12,7 +12,7 @@
 #include "typeIds.h"
 
 #include <iostream>
-#include <map>
+#include <unordered_map>
 
 namespace EScript {
 
@@ -143,7 +143,7 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 
 		/*! ---o
 			Collect all attributes in a map; used for debugging. */
-		virtual void collectLocalAttributes(std::map<StringId,Object *> & )		{	}
+		virtual void collectLocalAttributes(std::unordered_map<StringId,Object *> & )		{	}
 	// @}
 
 	// -------------------------

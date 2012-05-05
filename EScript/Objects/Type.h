@@ -49,9 +49,9 @@ class Type : public Object {
 	public:
 
 		/*! Get only the typeAttributes. */
-		void collectTypeAttributes(std::map<StringId,Object *> & attrs)const;
+		void collectTypeAttributes(std::unordered_map<StringId,Object *> & attrs)const;
 		/*! Get only the objectAttributes. */
-		void collectObjAttributes(std::map<StringId,Object *> & attrs)const;
+		void collectObjAttributes(std::unordered_map<StringId,Object *> & attrs)const;
 
 		void copyObjAttributesTo(Object * instance);
 
@@ -68,7 +68,7 @@ class Type : public Object {
 		virtual bool setAttribute(const StringId id,const Attribute & attr);
 
 		/// ---|> [Object]
-		virtual void collectLocalAttributes(std::map<StringId,Object *> & attrs);
+		virtual void collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs);
 
 	private:
 		AttributeContainer attributes;

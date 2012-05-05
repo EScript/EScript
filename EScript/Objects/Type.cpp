@@ -47,7 +47,7 @@ void Type::init(EScript::Namespace & globals) {
 
 	// attrMap_t is declared outside of the getObjAttributes declaration as it otherwise leads to a strange
 	// preprocessor error on gcc.
-	typedef std::map<StringId, Object *> attrMap_t;
+	typedef std::unordered_map<StringId, Object *> attrMap_t;
 
 	//! [ESMF] Map Type.getObjAttributes()
 	ES_MFUNCTION_DECLARE(typeObject,const Type,"getObjAttributes",0,0,{
@@ -161,14 +161,14 @@ void Type::copyObjAttributesTo(Object * instance){
 	}
 }
 
-void Type::collectTypeAttributes(std::map<StringId,Object *> & attrs)const{
+void Type::collectTypeAttributes(std::unordered_map<StringId,Object *> & attrs)const{
 	for(AttributeContainer::const_iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
 		if(it->second.isTypeAttribute())
 			attrs[it->first] = it->second.getValue();
 	}
 }
 
-void Type::collectObjAttributes(std::map<StringId,Object *> & attrs)const{
+void Type::collectObjAttributes(std::unordered_map<StringId,Object *> & attrs)const{
 	for(AttributeContainer::const_iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
 		if(it->second.isObjAttribute())
 			attrs[it->first] = it->second.getValue();
@@ -176,7 +176,7 @@ void Type::collectObjAttributes(std::map<StringId,Object *> & attrs)const{
 }
 
 //! ---|> Object
-void Type::collectLocalAttributes(std::map<StringId,Object *> & attrs){
+void Type::collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs){
 	for(AttributeContainer::iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
 		attrs[it->first] = it->second.getValue();
 	}

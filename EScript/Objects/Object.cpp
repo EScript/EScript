@@ -103,7 +103,7 @@ void Object::init(EScript::Namespace & globals) {
 	//! [ESMF] Bool Object.assignAttribute(key,value)
 	ESF_DECLARE(typeObject,"assignAttribute",2,2,Bool::create(runtime.assignToAttribute(caller,parameter[0].toString(),parameter[1])))
 
-	typedef std::map<StringId,Object *> attrMap_t; // has to be defined here, due to compiler (gcc) bug.
+	typedef std::unordered_map<StringId,Object *> attrMap_t; // has to be defined here, due to compiler (gcc) bug.
 	//! Map Object._getAttributes()
 	ES_FUNCTION_DECLARE(typeObject,"_getAttributes",0,0,{
 		attrMap_t attrs;

@@ -105,6 +105,6 @@ void ExtObject::cloneAttributesFrom(const ExtObject * obj) {
 }
 
 //! ---|> Object
-void ExtObject::collectLocalAttributes(std::map<StringId,Object *> & attrs){
+void ExtObject::collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs){
 	objAttributes.collectAttributes(attrs);
 }

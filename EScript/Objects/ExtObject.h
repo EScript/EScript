@@ -56,7 +56,7 @@ class ExtObject : public Object {
 		virtual bool setAttribute(const StringId id,const Attribute & attr);
 
 		/// ---|> [Object]
-		virtual void collectLocalAttributes(std::map<StringId,Object *> & attrs);
+		virtual void collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs);
 
 		void cloneAttributesFrom(const ExtObject * obj);
 	private:

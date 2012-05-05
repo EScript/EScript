@@ -5,7 +5,7 @@
 #ifndef ES_AttributeContainer_H
 #define ES_AttributeContainer_H
 
-#include <map>
+#include <unordered_map>
 #include "Attribute.h"
 #include "Hashing.h"
 
@@ -18,7 +18,7 @@ class AttributeContainer {
 	void operator=(const AttributeContainer & other);
 
 	public:
-		typedef std::map<StringId,Attribute> attributeMap_t;
+		typedef std::unordered_map<StringId,Attribute> attributeMap_t;
 		typedef attributeMap_t::iterator iterator;
 		typedef attributeMap_t::const_iterator const_iterator;
 		typedef attributeMap_t::size_type size_type;
@@ -39,7 +39,7 @@ class AttributeContainer {
 		void clear()													{	attributes.clear();	}
 		void cloneAttributesFrom(const AttributeContainer & other);
 		const attributeMap_t & getAttributes()const						{	return attributes;	}
-		void collectAttributes(std::map<StringId,Object *> & attrs);
+		void collectAttributes(std::unordered_map<StringId,Object *> & attrs);
 		void initAttributes(Runtime & rt);
 		void setAttribute(const StringId id,const Attribute & attr) 	{	attributes[id] = attr;	}
 		size_t size()const 												{	return attributes.size();	}

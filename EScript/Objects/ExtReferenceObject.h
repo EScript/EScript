@@ -114,7 +114,7 @@ class ExtReferenceObject : public Object, private attributeProvider {
 		}
 
 		/// ---|> [Object]
-		virtual void collectLocalAttributes(std::map<StringId,Object *> & attrs){
+		virtual void collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs){
 			AttributeContainer * attrContainer = getAttributeContainer(this,false);
 			if(attrContainer!=NULL)
 				attrContainer->collectAttributes(attrs);

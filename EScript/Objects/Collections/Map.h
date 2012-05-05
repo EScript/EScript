@@ -55,7 +55,7 @@ class Map : public Collection {
 	// @{
 	public:
 		static Map * create();
-		static Map * create(const std::map<StringId,Object *> &);
+		static Map * create(const std::unordered_map<StringId,Object *> &);
 
 		// ---
 		Map(Type * type=NULL);

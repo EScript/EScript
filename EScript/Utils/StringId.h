@@ -7,6 +7,7 @@
 
 #include "Hashing.h"
 #include <stdint.h>
+#include <unordered_map>
 
 namespace EScript {
 
@@ -38,5 +39,12 @@ class StringId{
 		bool operator!=(const StringId & other)const	{	return id != other.id;	}
 		bool operator<(const StringId & other)const		{	return id < other.id;	}
 };
+
 }
+namespace std{
+template <> struct hash<EScript::StringId> {
+	size_t operator()(const EScript::StringId & id) const throw() {	return id.getValue();	}
+};
+}
+
 #endif // ES_StringId_H
