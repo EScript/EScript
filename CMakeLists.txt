@@ -3,8 +3,10 @@ project(EScript CXX)
 
 set(ESCRIPT_VERSION_MAJOR 0)
 set(ESCRIPT_VERSION_MINOR 6)
-set(ESCRIPT_VERSION_PATCH 2)
+set(ESCRIPT_VERSION_PATCH 3)
 set(ESCRIPT_VERSION ${ESCRIPT_VERSION_MAJOR}.${ESCRIPT_VERSION_MINOR}.${ESCRIPT_VERSION_PATCH})
+
+message(WARNING "Experimental EScript version ${ESCRIPT_VERSION}")
 
 # Set up install directories
 set(INCLUDE_INSTALL_DIR include)
@@ -65,6 +67,18 @@ if(WIN32)
 	list(APPEND ESCRIPT_SOURCES E_Libs/Win32Lib.cpp)
 endif()
 add_library(EScript SHARED ${ESCRIPT_SOURCES})
+
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
+get_property(OLD_COMPILE_FLAGS TARGET EScript PROPERTY COMPILE_FLAGS)
+if(COMPILER_SUPPORTS_CXX11)
+	set_property(TARGET EScript PROPERTY COMPILE_FLAGS "${OLD_COMPILE_FLAGS} -std=c++11")
+elseif(COMPILER_SUPPORTS_CXX0X)
+	set_property(TARGET EScript PROPERTY COMPILE_FLAGS "${OLD_COMPILE_FLAGS} -std=c++0x")
+else()
+	message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
+endif()
 
 # Set version of library
 set_target_properties(EScript PROPERTIES VERSION ${ESCRIPT_VERSION}
