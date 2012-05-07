@@ -7,7 +7,7 @@
 
 #include "Object.h"
 #include "../Utils/AttributeContainer.h"
-#include <stdint.h>
+#include <cstdint>
 
 namespace EScript {
 

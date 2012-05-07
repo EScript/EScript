@@ -8,7 +8,7 @@
 #include "../StringData.h"
 #include "IOBase.h"
 #include <cstddef>
-#include <stdint.h>
+#include <cstdint>
 #include <list>
 #include <string>
 #include <ios>

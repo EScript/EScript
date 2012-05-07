@@ -7,7 +7,7 @@
 
 #include "ObjRef.h"
 #include "StringId.h"
-#include <stdint.h>
+#include <cstdint>
 
 namespace EScript {
 

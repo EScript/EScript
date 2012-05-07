@@ -8,7 +8,7 @@
 #include <iomanip>
 #include <locale>
 #include <sstream>
-#include <stdint.h>
+#include <cstdint>
 
 using namespace EScript;
 using std::string;

@@ -14,7 +14,7 @@
 
 #include <cstddef>
 #include <cstdlib>
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 
 namespace EScript {

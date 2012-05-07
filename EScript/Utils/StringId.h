@@ -6,7 +6,7 @@
 #define ES_StringId_H
 
 #include "Hashing.h"
-#include <stdint.h>
+#include <cstdint>
 #include <unordered_map>
 
 namespace EScript {

@@ -4,7 +4,7 @@
 // ------------------------------------------------------
 #ifndef RAND_H
 #define RAND_H
-#include <stdint.h>
+#include <cstdint>
 
 namespace EScript {
 
