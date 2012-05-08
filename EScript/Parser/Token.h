@@ -189,7 +189,7 @@ struct TObject :  public Token {
 struct TOperator :  public Token {
 	static const uint32_t TYPE_ID=0x01 << 11;
 	static uint32_t getTypeId()			{	return TYPE_ID;	}
-	TOperator(const std::string & s,const int _type=getTypeId())  : Token(_type)	{	op=Operator::getOperator(s);	}
+	TOperator(const std::string & s,const uint32_t _type=getTypeId())  : Token(_type)	{	op=Operator::getOperator(s);	}
 	TOperator(StringId id)  : Token(getTypeId())					{	op = Operator::getOperator(id);	}
 	TOperator(const Operator * _op) : Token(getTypeId()),op(_op) {}
 
