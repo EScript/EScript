@@ -43,7 +43,6 @@ void String::init(EScript::Namespace & globals) {
 
 	//! [ESMF] String String[(Number)position ]
 	ES_MFUNCTION_DECLARE(typeObject,String,"_get",1,1, {
-		assertParamCount(runtime,parameter.count(),1,1);
 		int pos=parameter[0]->toInt();
 		if (static_cast<unsigned int>(pos)>=self->getString().length())
 			return NULL;
