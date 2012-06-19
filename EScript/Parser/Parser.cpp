@@ -94,7 +94,7 @@ ERef<AST::BlockExpr> Parser::parse(const CodeFragment & code) {
 		pass_1(ctxt);
 	} catch (Exception * e) {
 		//std::cerr << e->toString() << std::endl;
-		throw e;
+		throw;
 	}
 	/// 2. Parse definitions
 	{
