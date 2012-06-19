@@ -725,13 +725,13 @@ Object * Parser::readBinaryExpression(ParsingContext & ctxt,int & cursor,int to)
 		Object * indexExp=NULL;
 		int lValueType=getLValue(ctxt,leftExprFrom,leftExprTo,obj,memberIdentifier,indexExp);
 
-		Object * rightExpression=readExpression(ctxt,rightExprFrom,to);
+		ObjRef rightExpression=readExpression(ctxt,rightExprFrom,to);
 		cursor=rightExprFrom;
 
 
 		/// a=2 => _.[a] = 2
 		if (lValueType== LVALUE_MEMBER) {
-			return SetAttributeExpr::createAssignment(obj,memberIdentifier,rightExpression,currentLine);
+			return SetAttributeExpr::createAssignment(obj,memberIdentifier,rightExpression.get(),currentLine);
 		}
 		/// a[1]=2 =>  _.a._set(1, 2)
 		else if (lValueType == LVALUE_INDEX) {
