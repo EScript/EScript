@@ -16,12 +16,13 @@ InstructionBlock::InstructionBlock() {
 	declareLocalVariable(Consts::IDENTIFIER_internalResult); // $2 : Consts::LOCAL_VAR_INDEX_internalResult
 }
 
-StringId InstructionBlock::getLocalVarName(const int index)const{
-	if(index <0 || index>=static_cast<int>(localVariables.size()))
+StringId InstructionBlock::getLocalVarName(const size_t index)const{
+	if(index >= localVariables.size()) {
 		return StringId();
-	return localVariables.at(static_cast<size_t>(index));
-
+	}
+	return localVariables.at(index);
 }
+
 UserFunction * InstructionBlock::getUserFunction(const uint32_t index)const{
 	if(index<=internalFunctions.size()){
 		return dynamic_cast<UserFunction*>(internalFunctions.at(index).get());

@@ -84,7 +84,7 @@ class CompilerContext {
 		int getCurrentVarIndex(const StringId & name)const;
 
 		std::string getInstructionsAsString()const						{	return instructions.toString();	}
-		StringId getLocalVarName(const int index)const					{	return instructions.getLocalVarName(index);	}
+		StringId getLocalVarName(const size_t index)const				{	return instructions.getLocalVarName(index);	}
 
 		size_t getNumLocalVars()const									{	return instructions.getNumLocalVars();	}
 		std::string getStringConstant(const uint32_t index)const		{	return instructions.getStringConstant(index);	}
