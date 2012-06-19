@@ -62,7 +62,7 @@ void Array::init(EScript::Namespace & globals) {
 
 	//! [ESMF] int|false Array.indexOf(Object[,begin])
 	ES_MFUNCTION_DECLARE(typeObject, Array,"indexOf",1,2,{
-		int i=self->rt_indexOf(runtime,parameter[0],parameter[1].toInt(0));
+		int i=self->rt_indexOf(runtime,parameter[0],parameter[1].toUInt(0));
 		if(i<0)
 			return Bool::create(false);
 		else
@@ -100,10 +100,10 @@ void Array::init(EScript::Namespace & globals) {
 	})
 
 	//! [ESMF] self Array.removeIndex(int index)
-	ESMF_DECLARE(typeObject,Array,"removeIndex",1,1,(self->removeIndex(parameter[0].toInt()),self))
+	ESMF_DECLARE(typeObject,Array,"removeIndex",1,1,(self->removeIndex(parameter[0].toUInt()),self))
 
 	//! [ESMF] self Array.removeValue(value [,limit [,begin]] )
-	ESMF_DECLARE(typeObject,Array,"removeValue",1,3,(self->rt_removeValue(runtime,parameter[0],parameter[1].toInt(-1),parameter[2].toInt(0)),self))
+	ESMF_DECLARE(typeObject,Array,"removeValue",1,3,(self->rt_removeValue(runtime,parameter[0],parameter[1].toInt(-1),parameter[2].toUInt(0)),self))
 
 	//! [ESMF] self Array.resize(Number[, Object fillValue] )
 	ES_MFUNCTION_DECLARE(typeObject,Array,"resize",1,2,{
@@ -290,12 +290,12 @@ size_t Array::rt_removeValue(Runtime & runtime,const ObjPtr value,const int limi
 	if(start > size() || value.isNull() || limit==0)
 		return 0;
 
-	int numberOfDeletions=0;
+	size_t numberOfDeletions=0;
 	std::vector<ObjRef> tempArray;
 	std::vector<ObjRef>::const_iterator startIt = begin();
 	std::advance(startIt, start);
 	for (const_iterator it=begin();it!=end();++it) {
-		if( it>=startIt && (limit<0 || numberOfDeletions<limit) && value->isEqual(runtime,*it) ){
+		if( it>=startIt && (limit<0 || numberOfDeletions<static_cast<size_t>(limit)) && value->isEqual(runtime,*it) ){
 			++numberOfDeletions;
 		}else{
 			tempArray.push_back(*it);
