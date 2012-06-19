@@ -152,11 +152,18 @@ class ERef : public _CountedRef<_T> {
 	public:
 		ERef() : _CountedRef<_T>(nullptr)							{   }
 		ERef(_T * _obj) : _CountedRef<_T>(_obj)						{   }
-		ERef(ERef<_T> && other) : _CountedRef<_T>(other)			{   }
-		ERef(const ERef<_T>& other) : _CountedRef<_T>(other.get())	{   }
+		ERef(ERef && other) : _CountedRef<_T>(other)			{   }
+		ERef(const ERef & other) : _CountedRef<_T>(other.get())	{   }
 		ERef(const EPtr<_T>& other) : _CountedRef<_T>(other.get())	{   }
 
-
+		ERef & operator=(ERef && other) {
+			_CountedRef<_T>::operator=(other);
+			return *this;
+		}
+		ERef & operator=(const ERef & other) {
+			_CountedRef<_T>::operator=(other);
+			return *this;
+		}
 	/*! @name Conversion */
 	// @{
 
@@ -210,10 +217,10 @@ class EPtr{
 	public:
 		EPtr() : obj(nullptr)								{	}
 		EPtr(_T * _obj) : obj(_obj)							{	}
-		EPtr(const EPtr<_T>& other) : obj(other.obj)		{	}
+		EPtr(const EPtr & other) : obj(other.obj)		{	}
 		EPtr(const ERef<_T>& other) : obj(other.get())		{	}
 
-		EPtr& operator=(const EPtr<_T>& other) {
+		EPtr& operator=(const EPtr & other) {
 			obj=other.obj;
 			return *this;
 		}
@@ -232,9 +239,9 @@ class EPtr{
 		/*! Returns true if the referenced object is not nullptr.  */
 		inline bool isNotNull()const						{   return obj!=nullptr;   }
 
-		inline bool operator==(const EPtr<_T> & other)const {   return obj==other.obj;  }
+		inline bool operator==(const EPtr & other)const {   return obj==other.obj;  }
 		inline bool operator==(const _T * o2)const          {   return obj==o2; }
-		inline bool operator!=(const EPtr<_T> & other)const {   return obj!=other.obj;  }
+		inline bool operator!=(const EPtr & other)const {   return obj!=other.obj;  }
 		inline bool operator!=(const _T * o2)const          {   return obj!=o2; }
 	// @}
 
