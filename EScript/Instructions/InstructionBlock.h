@@ -54,7 +54,6 @@ class InstructionBlock {
 		size_t getNumInstructions()const							{	return instructions.size();	}
 		std::string getStringConstant(const uint32_t index)const	{	return index<=stringConstants.size() ? stringConstants[index] : "";	}
 		UserFunction * getUserFunction(const uint32_t index)const;
-		int getCurrentVarIndex(const StringId name)const;
 
 		std::vector<Instruction> & _accessInstructions()			{	return instructions;	}
 		const std::vector<Instruction> & getInstructions()const		{	return instructions;	}
