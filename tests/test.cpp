@@ -48,7 +48,7 @@ public:
 
 
 	//! ---|> Object
-	virtual Attribute * _accessAttribute(const StringId id,bool localOnly){
+	virtual Attribute * _accessAttribute(const StringId & id,bool localOnly){
 		static const StringId ID_m1("m1");
 		static const StringId ID_m2("m2");
 

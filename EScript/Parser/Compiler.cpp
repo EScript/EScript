@@ -342,7 +342,7 @@ bool initHandler(handlerRegistry_t & m){
 
 				// getAttributeExpression (...)
 				if( gAttr ){
-					const StringId attrId = gAttr->getAttrId();
+					const StringId & attrId = gAttr->getAttrId();
 
 					if(gAttr->getObjectExpression()==NULL){ // singleIdentifier (...)
 						const int localVarIndex = ctxt.getCurrentVarIndex(attrId);
@@ -532,7 +532,7 @@ bool initHandler(handlerRegistry_t & m){
 		ctxt.setLine(self->getLine());
 		ctxt.addInstruction(Instruction::createDup());
 
-		const StringId attrId = self->getAttrId();
+		const StringId & attrId = self->getAttrId();
 		if(self->isAssignment()){
 			// no object given: a = ...
 			if(self->getObjectExpression().isNull()){
@@ -578,7 +578,7 @@ bool initHandler(handlerRegistry_t & m){
 
 		// catch
 		// ------
-		const StringId exceptionVariableName = self->getExceptionVariableName();
+		const StringId & exceptionVariableName = self->getExceptionVariableName();
 
 		ctxt.addInstruction(Instruction::createSetMarker(catchMarker));
 		// reset catchMarker

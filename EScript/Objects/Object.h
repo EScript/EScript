@@ -108,7 +108,7 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 			\note Should not be called directly. Use get(Local)Attribute(...) instead.
 			\note Has to be overridden if an Object type should support user defined attributes.
 		*/
-		virtual Attribute * _accessAttribute(const StringId id,bool localOnly);
+		virtual Attribute * _accessAttribute(const StringId & id,bool localOnly);
 
 		/*! ---o (internal)
 		This function is called by the runtime after a new Object has been created in the script using "new". The
@@ -123,7 +123,7 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 				const Attribute & attr = obj->getLocalAttribute("attrName");
 				if(attr.isNull()) ...
 		*/
-		const Attribute & getLocalAttribute(const StringId id)const;
+		const Attribute & getLocalAttribute(const StringId & id)const;
 
 		/*! Get the attribute with the given id. The attribute can be stored locally or be accessible by the object's type.
 			If the attribute is not found, the resulting attribute references NULL.
@@ -131,14 +131,14 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 				const Attribute & attr = obj->getAttribute("doesNotExist");
 				if(attr.isNull()) ...
 		*/
-		const Attribute & getAttribute(const StringId id)const;
+		const Attribute & getAttribute(const StringId & id)const;
 		const Attribute & getAttribute(const char * c_str)const					{	return getAttribute(StringId(c_str));	}
 
 		/*!	---o
 			Try to set the value of an object attribute.
 			Returns false if the attribute can not be set.
 			\note Has to be overridden if an Object type should support user defined attributes. */
-		virtual bool setAttribute(const StringId id,const Attribute & attr);
+		virtual bool setAttribute(const StringId & id,const Attribute & attr);
 		bool setAttribute(const char * c_str,const Attribute & attr)			{	return setAttribute(StringId(c_str),attr);	}
 
 		/*! ---o

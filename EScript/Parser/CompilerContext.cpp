@@ -50,7 +50,7 @@ void CompilerContext::pushSetting_localVars(const std::set<StringId> & variableN
 	}
 }
 
-int CompilerContext::getCurrentVarIndex(const StringId name)const{
+int CompilerContext::getCurrentVarIndex(const StringId & name)const{
 	for(std::vector<SettingsStackEntry>::const_reverse_iterator it=settingsStack.rbegin();it!=settingsStack.rend();++it){
 		const SettingsStackEntry & entry = *it;
 		if(entry.type != VISIBLE_LOCAL_VARIABLES)

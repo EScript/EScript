@@ -81,7 +81,7 @@ class CompilerContext {
 		//! if the setting is not defined, Instruction::INVALID_JUMP_ADDRESS is returned.
 		uint32_t getCurrentMarker(setting_t markerType)const;
 
-		int getCurrentVarIndex(const StringId name)const;
+		int getCurrentVarIndex(const StringId & name)const;
 
 		std::string getInstructionsAsString()const						{	return instructions.toString();	}
 		StringId getLocalVarName(const int index)const					{	return instructions.getLocalVarName(index);	}

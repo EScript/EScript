@@ -71,17 +71,17 @@ class Instruction {
 		bool getValue_Bool()const					{	return value_bool;	}
 		void setValue_Bool(bool v)					{	value_bool=v;	}
 
-		static Instruction createAssignAttribute(const StringId varName);
+		static Instruction createAssignAttribute(const StringId & varName);
 		static Instruction createAssignLocal(const uint32_t localVarIdx);
-		static Instruction createAssignVariable(const StringId varName);
+		static Instruction createAssignVariable(const StringId & varName);
 		static Instruction createCall(const uint32_t numParams);
 		static Instruction createCheckType(const uint32_t localVarIdx);
 		static Instruction createCreateInstance(const uint32_t numParams);
 		static Instruction createDup()				{	return Instruction(I_DUP);	}
-		static Instruction createFindVariable(const StringId id);
-		static Instruction createGetAttribute(const StringId id);
+		static Instruction createFindVariable(const StringId & id);
+		static Instruction createGetAttribute(const StringId & id);
 		static Instruction createGetLocalVariable(const uint32_t localVarIdx);
-		static Instruction createGetVariable(const StringId id);
+		static Instruction createGetVariable(const StringId & id);
 		static Instruction createInitCaller(const uint32_t numSuperParams);
 		static Instruction createJmp(const uint32_t markerId);
 		static Instruction createJmpIfSet(const uint32_t markerId);
@@ -90,7 +90,7 @@ class Instruction {
 		static Instruction createNot()				{	return Instruction(I_NOT);	}
 		static Instruction createPop()				{	return Instruction(I_POP);	}
 		static Instruction createPushBool(const bool value);
-		static Instruction createPushId(const StringId id);
+		static Instruction createPushId(const StringId & id);
 		static Instruction createPushFunction(const uint32_t functionIdx);
 		static Instruction createPushNumber(const double value);
 		static Instruction createPushString(const uint32_t stringIndex);
@@ -98,7 +98,7 @@ class Instruction {
 		static Instruction createPushUndefined()	{	return Instruction(I_PUSH_UNDEFINED);	}
 		static Instruction createPushVoid()			{	return Instruction(I_PUSH_VOID);	}
 		static Instruction createResetLocalVariable(const uint32_t localVarIdx);
-		static Instruction createSetAttribute(const StringId id);
+		static Instruction createSetAttribute(const StringId & id);
 		static Instruction createSetExceptionHandler(const uint32_t markerId);
 		static Instruction createSetMarker(const uint32_t markerId);
 		static Instruction createSysCall(const uint32_t numParams);

@@ -27,7 +27,7 @@ class SetAttributeExpr : public Object {
 
 		virtual ~SetAttributeExpr(){}
 
-		StringId getAttrId()const   					{   return attrId;  }
+		const StringId & getAttrId()const   			{   return attrId;  }
 		ObjPtr getObjectExpression()const				{   return objExpr;   }
 		Attribute::flag_t getAttributeProperties()const {   return attrFlags;    }
 		ObjPtr getValueExpression()const 		 		{   return valueExpr;    }

@@ -758,7 +758,7 @@ Object * Parser::readBinaryExpression(ParsingContext & ctxt,int & cursor,int to)
 				leftExprTo = propertyStart-2;
 
 				for(properties_t::const_iterator it=properties.begin();it!=properties.end();++it ){
-					const StringId name = it->first;
+					const StringId & name = it->first;
 					log(ctxt,Logger::LOG_INFO,"Property:"+name.toString(),atOp );
 //					const int pos = it->second;
 					if(name == Consts::PROPERTY_ATTR_const){
@@ -1060,7 +1060,7 @@ Object * Parser::readFunctionDeclaration(ParsingContext & ctxt,int & cursor)cons
 		properties_t properties;
 		readProperties(ctxt,cursor+1,propertyTo-1,properties);
 		for(properties_t::const_iterator it=properties.begin();it!=properties.end();++it ){
-			const StringId name = it->first;
+			const StringId & name = it->first;
 			int parameterPos = it->second;
 			log(ctxt,Logger::LOG_INFO,"Property:"+name.toString(),superOp );
 //					const int pos = it->second;

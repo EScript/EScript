@@ -85,7 +85,7 @@ void ExtObject::_initAttributes(Runtime & rt){
 
 
 //! ---|> [Object]
-Attribute * ExtObject::_accessAttribute(const StringId id,bool localOnly){
+Attribute * ExtObject::_accessAttribute(const StringId & id,bool localOnly){
 	Attribute * attr = objAttributes.accessAttribute(id);
 
 	if( attr==NULL && !localOnly && getType()!=NULL){
@@ -95,7 +95,7 @@ Attribute * ExtObject::_accessAttribute(const StringId id,bool localOnly){
 }
 
 //! ---|> [Object]
-bool ExtObject::setAttribute(const StringId id,const Attribute & attr){
+bool ExtObject::setAttribute(const StringId & id,const Attribute & attr){
 	objAttributes.setAttribute(id,attr);
 	return true;
 }

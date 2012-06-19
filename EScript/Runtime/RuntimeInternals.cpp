@@ -763,7 +763,7 @@ Namespace * RuntimeInternals::getGlobals()const	{
 	return globals.get();
 }
 
-ObjPtr RuntimeInternals::getGlobalVariable(const StringId id) {
+ObjPtr RuntimeInternals::getGlobalVariable(const StringId & id) {
 	// \note getLocalAttribute is used to skip the members of Type
 	// 	which are otherwise found as false global variables  [BUG20100618]
 	return globals->getLocalAttribute(id).getValue();

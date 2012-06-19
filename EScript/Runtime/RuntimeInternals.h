@@ -69,7 +69,7 @@ class RuntimeInternals  {
 	/// @name Globals
 	// 	@{
 	public:
-		ObjPtr getGlobalVariable(const StringId id);
+		ObjPtr getGlobalVariable(const StringId & id);
 		Namespace * getGlobals()const;
 	private:
 		ERef<Namespace> globals;

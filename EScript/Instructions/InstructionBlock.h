@@ -39,7 +39,7 @@ class InstructionBlock {
 			stringConstants.push_back(str);
 			return static_cast<uint32_t>(stringConstants.size()-1);
 		}
-		uint32_t declareLocalVariable(const StringId name){
+		uint32_t declareLocalVariable(const StringId & name){
 			localVariables.push_back(name);
 			return static_cast<uint32_t>(localVariables.size()-1);
 		}

@@ -96,7 +96,7 @@ ObjRef _eval(Runtime & runtime, const CodeFragment & code);
 	@param fileId Name used to identify the executed code in exception messages and stack traces; the default is '[inline]'
 	@return (success, result)
 */
-std::pair<bool, ObjRef> eval(Runtime & runtime, const StringData & code,const StringId fileId = StringId());
+std::pair<bool, ObjRef> eval(Runtime & runtime, const StringData & code,const StringId & fileId = StringId());
 
 //! @return (success, result)
 std::pair<bool, ObjRef> executeStream(Runtime & runtime, std::istream & stream);

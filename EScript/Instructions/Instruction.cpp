@@ -10,7 +10,7 @@
 namespace EScript {
 
 //! (static)
-Instruction Instruction::createAssignAttribute(const StringId varName){
+Instruction Instruction::createAssignAttribute(const StringId & varName){
 	Instruction i(I_ASSIGN_ATTRIBUTE);
 	i.setValue_Identifier(varName);
 	return i;
@@ -24,7 +24,7 @@ Instruction Instruction::createAssignLocal(const uint32_t localVarIdx){
 }
 
 //! (static)
-Instruction Instruction::createAssignVariable(const StringId varName){
+Instruction Instruction::createAssignVariable(const StringId & varName){
 	Instruction i(I_ASSIGN_VARIABLE);
 	i.setValue_Identifier(varName);
 	return i;
@@ -53,14 +53,14 @@ Instruction Instruction::createCreateInstance(const uint32_t numParams){
 }
 
 //! (static)
-Instruction Instruction::createFindVariable(const StringId id){
+Instruction Instruction::createFindVariable(const StringId & id){
 	Instruction i(I_FIND_VARIABLE);
 	i.setValue_Identifier(id);
 	return i;
 }
 
 //! (static)
-Instruction Instruction::createGetAttribute(const StringId id){
+Instruction Instruction::createGetAttribute(const StringId & id){
 	Instruction i(I_GET_ATTRIBUTE);
 	i.setValue_Identifier(id);
 	return i;
@@ -74,7 +74,7 @@ Instruction Instruction::createGetLocalVariable(const uint32_t localVarIdx){
 }
 
 //! (static)
-Instruction Instruction::createGetVariable(const StringId id){
+Instruction Instruction::createGetVariable(const StringId & id){
 	Instruction i(I_GET_VARIABLE);
 	i.setValue_Identifier(id);
 	return i;
@@ -123,7 +123,7 @@ Instruction Instruction::createPushBool(const bool value){
 }
 
 //! (static)
-Instruction Instruction::createPushId(const StringId id){
+Instruction Instruction::createPushId(const StringId & id){
 	Instruction i(I_PUSH_ID);
 	i.setValue_Identifier(id);
 	return i;
@@ -164,7 +164,7 @@ Instruction Instruction::createResetLocalVariable(const uint32_t localVarIdx){
 	return i;
 }
 //! (static)
-Instruction Instruction::createSetAttribute(const StringId id){
+Instruction Instruction::createSetAttribute(const StringId & id){
 	Instruction i(I_SET_ATTRIBUTE);
 	i.setValue_Identifier(id);
 	return i;

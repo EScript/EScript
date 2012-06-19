@@ -93,7 +93,7 @@ class ExtReferenceObject : public Object, private attributeProvider {
 		using Object::setAttribute;
 
 		/// ---|> [Object]
-		virtual Attribute * _accessAttribute(const StringId id,bool localOnly){
+		virtual Attribute * _accessAttribute(const StringId & id,bool localOnly){
 			AttributeContainer * attrContainer = getAttributeContainer(this,false);
 			Attribute * attr = attrContainer!=NULL ? attrContainer->accessAttribute(id) : NULL;
 			return  ( attr!=NULL || localOnly || getType()==NULL) ? attr : getType()->findTypeAttribute(id);
@@ -108,7 +108,7 @@ class ExtReferenceObject : public Object, private attributeProvider {
 		}
 
 		/// ---|> [Object]
-		virtual bool setAttribute(const StringId id,const Attribute & attr){
+		virtual bool setAttribute(const StringId & id,const Attribute & attr){
 			getAttributeContainer(this,true)->setAttribute(id,attr);
 			return true;
 		}

@@ -288,18 +288,18 @@ bool Object::isIdentical(Runtime & rt,const ObjPtr o) {
 // attributes
 
 //! ---o
-Attribute * Object::_accessAttribute(const StringId id,bool localOnly){
+Attribute * Object::_accessAttribute(const StringId & id,bool localOnly){
 	return (localOnly||getType()==NULL) ? NULL : getType()->findTypeAttribute(id);
 }
 
-const Attribute & Object::getLocalAttribute(const StringId id)const{
+const Attribute & Object::getLocalAttribute(const StringId & id)const{
 	static const Attribute noAttribute;
 	Object * nonConstThis = const_cast<Object*>(this);
 	const Attribute * attr = nonConstThis->_accessAttribute(id,true);
 	return attr == NULL ? noAttribute : *attr;
 }
 
-const Attribute & Object::getAttribute(const StringId id)const{
+const Attribute & Object::getAttribute(const StringId & id)const{
 	static const Attribute noAttribute;
 	Object * nonConstThis = const_cast<Object*>(this);
 	const Attribute * attr = nonConstThis->_accessAttribute(id,false);
@@ -307,7 +307,7 @@ const Attribute & Object::getAttribute(const StringId id)const{
 }
 
 //! ---o
-bool Object::setAttribute(const StringId /*id*/,const Attribute & /*val*/){
+bool Object::setAttribute(const StringId & /*id*/,const Attribute & /*val*/){
 	std::cout << "Could not set member.\n";
 	return false;
 }

@@ -56,16 +56,16 @@ class Type : public Object {
 		void copyObjAttributesTo(Object * instance);
 
 		/*! Used by instances of this type get the value of an inherited typeAttribute. */
-		Attribute * findTypeAttribute(const StringId id);
+		Attribute * findTypeAttribute(const StringId & id);
 
 		using Object::_accessAttribute;
 		using Object::setAttribute;
 
 		/// ---|> [Object]
-		virtual Attribute * _accessAttribute(const StringId id,bool localOnly);
+		virtual Attribute * _accessAttribute(const StringId & id,bool localOnly);
 
 		/// ---|> [Object]
-		virtual bool setAttribute(const StringId id,const Attribute & attr);
+		virtual bool setAttribute(const StringId & id,const Attribute & attr);
 
 		/// ---|> [Object]
 		virtual void collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs);

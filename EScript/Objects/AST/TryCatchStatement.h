@@ -19,9 +19,9 @@ class TryCatchStatement : public Object {
 				tryBlock(_tryBlock), catchBlock(_catchBlock), exceptionVariableName(_exceptionVariableName){}
 		virtual ~TryCatchStatement(){}
 
-		StringId getExceptionVariableName()const		{	return exceptionVariableName;	}
-		Statement getTryBlock()const					{	return Statement(Statement::TYPE_STATEMENT,tryBlock.get());	}
-		Statement getCatchBlock()const					{	return Statement(Statement::TYPE_STATEMENT,catchBlock.get());	}
+		const StringId & getExceptionVariableName()const	{	return exceptionVariableName;	}
+		Statement getTryBlock()const						{	return Statement(Statement::TYPE_STATEMENT,tryBlock.get());	}
+		Statement getCatchBlock()const						{	return Statement(Statement::TYPE_STATEMENT,catchBlock.get());	}
 
 		//! ---|> Object
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_TRY_CATCH_STATEMENT; }

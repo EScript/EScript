@@ -18,7 +18,7 @@ class GetAttributeExpr : public Object {
 		GetAttributeExpr(ObjPtr _obj,StringId _attrId) : objExpression(_obj),attrId(_attrId) {}
 		virtual ~GetAttributeExpr(){}
 
-		StringId getAttrId()const				{   return attrId;  }
+		const StringId & getAttrId()const		{   return attrId;  }
 		const std::string & getAttrName()const	{   return attrId.toString();    }
 		ObjPtr getObjectExpression()const		{   return objExpression;    }
 

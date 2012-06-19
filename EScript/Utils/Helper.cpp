@@ -176,7 +176,7 @@ std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & fi
 
 
 //! (static)
-std::pair<bool, ObjRef> eval(Runtime & runtime, const StringData & code,const StringId fileId) {
+std::pair<bool, ObjRef> eval(Runtime & runtime, const StringData & code,const StringId & fileId) {
 	try {
 		ObjRef result = _eval(runtime,CodeFragment( (fileId.empty() ? Consts::FILENAME_INLINE : fileId), code));
 		return std::make_pair(true,result);

@@ -47,13 +47,13 @@ class ExtObject : public Object {
 		using Object::setAttribute;
 
 		/// ---|> [Object]
-		virtual Attribute * _accessAttribute(const StringId id,bool localOnly);
+		virtual Attribute * _accessAttribute(const StringId & id,bool localOnly);
 
 		/// ---|> [Object]
 		virtual void _initAttributes(Runtime & rt);
 
 		/// ---|> [Object]
-		virtual bool setAttribute(const StringId id,const Attribute & attr);
+		virtual bool setAttribute(const StringId & id,const Attribute & attr);
 
 		/// ---|> [Object]
 		virtual void collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs);

@@ -106,7 +106,7 @@ static const char * typeAttrErrorHint =
 	"or adding object attributes to a Type whose instances cannot store object attributes. ";
 
 
-Attribute * Type::findTypeAttribute(const StringId id){
+Attribute * Type::findTypeAttribute(const StringId & id){
 	Type * t=this;
 	do{
 		Attribute * attr = t->attributes.accessAttribute(id);
@@ -125,7 +125,7 @@ Attribute * Type::findTypeAttribute(const StringId id){
 
 
 //! ---|> Object
-Attribute * Type::_accessAttribute(const StringId id,bool localOnly){
+Attribute * Type::_accessAttribute(const StringId & id,bool localOnly){
 	// is local attribute?
 	Attribute * attr = attributes.accessAttribute(id);
 	if(attr!=NULL || localOnly)
@@ -142,7 +142,7 @@ Attribute * Type::_accessAttribute(const StringId id,bool localOnly){
 }
 
 //! ---|> Object
-bool Type::setAttribute(const StringId id,const Attribute & attr){
+bool Type::setAttribute(const StringId & id,const Attribute & attr){
 	attributes.setAttribute(id,attr);
 	if(attr.isObjAttribute())
 		setFlag(FLAG_CONTAINS_OBJ_ATTRS,true);
