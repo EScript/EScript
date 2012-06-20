@@ -152,11 +152,11 @@ string StringUtils::replaceMultiple(const string &subject,const std::vector<std:
 	std::vector<size_t> pos(ruleCount);
 
 	size_t i=0;
-	for(std::vector<keyValuePair_t>::const_iterator it=rules.begin();it!=rules.end();++it) {
+	for(const auto & keyValuePair : rules) {
 		// length of the search pattern
-		findLen[i]=(*it).first.length();
+		findLen[i] = keyValuePair.first.length();
 		// first position
-		pos[i]=subject.find((*it).first,0);
+		pos[i] = subject.find(keyValuePair.first, 0);
 		++i;
 	}
 	int nr=0;

@@ -28,8 +28,9 @@ void ExtObject::init(EScript::Namespace & globals) {
 		ERef<ExtObject> result(new ExtObject(self));
 		if(parameter.count()>0){
 			Map * m=assertType<Map>(runtime,parameter[0]);
-			for(Map::const_iterator it=m->begin();it!=m->end();++it)
-				result->setAttribute(it->first, Attribute(it->second.value));
+			for(const auto & keyValuePair : *m) {
+				result->setAttribute(keyValuePair.first, Attribute(keyValuePair.second.value));
+			}
 		}
 		return result.detachAndDecrease();
 	})

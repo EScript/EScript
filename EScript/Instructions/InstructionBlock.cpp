@@ -37,8 +37,8 @@ std::string InstructionBlock::toString()const{
 	if(!localVariables.empty()){
 		out << "Local variables:";
 		uint32_t i=0;
-		for(std::vector<StringId>::const_iterator it = localVariables.begin();it!=localVariables.end();++it){
-			out << " $"<<i<<"('" << it->toString() << "')";
+		for(const auto & localVar : localVariables) {
+			out << " $"<<i<<"('" << localVar.toString() << "')";
 			++i;
 		}
 		out << "\n";
@@ -47,8 +47,8 @@ std::string InstructionBlock::toString()const{
 	if(!stringConstants.empty()){
 		out << "String constants:";
 		uint32_t i=0;
-		for(std::vector<std::string>::const_iterator it = stringConstants.begin();it!=stringConstants.end();++it){
-			out << " #"<<i<<"(\"" << *it << "\")";
+		for(const auto & stringConst : stringConstants) {
+			out << " #"<<i<<"(\"" << stringConst << "\")";
 			++i;
 		}
 		out << "\n";
@@ -57,8 +57,8 @@ std::string InstructionBlock::toString()const{
 //		std::vector<std::string> stringConstants;
 	{
 		uint32_t i=0;
-		for(std::vector<Instruction>::const_iterator it = instructions.begin();it!=instructions.end();++it){
-			out << (i++) << "\t" << it->toString(*this) << "\n";
+		for(const auto & instruction : instructions) {
+			out << (i++) << "\t" << instruction.toString(*this) << "\n";
 		}
 
 	}

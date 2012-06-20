@@ -34,8 +34,8 @@ Logger * LoggerGroup::getLogger(const std::string & name){
 
 //! ---|> Logger
 void LoggerGroup::doLog(level_t l,const std::string & msg){
-	for(loggerRegistry_t::iterator it=loggerRegistry.begin();it!=loggerRegistry.end();++it){
-		it->second->log(l,msg);
+	for(const auto & identifierLoggerPair : loggerRegistry) {
+		identifierLoggerPair.second->log(l,msg);
 	}
 }
 

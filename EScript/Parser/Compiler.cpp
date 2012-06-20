@@ -104,11 +104,11 @@ void Compiler::finalizeInstructions( InstructionBlock & instructionBlock ){
 
 		{ // pass 1: remove setMarker-instructions and store position
 			std::vector<Instruction> tmp;
-			for(std::vector<Instruction>::const_iterator it=instructions.begin();it!=instructions.end();++it){
-				if( it->getType() == Instruction::I_SET_MARKER ){
-					markerToPosition[it->getValue_uint32()] = tmp.size();
-				}else{
-					tmp.push_back(*it);
+			for(const auto & instruction : instructions) {
+				if(instruction.getType() == Instruction::I_SET_MARKER) {
+					markerToPosition[instruction.getValue_uint32()] = tmp.size();
+				} else {
+					tmp.push_back(instruction);
 				}
 			}
 			tmp.swap(instructions);
@@ -116,17 +116,17 @@ void Compiler::finalizeInstructions( InstructionBlock & instructionBlock ){
 		}
 
 		{ // pass 2: adapt jump instructions
-			for(std::vector<Instruction>::iterator it=instructions.begin();it!=instructions.end();++it){
-				if( it->getType() == Instruction::I_JMP
-						|| it->getType() == Instruction::I_JMP_IF_SET
-						|| it->getType() == Instruction::I_JMP_ON_TRUE
-						|| it->getType() == Instruction::I_JMP_ON_FALSE
-						|| it->getType() == Instruction::I_SET_EXCEPTION_HANDLER){
-					const uint32_t markerId = it->getValue_uint32();
+			for(auto & instruction : instructions) {
+				if( instruction.getType() == Instruction::I_JMP
+						|| instruction.getType() == Instruction::I_JMP_IF_SET
+						|| instruction.getType() == Instruction::I_JMP_ON_TRUE
+						|| instruction.getType() == Instruction::I_JMP_ON_FALSE
+						|| instruction.getType() == Instruction::I_SET_EXCEPTION_HANDLER){
+					const uint32_t markerId = instruction.getValue_uint32();
 
 					// is name of a marker (and not already a jump position)
 					if(markerId>=Instruction::JMP_TO_MARKER_OFFSET){
-						it->setValue_uint32(markerToPosition[markerId]);
+						instruction.setValue_uint32(markerToPosition[markerId]);
 					}
 				}
 			}
@@ -149,8 +149,8 @@ void Compiler::compileStatement(CompilerContext & ctxt,const AST::Statement & st
 		}
 		std::vector<size_t> variablesToReset;
 		ctxt.collectLocalVariables(CompilerContext::CONTINUE_MARKER,variablesToReset);
-		for(std::vector<size_t>::const_iterator it = variablesToReset.begin();it!=variablesToReset.end();++it){
-			ctxt.addInstruction(Instruction::createResetLocalVariable(*it));
+		for(const auto & var : variablesToReset) {
+			ctxt.addInstruction(Instruction::createResetLocalVariable(var));
 		}
 		ctxt.addInstruction(Instruction::createJmp(target));
 
@@ -161,8 +161,8 @@ void Compiler::compileStatement(CompilerContext & ctxt,const AST::Statement & st
 		}
 		std::vector<size_t> variablesToReset;
 		ctxt.collectLocalVariables(CompilerContext::BREAK_MARKER,variablesToReset);
-		for(std::vector<size_t>::const_iterator it = variablesToReset.begin();it!=variablesToReset.end();++it){
-			ctxt.addInstruction(Instruction::createResetLocalVariable(*it));
+		for(const auto & var : variablesToReset) {
+			ctxt.addInstruction(Instruction::createResetLocalVariable(var));
 		}
 		ctxt.addInstruction(Instruction::createJmp(target));
 	}else if(statement.getType() == Statement::TYPE_EXIT){
@@ -198,8 +198,8 @@ void Compiler::compileStatement(CompilerContext & ctxt,const AST::Statement & st
 					ctxt.compile(*c);
 			}
 			if(blockStatement->hasLocalVars()){
-				for(std::set<StringId>::const_iterator it = blockStatement->getVars().begin();it!=blockStatement->getVars().end();++it){
-					ctxt.addInstruction(Instruction::createResetLocalVariable(ctxt.getCurrentVarIndex(*it)));
+				for(const auto & localVar : blockStatement->getVars()) {
+					ctxt.addInstruction(Instruction::createResetLocalVariable(ctxt.getCurrentVarIndex(localVar)));
 				}
 				ctxt.popSetting();
 			}
@@ -299,8 +299,8 @@ bool initHandler(handlerRegistry_t & m){
 			}
 		}
 		if(self->hasLocalVars()){
-			for(std::set<StringId>::const_iterator it = self->getVars().begin();it!=self->getVars().end();++it){
-				ctxt.addInstruction(Instruction::createResetLocalVariable(ctxt.getCurrentVarIndex(*it)));
+			for(const auto & localVar : self->getVars()) {
+				ctxt.addInstruction(Instruction::createResetLocalVariable(ctxt.getCurrentVarIndex(localVar)));
 			}
 			ctxt.popSetting();
 		}
@@ -386,12 +386,12 @@ bool initHandler(handlerRegistry_t & m){
 
 			}while(false);
 		}
-		for(std::vector<ObjRef>::const_iterator it=self->getParams().begin();it!=self->getParams().end();++it){
-			if( it->isNull() ){
+		for(const auto & param : self->getParams()) {
+			if( param.isNull() ){
 				// push undefined to be able to distinguish 'someFun(void,2);' from 'someFun(,2);'
 				ctxt.addInstruction(Instruction::createPushUndefined());
 			}else{
-				ctxt.compile(*it);
+				ctxt.compile(param);
 			}
 		}
 		if( self->isSysCall()){
@@ -585,8 +585,8 @@ bool initHandler(handlerRegistry_t & m){
 		ctxt.addInstruction(Instruction::createSetExceptionHandler(ctxt.getCurrentMarker(CompilerContext::EXCEPTION_MARKER)));
 
 		// clear all variables defined inside try block
-		for(std::vector<size_t>::const_iterator it = collectedVariableIndices.begin(); it!=collectedVariableIndices.end();++it){
-			ctxt.addInstruction(Instruction::createResetLocalVariable(*it));
+		for(const auto & localVar : collectedVariableIndices) {
+			ctxt.addInstruction(Instruction::createResetLocalVariable(localVar));
 		}
 
 		// define exception variable
@@ -625,15 +625,14 @@ bool initHandler(handlerRegistry_t & m){
 		ctxt2.setLine(self->getLine()); // set the line of all initializations to the line of the function declaration
 
 		// declare a local variables for each parameter expression
-		for(UserFunctionExpr::parameterList_t::const_iterator it = self->getParamList().begin();it!=self->getParamList().end();++it){
-			fun->getInstructionBlock().declareLocalVariable( it->getName() );
+		for(const auto & param : self->getParamList()) {
+			fun->getInstructionBlock().declareLocalVariable(param.getName());
 		}
 
 		ctxt2.pushSetting_basicLocalVars(); // make 'this' and parameters available
 
 		// default parameters
-		for(UserFunctionExpr::parameterList_t::const_iterator it = self->getParamList().begin();it!=self->getParamList().end();++it){
-			const UserFunctionExpr::Parameter & param = *it;
+		for(const auto & param : self->getParamList()) {
 			ObjPtr defaultExpr = param.getDefaultValueExpression();
 			if(defaultExpr.isNotNull()){
 				const int varIdx = ctxt2.getCurrentVarIndex(param.getName()); // \todo assert(varIdx>=0)
@@ -652,8 +651,7 @@ bool initHandler(handlerRegistry_t & m){
 		}
 
 		// parameter type checks
-		for(UserFunctionExpr::parameterList_t::const_iterator it = self->getParamList().begin();it!=self->getParamList().end();++it){
-			const UserFunctionExpr::Parameter & param = *it;
+		for(const auto & param : self->getParamList()) {
 			const std::vector<ObjRef> & typeExpressions = param.getTypeExpressions();
 			if(typeExpressions.empty())
 				continue;
@@ -664,8 +662,8 @@ bool initHandler(handlerRegistry_t & m){
 			// if the parameter has value constrains AND is a multi parameter, use a special system-call for this (instead of manually creating a foreach-loop here)
 			// e.g. fn([Bool,Number] p*){...}
 			if(param.isMultiParam()){
-				for(std::vector<ObjRef>::const_iterator it2 = typeExpressions.begin();it2!=typeExpressions.end();++it2){
-					ctxt2.compile( *it2 );
+				for(const auto & typeExpr : typeExpressions) {
+					ctxt2.compile(typeExpr);
 				}
 				ctxt2.addInstruction(Instruction::createGetLocalVariable(varIdx));
 				ctxt2.addInstruction(Instruction::createPushUInt(Consts::SYS_CALL_TEST_ARRAY_PARAMETER_CONSTRAINTS));
@@ -674,11 +672,11 @@ bool initHandler(handlerRegistry_t & m){
 
 			}else{
 				std::vector<uint32_t> constrainOkMarkers; // each constrain gets its own ok-marker
-				for(std::vector<ObjRef>::const_iterator it2 = typeExpressions.begin();it2!=typeExpressions.end();++it2){
+				for(const auto & typeExpr : typeExpressions) {
 					const uint32_t constrainOkMarker = ctxt2.createMarker();
 					constrainOkMarkers.push_back(constrainOkMarker);
 
-					ctxt2.compile( *it2 );
+					ctxt2.compile(typeExpr);
 					ctxt2.addInstruction(Instruction::createDup()); // store the constraint for the error message
 					ctxt2.addInstruction(Instruction::createCheckType(varIdx));
 					ctxt2.addInstruction(Instruction::createJmpOnTrue(constrainOkMarker));
@@ -700,8 +698,9 @@ bool initHandler(handlerRegistry_t & m){
 
 		// add super-constructor parameters
 		const std::vector<ObjRef> & superConstrParams = self->getSConstructorExpressions();
-		for(std::vector<ObjRef>::const_iterator it = superConstrParams.begin();it!=superConstrParams.end();++it)
-			ctxt2.compile(*it);
+		for(const auto & superConstrParam : superConstrParams) {
+			ctxt2.compile(superConstrParam);
+		}
 
 		// init 'this' (or create it if this is a constructor call)
 		ctxt2.addInstruction(Instruction::createInitCaller(superConstrParams.size()));

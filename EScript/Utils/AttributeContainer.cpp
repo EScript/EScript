@@ -15,8 +15,8 @@ AttributeContainer::AttributeContainer(const AttributeContainer & other){
 }
 
 void AttributeContainer::initAttributes(Runtime & rt){
-	for(attributeMap_t::iterator it = attributes.begin() ; it!=attributes.end() ; ++it){
-		Attribute & attr = it->second;
+	for(auto & keyValuePair : attributes) {
+		Attribute & attr = keyValuePair.second;
 		if(attr.isInitializable()){
 			Type * type = dynamic_cast<Type*>(attr.getValue());
 			if(type!=nullptr){
@@ -31,13 +31,14 @@ void AttributeContainer::initAttributes(Runtime & rt){
 }
 
 void AttributeContainer::cloneAttributesFrom(const AttributeContainer & other) {
-	for(attributeMap_t::const_iterator it = other.attributes.begin() ; it!=other.attributes.end() ; ++it){
-		setAttribute(it->first, Attribute(it->second.getValue()->getRefOrCopy(),it->second.getProperties() ));
+	for(const auto & keyValuePair : other.attributes) {
+		setAttribute(keyValuePair.first, Attribute(keyValuePair.second.getValue()->getRefOrCopy(), keyValuePair.second.getProperties()));
 	}
 
 }
 
 void AttributeContainer::collectAttributes(std::unordered_map<StringId,Object *> & attrs){
-	for(attributeMap_t::iterator it = attributes.begin() ; it!=attributes.end() ; ++it)
-		attrs[it->first] = it->second.getValue();
+	for(const auto & keyValuePair : attributes) {
+		attrs[keyValuePair.first] = keyValuePair.second.getValue();
+	}
 }

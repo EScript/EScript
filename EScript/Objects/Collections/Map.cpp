@@ -73,8 +73,9 @@ Map * Map::create(){
 //! (static) Factory
 Map * Map::create(const std::unordered_map<StringId,Object *> & attr){
 	Map * m=create();
-	for(std::unordered_map<StringId,Object *>::const_iterator it=attr.begin();it!=attr.end();++it)
-		m->setValue(String::create( (it->first).toString() ), it->second->getRefOrCopy());
+	for(const auto & keyValuePair : attr) {
+		m->setValue(String::create(keyValuePair.first.toString()), keyValuePair.second->getRefOrCopy());
+	}
 	return m;
 }
 
@@ -166,9 +167,9 @@ void  Map::clear() {
 //! ---|> [Object]
 Object * Map::clone()const {
 	Map *newMap= new Map(getType());
-	for (container_t::const_iterator it=data.begin() ; it!=data.end() ; ++it) {
-		const MapEntry & sourceEntry=(*it).second;
-		newMap->setValue(sourceEntry.key->getRefOrCopy(),sourceEntry.value->getRefOrCopy());
+	for(const auto & keyEntryPair : data) {
+		const MapEntry & sourceEntry = keyEntryPair.second;
+		newMap->setValue(sourceEntry.key->getRefOrCopy(), sourceEntry.value->getRefOrCopy());
 	}
 	return newMap;
 }
@@ -180,13 +181,13 @@ void Map::rt_filter(Runtime & runtime,ObjPtr function, const ParameterValues & a
 	if(!additionalValues.empty())
 		std::copy(additionalValues.begin(),additionalValues.end(),parameters.begin()+2);
 
-	for (container_t::const_iterator it=data.begin() ; it!=data.end() ; ++it) {
-		const MapEntry & sourceEntry=(*it).second;
+	for(const auto & keyEntryPair : data) {
+		const MapEntry & sourceEntry = keyEntryPair.second;
 		parameters.set(0,sourceEntry.key);
 		parameters.set(1,sourceEntry.value);
 		ObjRef resultRef=callFunction(runtime,function.get(),parameters);
 		if( resultRef.toBool() ){
-			tempMap[ it->first ] = sourceEntry;
+			tempMap[keyEntryPair.first] = sourceEntry;
 		}
 	}
 	data.swap(tempMap);

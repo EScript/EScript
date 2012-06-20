@@ -239,18 +239,19 @@ void StdLib::init(EScript::Namespace * globals) {
 
 	//! [ESF] void out(...)
 	ES_FUNCTION_DECLARE(globals,"out",0,-1, {
-		for(ParameterValues::const_iterator it=parameter.begin();it!=parameter.end();++it)
-			std::cout << (*it).toString();
+		for(const auto & param : parameter) {
+			std::cout << param.toString();
+		}
 		std::cout.flush();
 		return nullptr;
 	})
 	
 	//! [ESF] void outln(...)
 	ES_FUNCTION_DECLARE(globals,"outln",0,-1, {
-		for(ParameterValues::const_iterator it=parameter.begin();it!=parameter.end();++it)
-			std::cout << (*it).toString();
+		for(const auto & param : parameter) {
+			std::cout << param.toString();
+		}
 		std::cout << std::endl;
-		std::cout.flush();
 		return nullptr;
 	})
 
@@ -269,9 +270,10 @@ void StdLib::init(EScript::Namespace * globals) {
 	//! [ESF] void print_r(...)
 	ES_FUNCTION_DECLARE(globals,"print_r",0,-1, {
 		std::cout << "\n";
-		for(ParameterValues::const_iterator it=parameter.begin();it!=parameter.end();++it) {
-			if (!(*it).isNull())
-				print_r((*it).get());
+		for(const auto & param : parameter) {
+			if(!param.isNull()) {
+				print_r(param.get());
+			}
 		}
 		return nullptr;
 	})

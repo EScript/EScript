@@ -60,8 +60,7 @@ std::string IO::condensePath(const std::string & inputPath){
 	StringUtils::split(inputPath,"/",parts);
 	// condense
 	std::deque<std::string> parts2;
-	for(std::vector<std::string>::const_iterator it=parts.begin();it!=parts.end();++it){
-		const std::string & part=*it;
+	for(const auto & part : parts) {
 		if(part == ".." && (!parts2.empty() && parts2.back()!=".." ) ){ // ".."? -> remove parent folder if not at the beginning
 			parts2.pop_back();
 		}else if( !part.empty() && part != ".") {

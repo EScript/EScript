@@ -87,15 +87,17 @@ void Array::init(EScript::Namespace & globals) {
 
 	//! [ESMF] self Array.pushBack(Obj[,Obj...]);
 	ES_MFUNCTION_DECLARE(typeObject,Array,"pushBack",1,-1,{
-		for(ParameterValues::const_iterator it=parameter.begin();it!=parameter.end();++it)
-			self->pushBack(*it);
+		for(const auto & param : parameter) {
+			self->pushBack(param);
+		}
 		return  self;
 	})
 
 	//! [ESMF] self Array.pushFront(Obj,[Obj...]);
 	ES_MFUNCTION_DECLARE(typeObject,Array,"pushFront",1,-1,{
-		for(ParameterValues::const_iterator it=parameter.begin();it!=parameter.end();++it)
-			self->pushFront(*it);
+		for(const auto & param : parameter) {
+			self->pushFront(param);
+		}
 		return  self;
 	})
 
@@ -213,8 +215,9 @@ Array::~Array() {
 void Array::init(const ParameterValues & p){
 	resize(p.count());
 	size_t i=0;
-	for(ParameterValues::const_iterator it=p.begin();it!=p.end();++it)
-		data[i++]=*it;
+	for(const auto & param : p) {
+		data[i++] = param;
+	}
 }
 
 /*!	(internal)*/
@@ -236,8 +239,9 @@ Object * Array::clone()const {
 
 	newArray->resize(count());
 	size_t i=0;
-	for (const_iterator it=begin();it!=end();++it)
-		newArray->data[i++]=(*it)->getRefOrCopy();
+	for(const auto & element : data) {
+		newArray->data[i++] = element->getRefOrCopy();
+	}
 	return newArray;
 }
 
@@ -406,11 +410,11 @@ void Array::rt_filter(Runtime & runtime,ObjPtr function, const ParameterValues &
 	if(!additionalValues.empty())
 		std::copy(additionalValues.begin(),additionalValues.end(),parameters.begin()+1);
 
-	for (const_iterator it=begin();it!=end();++it) {
-		parameters.set(0,*it);
+	for(const auto & element : data) {
+		parameters.set(0, element);
 		ObjRef resultRef=callFunction(runtime,function.get(),parameters);
 		if( resultRef.toBool() ){
-			tempArray.push_back(*it);
+			tempArray.push_back(element);
 		}
 	}
 	data.swap(tempArray);
@@ -460,8 +464,8 @@ void Array::splice(int startIndex,int length,Array * replacement){
 		tmp.push_back(data[i]);
 	}
 	if(replacement!=nullptr){
-		for (const_iterator it=replacement->begin();it!=replacement->end();++it) {
-			tmp.push_back( (*it)->getRefOrCopy() );
+		for(const auto & element : replacement->data) {
+			tmp.push_back(element->getRefOrCopy());
 		}
 	}
 

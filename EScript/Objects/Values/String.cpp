@@ -201,8 +201,9 @@ void String::init(EScript::Namespace & globals) {
 		StringUtils::split( self->getString(), parameter[0].toString(), result, parameter[1].toInt(-1) );
 
 		Array * a=Array::create();
-		for(std::vector<std::string>::const_iterator it=result.begin();it!=result.end();++it)
-			a->pushBack( String::create(*it) );
+		for(const auto & str : result) {
+			a->pushBack(String::create(str));
+		}
 		return a;
 	})
 

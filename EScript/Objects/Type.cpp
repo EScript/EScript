@@ -152,33 +152,35 @@ bool Type::setAttribute(const StringId & id,const Attribute & attr){
 void Type::copyObjAttributesTo(Object * instance){
 	// init member vars of type
 	if(getFlag(FLAG_CONTAINS_OBJ_ATTRS)){
-		for(AttributeContainer::iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
-			const Attribute & a=it->second;
+		for(const auto & keyValuePair : attributes) {
+			const Attribute & a = keyValuePair.second;
 			if( a.isNull() || a.isTypeAttribute() )
 				continue;
-			instance->setAttribute( it->first, Attribute(a.getValue()->getRefOrCopy(),a.getProperties()));
+			instance->setAttribute(keyValuePair.first, Attribute(a.getValue()->getRefOrCopy(),a.getProperties()));
 		}
 	}
 }
 
 void Type::collectTypeAttributes(std::unordered_map<StringId,Object *> & attrs)const{
-	for(AttributeContainer::const_iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
-		if(it->second.isTypeAttribute())
-			attrs[it->first] = it->second.getValue();
+	for(const auto & keyValuePair : attributes) {
+		if(keyValuePair.second.isTypeAttribute()) {
+			attrs[keyValuePair.first] = keyValuePair.second.getValue();
+		}
 	}
 }
 
 void Type::collectObjAttributes(std::unordered_map<StringId,Object *> & attrs)const{
-	for(AttributeContainer::const_iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
-		if(it->second.isObjAttribute())
-			attrs[it->first] = it->second.getValue();
+	for(const auto & keyValuePair : attributes) {
+		if(keyValuePair.second.isObjAttribute()) {
+			attrs[keyValuePair.first] = keyValuePair.second.getValue();
+		}
 	}
 }
 
 //! ---|> Object
 void Type::collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs){
-	for(AttributeContainer::iterator it=attributes.begin() ; it!=attributes.end() ; ++it){
-		attrs[it->first] = it->second.getValue();
+	for(const auto & keyValuePair : attributes) {
+		attrs[keyValuePair.first] = keyValuePair.second.getValue();
 	}
 }
 

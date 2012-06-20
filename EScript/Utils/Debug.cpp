@@ -33,12 +33,12 @@ void Debug::unRegisterObj(Object * v) {
 }
 void Debug::showObjects() {
 	if (debug_objects_counter==0) return;
-	for ( std::map<void *,Object *>::const_iterator it = debug_objects.begin();it!=debug_objects.end();++it) {
-		if ((*it).second==0)
+	for(const auto & obj : debug_objects) {
+		if (obj.second==0)
 			continue;
-		//<< (void*)((*it).second)
-		std::cout << " : "<< ((*it).second)<< ((*it).second)->toString();
-		if (((*it).second)->getType()) std::cout << " ---|> "<<((*it).second)->getType()<<"\n";
+		//<< (void*)(obj.second)
+		std::cout << " : "<< (obj.second)<< (obj.second)->toString();
+		if ((obj.second)->getType()) std::cout << " ---|> "<<(obj.second)->getType()<<"\n";
 	}
 	std::cout << "\nObjects left: "<<debug_objects_counter<<"\n";
 }

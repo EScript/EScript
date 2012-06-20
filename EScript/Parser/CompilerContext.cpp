@@ -41,9 +41,9 @@ void CompilerContext::pushSetting_localVars(const std::set<StringId> & variableN
 	settingsStack.push_back(SettingsStackEntry(VISIBLE_LOCAL_VARIABLES));
 	SettingsStackEntry & entry = settingsStack.back();
 
-	for(std::set<StringId>::const_iterator it = variableNames.begin();it!=variableNames.end();++it){
-		const size_t varIndex = instructions.declareLocalVariable(*it);
-		entry.localVariables[ *it ] = varIndex;
+	for(const auto & varName : variableNames) {
+		const size_t varIndex = instructions.declareLocalVariable(varName);
+		entry.localVariables[varName] = varIndex;
 		if(!variableCollectorStack.empty()){
 			variableCollectorStack.top()->push_back(varIndex);
 		}
@@ -68,8 +68,8 @@ bool CompilerContext::collectLocalVariables(setting_t entryType,std::vector<size
 	for(std::vector<SettingsStackEntry>::const_reverse_iterator it=settingsStack.rbegin();it!=settingsStack.rend();++it){
 		const SettingsStackEntry & entry = *it;
 		if(entry.type == VISIBLE_LOCAL_VARIABLES){
-			for(nameToIndexMapping_t::const_iterator varIt = entry.localVariables.begin();varIt!=entry.localVariables.end();++varIt){
-				variableIndices.push_back(varIt->second);
+			for(const auto & nameIndexPair : entry.localVariables) {
+				variableIndices.push_back(nameIndexPair.second);
 			}
 		}
 		if(entry.type == entryType)

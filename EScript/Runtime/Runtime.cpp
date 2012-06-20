@@ -108,8 +108,9 @@ void Runtime::init(EScript::Namespace & globals) {
 		ParameterValues params(paramArr.isNotNull() ? paramArr->count() : 0);
 		if(paramArr.isNotNull()){
 			int i=0;
-			for(Array::iterator it=paramArr->begin();it!=paramArr->end();++it)
-				params.set(i++,*it);
+			for(const auto & param : *paramArr.get()) {
+				params.set(i++, param);
+			}
 		}
 		ObjRef resultRef=runtime.executeFunction(fun.get(),obj.get(),params);
 		return resultRef.detachAndDecrease();

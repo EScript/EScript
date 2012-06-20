@@ -566,11 +566,10 @@ BlockExpr * Parser::readBlock(ParsingContext & ctxt,int & cursor)const {
 				const BlockExpr::declaredVariableMap_t & vars2 = ctxt.blocks[i]->getVars();
 				if(vars2.empty())
 					continue;
-				for(BlockExpr::declaredVariableMap_t::const_iterator it=vars.begin();it!=vars.end();++it){
-					if(vars2.count(*it)>0){
-						log(ctxt,Logger::LOG_PEDANTIC_WARNING,"Shadowed local variable  '"+(*it).toString()+"' in block.",tokens.at(cursor));
+				for(const auto & var : vars) {
+					if(vars2.count(var) > 0) {
+						log(ctxt, Logger::LOG_PEDANTIC_WARNING, "Shadowed local variable  '" + var.toString() + "' in block.", tokens.at(cursor));
 					}
-
 				}
 			}
 		}
@@ -757,10 +756,9 @@ Object * Parser::readBinaryExpression(ParsingContext & ctxt,int & cursor,int to)
 				readProperties(ctxt,propertyStart+1,leftExprTo-1,properties);
 				leftExprTo = propertyStart-2;
 
-				for(properties_t::const_iterator it=properties.begin();it!=properties.end();++it ){
-					const StringId & name = it->first;
+				for(const auto & property : properties) {
+					const StringId & name = property.first;
 					log(ctxt,Logger::LOG_INFO,"Property:"+name.toString(),atOp );
-//					const int pos = it->second;
 					if(name == Consts::PROPERTY_ATTR_const){
 						flags |= Attribute::CONST_BIT;
 					}else if(name == Consts::PROPERTY_ATTR_init){
@@ -1059,11 +1057,10 @@ Object * Parser::readFunctionDeclaration(ParsingContext & ctxt,int & cursor)cons
 
 		properties_t properties;
 		readProperties(ctxt,cursor+1,propertyTo-1,properties);
-		for(properties_t::const_iterator it=properties.begin();it!=properties.end();++it ){
-			const StringId & name = it->first;
-			int parameterPos = it->second;
+		for(const auto & property : properties) {
+			const StringId & name = property.first;
+			int parameterPos = property.second;
 			log(ctxt,Logger::LOG_INFO,"Property:"+name.toString(),superOp );
-//					const int pos = it->second;
 			if(name == Consts::PROPERTY_FN_super){
 				if(parameterPos<0){
 					throwError(ctxt,"Super attribute needs parameter list.",superOp);

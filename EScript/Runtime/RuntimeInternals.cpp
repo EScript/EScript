@@ -938,10 +938,10 @@ void RuntimeInternals::initSystemFunctions(){
 
 				Array * values = assertType<Array>(runtime,parameter[constraintEnd]);
 
-				for(Array::iterator it = values->begin();it!=values->end();++it){
+				for(const auto & val : *values) {
 					bool success = false;
 					for(size_t i = 0; i<constraintEnd; ++i){
-						if(RuntimeInternals::checkParameterConstraint(runtime,*it,parameter[i])){
+						if(RuntimeInternals::checkParameterConstraint(runtime, val, parameter[i])) {
 							success = true;
 							break;
 						}
@@ -953,7 +953,7 @@ void RuntimeInternals::initSystemFunctions(){
 							if(i>0) os <<", ";
 							os<<(parameter[i].isNotNull() ? parameter[i]->toDbgString() : "???");
 						}
-						os << " but got " << (*it)->toDbgString()<<".";
+						os << " but got " << val->toDbgString()<<".";
 						runtime.setException(os.str());
 						return static_cast<Object*>(nullptr);
 					}

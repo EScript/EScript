@@ -71,8 +71,8 @@ void IOLib::init(EScript::Namespace * o) {
 		}
 
 		Array * ar=Array::create();
-		for (std::list<std::string> ::iterator  it=files.begin();it!=files.end();++it) {
-			ar->pushBack(String::create(*it));
+		for(const auto & file : files) {
+			ar->pushBack(String::create(file));
 		}
 		return ar;
 	})
