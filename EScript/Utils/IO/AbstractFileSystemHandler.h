@@ -8,11 +8,11 @@
 #include "../StringData.h"
 #include "IOBase.h"
 #include <cstddef>
-#include <ios>
-#include <list>
-#include <map>
 #include <cstdint>
+#include <ios>
+#include <map>
 #include <string>
+#include <vector>
 
 namespace EScript{
 namespace IO{
@@ -37,12 +37,12 @@ public:
 		throw std::ios_base::failure("unsupported operation");
 	}
 	/*!	---o
-	 *	@param   dirname
-	 *         flags:       1 ... Files
-	 *                      2 ... Directories
-	 *                      4 ... Recurse Subdirectories
-	 * 	@throw std::ios_base::failure on failure.	*/
-	virtual void dir(const std::string &/*path*/, std::list<std::string> &/*result*/, uint8_t/*flags*/){
+	 * @param dirname
+	 * @param flags       1 ... Files
+	 *                    2 ... Directories
+	 *                    4 ... Recurse Subdirectories
+	 * @throw std::ios_base::failure on failure.	*/
+	virtual std::vector<std::string> dir(const std::string & /*dirname*/, uint8_t /*flags*/) {
 		throw std::ios_base::failure("unsupported operation");
 	}
 	//! ---o

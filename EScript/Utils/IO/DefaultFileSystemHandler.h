@@ -18,7 +18,7 @@ public:
 	virtual ~DefaultFileSystemHandler(){}
 
 	//! ---|> AbstractFileSystemHandler
-	virtual void dir(const std::string &, std::list<std::string> &, uint8_t);
+	virtual std::vector<std::string> dir(const std::string &, uint8_t);
 
 	//! ---|> AbstractFileSystemHandler
 	virtual EntryInfo getEntryInfo(const std::string &);

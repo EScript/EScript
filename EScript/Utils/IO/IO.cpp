@@ -45,8 +45,8 @@ uint64_t IO::getFileSize(const std::string& filename) {
 	return getFileSystemHandler()->getFileSize(filename);
 }
 
-void IO::getFilesInDir(const std::string & dirname,std::list<std::string> & files,uint8_t flags) {
-	getFileSystemHandler()->dir(dirname,files,flags);
+std::vector<std::string> IO::getFilesInDir(const std::string & dirname, uint8_t flags) {
+	return getFileSystemHandler()->dir(dirname, flags);
 }
 
 std::string IO::dirname(const std::string & filename) {

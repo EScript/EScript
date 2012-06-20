@@ -4,6 +4,8 @@
 // ------------------------------------------------------
 #include "DefaultFileSystemHandler.h"
 #include <fstream>
+#include <string>
+#include <vector>
 #include <sys/stat.h>
 
 #if defined(_MSC_VER)
@@ -16,12 +18,13 @@
 using namespace EScript;
 using namespace EScript::IO;
 
-void DefaultFileSystemHandler::dir(const std::string & dirname,std::list<std::string> & files,uint8_t flags) {
+std::vector<std::string> DefaultFileSystemHandler::dir(const std::string & dirname, uint8_t flags) {
 
-	DIR *directoryHandle = opendir (dirname.c_str ());
+	DIR *directoryHandle = opendir(dirname.c_str());
 	if (!directoryHandle)
 		throw std::ios_base::failure( std::string("Could not open dir: '"+dirname+'\''));
 
+	std::vector<std::string> files;
 	for( dirent * entry=readdir(directoryHandle) ; entry!=nullptr ; entry=readdir(directoryHandle)){
 		if(entry->d_name[0] == '.')
 			continue;
@@ -36,10 +39,12 @@ void DefaultFileSystemHandler::dir(const std::string & dirname,std::list<std::st
 
 		if(type==IO::TYPE_DIRECTORY && (flags & 4)) { // recursive
 			// std::cout << "Recusrive dir:"<<entryName<<"\n";
-			dir(entryName,files,flags);
+			const auto filesRecursive = dir(entryName, flags);
+			files.insert(files.end(), filesRecursive.begin(), filesRecursive.end());
 		}
 	}
 	closedir(directoryHandle);
+	return files;
 }
 
 

@@ -6,7 +6,6 @@
 #include "../EScript/EScript.h"
 #include "../EScript/Utils/IO/IO.h"
 #include "../EScript/Utils/StringUtils.h"
-#include <list>
 
 using namespace EScript;
 
@@ -62,19 +61,17 @@ void IOLib::init(EScript::Namespace * o) {
 
 	//! [ESF] array dir(string dirname[,int flags])
 	ES_FUNCTION_DECLARE(lib,"dir",1,2, {
-		std::list<std::string> files;
 		try {
-			IO::getFilesInDir(parameter[0]->toString(),files,parameter[1].toInt(E_DIR_FILES));
+			const auto files = IO::getFilesInDir(parameter[0]->toString(), parameter[1].toInt(E_DIR_FILES));
+			Array * ar = Array::create();
+			for(const auto & file : files) {
+				ar->pushBack(String::create(file));
+			}
+			return ar;
 		} catch (const std::string & s) {
 			runtime.setException(s);
 			return nullptr;
 		}
-
-		Array * ar=Array::create();
-		for(const auto & file : files) {
-			ar->pushBack(String::create(file));
-		}
-		return ar;
 	})
 
 	//! [ESF] string condensePath(string path)

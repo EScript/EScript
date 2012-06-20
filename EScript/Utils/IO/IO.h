@@ -9,9 +9,9 @@
 #include "IOBase.h"
 #include <cstddef>
 #include <cstdint>
-#include <list>
-#include <string>
 #include <ios>
+#include <string>
+#include <vector>
 
 namespace EScript {
 namespace IO{
@@ -37,12 +37,13 @@ entryType_t getEntryType(const std::string& filename);
  *	@return filsize in byte.	*/
 uint64_t getFileSize(const std::string& filename);
 
-/*!	@param   dirname
- *         flags:       1 ... Files
- *                      2 ... Directories
- *                      4 ... Recurse Subdirectories
- * 	@throw std::ios_base::failure on failure.	*/
-void getFilesInDir(const std::string & dirname, std::list<std::string> & files,uint8_t flags) ;
+/*!
+ * @param dirname
+ * @param flags       1 ... Files
+ *                    2 ... Directories
+ *                    4 ... Recurse Subdirectories
+ * @throw std::ios_base::failure on failure.	*/
+std::vector<std::string> getFilesInDir(const std::string & dirname, uint8_t flags);
 
 std::string dirname(const std::string & filename);
 
