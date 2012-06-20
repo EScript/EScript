@@ -97,14 +97,7 @@ class _Ptr  {
 	public:
 		_Ptr() : obj(nullptr)                              			{	}
 		_Ptr(_T * _obj) : obj(_obj)                     			{	}
-		_Ptr(const _Ptr & other):obj(other.get())					{	}
 		_Ptr(const _CountedRef<_T> & other):obj(other.get())		{	}
-
-		/*! Assignment */
-		_Ptr& operator=(const _Ptr& other) {
-			obj = other.obj;
-			return *this;
-		}
 
 		/*! Swap the referenced pointers without touching the reference counter. */
 		void swap(_Ptr& other){
@@ -152,18 +145,8 @@ class ERef : public _CountedRef<_T> {
 	public:
 		ERef() : _CountedRef<_T>(nullptr)							{   }
 		ERef(_T * _obj) : _CountedRef<_T>(_obj)						{   }
-		ERef(ERef && other) : _CountedRef<_T>(other)			{   }
-		ERef(const ERef & other) : _CountedRef<_T>(other.get())	{   }
 		ERef(const EPtr<_T>& other) : _CountedRef<_T>(other.get())	{   }
 
-		ERef & operator=(ERef && other) {
-			_CountedRef<_T>::operator=(other);
-			return *this;
-		}
-		ERef & operator=(const ERef & other) {
-			_CountedRef<_T>::operator=(other);
-			return *this;
-		}
 	/*! @name Conversion */
 	// @{
 
@@ -217,13 +200,7 @@ class EPtr{
 	public:
 		EPtr() : obj(nullptr)								{	}
 		EPtr(_T * _obj) : obj(_obj)							{	}
-		EPtr(const EPtr & other) : obj(other.obj)		{	}
 		EPtr(const ERef<_T>& other) : obj(other.get())		{	}
-
-		EPtr& operator=(const EPtr & other) {
-			obj=other.obj;
-			return *this;
-		}
 
 	/*! @name Information */
 	// @{
