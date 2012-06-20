@@ -25,8 +25,9 @@
 #include "../Objects/Values/String.h"
 #include "../Objects/Values/Void.h"
 
-#include <stdexcept>
+#include <functional>
 #include <map>
+#include <stdexcept>
 
 #if !defined(_MSC_VER) and !defined(UNUSED_ATTRIBUTE)
 #define UNUSED_ATTRIBUTE __attribute__ ((unused))
@@ -36,9 +37,8 @@
 
 namespace EScript{
 
-// init handlerRegistry \todo Can't this be done more efficiently using c++11 functionals???
-struct handler_t{ virtual void operator()(CompilerContext & ctxt,ObjPtr obj)=0; };
-typedef std::map<internalTypeId_t,handler_t *> handlerRegistry_t;
+typedef std::function<void (CompilerContext &, ObjPtr)> handler_t;
+typedef std::map<internalTypeId_t, handler_t> handlerRegistry_t;
 static bool initHandler(handlerRegistry_t &);
 static handlerRegistry_t handlerRegistry;
 static bool _handlerInitialized UNUSED_ATTRIBUTE = initHandler(handlerRegistry);
@@ -59,7 +59,7 @@ void Compiler::compileExpression(CompilerContext & ctxt,ObjPtr expression)const{
 			std::cout << reinterpret_cast<void*>(typeId)<<"\n";
 		throwError(ctxt,"Expression can't be compiled.");
 	}
-	(*it->second)(ctxt,expression);
+	it->second(ctxt,expression);
 }
 
 void Compiler::throwError(CompilerContext & ctxt,const std::string & msg)const{
@@ -237,16 +237,15 @@ bool initHandler(handlerRegistry_t & m){
 	// \note  the redundant assignment to 'id2' is a workaround to a strange linker error ("undefined reference EScript::_TypeIds::TYPE_NUMBER")
 	#define ADD_HANDLER( _id, _type, _block) \
 	{ \
-		struct _handler : public handler_t{ \
-			~_handler(){} \
-			virtual void operator()(CompilerContext & ctxt,ObjPtr obj){ \
+		struct _handler { \
+			void operator()(CompilerContext & ctxt,ObjPtr obj){ \
 				_type * self = obj.toType<_type>(); \
 				if(!self) throw std::invalid_argument("Wrong type!"); \
 				do _block while(false); \
 			} \
 		}; \
 		const internalTypeId_t id2 = _id; \
-		m[id2] = new _handler(); \
+		m[id2] = _handler(); \
 	}
 	// ------------------------
 	// Simple types
