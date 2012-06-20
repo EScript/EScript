@@ -176,18 +176,6 @@ class ObjectReleaseHandler{
 		static void release(Object * obj);
 };
 
-struct ObjectPrinter : public std::unary_function<ObjRef, std::string> {
-	std::string operator()(const ObjRef & ref) const {
-		return ref.get()->toString();
-	}
-};
-
-struct ObjectDebugPrinter : public std::unary_function<ObjRef, std::string> {
-	std::string operator()(const ObjRef & ref) const {
-		return ref.get()->toDbgString();
-	}
-};
-
 }
 
 #endif // OBJECT_H
