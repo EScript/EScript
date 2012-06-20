@@ -19,11 +19,11 @@ void AttributeContainer::initAttributes(Runtime & rt){
 		Attribute & attr = it->second;
 		if(attr.isInitializable()){
 			Type * type = dynamic_cast<Type*>(attr.getValue());
-			if(type!=NULL){
+			if(type!=nullptr){
 				ObjRef value = rt.createInstance(type,ParameterValues());
 				attr.setValue( value.get() );
 			}else{
-				ObjRef value = rt.executeFunction(attr.getValue(),NULL,ParameterValues());
+				ObjRef value = rt.executeFunction(attr.getValue(),nullptr,ParameterValues());
 				attr.setValue( value.get() );
 			}
 		}

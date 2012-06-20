@@ -63,8 +63,8 @@ public:
 	inline size_type size()const				{	return paramCount;	}
 	inline bool empty()const					{	return paramCount==0;	}
 
-	inline ObjPtr operator[](size_type i)const	{	return i<paramCount ?	params[i] : NULL;	}
-	inline ObjPtr get(size_type i)const			{	return i<paramCount ?	params[i] : NULL;	}
+	inline ObjPtr operator[](size_type i)const	{	return i<paramCount ?	params[i] : nullptr;	}
+	inline ObjPtr get(size_type i)const			{	return i<paramCount ?	params[i] : nullptr;	}
 	inline iterator			begin()				{	return params; }
 	inline const_iterator 	begin()const		{	return params; }
 	inline iterator			end()				{	return params+size(); }

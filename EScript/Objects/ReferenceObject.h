@@ -43,7 +43,7 @@ class ReferenceObject : public Object {
 		typedef ReferenceObject<_T,comparisonPolicy> ReferenceObject_t;
 
 		// ---
-		ReferenceObject(const _T & _obj, Type * type=NULL):
+		ReferenceObject(const _T & _obj, Type * type=nullptr):
 				Object(type),obj(_obj)						{	}
 		virtual ~ReferenceObject()							{	}
 

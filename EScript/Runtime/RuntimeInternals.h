@@ -34,8 +34,8 @@ class RuntimeInternals  {
 		typedef std::pair<Object *,FunctionCallContext* >  executeFunctionResult_t;
 
 		/*! (internal)
-			Start the execution of a function. A c++ function is executed immediatly and the result is <result,NULL>.
-			A UserFunction produces a FunctionCallContext which still has to be executed. The result is then <NULL,fcc>
+			Start the execution of a function. A c++ function is executed immediatly and the result is <result,nullptr>.
+			A UserFunction produces a FunctionCallContext which still has to be executed. The result is then <nullptr,fcc>
 			\note the @p params value may be altered by this function and should not be used afterwards!	*/
 		executeFunctionResult_t startFunctionExecution(const ObjPtr & fun,const ObjPtr & callingObject,ParameterValues & params);
 
@@ -43,7 +43,7 @@ class RuntimeInternals  {
 
 		Object * executeFunctionCallContext(_Ptr<FunctionCallContext> fcc);
 
-		ObjPtr getCallingObject()const 							{  return activeFCCs.empty() ? NULL : activeFCCs.back()->getCaller();	}
+		ObjPtr getCallingObject()const 							{  return activeFCCs.empty() ? nullptr : activeFCCs.back()->getCaller();	}
 
 		size_t getStackSize()const								{	return activeFCCs.size();	}
 		size_t _getStackSizeLimit()const						{	return stackSizeLimit;	}
@@ -54,7 +54,7 @@ class RuntimeInternals  {
 		size_t stackSizeLimit;
 
 		static bool checkParameterConstraint(Runtime & rt,const ObjPtr & value,const ObjPtr & constraint);
-		_Ptr<FunctionCallContext> getActiveFCC()const			{	return activeFCCs.empty() ? NULL : activeFCCs.back();	}
+		_Ptr<FunctionCallContext> getActiveFCC()const			{	return activeFCCs.empty() ? nullptr : activeFCCs.back();	}
 
 		void pushActiveFCC(const _Ptr<FunctionCallContext> fcc)	{
 			activeFCCs.push_back(fcc);
@@ -97,7 +97,7 @@ class RuntimeInternals  {
 		state_t getState()const							{	return state;	}
 		void resetState() {
 			state = STATE_NORMAL;
-			resultValue = NULL;
+			resultValue = nullptr;
 		}
 
 		void setAddStackInfoToExceptions(bool b)		{	addStackIngfoToExceptions = b;	}
@@ -116,7 +116,7 @@ class RuntimeInternals  {
 		 * (otherwise, they are not handled and the program is likely to crash).
 		 * In all other situations try to use setException(...)
 		 */
-		void throwException(const std::string & s,Object * obj=NULL);
+		void throwException(const std::string & s,Object * obj=nullptr);
 
 		void setExitState(const ObjPtr & value) {
 			resultValue = value;

@@ -16,7 +16,7 @@ class Iterator : public Object {
 		static void init(EScript::Namespace & globals);
 
 		// ---
-		Iterator(Type * type=NULL);
+		Iterator(Type * type=nullptr);
 		virtual ~Iterator();
 
 		/// ---o

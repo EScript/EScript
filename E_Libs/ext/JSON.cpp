@@ -19,7 +19,7 @@ std::string JSON::toJSON(Object * obj,bool formatted/*=true*/){
 
 //! (static)
 void JSON::toJSON(std::ostringstream & out,Object * obj,bool formatted/*=true*/,int level/*=0*/){
-	if(dynamic_cast<Void *>(obj) || (obj==NULL) ){
+	if(dynamic_cast<Void *>(obj) || (obj==nullptr) ){
 		out<<"null";
 	}else if(Object * number=dynamic_cast<Number *>(obj)){
 		out<<number->toFloat();
@@ -101,14 +101,14 @@ void JSON::toJSON(std::ostringstream & out,Object * obj,bool formatted/*=true*/,
 //! helper
 static Object * _parseJSON(Tokenizer::tokenList_t::iterator & cursor,const Tokenizer::tokenList_t::iterator end){
 	if(cursor==end)
-		return NULL;
+		return nullptr;
 	Token * token=(*cursor).get();
 	if(dynamic_cast<TOperator*>(token)&& token->toString()=="_-"){ /// unary minus
 		++cursor;
 		TObject * tObj = Token::cast<TObject>(*cursor);
-		if(tObj==NULL || !dynamic_cast<Number*>(tObj->obj.get())){
+		if(tObj==nullptr || !dynamic_cast<Number*>(tObj->obj.get())){
 			std::cout << "Number expected! \n";
-			return NULL;
+			return nullptr;
 		}
 
 		++cursor;
@@ -135,7 +135,7 @@ static Object * _parseJSON(Tokenizer::tokenList_t::iterator & cursor,const Token
 				break;
 			}
 			TObject * tObj2=Token::cast<TObject>(*cursor);
-			String * key= (tObj2==NULL ? NULL : dynamic_cast<String*>(tObj2->obj.get()));
+			String * key= (tObj2==nullptr ? nullptr : dynamic_cast<String*>(tObj2->obj.get()));
 			if(!key){
 				std::cout << "string expected \n";
 				break;
@@ -212,10 +212,10 @@ static Object * _parseJSON(Tokenizer::tokenList_t::iterator & cursor,const Token
 	}
 	else if(TIdentifier* ti=Token::cast<TIdentifier>(token)){
 		std::cout << "Unknown Identifier: "<<ti->toString()<<"\n";
-		return NULL;
+		return nullptr;
 
 	}
-	return NULL;
+	return nullptr;
 }
 
 //! (static)
@@ -229,7 +229,7 @@ Object* JSON::parseJSON(const std::string &s){
 	if(it!=tokens.end() && !Token::isA<TEndScript>(*it)){
 		std::cout << "JSON Syntax Error\n";
 	}
-	if(result==NULL){
+	if(result==nullptr){
 		result=String::create(s);
 	}
 //	for(it=tokens.begin();it!=tokens.end();++it){

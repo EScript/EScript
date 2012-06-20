@@ -27,7 +27,7 @@ UserFunction * InstructionBlock::getUserFunction(const uint32_t index)const{
 	if(index<=internalFunctions.size()){
 		return dynamic_cast<UserFunction*>(internalFunctions.at(index).get());
 	}else{
-		return NULL;
+		return nullptr;
 	}
 }
 

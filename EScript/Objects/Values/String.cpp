@@ -18,7 +18,7 @@ std::stack<String *> String::stringPool;
 //! static, internal
 StringData String::objToStringData(Object * obj){
 	String * strObj=dynamic_cast<String*>(obj);
-	return strObj==NULL ? StringData(obj->toString()) : strObj->sData;
+	return strObj==nullptr ? StringData(obj->toString()) : strObj->sData;
 }
 
 //---
@@ -45,7 +45,7 @@ void String::init(EScript::Namespace & globals) {
 	ES_MFUNCTION_DECLARE(typeObject,String,"_get",1,1, {
 		int pos=parameter[0]->toInt();
 		if (static_cast<unsigned int>(pos)>=self->getString().length())
-			return NULL;
+			return nullptr;
 		return  String::create(self->getString().substr(pos,1));
 	})
 

@@ -30,7 +30,7 @@ class AttributeContainer {
 
 		Attribute * accessAttribute(const StringId & id){
 			const attributeMap_t::iterator f=attributes.find(id);
-			return f==attributes.end() ? NULL : &f->second;
+			return f==attributes.end() ? nullptr : &f->second;
 		}
 		const_iterator begin()const										{	return attributes.begin();	}
 		const_iterator end()const										{	return attributes.end();	}

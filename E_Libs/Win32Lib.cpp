@@ -28,7 +28,7 @@ void Win32Lib::init(EScript::Namespace * globals) {
 		libInitFunction *  f;    // Function pointer
 
 		hDLL = LoadLibrary(parameter[0]->toString().c_str());
-		if (hDLL == NULL)
+		if (hDLL == nullptr)
 			return Bool::create(false);
 
 		f = reinterpret_cast<libInitFunction*>(GetProcAddress(hDLL,"init"));
@@ -46,7 +46,7 @@ void Win32Lib::init(EScript::Namespace * globals) {
 
 //! (static)
 void Win32Lib::setClipboard(const std::string & s){
-	if (OpenClipboard(NULL)) {
+	if (OpenClipboard(nullptr)) {
 		EmptyClipboard();
 		HGLOBAL hClipboardData;
 		hClipboardData = GlobalAlloc(GMEM_DDESHARE, s.size()+1);
@@ -63,7 +63,7 @@ void Win32Lib::setClipboard(const std::string & s){
 
 //! (static)
 std::string Win32Lib::getClipboard(){
-	if (!OpenClipboard(NULL)) {
+	if (!OpenClipboard(nullptr)) {
 		std::cout << "Could not open Clipboard!\n";
 		return "";
 	}

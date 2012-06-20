@@ -47,7 +47,7 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 		virtual ~Object();
 
 		friend std::ostream & operator<<(std::ostream & s, EScript::Object * o) {
-			return o==NULL ? s<<"NULL" :
+			return o==nullptr ? s<<"nullptr" :
 					s<< "[" << o->getTypeName() << ":" <<static_cast<void*>(o)<< ":"<<o->countReferences()<< "]";
 		}
 		//! Return a clone of the object if the type is call-by-value and the object itself otherwise.
@@ -118,7 +118,7 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 		virtual void _initAttributes(Runtime & rt);
 
 		/*! Get the locally stored attribute with the given id.
-			If the attribute is not found, the resulting attribute references NULL.
+			If the attribute is not found, the resulting attribute references nullptr.
 			\code
 				const Attribute & attr = obj->getLocalAttribute("attrName");
 				if(attr.isNull()) ...
@@ -126,7 +126,7 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 		const Attribute & getLocalAttribute(const StringId & id)const;
 
 		/*! Get the attribute with the given id. The attribute can be stored locally or be accessible by the object's type.
-			If the attribute is not found, the resulting attribute references NULL.
+			If the attribute is not found, the resulting attribute references nullptr.
 			\code
 				const Attribute & attr = obj->getAttribute("doesNotExist");
 				if(attr.isNull()) ...

@@ -57,7 +57,7 @@ class FunctionCallExpr : public Object {
 		}
 
 		FunctionCallExpr(uint32_t _sysCallId,const std::vector<ObjRef> & _parameters, int line) :
-				expRef(NULL),parameters(_parameters),constructorCall(false),sysCall(true),sysCallId(_sysCallId),
+				expRef(nullptr),parameters(_parameters),constructorCall(false),sysCall(true),sysCallId(_sysCallId),
 				lineNumber(line){
 		}
 

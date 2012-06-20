@@ -54,7 +54,7 @@ Delegate * Delegate::clone() const{
 //! ---|> [Object]
 bool Delegate::rt_isEqual(Runtime &,const ObjPtr o){
 	Delegate * d=o.toType<Delegate>();
-	return (d!=NULL) &&   d->getObject()==getObject() && d->getFunction()==getFunction();
+	return (d!=nullptr) &&   d->getObject()==getObject() && d->getFunction()==getFunction();
 }
 
 //! ---|> [Object]

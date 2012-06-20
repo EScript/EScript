@@ -104,7 +104,7 @@ void Runtime::init(EScript::Namespace & globals) {
 		ObjPtr fun(parameter[0]);
 		ObjPtr obj(parameter[1].get());
 
-		EPtr<Array> paramArr( (parameter.count()>2) ? assertType<Array>(runtime,parameter[2]) : NULL );
+		EPtr<Array> paramArr( (parameter.count()>2) ? assertType<Array>(runtime,parameter[2]) : nullptr );
 		ParameterValues params(paramArr.isNotNull() ? paramArr->count() : 0);
 		if(paramArr.isNotNull()){
 			int i=0;
@@ -142,7 +142,7 @@ bool Runtime::assertNormalState()const {
 
 bool Runtime::assignToAttribute(ObjPtr obj,StringId attrId,ObjPtr value){
 	Attribute * attr = obj->_accessAttribute(attrId,false);
-	if(attr == NULL)
+	if(attr == nullptr)
 		return false;
 
 	if(attr->getProperties()&Attribute::ASSIGNMENT_RELEVANT_BITS){
@@ -169,7 +169,7 @@ bool Runtime::checkNormalState()const				{	return internals->checkNormalState();
 
 ObjRef Runtime::createInstance(const EPtr<Type> & type,const ParameterValues & _params){
 	if(!internals->checkNormalState())
-		return NULL;
+		return nullptr;
 	ParameterValues params(_params);
 	RuntimeInternals::executeFunctionResult_t result = internals->startInstanceCreation(type,params);
 	ObjRef realResult;
@@ -190,7 +190,7 @@ ObjRef Runtime::createInstance(const EPtr<Type> & type,const ParameterValues & _
 
 ObjRef Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & caller,const ParameterValues & _params){
 	if(!internals->checkNormalState())
-		return NULL;
+		return nullptr;
 	ParameterValues params(_params);
 	RuntimeInternals::executeFunctionResult_t result = internals->startFunctionExecution(fun,caller,params);
 	ObjRef realResult;
@@ -240,7 +240,7 @@ void Runtime::_setStackSizeLimit(const size_t s)	{	internals->_setStackSizeLimit
 void Runtime::setTreatWarningsAsError(bool b){
 	if(b){ // --> disable coutLogger and add throwLogger
 		Logger * coutLogger = logger->getLogger("coutLogger");
-		if(coutLogger!=NULL)
+		if(coutLogger!=nullptr)
 			coutLogger->setMinLevel(Logger::LOG_ERROR);
 
 		//! ThrowLogger ---|> Logger
@@ -253,7 +253,7 @@ void Runtime::setTreatWarningsAsError(bool b){
 		logger->addLogger("throwLogger",new ThrowLogger(*this));
 	}else{
 		Logger * coutLogger = logger->getLogger("coutLogger");
-		if(coutLogger!=NULL)
+		if(coutLogger!=nullptr)
 			coutLogger->setMinLevel(Logger::LOG_ALL);
 		logger->removeLogger("throwLogger");
 	}
@@ -284,7 +284,7 @@ void Runtime::yieldNext(YieldIterator & yIt){
 		yIt.setValue( newYieldIterator->value() );
 	} // function returned without yield? -> update and terminate the current iterator
 	else{
-		yIt.setFCC( NULL );
+		yIt.setFCC( nullptr );
 		yIt.setValue( result );
 	}
 
@@ -307,7 +307,7 @@ public:
 };
 
 void Runtime::enableLogCounting(){
-	if(logger->getLogger("countingLogger")==NULL)
+	if(logger->getLogger("countingLogger")==nullptr)
 		logger->addLogger("countingLogger",new CountingLogger());
 }
 
@@ -317,13 +317,13 @@ void Runtime::disableLogCounting(){
 
 void Runtime::resetLogCounter(Logger::level_t level){
 	CountingLogger * l = dynamic_cast<CountingLogger*>(logger->getLogger("countingLogger"));
-	if(l!=NULL)
+	if(l!=nullptr)
 		l->reset(level);
 }
 
 uint32_t Runtime::getLogCounter(Logger::level_t level)const{
 	CountingLogger * l = dynamic_cast<CountingLogger*>(logger->getLogger("countingLogger"));
-	return l==NULL ? 0 : l->get(level);
+	return l==nullptr ? 0 : l->get(level);
 }
 
 

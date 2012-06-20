@@ -178,7 +178,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 			StackEntry & entry = stack_top();
 			bool b = false;
 			if(entry.dataType == StackEntry::OBJECT_PTR){
-				b = entry.value.value_ObjPtr == NULL ? false : entry.value.value_ObjPtr->toBool();
+				b = entry.value.value_ObjPtr == nullptr ? false : entry.value.value_ObjPtr->toBool();
 				Object::removeReference(entry.value.value_ObjPtr);
 			}else if(entry.dataType == StackEntry::BOOL){
 				b = entry.value.value_bool;

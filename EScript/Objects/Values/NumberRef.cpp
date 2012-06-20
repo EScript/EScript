@@ -79,7 +79,7 @@ NumberRef::NumberRef(long & _valueRef,Type * type):
 
 //! (dtor)
 NumberRef::~NumberRef() {
-	valuePtr=NULL;
+	valuePtr=nullptr;
 	//dtor
 }
 

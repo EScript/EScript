@@ -22,7 +22,7 @@ class Bool : public Object {
 
 		// ---
 
-		explicit Bool(bool value,Type * type=NULL);
+		explicit Bool(bool value,Type * type=nullptr);
 		virtual ~Bool();
 
 		void setValue(bool b)				{	value=b;	}

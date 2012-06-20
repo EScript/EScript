@@ -26,7 +26,7 @@ class Statement;
 
 class Compiler {
 	public:
-		Compiler(Logger * _logger = NULL);
+		Compiler(Logger * _logger = nullptr);
 
 		UserFunction * compile(const CodeFragment & code);
 

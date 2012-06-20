@@ -44,7 +44,7 @@ Rand& Rand::operator=(const Rand& rhs) {
 }
 
 void Rand::generateSeed(){
-	setSeed ( static_cast<unsigned long>(time( reinterpret_cast<time_t *>(NULL))) % MODULUS);
+	setSeed ( static_cast<unsigned long>(time(nullptr)) % MODULUS);
 }
 
 /**

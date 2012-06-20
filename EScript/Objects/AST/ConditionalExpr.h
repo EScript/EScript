@@ -14,7 +14,7 @@ namespace AST {
 class ConditionalExpr : public Object {
 		ES_PROVIDES_TYPE_NAME(ConditionalExpr)
 	public:
-		explicit ConditionalExpr( ObjPtr _condition=NULL, ObjPtr _action=NULL,ObjPtr _elseAction=NULL) :
+		explicit ConditionalExpr( ObjPtr _condition=nullptr, ObjPtr _action=nullptr,ObjPtr _elseAction=nullptr) :
 				condition(_condition),action(_action),elseAction(_elseAction) {}
 		virtual ~ConditionalExpr() {}
 

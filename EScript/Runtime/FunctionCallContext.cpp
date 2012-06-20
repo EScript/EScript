@@ -19,7 +19,7 @@ std::stack<FunctionCallContext *> FunctionCallContext::pool;
 
 //! (static) Factory
 FunctionCallContext * FunctionCallContext::create(const EPtr<UserFunction> userFunction,const ObjPtr _caller){
-	FunctionCallContext * fcc=NULL;
+	FunctionCallContext * fcc=nullptr;
 	if(pool.empty()){
 		fcc=new FunctionCallContext();
 	}else{
@@ -74,8 +74,8 @@ void FunctionCallContext::initCaller(const ObjPtr _caller){
 
 
 void FunctionCallContext::reset(){
-	caller = NULL;
-	userFunction = NULL;
+	caller = nullptr;
+	userFunction = nullptr;
 	localVariables.clear();
 	while(!valueStack.empty())
 		stack_pop();
@@ -90,7 +90,7 @@ Object * FunctionCallContext::stack_popObject(){
 	Object * obj;
 	switch(entry.dataType){
 	case StackEntry::VOID:
-		obj = NULL;
+		obj = nullptr;
 		break;
 	case StackEntry::OBJECT_PTR:{
 		obj = entry.value.value_ObjPtr;
@@ -118,10 +118,10 @@ Object * FunctionCallContext::stack_popObject(){
 		break;
 	}
 	case StackEntry::UNDEFINED:{
-		return NULL;
+		return nullptr;
 	}
 	default:
-		obj = NULL;
+		obj = nullptr;
 	}
 	valueStack.pop_back();
 	return obj ? obj : Void::get();
@@ -169,7 +169,7 @@ Object * FunctionCallContext::stack_popObjectValue(){
 	}
 	case StackEntry::UNDEFINED:{
 		valueStack.pop_back();
-		return NULL;
+		return nullptr;
 	}
 	default:;
 	}

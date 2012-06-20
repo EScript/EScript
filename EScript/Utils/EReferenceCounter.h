@@ -33,18 +33,18 @@ class EReferenceCounter {
 
 		//! Increase the reference counter of @p o.
 		static inline void addReference(Obj_t * o)	{
-			if(o!=NULL)
+			if(o!=nullptr)
 				++o->refCounter;
 		}
 
 		//! Decrease the reference counter of @p o. If the counter is <= 0, the object is released.
 		static inline void removeReference(Obj_t * o){
-			if(o!=NULL && (--o->refCounter)==0)
+			if(o!=nullptr && (--o->refCounter)==0)
 				ObjReleaseHandler_T::release(o);
 		}
 		//! Decrease the reference counter of @p o. The object is never released.
 		static inline void decreaseReference(Obj_t * o){
-			if(o!=NULL)
+			if(o!=nullptr)
 				--o->refCounter;
 		}
 };

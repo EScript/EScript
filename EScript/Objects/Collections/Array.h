@@ -45,16 +45,16 @@ class Array : public Collection {
 	private:
 		static std::stack<Array *> pool;
 
-		Array(Type * type=NULL);
+		Array(Type * type=nullptr);
 
 		void init(const ParameterValues & p);
 		void init(size_t num,Object ** objs);
 		void init(size_t num,char ** strings);
 	public:
-		static Array * create(Type * type=NULL);
-		static Array * create(const ParameterValues & p,Type * type=NULL);
-		static Array * create(size_t num,Object ** objs,Type * type=NULL);
-		static Array * create(size_t num,char ** strings,Type * type=NULL);
+		static Array * create(Type * type=nullptr);
+		static Array * create(const ParameterValues & p,Type * type=nullptr);
+		static Array * create(size_t num,Object ** objs,Type * type=nullptr);
+		static Array * create(size_t num,char ** strings,Type * type=nullptr);
 		static void release(Array * b);
 		virtual ~Array();
 	//	@}
@@ -87,12 +87,12 @@ class Array : public Collection {
 		ObjRef & at(size_t idx)					{	return data.at(idx);	}
 		const ObjRef & at(size_t idx)const		{	return data.at(idx);	}
 		void append(Collection * c);
-		Object * back()const					{	return empty() ? NULL : (*(end()-1)).get();	}
+		Object * back()const					{	return empty() ? nullptr : (*(end()-1)).get();	}
 		bool empty() const						{	return data.empty();	}
 		iterator erase(iterator i)				{	return data.erase(i);	}
 		iterator erase(iterator i,iterator j)	{	return data.erase(i,j);	}
-		Object * front()const					{	return empty() ? NULL : (*(begin())).get();	}
-		Object * get(size_t index) const		{	return index<data.size() ?  data.at(index).get():NULL;	}
+		Object * front()const					{	return empty() ? nullptr : (*(begin())).get();	}
+		Object * get(size_t index) const		{	return index<data.size() ?  data.at(index).get():nullptr;	}
 		std::string implode(const std::string & delimiter=";");
 		void popBack()							{	data.pop_back();	}
 		void popFront()							{	data.erase(begin());	}
@@ -106,7 +106,7 @@ class Array : public Collection {
 		/// returns -1 if not found
 		int rt_indexOf(Runtime & runtime,ObjPtr search,size_t begin=0);
 		size_t rt_removeValue(Runtime & runtime,const ObjPtr value,const int limit=-1,const size_t begin=0);
-		void rt_sort(Runtime & runtime,Object * function=NULL,bool reverseOrder=false);
+		void rt_sort(Runtime & runtime,Object * function=nullptr,bool reverseOrder=false);
 		size_t size() const						{	return data.size();		}
 		Array * slice(int startIndex,int length);
 		void splice(int startIndex,int length,Array * replacement);

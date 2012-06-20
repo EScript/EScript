@@ -55,12 +55,12 @@ Iterator::~Iterator() {
 
 //! ---o
 Object * Iterator::key() {
-	return NULL;
+	return nullptr;
 }
 
 //! ---o
 Object * Iterator::value() {
-	return NULL;
+	return nullptr;
 }
 
 //! ---o

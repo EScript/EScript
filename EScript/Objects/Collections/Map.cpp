@@ -52,7 +52,7 @@ void Map::init(EScript::Namespace & globals) {
 
 	//! [ESMF] bool Collection.containsKey(Object)
 	ESMF_DECLARE(typeObject,Map,"containsKey",1,1,
-				Bool::create(self->getValue(parameter[0].toString())!=NULL))
+				Bool::create(self->getValue(parameter[0].toString())!=nullptr))
 
 	//! [ESMF] self Map.merge( Collection [,bool overwrite=true] )
 	ESMF_DECLARE(typeObject,Map,"merge",1,2,
@@ -120,18 +120,18 @@ void Map::swap(Map * other){
 
 //! ---|> Collection
 Object * Map::getValue(ObjPtr key) {
-	return key.isNull() ? NULL : getValue(key.toString());
+	return key.isNull() ? nullptr : getValue(key.toString());
 }
 
 
 Object * Map::getValue(const std::string & key) {
 	container_t::iterator it=data.find(key);
-	return it==data.end() ? NULL : (*it).second.value.get();
+	return it==data.end() ? nullptr : (*it).second.value.get();
 }
 
 Object * Map::getKeyObject(const std::string & key) {
 	container_t::iterator it=data.find(key);
-	return it==data.end() ? NULL : (*it).second.key.get();
+	return it==data.end() ? nullptr : (*it).second.key.get();
 }
 
 //! ---|> Collection
@@ -204,14 +204,14 @@ Map::MapIterator::~MapIterator() {
 
 //! ---|> [Iterator]
 Object * Map::MapIterator::key() {
-	if (end()) return NULL;
+	if (end()) return nullptr;
 	MapEntry & op=(*it).second;
 	return op.key.get();
 }
 
 //! ---|> [Iterator]
 Object * Map::MapIterator::value() {
-	if (end()) return NULL;
+	if (end()) return nullptr;
 	MapEntry & op=(*it).second;
 	return op.value.get();
 }

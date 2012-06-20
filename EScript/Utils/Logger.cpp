@@ -13,8 +13,8 @@ namespace EScript{
 // ------------------------------------------------
 // LoggerGroup
 void LoggerGroup::addLogger(const std::string & name,Logger * logger){
-	if(logger==NULL)
-		throw std::invalid_argument("addLogger(NULL)");
+	if(logger==nullptr)
+		throw std::invalid_argument("addLogger(nullptr)");
 	loggerRegistry[name] = logger;
 }
 
@@ -29,7 +29,7 @@ Logger * LoggerGroup::getLogger(const std::string & name){
 	if(lbIt!=loggerRegistry.end() && !(loggerRegistry.key_comp()(name, lbIt->first)) ){
 		return lbIt->second.get();
 	}
-	return NULL;
+	return nullptr;
 }
 
 //! ---|> Logger

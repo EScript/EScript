@@ -109,7 +109,7 @@ Collection::~Collection() {
 
 //! ---o
 Object * Collection::getValue(ObjPtr /*key*/) {
-	return NULL;
+	return nullptr;
 }
 
 //! ---o
@@ -126,7 +126,7 @@ void Collection::clear() {
 
 //! ---o
 Iterator * Collection::getIterator() {
-	return NULL;
+	return nullptr;
 }
 /**
  * ---o
@@ -141,7 +141,7 @@ Object * Collection::rt_findValue(Runtime & runtime,ObjPtr subject){
 			return key.detachAndDecrease();
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 /**
  * ---o
@@ -185,7 +185,7 @@ Object * Collection::rt_reduce(Runtime & runtime,ObjPtr function,ObjPtr initialV
 //! ---|> Object
 bool Collection::rt_isEqual(Runtime &runtime,const ObjPtr other){
 	Collection * c=other.toType<Collection>();
-	if (c==NULL || count()!=c->count() ) return false;
+	if (c==nullptr || count()!=c->count() ) return false;
 
 	bool b=true;
 	for(ERef<Iterator> it=getIterator(); !it->end() ;  it->next()){
@@ -212,9 +212,9 @@ Object * Collection::rt_map(Runtime & runtime,ObjPtr function, const ParameterVa
 	ERef<Collection> newCollectionRef = obj.toType<Collection>();
 	if(newCollectionRef.isNull()){
 		runtime.setException("Collection.map(..) No Contructor found!");
-		return NULL;
+		return nullptr;
 	}
-	obj = NULL;
+	obj = nullptr;
 
 	ParameterValues parameters(additionalValues.count()+2);
 	if(!additionalValues.empty())
@@ -226,7 +226,7 @@ Object * Collection::rt_map(Runtime & runtime,ObjPtr function, const ParameterVa
 		ObjRef value=it->value();
 		parameters.set(0,key);
 		parameters.set(1,value);
-		ObjRef newValue=runtime.executeFunction(function.get(),NULL,parameters);
+		ObjRef newValue=runtime.executeFunction(function.get(),nullptr,parameters);
 		if(!newValue.isNull())
 			newCollectionRef->setValue(key.get(),newValue.get());
 	}
@@ -237,7 +237,7 @@ Object * Collection::rt_map(Runtime & runtime,ObjPtr function, const ParameterVa
 Object * Collection::rt_extract(Runtime & runtime,StringId functionId,bool decision/*=true*/){
 	ERef<Iterator> it=getIterator();
 
-	ObjRef currentValue=NULL;
+	ObjRef currentValue=nullptr;
 	while (! it->end()) {
 		ObjRef value=it->value();
 

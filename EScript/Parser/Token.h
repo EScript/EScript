@@ -28,7 +28,7 @@ class Token:public EReferenceCounter<Token> {
 
 		template<class TokenType_t>
 		static bool isA(Token * t){
-			return t==NULL ? false : ( (TokenType_t::getTypeId() & t->typeId) == TokenType_t::getTypeId());
+			return t==nullptr ? false : ( (TokenType_t::getTypeId() & t->typeId) == TokenType_t::getTypeId());
 		}
 		template<class TokenType_t>
 		static bool isA(const _CountedRef<Token> & t){
@@ -36,11 +36,11 @@ class Token:public EReferenceCounter<Token> {
 		}
 		template<class TokenType_t>
 		static TokenType_t * cast(const _CountedRef<Token>  & t){
-			return isA<TokenType_t>(t) ? static_cast<TokenType_t*>(t.get()) :  NULL;
+			return isA<TokenType_t>(t) ? static_cast<TokenType_t*>(t.get()) :  nullptr;
 		}
 		template<class TokenType_t>
 		static TokenType_t * cast(Token * t){
-			return isA<TokenType_t>(t) ? static_cast<TokenType_t*>(t) : NULL ;
+			return isA<TokenType_t>(t) ? static_cast<TokenType_t*>(t) : nullptr ;
 		}
 // --------------
 
@@ -119,7 +119,7 @@ struct TEndScript :  public Token	{
 struct TStartBlock :  public Token {
 	static const uint32_t TYPE_ID=0x01 << 4;
 	static uint32_t getTypeId()			{	return TYPE_ID;	}
-	TStartBlock(AST::BlockExpr * _block=NULL) : Token(getTypeId()),block(_block) {}
+	TStartBlock(AST::BlockExpr * _block=nullptr) : Token(getTypeId()),block(_block) {}
 	void setBlock(AST::BlockExpr * _block)    	{   block=_block;   }
 	AST::BlockExpr * getBlock()const          	{   return block.get();   }
 	virtual std::string toString()const  	{   return "{"; }

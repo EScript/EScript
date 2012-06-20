@@ -17,7 +17,7 @@ class Exception : public ExtObject {
 		static void init(EScript::Namespace & globals);
 		// ----
 
-		explicit Exception(const std::string & msg,int line=0,Type * type=NULL);
+		explicit Exception(const std::string & msg,int line=0,Type * type=nullptr);
 		virtual ~Exception();
 
 		void setMessage(const std::string & newMessage)		{	msg=newMessage;	}

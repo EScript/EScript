@@ -22,7 +22,7 @@ void DefaultFileSystemHandler::dir(const std::string & dirname,std::list<std::st
 	if (!directoryHandle)
 		throw std::ios_base::failure( std::string("Could not open dir: '"+dirname+'\''));
 
-	for( dirent * entry=readdir(directoryHandle) ; entry!=NULL ; entry=readdir(directoryHandle)){
+	for( dirent * entry=readdir(directoryHandle) ; entry!=nullptr ; entry=readdir(directoryHandle)){
 		if(entry->d_name[0] == '.')
 			continue;
 

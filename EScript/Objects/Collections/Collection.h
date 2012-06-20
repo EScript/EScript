@@ -18,7 +18,7 @@ class Collection : public Object {
 		static Type * getTypeObject();
 		static void init(EScript::Namespace & globals);
 		// ---
-		Collection(Type * type=NULL);
+		Collection(Type * type=nullptr);
 		virtual ~Collection();
 
 		/// ---o

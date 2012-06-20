@@ -105,8 +105,8 @@ int main(int argc,char * argv[]) {
 	}
 
 	// --- cleanup
-	result.second=NULL;
-	rt=NULL;
+	result.second=nullptr;
+	rt=nullptr;
 
 #ifdef ES_DEBUG_MEMORY
 	Debug::showObjects();

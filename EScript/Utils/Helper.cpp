@@ -107,13 +107,13 @@ void assertParamCount_2(Runtime & runtime, int paramCount, int min, int max) {
 
 //! (static, internal) Non-inline part of assertType(...)
 void assertType_throwError(Runtime & runtime, const ObjPtr & obj,const char * className) {
-	runtime.throwException("Wrong object type: "+ (obj.isNull() ? std::string("NULL") : obj->toDbgString() )+ " is not of type "+className+'.');
+	runtime.throwException("Wrong object type: "+ (obj.isNull() ? std::string("nullptr") : obj->toDbgString() )+ " is not of type "+className+'.');
 }
 
 //! (static)
 ObjRef callMemberFunction(Runtime & rt, ObjPtr obj, StringId fnNameId, const ParameterValues & params) {
 	if (obj.isNull()) {
-		return NULL;
+		return nullptr;
 	}
 	return rt.executeFunction(obj->getAttribute(fnNameId).getValue(), obj.get(), params);
 }
@@ -125,17 +125,17 @@ ObjRef callMemberFunction(Runtime & rt, ObjPtr obj, const std::string & fnName, 
 
 //! (static)
 ObjRef callFunction(Runtime & rt, Object * function, const ParameterValues & params) {
-	if (function == NULL) {
-		return NULL;
+	if (function == nullptr) {
+		return nullptr;
 	}
-	return rt.executeFunction(function, NULL, params);
+	return rt.executeFunction(function, nullptr, params);
 }
 
 
 ////! (static)
 //void out(Object * obj) {
-//	if (obj == NULL) {
-//		std::cout << "NULL";
+//	if (obj == nullptr) {
+//		std::cout << "nullptr";
 //	} else {
 //		std::cout << obj->toString();
 //	}
@@ -148,7 +148,7 @@ ObjRef _eval(Runtime & runtime, const CodeFragment & code){
 	ERef<UserFunction> script = compiler.compile(code);
 	if(script.isNull())
 		return ObjRef();
-	return runtime.executeFunction(script.get(),NULL,ParameterValues());
+	return runtime.executeFunction(script.get(),nullptr,ParameterValues());
 }
 
 

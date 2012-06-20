@@ -35,8 +35,8 @@ class Parser {
 			ES_PROVIDES_TYPE_NAME(ParserException)
 
 			public:
-				explicit ParserException(const std::string  & _msg,Token * token=NULL):
-					Exception(_msg,  (token==NULL? -1 : token->getLine())) {
+				explicit ParserException(const std::string  & _msg,Token * token=nullptr):
+					Exception(_msg,  (token==nullptr? -1 : token->getLine())) {
 				}
 				explicit ParserException(const std::string  & _msg,const _CountedRef<Token> & token):
 					Exception(_msg,  (token.isNull() ? -1 : token->getLine())) {
@@ -44,7 +44,7 @@ class Parser {
 		};
 		//-----------
 
-		Parser(Logger * logger=NULL);
+		Parser(Logger * logger=nullptr);
 		~Parser();
 
 		ERef<AST::BlockExpr> parse(const CodeFragment & code);
@@ -55,13 +55,13 @@ class Parser {
 			AST::BlockExpr * rootBlock;
 			std::deque<AST::BlockExpr*> blocks; // used as a stack
 			CodeFragment code;
-			ParsingContext(Tokenizer::tokenList_t & _tokens,const CodeFragment & _code ) : tokens(_tokens),rootBlock(NULL),code(_code){}
+			ParsingContext(Tokenizer::tokenList_t & _tokens,const CodeFragment & _code ) : tokens(_tokens),rootBlock(nullptr),code(_code){}
 		};
 
 	private:
 
 		_CountedRef<Logger> logger;
-		void log(ParsingContext & ctxt,Logger::level_t messageLevel, const std::string & msg,const _CountedRef<Token> & token=NULL)const;
+		void log(ParsingContext & ctxt,Logger::level_t messageLevel, const std::string & msg,const _CountedRef<Token> & token=nullptr)const;
 
 		Tokenizer tokenizer;
 		void pass_1(ParsingContext & ctxt);
@@ -83,7 +83,7 @@ class Parser {
 		lValue_t getLValue(ParsingContext & ctxt,int from,int to,Object * & obj,StringId & identifier,Object * &indexExpression)const;
 		int findExpression(ParsingContext & ctxt,int cursor)const;
 
-		void throwError(ParsingContext & ctxt,const std::string & msg,Token * token=NULL)const;
+		void throwError(ParsingContext & ctxt,const std::string & msg,Token * token=nullptr)const;
 		void throwError(ParsingContext & ctxt,const std::string & msg,const _CountedRef<Token> & token)const	{	throwError(ctxt,msg,token.get());	}
 };
 }

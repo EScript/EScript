@@ -54,7 +54,7 @@ Token * Tokenizer::identifyStaticToken(StringId id){
 
 	}
 	tokenMap_t::const_iterator it=constants.find(id);
-	return it==constants.end() ? NULL : it->second.get();
+	return it==constants.end() ? nullptr : it->second.get();
 }
 
 //! (internal)
@@ -88,7 +88,7 @@ void Tokenizer::getTokens( const char * prog,tokenList_t & tokens){
 	Token * token;
 	do {
 		token = readNextToken(prog,cursor,line,startPos,tokens);
-		if (token!=NULL) {
+		if (token!=nullptr) {
 			token->setLine(line);
 			token->setStaringPos(startPos);
 			tokens.push_back(token);
@@ -127,7 +127,7 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_
 			cursor++;
 			if ( prog[cursor] =='/' && prog[cursor-1] =='*') {
 				cursor++;
-				return NULL;
+				return nullptr;
 				//return new TEndCommand(); // Sure of this?
 			}
 
@@ -142,7 +142,7 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_
 		cursor++;
 		while (true) {
 			if (prog[cursor]=='\0'||prog[cursor]=='\n')
-				return NULL;
+				return nullptr;
 			cursor++;
 		}
 	}
@@ -168,13 +168,13 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_
 		}
 		const StringId id(accum);
 		Token * o=identifyToken(id);
-		if (o!=NULL) {
+		if (o!=nullptr) {
 			return o->clone();
 		}else if (id==Consts::IDENTIFIER_LINE) { // __LINE__
 			return new TObject(Number::create(line));
 		}  else  {
 			const Operator *op=Operator::getOperator(id);
-			if (op!=NULL)
+			if (op!=nullptr)
 				return new TOperator(op);
 			return new TIdentifier(id);
 		}
@@ -227,11 +227,11 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_
 			//      break;
 		}
 		int size=accum.size();
-		const Operator * op=NULL;
+		const Operator * op=nullptr;
 		while (true) {
 			std::string ops=accum.substr(0,size);
 			op=Operator::getOperator(ops);
-			if (op!=NULL) {
+			if (op!=nullptr) {
 				cursor+=size;
 				//if(size>1) cursor--;
 				break;
@@ -244,8 +244,8 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_
 		}
 		// test for unary minus
 		if (op->getString()=="-") {
-			Token * last=tokens.size()>0?tokens.at(tokens.size()-1).get():NULL; // Bugfix[BUG:20090107]
-			if ( last==NULL ||
+			Token * last=tokens.size()>0?tokens.at(tokens.size()-1).get():nullptr; // Bugfix[BUG:20090107]
+			if ( last==nullptr ||
 					(!(dynamic_cast<TEndBracket *>(last) || dynamic_cast<TEndIndex *>(last)||
 					   dynamic_cast<TIdentifier *>(last) || dynamic_cast<TObject *>(last)))){
 //					dynamic_cast<Number *>(last)|| dynamic_cast<String *>(last)||dynamic_cast<Bool *>(last)))){
@@ -273,7 +273,7 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_
 				c=prog[cursor];
 				if (c==0)
 					throw(new Error(std::string("Unclosed String. 1")+s.str().substr(0,10),line));
-				else if (c=='0') // NULL
+				else if (c=='0') // nullptr
 					c='\0';
 				else if (c=='a') // BELL
 					c='\a';

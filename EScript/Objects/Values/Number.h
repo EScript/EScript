@@ -46,7 +46,7 @@ class Number : public Object {
 			return std::abs(v - u) <= std::numeric_limits<float>::epsilon() * std::min(std::abs(u), std::abs(v));
 		}
 
-		explicit Number(double value,Type * type=NULL,bool isReference=false);
+		explicit Number(double value,Type * type=nullptr,bool isReference=false);
 		virtual ~Number();
 
 		/**

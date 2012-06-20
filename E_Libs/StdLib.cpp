@@ -121,13 +121,13 @@ ObjRef StdLib::loadOnce(Runtime & runtime,const std::string & filename){
 
 	std::string condensedFilename( IO::condensePath(findFile(runtime,filename)) );
 	Map * m=dynamic_cast<Map*>(runtime.getAttribute(mapId).getValue());
-	if(m==NULL){
+	if(m==nullptr){
 		m=Map::create();
 		runtime.setAttribute(mapId, Attribute(m));
 	}
 	ObjRef obj=m->getValue(condensedFilename);
 	if(obj.toBool()){ // already loaded?
-		return NULL;
+		return nullptr;
 	}
 	m->setValue(String::create(condensedFilename),Bool::create(true));
 	return _loadAndExecute(runtime,condensedFilename);
@@ -157,7 +157,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	ES_FUNCTION_DECLARE(globals,"addSearchPath",1,1,{
 		static const StringId seachPathsId("__searchPaths");
 		Array * searchPaths = dynamic_cast<Array*>(runtime.getAttribute(seachPathsId).getValue());
-		if(searchPaths == NULL){
+		if(searchPaths == nullptr){
 			searchPaths = Array::create();
 			runtime.setAttribute(seachPathsId, Attribute(searchPaths));
 		}
@@ -171,7 +171,7 @@ void StdLib::init(EScript::Namespace * globals) {
 		if(!parameter[0]->toBool()){
 			runtime.setException(parameter.count()>1?parameter[1]->toString():"Assert failed.");
 		}
-		return NULL;
+		return nullptr;
 	})
 
 	//! [ESF]  string chr(number)
@@ -242,7 +242,7 @@ void StdLib::init(EScript::Namespace * globals) {
 		for(ParameterValues::const_iterator it=parameter.begin();it!=parameter.end();++it)
 			std::cout << (*it).toString();
 		std::cout.flush();
-		return NULL;
+		return nullptr;
 	})
 	
 	//! [ESF] void outln(...)
@@ -251,7 +251,7 @@ void StdLib::init(EScript::Namespace * globals) {
 			std::cout << (*it).toString();
 		std::cout << std::endl;
 		std::cout.flush();
-		return NULL;
+		return nullptr;
 	})
 
 	//!	[ESF]  BlockStatement parse(string) @deprecated
@@ -273,7 +273,7 @@ void StdLib::init(EScript::Namespace * globals) {
 			if (!(*it).isNull())
 				print_r((*it).get());
 		}
-		return NULL;
+		return nullptr;
 	})
 
 	//!	[ESF]  number system(command)
@@ -291,7 +291,7 @@ void StdLib::init(EScript::Namespace * globals) {
 			 std::copy(arg.begin(), arg.end(), argv[i]);
 			 argv[i][arg.length()] = '\0';
 		}
-		argv[argc] = NULL;
+		argv[argc] = nullptr;
 
 		Number * result = Number::create(execv(parameter[0]->toString().c_str(), argv));
 
@@ -304,7 +304,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	})
 
 	//! [ESF]  number time()
-	ESF_DECLARE(globals,"time",0,0,Number::create(static_cast<double>(time(NULL))))
+	ESF_DECLARE(globals,"time",0,0,Number::create(static_cast<double>(time(nullptr))))
 
 	//! [ESF]  string toJSON(obj[,formatted=true])
 	ESF_DECLARE(globals,"toJSON",1,2,String::create(JSON::toJSON(parameter[0].get(),parameter[1].toBool(true))))

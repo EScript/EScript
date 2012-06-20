@@ -74,7 +74,7 @@ const Operator * Operator::getOperator(StringId id) {
 		declareOperator(++p ,",");
 	}
 	operatorMap_t::const_iterator it=ops.find(id);
-	return  it==ops.end() ? NULL : &it->second;
+	return  it==ops.end() ? nullptr : &it->second;
 }
 
 //! (static)

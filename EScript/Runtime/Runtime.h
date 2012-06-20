@@ -105,7 +105,7 @@ class Runtime : public ExtObject  {
 		 * (otherwise, they are not handled and the program is likely to crash).
 		 * In all other situations try to use setException(...)
 		 */
-		void throwException(const std::string & s,Object * obj=NULL);
+		void throwException(const std::string & s,Object * obj=nullptr);
 
 	// 	@}
 

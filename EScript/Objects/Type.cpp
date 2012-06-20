@@ -10,11 +10,11 @@ namespace EScript{
 
 //! (static)
 Type * Type::getTypeObject(){
-	static Type * typeObject=NULL;
-	if(typeObject==NULL){
+	static Type * typeObject=nullptr;
+	if(typeObject==nullptr){
 		// This object defines the type of all 'Type' objects.
 		// It inherits from Object and the type of the object is defined by itself.
-		typeObject=new Type(Object::getTypeObject(),NULL);
+		typeObject=new Type(Object::getTypeObject(),nullptr);
 		typeObject->typeRef=typeObject;
 	}
 	return typeObject;
@@ -33,7 +33,7 @@ void Type::init(EScript::Namespace & globals) {
 		Type * baseType = parameter.count() == 0 ? ExtObject::getTypeObject() : assertType<Type>(runtime,parameter[0]);
 		if(!baseType->allowsUserInheritance()){
 			runtime.setException("Basetype '"+baseType->toString()+"' does not allow user inheritance.");
-			return NULL;
+			return nullptr;
 		}
 		Type * newType = new Type(baseType);
 		newType->allowUserInheritance(true); // user defined Types allow user inheritance per default.
@@ -76,7 +76,7 @@ Type::Type():
 Type::Type(Type * _baseType):
 		Object(Type::getTypeObject()),flags(0),baseType(_baseType) {
 
-	if(getBaseType()!=NULL)
+	if(getBaseType()!=nullptr)
 		getBaseType()->copyObjAttributesTo(this);
 	//ctor
 }
@@ -85,7 +85,7 @@ Type::Type(Type * _baseType):
 Type::Type(Type * _baseType,Type * typeOfType):
 		Object(typeOfType),flags(0),baseType(_baseType) {
 
-	if(getBaseType()!=NULL)
+	if(getBaseType()!=nullptr)
 		getBaseType()->copyObjAttributesTo(this);
 	//ctor
 }
@@ -110,7 +110,7 @@ Attribute * Type::findTypeAttribute(const StringId & id){
 	Type * t=this;
 	do{
 		Attribute * attr = t->attributes.accessAttribute(id);
-		if( attr != NULL ){
+		if( attr != nullptr ){
 			if( attr->isObjAttribute() ){
 				std::string message = "(findTypeAttribute) type-attribute expected but object-attribute found. ('";
 				message += id.toString() + "')\n" + typeAttrErrorHint;
@@ -119,8 +119,8 @@ Attribute * Type::findTypeAttribute(const StringId & id){
 			return attr;
 		}
 		t=t->getBaseType();
-	}while(t!=NULL);
-	return NULL;
+	}while(t!=nullptr);
+	return nullptr;
 }
 
 
@@ -128,17 +128,17 @@ Attribute * Type::findTypeAttribute(const StringId & id){
 Attribute * Type::_accessAttribute(const StringId & id,bool localOnly){
 	// is local attribute?
 	Attribute * attr = attributes.accessAttribute(id);
-	if(attr!=NULL || localOnly)
+	if(attr!=nullptr || localOnly)
 		return attr;
 
 	// try to find the attribute along the inherited path...
-	if(getBaseType()!=NULL){
+	if(getBaseType()!=nullptr){
 		attr = getBaseType()->findTypeAttribute(id);
-		if(attr!=NULL)
+		if(attr!=nullptr)
 			return attr;
 	}
 	// try to find the attribute from this type's type.
-	return getType()!=NULL ? getType()->findTypeAttribute(id) : NULL;
+	return getType()!=nullptr ? getType()->findTypeAttribute(id) : nullptr;
 }
 
 //! ---|> Object
@@ -184,10 +184,10 @@ void Type::collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs)
 
 //! ---|> Object
 bool Type::isA(Type * type) const {
-	if (type == NULL)
+	if (type == nullptr)
 		return false;
 
-	for(Type * t=getBaseType();t!=NULL;t=t->getBaseType()){
+	for(Type * t=getBaseType();t!=nullptr;t=t->getBaseType()){
 		if(t==type)
 			return true;
 	}

@@ -31,7 +31,7 @@ RuntimeInternals::RuntimeInternals(Runtime & rt) :
 }
 
 RuntimeInternals::~RuntimeInternals(){
-	declareConstant(globals.get(), "GLOBALS",NULL);
+	declareConstant(globals.get(), "GLOBALS",nullptr);
 }
 
 // -------------------------------------------------------------
@@ -109,7 +109,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 					}else if(attr->isPrivate() && fcc->getCaller()!=obj ) {
 						setException("Cannot access private attribute '"+instruction.getValue_Identifier().toString()+"' from outside of its owning object.");
 						break;
-					}else if(attr->isReference() && attr->getValue()!=NULL  ) {
+					}else if(attr->isReference() && attr->getValue()!=nullptr  ) {
 						attr->getValue()->_assignValue(value);
 						fcc->increaseInstructionCursor();
 						break;
@@ -139,7 +139,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				else warning */
 			ObjRef value = fcc->stack_popObjectValue();
 
-			Attribute * attr = NULL;
+			Attribute * attr = nullptr;
 			if( fcc->getCaller().isNotNull() ){
 				attr = fcc->getCaller()->_accessAttribute(instruction.getValue_Identifier(),false);
 			}
@@ -246,7 +246,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 		}
 		case Instruction::I_FIND_VARIABLE:{
 			/*	if caller.Identifier -> push (caller, caller.Identifier)
-				else push (GLOBALS, GLOBALS.Identifier) (or NULL,NULL + Warning) 	*/
+				else push (GLOBALS, GLOBALS.Identifier) (or nullptr,nullptr + Warning) 	*/
 			if(fcc->getCaller().isNotNull()){
 				const Attribute & attr = fcc->getCaller()->getAttribute(instruction.getValue_Identifier());
 				if(attr.isNotNull()){
@@ -270,7 +270,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 		}
 		case Instruction::I_GET_ATTRIBUTE:{
 			/*	pop Object
-				push Object.Identifier (or NULL + Warning)	*/
+				push Object.Identifier (or nullptr + Warning)	*/
 			ObjRef obj = fcc->stack_popObject();
 			const Attribute & attr = obj->getAttribute(instruction.getValue_Identifier());
 			if(attr.isNull()) {
@@ -287,7 +287,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 		}
 		case Instruction::I_GET_VARIABLE:{
 			/*	if caller.Identifier -> push (caller.Identifier)
-				else push (GLOBALS.Identifier) (or NULL + Warning) 	*/
+				else push (GLOBALS.Identifier) (or nullptr + Warning) 	*/
 			if(fcc->getCaller().isNotNull()){
 				const Attribute & attr = fcc->getCaller()->getAttribute(instruction.getValue_Identifier());
 				if(attr.isNotNull()){
@@ -352,7 +352,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			}else{
 				ObjPtr newObj = result.first;
 				if(newObj.isNull()){
-					if(state!=STATE_EXCEPTION) // if an exception occured in the constructor, the result may be NULL
+					if(state!=STATE_EXCEPTION) // if an exception occured in the constructor, the result may be nullptr
 						setException("Constructor did not create an Object."); //! \todo improve message!
 					break;
 				}
@@ -371,7 +371,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			/* 	jmpIfSet (uint32) targetAddress
 				-------------
 				pop (uint32) local variable index
-				jmp if variable != NULL */
+				jmp if variable != nullptr */
 			if( fcc->getLocalVariable( fcc->stack_popUInt32() ).isNotNull() )
 				fcc->setInstructionCursor( instruction.getValue_uint32() );
 			else
@@ -448,8 +448,8 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			continue;
 		}
 		case Instruction::I_RESET_LOCAL_VARIABLE:{
-			// $localVarId = NULL
-			fcc->assignToLocalVariable(instruction.getValue_uint32(), NULL);
+			// $localVarId = nullptr
+			fcc->assignToLocalVariable(instruction.getValue_uint32(), nullptr);
 			fcc->increaseInstructionCursor();
 			continue;
 		}
@@ -464,7 +464,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			const uint32_t properties = fcc->stack_popUInt32();
 			ObjRef obj = fcc->stack_popObject();
 			ObjRef value = fcc->stack_popObjectValue();
-			if( (properties & Attribute::OVERRIDE_BIT) && (obj->_accessAttribute(instruction.getValue_Identifier(),false) == NULL ) ) {
+			if( (properties & Attribute::OVERRIDE_BIT) && (obj->_accessAttribute(instruction.getValue_Identifier(),false) == nullptr ) ) {
 				warn("Attribute marked with @(override) does not override.");
 			}
 			if(!obj->setAttribute(instruction.getValue_Identifier(),Attribute(value,properties))){
@@ -513,7 +513,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				popActiveFCC();
 				fcc = getActiveFCC();
 				if(fcc.isNull())
-					return NULL;
+					return nullptr;
 				fcc->stack_pushObject(yIt.get());
 			}
 			break;
@@ -544,13 +544,13 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				} // execution stops here? Keep the exception-state and return;
 				else if(fcc->isExecutionStoppedAfterEnding()){
 					popActiveFCC();
-					return NULL;
+					return nullptr;
 				} // continue with the next fcc...
 				else{
 					popActiveFCC();
 					fcc = getActiveFCC();
 					if(fcc.isNull())
-						return NULL;
+						return nullptr;
 				}
 			}
 		} else if(getState()==STATE_EXITING){
@@ -559,13 +559,13 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				// execution stops here? Keep the exiting-state and return;
 				if(fcc->isExecutionStoppedAfterEnding()){
 					popActiveFCC();
-					return NULL;
+					return nullptr;
 				} // continue with the next fcc...
 				else{
 					popActiveFCC();
 					fcc = getActiveFCC();
 					if(fcc.isNull())
-						return NULL;
+						return nullptr;
 				}
 			}
 		}
@@ -587,7 +587,7 @@ RuntimeInternals::executeFunctionResult_t RuntimeInternals::startFunctionExecuti
 				std::ostringstream os;
 				os << "Too few parameters: Expected " << userFunction->getMinParamCount() << ", got " << params.size() << '.';
 				setException(os.str());
-				return std::make_pair(result.get(),static_cast<FunctionCallContext*>(NULL));
+				return std::make_pair(result.get(),static_cast<FunctionCallContext*>(nullptr));
 			}
 			ParameterValues::const_iterator paramsEnd;
 			const int maxParamCount = userFunction->getMaxParamCount();
@@ -637,7 +637,7 @@ RuntimeInternals::executeFunctionResult_t RuntimeInternals::startFunctionExecuti
 					std::ostringstream os;
 					os<<"Too few parameters: Expected " <<min<<", got "<<params.count()<<'.';
 					setException(os.str());
-					return std::make_pair(result.get(),static_cast<FunctionCallContext*>(NULL));
+					return std::make_pair(result.get(),static_cast<FunctionCallContext*>(nullptr));
 				} else  if (max>=0 && static_cast<int>(params.count())>max) {
 					std::ostringstream os;
 					os<<"Too many parameters: Expected " <<max<<", got "<<params.count()<<'.';
@@ -662,7 +662,7 @@ RuntimeInternals::executeFunctionResult_t RuntimeInternals::startFunctionExecuti
 				if(e){
 					setExceptionState(e);
 				}else{
-					const std::string message=(obj?obj->toString():"NULL");
+					const std::string message=(obj?obj->toString():"nullptr");
 					setException(message);
 				}
 			}  catch (...){
@@ -687,13 +687,13 @@ RuntimeInternals::executeFunctionResult_t RuntimeInternals::startFunctionExecuti
 		}
 	}
 
-	return std::make_pair(result.get(),static_cast<FunctionCallContext*>(NULL));
+	return std::make_pair(result.get(),static_cast<FunctionCallContext*>(nullptr));
 }
 
 
 //! (internal)
 RuntimeInternals::executeFunctionResult_t RuntimeInternals::startInstanceCreation(EPtr<Type> type,ParameterValues & params){ // add caller as parameter?
-	static const executeFunctionResult_t failureResult = std::make_pair(static_cast<Object*>(NULL),static_cast<FunctionCallContext*>(NULL));
+	static const executeFunctionResult_t failureResult = std::make_pair(static_cast<Object*>(nullptr),static_cast<FunctionCallContext*>(nullptr));
 	ObjRef createdObject;
 
 	// collect constructors
@@ -701,7 +701,7 @@ RuntimeInternals::executeFunctionResult_t RuntimeInternals::startInstanceCreatio
 	EPtr<Type> typeCursor = type;
 	do{
 		const Attribute * ctorAttr = typeCursor->_accessAttribute(Consts::IDENTIFIER_fn_constructor,true);
-		if(ctorAttr==NULL){
+		if(ctorAttr==nullptr){
 			typeCursor = typeCursor->getBaseType();
 			continue;
 		}// first constructor must not be private -- if it is not an attribute of the calling object or of a base class (needed for factory functions!)
@@ -740,18 +740,18 @@ RuntimeInternals::executeFunctionResult_t RuntimeInternals::startInstanceCreatio
 				fcc->stack_pushObject( *it );
 			fcc->enableAwaitingCaller();
 			fcc->markAsConstructorCall();
-			return std::make_pair(static_cast<Object*>(NULL),fcc);
+			return std::make_pair(static_cast<Object*>(nullptr),fcc);
 		}else{
 			createdObject = result.first;
 			if(createdObject.isNull()){
-				if(state!=STATE_EXCEPTION) // if an exception occured in the constructor, the result may be NULL
+				if(state!=STATE_EXCEPTION) // if an exception occured in the constructor, the result may be nullptr
 					setException("Constructor did not create an Object.");
 				return failureResult;
 			}
 
 			// init attribute
 			createdObject->_initAttributes(runtime);
-			return std::make_pair(createdObject.detachAndDecrease(),static_cast<FunctionCallContext*>(NULL));
+			return std::make_pair(createdObject.detachAndDecrease(),static_cast<FunctionCallContext*>(nullptr));
 		}
 	}
 	return failureResult;
@@ -892,20 +892,20 @@ void RuntimeInternals::initSystemFunctions(){
 				}
 				os << " but got " << parameter[parameter.size()-1]->toDbgString()<<".";
 				runtime.setException(os.str());
-				return static_cast<Object*>(NULL);
+				return static_cast<Object*>(nullptr);
 			}
 		};
 		systemFunctions[Consts::SYS_CALL_THROW_TYPE_EXCEPTION] = new Function(_::sysCall);
 	}
 	{	//! [ESMF] Void SYS_CALL_THROW( [value] )
 		struct _{
-			ESF( sysCall,0,1,(runtime._setExceptionState( parameter.count()>0 ? parameter[0] : Void::get() ),static_cast<Object*>(NULL)))
+			ESF( sysCall,0,1,(runtime._setExceptionState( parameter.count()>0 ? parameter[0] : Void::get() ),static_cast<Object*>(nullptr)))
 		};
 		systemFunctions[Consts::SYS_CALL_THROW] = new Function(_::sysCall);
 	}
 	{	//! [ESMF] Void SYS_CALL_EXIT( [value] )
 		struct _{
-			ESF( sysCall,0,1,(runtime._setExitState( parameter.count()>0 ? parameter[0] : Void::get() ),static_cast<Object*>(NULL)))
+			ESF( sysCall,0,1,(runtime._setExitState( parameter.count()>0 ? parameter[0] : Void::get() ),static_cast<Object*>(nullptr)))
 		};
 		systemFunctions[Consts::SYS_CALL_EXIT] = new Function(_::sysCall);
 	}
@@ -921,9 +921,9 @@ void RuntimeInternals::initSystemFunctions(){
 				}else {
 					it = callMemberFunction(runtime,parameter[0] ,Consts::IDENTIFIER_fn_getIterator,ParameterValues());
 				}
-				if(it==NULL){
+				if(it==nullptr){
 					runtime.setException("Could not get iterator from '" + parameter[0]->toDbgString() + '\'');
-					return NULL;
+					return nullptr;
 				}
 				return it.detachAndDecrease();
 			}
@@ -955,10 +955,10 @@ void RuntimeInternals::initSystemFunctions(){
 						}
 						os << " but got " << (*it)->toDbgString()<<".";
 						runtime.setException(os.str());
-						return static_cast<Object*>(NULL);
+						return static_cast<Object*>(nullptr);
 					}
 				}
-				return static_cast<Object*>(NULL);
+				return static_cast<Object*>(nullptr);
 			}
 		};
 		systemFunctions[Consts::SYS_CALL_TEST_ARRAY_PARAMETER_CONSTRAINTS] = new Function(_::sysCall);
@@ -973,7 +973,7 @@ void RuntimeInternals::stackSizeError(){
 
 //! (static)
 Object * RuntimeInternals::sysCall(uint32_t sysFnId,ParameterValues & params){
-	Function * fn = NULL;
+	Function * fn = nullptr;
 	if(sysFnId<systemFunctions.size()){
 		fn = systemFunctions.at(sysFnId).get();
 	}
@@ -981,9 +981,9 @@ Object * RuntimeInternals::sysCall(uint32_t sysFnId,ParameterValues & params){
 		std::ostringstream os;
 		os << "Unknown systemCall #"<<sysFnId<<'.';
 		runtime.setException(os.str());
-		return NULL;
+		return nullptr;
 	}
-	return fn->getFnPtr()(runtime,NULL,params);
+	return fn->getFnPtr()(runtime,nullptr,params);
 }
 
 void RuntimeInternals::warn(const std::string & s)const {

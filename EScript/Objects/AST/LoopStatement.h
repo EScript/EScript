@@ -18,17 +18,17 @@ class LoopStatement : public Object {
 
 		//! (static) Factory: for( @p initStmt; @p cond; @p increaseStmt) @p action
 		static LoopStatement * createForLoop(const Statement & _initStmt,ObjPtr cond,const Statement & increaseStmt,const Statement & action){
-			return new LoopStatement(_initStmt,cond,action,NULL,increaseStmt);
+			return new LoopStatement(_initStmt,cond,action,nullptr,increaseStmt);
 		}
 
 		//! (static) Factory: while( @p cond ) @p action
 		static LoopStatement * createWhileLoop(ObjPtr cond,const Statement & _action){
-			return new LoopStatement(Statement(),cond,_action,NULL,Statement());
+			return new LoopStatement(Statement(),cond,_action,nullptr,Statement());
 		}
 
 		//! (static) Factory: do @p action while( @p cond )
 		static LoopStatement * createDoWhileLoop(ObjPtr cond,const Statement & _action){
-			return new LoopStatement(Statement(),NULL,_action,cond,Statement());
+			return new LoopStatement(Statement(),nullptr,_action,cond,Statement());
 		}
 
 		virtual ~LoopStatement(){}

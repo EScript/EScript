@@ -15,11 +15,11 @@ namespace EScript{
 
 //! (static)
 Type * Object::getTypeObject(){
-	static Type * typeObject=NULL;
-	if(typeObject==NULL){
+	static Type * typeObject=nullptr;
+	if(typeObject==nullptr){
 		// This object defines the basic type of all objects.
 		// It does not inherit from anything else, but the type object itself is of type 'Type'.
-		typeObject=new Type(NULL,NULL);
+		typeObject=new Type(nullptr,nullptr);
 		typeObject->typeRef=Type::getTypeObject();
 	}
 	return typeObject;
@@ -198,10 +198,10 @@ Object * Object::clone() const {
 
 //! ---o
 bool Object::isA(Type * type) const {
-	if (type == NULL)
+	if (type == nullptr)
 		return false;
 
-	for(Type * t=getType();t!=NULL;t=t->getBaseType()){
+	for(Type * t=getType();t!=nullptr;t=t->getBaseType()){
 		if(t==type)
 			return true;
 	}
@@ -218,7 +218,7 @@ std::string Object::toString()const {
 	// #PRINTABLENAME:TYPENAME:0x42342
 	std::ostringstream sprinter;
 	sprinter << "#";
-	if(printableName!=NULL)
+	if(printableName!=nullptr)
 		sprinter << printableName->toString() << ":";
 
 	sprinter << getTypeName()<<":"<<static_cast<const void*>(this);
@@ -289,21 +289,21 @@ bool Object::isIdentical(Runtime & rt,const ObjPtr o) {
 
 //! ---o
 Attribute * Object::_accessAttribute(const StringId & id,bool localOnly){
-	return (localOnly||getType()==NULL) ? NULL : getType()->findTypeAttribute(id);
+	return (localOnly||getType()==nullptr) ? nullptr : getType()->findTypeAttribute(id);
 }
 
 const Attribute & Object::getLocalAttribute(const StringId & id)const{
 	static const Attribute noAttribute;
 	Object * nonConstThis = const_cast<Object*>(this);
 	const Attribute * attr = nonConstThis->_accessAttribute(id,true);
-	return attr == NULL ? noAttribute : *attr;
+	return attr == nullptr ? noAttribute : *attr;
 }
 
 const Attribute & Object::getAttribute(const StringId & id)const{
 	static const Attribute noAttribute;
 	Object * nonConstThis = const_cast<Object*>(this);
 	const Attribute * attr = nonConstThis->_accessAttribute(id,false);
-	return attr == NULL ? noAttribute : *attr;
+	return attr == nullptr ? noAttribute : *attr;
 }
 
 //! ---o

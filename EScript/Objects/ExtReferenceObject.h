@@ -21,7 +21,7 @@ class StoreAttrsInEObject_Policy{
 		AttributeContainer attributeContainer;
 	protected:
 		/*!	(static) Returns a pointer to the object's attributeContainer. If @param create is 'false' and
-			the object has no attributeContainer, the function returns NULL. If @param create is 'true' and no
+			the object has no attributeContainer, the function returns nullptr. If @param create is 'true' and no
 			attributeContainer exists, a new one is created, so that always an valid container is returned. */
 		static AttributeContainer * getAttributeContainer(StoreAttrsInEObject_Policy * obj,bool /*create*/){
 			return &(obj->attributeContainer);
@@ -50,10 +50,10 @@ class ExtReferenceObject : public Object, private attributeProvider {
 		typedef ExtReferenceObject<_T,comparisonPolicy,attributeProvider> ExtReferenceObject_t;
 
 		// ---
-		ExtReferenceObject(const _T & _obj, Type * type=NULL) :
+		ExtReferenceObject(const _T & _obj, Type * type=nullptr) :
 					Object(type), attributeProvider(), obj(_obj){
 
-			if(type!=NULL && !attributeProvider::areObjAttributesInitialized(this)){
+			if(type!=nullptr && !attributeProvider::areObjAttributesInitialized(this)){
 				type->copyObjAttributesTo(this);
 			}
 
@@ -95,14 +95,14 @@ class ExtReferenceObject : public Object, private attributeProvider {
 		/// ---|> [Object]
 		virtual Attribute * _accessAttribute(const StringId & id,bool localOnly){
 			AttributeContainer * attrContainer = getAttributeContainer(this,false);
-			Attribute * attr = attrContainer!=NULL ? attrContainer->accessAttribute(id) : NULL;
-			return  ( attr!=NULL || localOnly || getType()==NULL) ? attr : getType()->findTypeAttribute(id);
+			Attribute * attr = attrContainer!=nullptr ? attrContainer->accessAttribute(id) : nullptr;
+			return  ( attr!=nullptr || localOnly || getType()==nullptr) ? attr : getType()->findTypeAttribute(id);
 		}
 
 		/// ---|> [Object]
 		virtual void _initAttributes(Runtime & rt){
 			// if the type contains obj attributes, this object will surely also have some, so it is safe to init the attribute container.
-			if(getType()!=NULL && getType()->getFlag(Type::FLAG_CONTAINS_OBJ_ATTRS) ){
+			if(getType()!=nullptr && getType()->getFlag(Type::FLAG_CONTAINS_OBJ_ATTRS) ){
 				getAttributeContainer(this,true)->initAttributes(rt);
 			}
 		}
@@ -116,7 +116,7 @@ class ExtReferenceObject : public Object, private attributeProvider {
 		/// ---|> [Object]
 		virtual void collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs){
 			AttributeContainer * attrContainer = getAttributeContainer(this,false);
-			if(attrContainer!=NULL)
+			if(attrContainer!=nullptr)
 				attrContainer->collectAttributes(attrs);
 		}
 	// @}

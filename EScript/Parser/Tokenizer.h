@@ -65,7 +65,7 @@ bool Tokenizer::isWhitechar(char c) const {
 	return (c=='\n'||c==' '||c=='\t'||c==13||c==3);
 }
 bool Tokenizer::isOperator(char c) const {
-	return strchr("+-/*|%&!<>=^.?:~@",c)!=NULL;
+	return strchr("+-/*|%&!<>=^.?:~@",c)!=nullptr;
 }
 }
 

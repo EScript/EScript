@@ -55,7 +55,7 @@ std::string Identifier::toString()const {
 //! ---|> [Object]
 bool Identifier::rt_isEqual(Runtime &,const ObjPtr o){
 	Identifier * other = o.toType<Identifier>();
-	return other == NULL ? false : other->getId() == this->getId();
+	return other == nullptr ? false : other->getId() == this->getId();
 }
 
 //! ---|> [Object]

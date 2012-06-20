@@ -58,7 +58,7 @@ class Map : public Collection {
 		static Map * create(const std::unordered_map<StringId,Object *> &);
 
 		// ---
-		Map(Type * type=NULL);
+		Map(Type * type=nullptr);
 		virtual ~Map();
 	//	@}
 

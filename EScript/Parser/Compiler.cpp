@@ -344,7 +344,7 @@ bool initHandler(handlerRegistry_t & m){
 				if( gAttr ){
 					const StringId & attrId = gAttr->getAttrId();
 
-					if(gAttr->getObjectExpression()==NULL){ // singleIdentifier (...)
+					if(gAttr->getObjectExpression()==nullptr){ // singleIdentifier (...)
 						const int localVarIndex = ctxt.getCurrentVarIndex(attrId);
 						if(localVarIndex>=0){
 							if( !self->isConstructorCall() ){ // constructor calls don't need a caller

@@ -59,7 +59,7 @@ void Number::init(EScript::Namespace & globals) {
 		const double d=parameter[0]->toDouble();
 		if (d==0){
 			runtime.setException("Division by zero");
-			return NULL;
+			return nullptr;
 		}
 		return  Number::create( caller->toDouble()/d);
 	})
@@ -78,7 +78,7 @@ void Number::init(EScript::Namespace & globals) {
 		const double d=parameter[0]->toDouble();
 		if (d==0){
 			runtime.setException("Modulo with zero");
-			return NULL;
+			return nullptr;
 		}
 		return  Number::create( self->modulo(d) );
 	})
@@ -121,7 +121,7 @@ void Number::init(EScript::Namespace & globals) {
 		const double d=parameter[0]->toDouble();
 		if (d==0){
 			runtime.setException("Division by zero");
-			return NULL;
+			return nullptr;
 		}
 		self->setValue(self->getValue()/d);
 		return self;
@@ -132,7 +132,7 @@ void Number::init(EScript::Namespace & globals) {
 		const double d=parameter[0]->toDouble();
 		if (d==0){
 			runtime.setException("Modulo with zero");
-			return NULL;
+			return nullptr;
 		}
 		self->setValue(self->modulo(d));
 		return self;
@@ -239,7 +239,7 @@ void Number::init(EScript::Namespace & globals) {
 		const double reference = parameter[0].toDouble();
 		if (reference==0){
 			runtime.setException("round with zero");
-			return NULL;
+			return nullptr;
 		}
 		return Number::create(round(caller->toDouble()/reference) * reference);
 	})
@@ -317,7 +317,7 @@ void Number::release(Number * n){
 
 //! (ctor)
 Number::Number(double _value,Type * type,bool isReference):
-	Object(type?type:getTypeObject()),valuePtr(NULL){
+	Object(type?type:getTypeObject()),valuePtr(nullptr){
 	if(!isReference)
 		doubleValue=_value;
 	//ctor

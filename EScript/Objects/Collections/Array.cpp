@@ -71,7 +71,7 @@ void Array::init(EScript::Namespace & globals) {
 
 	//! [ESMF] Obj Array.popBack();
 	ES_MFUNCTION_DECLARE(typeObject,Array,"popBack",0,0,{
-		if (self->count()==0) return NULL;
+		if (self->count()==0) return nullptr;
 		ObjRef oRef=self->back();
 		self->popBack();
 		return oRef.detachAndDecrease();
@@ -79,7 +79,7 @@ void Array::init(EScript::Namespace & globals) {
 
 	//! [ESMF] Obj Array.popFront();
 	ES_MFUNCTION_DECLARE(typeObject, Array, "popFront", 0,0, {
-		if (self->count()==0) return NULL;
+		if (self->count()==0) return nullptr;
 		ObjRef oRef=self->front();
 		self->popFront();
 		return oRef.detachAndDecrease();
@@ -129,7 +129,7 @@ void Array::init(EScript::Namespace & globals) {
 	ESMF_DECLARE(typeObject,Array,"sort",0,1,(self->rt_sort(runtime,parameter[0].get(),false),self))
 
 	//! [ESMF] self Array.splice( start,length [,Array replacement] );
-	ESMF_DECLARE(typeObject,Array,"splice",2,3,(self->splice(parameter[0].toInt(),parameter[1].toInt(),parameter.count()>2 ? assertType<Array>(runtime,parameter[2]) : NULL),self))
+	ESMF_DECLARE(typeObject,Array,"splice",2,3,(self->splice(parameter[0].toInt(),parameter[1].toInt(),parameter.count()>2 ? assertType<Array>(runtime,parameter[2]) : nullptr),self))
 
 	//! [ESMF] Array Array.slice( start,length );
 	ESMF_DECLARE(typeObject,Array,"slice",1,2,(self->slice(parameter[0].toInt(),parameter[1].toInt(0))))
@@ -148,8 +148,8 @@ std::stack<Array *> Array::pool;
 
 //! (static)
 Array * Array::create(Type * type){
-	Array * a=NULL;
-	if( !(type==NULL || type==Array::getTypeObject()) || pool.empty()){
+	Array * a=nullptr;
+	if( !(type==nullptr || type==Array::getTypeObject()) || pool.empty()){
 		a=new Array();
 	}else{
 		a=pool.top();
@@ -243,9 +243,9 @@ Object * Array::clone()const {
 
 /*!	---|> Collection*/
 Object * Array::getValue(ObjPtr key) {
-	if (key.isNull()) return NULL;
+	if (key.isNull()) return nullptr;
 	size_t  index=static_cast<size_t>(key->toInt());
-	if (index>=data.size()) return NULL;
+	if (index>=data.size()) return nullptr;
 	return data.at(index).get();
 }
 
@@ -344,7 +344,7 @@ std::string Array::implode(const std::string & delimiter/*=";"*/){
 }
 
 //! (implements quicksort)
-void Array::rt_sort(Runtime & runtime,Object * function/*=NULL*/,bool reverseOrder ) {
+void Array::rt_sort(Runtime & runtime,Object * function/*=nullptr*/,bool reverseOrder ) {
 	if (count()<=1) return;
 
 	//quicksort(runtime,0,count()-1);
@@ -365,11 +365,11 @@ void Array::rt_sort(Runtime & runtime,Object * function/*=NULL*/,bool reverseOrd
 
 			bool change=false;
 
-			if (di==NULL)
+			if (di==nullptr)
 				change=true;
-			else if (dr==NULL)
+			else if (dr==nullptr)
 				change=false;
-			else if (function!=NULL) { // comarement function given?
+			else if (function!=nullptr) { // comarement function given?
 //				executeFunction(const ObjPtr & fun,const ObjPtr & callingObject,const ParameterValues & params,bool isConstructor=false);
 				ObjRef result=callFunction(runtime,function,ParameterValues(di,dr));
 				if(!runtime.checkNormalState())
@@ -417,7 +417,7 @@ void Array::rt_filter(Runtime & runtime,ObjPtr function, const ParameterValues &
 }
 
 void Array::append(Collection * c){
-	if(c==NULL || c==this)
+	if(c==nullptr || c==this)
 		return;
 	size_t i=count();
 	resize( count()+c->count() );
@@ -450,7 +450,7 @@ void Array::splice(int startIndex,int length,Array * replacement){
 
 	// at the end?
 	if(startIndex>=static_cast<int>(data.size())){
-		if(replacement!=NULL)
+		if(replacement!=nullptr)
 			append(replacement);
 		return;
 	}
@@ -459,7 +459,7 @@ void Array::splice(int startIndex,int length,Array * replacement){
 	for(size_t i = 0;i<static_cast<size_t>(startIndex);++i){
 		tmp.push_back(data[i]);
 	}
-	if(replacement!=NULL){
+	if(replacement!=nullptr){
 		for (const_iterator it=replacement->begin();it!=replacement->end();++it) {
 			tmp.push_back( (*it)->getRefOrCopy() );
 		}
@@ -497,12 +497,12 @@ Array::ArrayIterator::~ArrayIterator() {
 
 //! ---|> [Iterator]
 Object * Array::ArrayIterator::key() {
-	return end() ? NULL : Number::create(index);
+	return end() ? nullptr : Number::create(index);
 }
 
 //! ---|> [Iterator]
 Object * Array::ArrayIterator::value() {
-	return end() ? NULL : arrayRef->data[index].get();
+	return end() ? nullptr : arrayRef->data[index].get();
 }
 
 //! ---|> [Iterator]
