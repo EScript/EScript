@@ -610,7 +610,7 @@ RuntimeInternals::executeFunctionResult_t RuntimeInternals::startFunctionExecuti
 				std::ostringstream os;
 				os<<"Too many parameters given: Expected "<<maxParamCount<<", got "<<params.size()<<'.';
 				warn(os.str());
-				paramsEnd = params.begin()+maxParamCount; // \todo c++11 std::next(...)
+				paramsEnd = std::next(params.begin(), maxParamCount);
 			} // normal parameter count range
 			else{
 				paramsEnd = params.end();
@@ -736,8 +736,9 @@ RuntimeInternals::executeFunctionResult_t RuntimeInternals::startInstanceCreatio
 		executeFunctionResult_t result = startFunctionExecution(fun,type.get(),params);
 		if(result.second){
 			FunctionCallContext * fcc = result.second;
-			for(std::vector<ObjPtr>::const_reverse_iterator it = constructors.rbegin();(it+1)!=constructors.rend();++it) //! \todo c++11 use std::next
-				fcc->stack_pushObject( *it );
+			for(std::vector<ObjPtr>::const_reverse_iterator it = constructors.rbegin(); std::next(it) != constructors.rend(); ++it) {
+				fcc->stack_pushObject(*it);
+			}
 			fcc->enableAwaitingCaller();
 			fcc->markAsConstructorCall();
 			return std::make_pair(static_cast<Object*>(nullptr),fcc);
