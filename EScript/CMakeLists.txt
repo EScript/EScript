@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.6.4)
+cmake_minimum_required(VERSION 2.8.6)
 
 option(BUILD_ESCRIPT_APPLICATION "Defines if the EScript application is built.")
 if(BUILD_ESCRIPT_APPLICATION)
@@ -11,10 +11,9 @@ if(BUILD_ESCRIPT_APPLICATION)
 		ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
 	)
 
-	get_property(OLD_COMPILE_FLAGS TARGET escript PROPERTY COMPILE_FLAGS)
 	if(COMPILER_SUPPORTS_CXX11)
-		set_property(TARGET escript PROPERTY COMPILE_FLAGS "${OLD_COMPILE_FLAGS} -std=c++11")
+		set_property(TARGET escript APPEND_STRING PROPERTY COMPILE_FLAGS "-std=c++11 ")
 	elseif(COMPILER_SUPPORTS_CXX0X)
-		set_property(TARGET escript PROPERTY COMPILE_FLAGS "${OLD_COMPILE_FLAGS} -std=c++0x")
+		set_property(TARGET escript APPEND_STRING PROPERTY COMPILE_FLAGS "-std=c++0x ")
 	endif()
 endif()
