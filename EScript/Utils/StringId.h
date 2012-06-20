@@ -19,15 +19,9 @@ class StringId{
 		StringId() : id(0) {}
 		explicit StringId( uint32_t _id) : id(_id) {}
 		/*implicit*/ StringId( const std::string & str) : id(stringToIdentifierId(str)) {}
-		StringId( const StringId & other) : id(other.id) {}
 
 		uint32_t getValue()const			{	return id;	}
 		const std::string & toString()const	{	return identifierIdToString(id);	}
-
-		StringId & operator=(const StringId & other){
-			id = other.id;
-			return *this;
-		}
 
 		StringId & operator=(const std::string & str){
 			id = stringToIdentifierId(str);
