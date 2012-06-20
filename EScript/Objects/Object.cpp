@@ -210,9 +210,7 @@ bool Object::isA(Type * type) const {
 
 //! ---o
 std::string Object::toString()const {
-
-	//! \todo fixme! Remove the const_cast! Why is getAttribute(...) not const?????
-	const Object * printableName = const_cast<Object*>(this)->getAttribute(Consts::IDENTIFIER_attr_printableName).getValue();
+	const Object * printableName = getAttribute(Consts::IDENTIFIER_attr_printableName).getValue();
 
 	// #TYPENAME:0x42342
 	// #PRINTABLENAME:TYPENAME:0x42342
