@@ -35,7 +35,7 @@ class Runtime : public ExtObject  {
 	/// @name Main
 	// 	@{
 	private:
-		std::auto_ptr<RuntimeInternals> internals;
+		std::unique_ptr<RuntimeInternals> internals;
 	public:
 		Runtime();
 		virtual ~Runtime();

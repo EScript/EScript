@@ -9,7 +9,7 @@
 #include <memory>
 namespace EScript{
 namespace IO{
-std::auto_ptr<AbstractFileSystemHandler> fileSystemHandler(new DefaultFileSystemHandler);
+std::unique_ptr<AbstractFileSystemHandler> fileSystemHandler(new DefaultFileSystemHandler);
 }
 
 //! (static)
