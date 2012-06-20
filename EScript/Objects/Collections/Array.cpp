@@ -212,25 +212,21 @@ Array::~Array() {
 }
 
 //! (internal)
-void Array::init(const ParameterValues & p){
-	resize(p.count());
-	size_t i=0;
-	for(const auto & param : p) {
-		data[i++] = param;
-	}
+void Array::init(const ParameterValues & p) {
+	data.assign(std::begin(p), std::end(p));
 }
 
 /*!	(internal)*/
-void Array::init(size_t num,Object ** objs) {
-	resize(num);
-	for(size_t i=0;i<num;++i)
-		data[i]=objs[i];
+void Array::init(size_t num, Object ** objs) {
+	data.assign(objs, objs + num);
 }
 /*!	(internal)*/
-void Array::init(size_t num,char ** strings) {
-	resize(num);
-	for(size_t i=0;i<num;++i)
-		data[i]=String::create(strings[i]);
+void Array::init(size_t num, char ** strings) {
+	data.clear();
+	data.reserve(num);
+	for(size_t i = 0; i < num; ++i) {
+		data.emplace_back(String::create(strings[i]));
+	}
 }
 
 //! ---|> [Object]
