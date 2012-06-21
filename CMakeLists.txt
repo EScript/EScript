@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.6)
+cmake_minimum_required(VERSION 2.8.8)
 project(EScript CXX)
 
 set(ESCRIPT_VERSION_MAJOR 0)
@@ -115,12 +115,15 @@ install(TARGETS EScript EXPORT LibraryExport
 # Library export
 install(EXPORT LibraryExport DESTINATION ${CMAKECONFIG_INSTALL_DIR} FILE EScriptTargets.cmake)
 
-# Set relative path of EScriptConfig.cmake to the install directory. Used in EScriptConfig.cmake.
-file(RELATIVE_PATH relInstallDir ${CMAKE_INSTALL_PREFIX}/${CMAKECONFIG_INSTALL_DIR} ${CMAKE_INSTALL_PREFIX})
-
 # Create the configuration files
-configure_file(EScriptConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/EScriptConfig.cmake @ONLY)
-configure_file(EScriptConfigVersion.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/EScriptConfigVersion.cmake @ONLY)
+include(CMakePackageConfigHelpers)
+configure_package_config_file(EScriptConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/EScriptConfig.cmake
+                              INSTALL_DESTINATION ${CMAKECONFIG_INSTALL_DIR}
+                              PATH_VARS INCLUDE_INSTALL_DIR CMAKECONFIG_INSTALL_DIR
+                              NO_CHECK_REQUIRED_COMPONENTS_MACRO)
+write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/EScriptConfigVersion.cmake
+                                 VERSION ${ESCRIPT_VERSION}
+                                 COMPATIBILITY SameMajorVersion)
 
 # Install the configuration files
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/EScriptConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/EScriptConfigVersion.cmake
