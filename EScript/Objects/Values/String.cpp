@@ -89,10 +89,13 @@ void String::init(EScript::Namespace & globals) {
 		const string & s(self->getString());
 		std::ostringstream sprinter;
 		sprinter<<s;
-		string fill=parameter[1].toString(" ");
-		int count=(parameter[0].toInt()-s.length())/(fill.length()>0?fill.length():0);
-		for(int i=0;i<count;++i)
-			sprinter<<fill;
+		const std::string fill=parameter[1].toString(" ");
+		if(!fill.empty()){
+			const int count = (parameter[0].toInt()-s.length())/fill.length();
+			for(int i=0;i<count;++i)
+				sprinter<<fill;
+			
+		}
 		return String::create(sprinter.str());
 	})
 

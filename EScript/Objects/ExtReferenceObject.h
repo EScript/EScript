@@ -77,6 +77,8 @@ class ExtReferenceObject : public Object, private attributeProvider {
 	public:
 		inline const _T & ref() const 						{	return obj;	}
 		inline _T & ref()  									{	return obj;	}
+		inline const _T & operator*()const					{	return obj;	}
+		inline _T & operator*()								{	return obj;	}
 
 	private:
 		_T obj;
