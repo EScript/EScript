@@ -50,6 +50,9 @@ class ReferenceObject : public Object {
 		inline const _T & ref() const 						{	return obj;	}
 		inline _T & ref()  									{	return obj;	}
 
+		inline const _T & operator*()const					{	return obj;	}
+		inline _T & operator*()								{	return obj;	}
+
 		/*! ---|> [Object]
 			Direct cloning of a ReferenceObject is forbidden; but you may override the clone function in the specific implementation */
 		virtual ReferenceObject_t * clone()const {
