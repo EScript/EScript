@@ -64,12 +64,15 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				return result.detachAndDecrease();
 			}
 			popActiveFCC();
+
+			const bool useResultAsCaller = fcc->isProvidingCallerAsResult();// providesCaller
+			
 			fcc = getActiveFCC();
 			if(fcc.isNull()){ //! just to be safe (should never occur)
 				return result.detachAndDecrease();
 			}
 
-			if(fcc->isAwaitingCaller()){
+			if(useResultAsCaller){
 				fcc->initCaller(result);
 			}else{
 				fcc->stack_pushObject(result);
@@ -84,6 +87,8 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 
 		const Instruction & instruction = *fcc->getInstructionCursor();
 
+//		std::cout << "---\n";
+//		std::cout << fcc->getCaller().toString()<<"\n";
 //		std::cout << fcc->stack_toDbgString()<<"\n";
 //		std::cout << instruction.toString(fcc->getInstructionBlock())<<"\n";
 
@@ -191,20 +196,20 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 		case Instruction::I_CREATE_INSTANCE:{
 			/*	create (uint32_t) numParams
 				-------------
-				pop numParams * parameters
+				pop numParams many parameters
 				pop object
 				call object._constructor
 				push result (or jump to exception point)	*/
 
 
-			// get the parameters for the first constructor
+			// pop the parameters for the first constructor
 			const uint32_t numParams = instruction.getValue_uint32();
 			ParameterValues params(numParams);
 			for(int i=numParams-1;i>=0;--i ){
 				params.set(i,fcc->stack_popObjectValue());
 			}
 
-			// collect constructor functions
+			// pop objects whose constructor is called
 			ObjRef caller = fcc->stack_popObject();
 			EPtr<Type> type = caller.toType<Type>();
 			if(type.isNull()){
@@ -212,12 +217,13 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				break;
 			}
 
+			// start instance creation
 			executeFunctionResult_t result = startInstanceCreation(type,params);
 			fcc->increaseInstructionCursor();
-			if(result.second){
+			if(result.second){ // user constructor?
 				fcc = result.second;
 				pushActiveFCC(fcc);
-			}else{
+			}else{ // direct call to c++ constructor
 				fcc->stack_pushObject(result.first);
 			}
 
@@ -317,7 +323,50 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 		case Instruction::I_INIT_CALLER:{
 			const uint32_t numParams = instruction.getValue_uint32();
 
-			if(fcc->stack_empty()){ // no constructor call
+			if(fcc->isConstructorCall()){
+						
+				// pop super constructor parameters
+				ParameterValues params(numParams);
+				for(int i=numParams-1;i>=0;--i ){
+					params.set(i,fcc->stack_popObjectValue());
+				}
+
+				// pop next super constructor
+				ObjRef superConstructor = fcc->stack_popObjectValue();
+
+				// pop remaining super constructors
+				std::vector<ObjPtr> constructors;
+				while(!fcc->stack_empty()){
+					constructors.push_back(fcc->stack_popObject());
+				}
+
+				// call next super constructor
+				executeFunctionResult_t result = startFunctionExecution(superConstructor,fcc->getCaller(),params);
+				fcc->increaseInstructionCursor();
+
+				if(result.second){
+					// pass remaining super constructors to new calling context
+					fcc = result.second;
+					pushActiveFCC(fcc);
+					for(std::vector<ObjPtr>::const_reverse_iterator it = constructors.rbegin();it!=constructors.rend();++it)
+						fcc->stack_pushObject( *it );
+					fcc->markAsConstructorCall(); // the result of the called super constructor should be used as this-object.
+					fcc->markAsProvidingCallerAsResult(); // providesCallerAsResult
+
+				}else{
+					ObjPtr newObj = result.first;
+					if(newObj.isNull()){
+						if(state!=STATE_EXCEPTION) // if an exception occured in the constructor, the result may be NULL
+							setException("Constructor did not create an Object."); //! \todo improve message!
+						break;
+					}
+					// init attributes
+					newObj->_initAttributes(runtime);
+					fcc->initCaller(newObj);
+				}
+
+				break;
+			}else{ // no constructor call
 				fcc->increaseInstructionCursor();
 				if(numParams>0){
 					warn("Calling constructor function with @(super) attribute as normal function.");
@@ -326,42 +375,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				continue;
 			}
 
-			// get super constructor parameters
-			ParameterValues params(numParams);
-			for(int i=numParams-1;i>=0;--i ){
-				params.set(i,fcc->stack_popObjectValue());
-			}
 
-			// call super constructor
-			ObjRef superConstructor = fcc->stack_popObjectValue();
-			executeFunctionResult_t result = startFunctionExecution(superConstructor,fcc->getCaller(),params);
-			fcc->increaseInstructionCursor();
-			std::vector<ObjPtr> constructors;
-			while(!fcc->stack_empty()){
-				constructors.push_back(fcc->stack_popObject());
-			}
-
-			if(result.second){
-				// pass remaining super constructors to new calling context
-				fcc = result.second;
-				pushActiveFCC(fcc);
-				for(std::vector<ObjPtr>::const_reverse_iterator it = constructors.rbegin();it!=constructors.rend();++it)
-					fcc->stack_pushObject( *it );
-				fcc->enableAwaitingCaller();
-				fcc->markAsConstructorCall();
-			}else{
-				ObjPtr newObj = result.first;
-				if(newObj.isNull()){
-					if(state!=STATE_EXCEPTION) // if an exception occured in the constructor, the result may be NULL
-						setException("Constructor did not create an Object."); //! \todo improve message!
-					break;
-				}
-				// init attributes
-				newObj->_initAttributes(runtime);
-				fcc->initCaller(newObj);
-			}
-
-			break;
 		}
 		case Instruction::I_JMP:{
 			fcc->setInstructionCursor( instruction.getValue_uint32() );
@@ -730,7 +744,7 @@ RuntimeInternals::executeFunctionResult_t RuntimeInternals::startInstanceCreatio
 	if(constructors.empty()) // failure
 		return failureResult;
 
-	{ // call the first constructor and pass the other constructor-functions by adding them to the stack
+	{ // call the outermost constructor and pass the other constructor-functions by adding them to the stack
 		ObjRef fun = constructors.front();
 
 		executeFunctionResult_t result = startFunctionExecution(fun,type.get(),params);
@@ -738,7 +752,6 @@ RuntimeInternals::executeFunctionResult_t RuntimeInternals::startInstanceCreatio
 			FunctionCallContext * fcc = result.second;
 			for(std::vector<ObjPtr>::const_reverse_iterator it = constructors.rbegin();(it+1)!=constructors.rend();++it) //! \todo c++11 use std::next
 				fcc->stack_pushObject( *it );
-			fcc->enableAwaitingCaller();
 			fcc->markAsConstructorCall();
 			return std::make_pair(static_cast<Object*>(NULL),fcc);
 		}else{

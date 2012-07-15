@@ -57,7 +57,7 @@ void FunctionCallContext::init(const EPtr<UserFunction> _userFunction,const ObjP
 	userFunction = _userFunction;
 	instructionCursor = getInstructions().begin();
 	constructorCall = false;
-	awaitsCaller = false;
+	providesCallerAsResult = false;
 	stopExecutionAfterEnding = false;
 	exceptionHandlerPos = Instruction::INVALID_JUMP_ADDRESS;
 
@@ -67,7 +67,6 @@ void FunctionCallContext::init(const EPtr<UserFunction> _userFunction,const ObjP
 	localVariables[Consts::LOCAL_VAR_INDEX_thisFn] = userFunction.get();
 }
 void FunctionCallContext::initCaller(const ObjPtr _caller){
-	awaitsCaller = false;
 	caller = _caller;
 	localVariables[Consts::LOCAL_VAR_INDEX_this] = caller;
 }
