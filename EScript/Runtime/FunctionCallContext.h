@@ -48,13 +48,12 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		void init(const EPtr<UserFunction> userFunction,const ObjPtr _caller);
 
 		bool constructorCall;
-		bool awaitsCaller;
+		bool providesCallerAsResult;
 		bool stopExecutionAfterEnding;  //! ... or otherwise, continue with the execution of the parent-context.
 	public:
-		/*! Marks that the return value of the next returning function call (emerging from this context) should
-			be used as this context's calling object. This is the case, if a constructor call has performed its initial steps
-			(e.g. test for parameter types), and now the superconstructor call is called to create the object. */
-		void enableAwaitingCaller()						{	awaitsCaller = true;	}
+		/*! Marks that the return value of the context should be used as the calling context's calling object. 
+			This is the case, if the context belongs to a superconstructor call. */
+		void markAsProvidingCallerAsResult()			{	providesCallerAsResult = true;	}
 		void enableStopExecutionAfterEnding()			{	stopExecutionAfterEnding = true;	}
 
 		ObjPtr getCaller()const    						{   return caller; }
@@ -71,9 +70,9 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 
 		//! Set the caller-object; the caller-member as well as the local-'this'-variable
 		void initCaller(const ObjPtr _caller);
-		bool isAwaitingCaller()const					{	return awaitsCaller;	}
 		bool isConstructorCall()const					{	return constructorCall;	}
 		bool isExecutionStoppedAfterEnding()const		{	return stopExecutionAfterEnding;	}
+		bool isProvidingCallerAsResult()const			{	return providesCallerAsResult;	}
 		void markAsConstructorCall()					{	constructorCall = true;	}
 		void setExceptionHandlerPos(const size_t p)		{	exceptionHandlerPos = p;	}
 		void setInstructionCursor(const size_t p){
