@@ -590,3 +590,30 @@
 	(17->f)();
 	test( "BUG[20120412]", GLOBALS.foo == 2 );
 }
+
+{ // Superconstructor parameters do not work together with user functions
+	var A = new Type();
+	A.userFunction ::= fn(){	return "foo";	};
+	A.result1 := void;
+	A.result2 := void;
+
+	A._constructor ::= fn(x,y){ result1 = x; result2 = y;	};
+
+
+	A.TypeWithUserConstructor := new Type();
+	A.TypeWithUserConstructor._constructor ::= fn(x){this.x:=x;};
+
+	var B = new Type(A);
+	B._constructor ::= fn()@(super( userFunction(),new TypeWithUserConstructor("bar") )){};
+
+
+	var b;
+	var errorFound = false;
+	try{
+		b = new B();
+	}catch(e){
+		errorFound = true;
+	}
+	test( "BUG[20120715]", !errorFound && b.result1=="foo" && b.result2.x=="bar" );
+}
+
