@@ -1028,6 +1028,13 @@ if(!benchmark)
 	test("@(init):", b.a == 17 && b.b==17 && b.c == [] && b.d.value==17  );
 }
 
+{	// raw strings & string concatenation
+	test("String literals", "foo" "" "bar" == "foobar" && "0" /*dumdidu*/ '1' "2" +"3" == "0123" && 
+R"(a\
+b
+c\n)" == "a\\\nb\nc\\n"	&& R"#(foo)#" == "foo" && R"Delimiter()Delimiter".empty());	
+}
+
 //
 //}
 //{

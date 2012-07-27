@@ -115,6 +115,38 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_
 	}
 	startPos = static_cast<size_t>(cursor);
 
+	// Raw strings:   R"Delimiter(my string dum di du)Delimiter"
+	if(c=='R' && prog[cursor+1]=='"' ) {
+		cursor+=2;
+		std::ostringstream delimiter;
+		delimiter << ')';
+		for(c=prog[cursor]; c!='('; ++cursor,c=prog[cursor]){
+			if(c==0)
+				throw new Error(std::string("Unclosed Raw String; missing '('."),line);
+			else if(isWhitechar(c))
+				throw new Error(std::string("No whitespace allowed in raw string delimiter."),line);
+			delimiter << c;
+		}
+		delimiter<<'"';
+		++cursor; // step over '('
+
+		const std::string d(delimiter.str());
+	
+		const int first = cursor;
+		size_t length = 0;
+		while(true){
+			c = prog[cursor];
+			if(c==')'&&StringUtils::beginsWith(prog+cursor,d.c_str())){
+				cursor+=d.length();
+				return new TObject(String::create(std::string(prog+first,length)));
+			}else if(c==0){
+				throw new Error(std::string("Unclosed Raw String; missing '"+d+"'"),line);
+			}
+			++cursor;
+			++length;
+		}
+	}
+
 	// Multiline Comment
 	// Returns 0 if a comment is read.
 	if (c=='/'&& prog[cursor+1]=='*') {
@@ -132,7 +164,7 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_
 			}
 
 			if (prog[cursor]=='\0')
-				throw(new Error("Unclosed Comment",line));
+				throw new Error("Unclosed Comment",line) ;
 
 		}
 	}

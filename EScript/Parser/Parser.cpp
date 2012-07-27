@@ -385,7 +385,27 @@ void Parser::pass_2(ParsingContext & ctxt,
 				currentBracket.pop();
 				continue;
 			}
-
+			// "part1" "part2"
+			case TObject::TYPE_ID:{
+				enrichedTokens.push_back(token);
+		
+				// no consecutive constants OR first one is not a string?
+				if( ctxt.tokens.at(cursor+1)->getType()!=TObject::TYPE_ID || 
+						Token::cast<TObject>(token)->obj->_getInternalTypeId()!=_TypeIds::TYPE_STRING ){
+					continue;
+				}
+				std::stringstream os;
+				String * firstString = Token::cast<TObject>(token)->obj.toType<String>();
+	
+				os << token->toString();
+				for(TObject * next=Token::cast<TObject>(ctxt.tokens.at(cursor+1)); 
+						next!=NULL && next->obj->_getInternalTypeId()==_TypeIds::TYPE_STRING;
+						++cursor, next = Token::cast<TObject>(ctxt.tokens.at(cursor+1))){
+					os << next->toString();	
+				}
+				firstString->setString(os.str());
+				continue;
+			}
 			/// fn(foo,bar){...}  ---> fn( (foo,bar){} )
 			case TOperator::TYPE_ID:{
 				enrichedTokens.push_back(token);
