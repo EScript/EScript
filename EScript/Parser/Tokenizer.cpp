@@ -300,6 +300,13 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_
 			throw(new Error(std::string("Unclosed String. 2")+s.str().substr(0,10),line));
 		cursor++;
 		return new TObject(String::create(s.str()));
+	}else if(line==1 && c=='#' &&  prog[cursor+1]=='!') {
+		cursor++;
+		while (true) {
+			if (prog[cursor]=='\0'||prog[cursor]=='\n')
+				return NULL;
+			cursor++;
+		}
 	}
 //        else if (c=='.') {
 //            //cursor++;
