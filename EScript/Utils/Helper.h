@@ -84,7 +84,6 @@ template<class T> static T * assertType(Runtime & runtime, const ObjPtr & obj) {
 }
 
 ObjRef callMemberFunction(Runtime & rt, ObjPtr obj, StringId fnNameId, const ParameterValues & params);
-ObjRef callMemberFunction(Runtime & rt, ObjPtr obj, const std::string & fnName, const ParameterValues & params);
 ObjRef callFunction(Runtime & rt, Object * function, const ParameterValues & params);
 
 /*! Compile and execute the given code and return the result.

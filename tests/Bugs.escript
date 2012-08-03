@@ -617,3 +617,24 @@
 	test( "BUG[20120715]", !errorFound && b.result1=="foo" && b.result2.x=="bar" );
 }
 
+{ 	// berliOS bug #18694 (https://developer.berlios.de/bugs/?func=detailbug&bug_id=18694&group_id=12246)
+	// internal call member functions do not check for nullptr. Result: segmentation 
+	// faults and undetected errors.
+	
+	var exceptionCount = 0;
+	try{
+		[new ExtObject(),new ExtObject()].sort(); // ExtObject has no '<' operator, so this should fail
+	}catch(e){
+		++exceptionCount;
+	}
+
+	try{
+		// ExtObject has no .getIterator attribute, this should fail and NOT throw
+		// a segmentation fault
+		foreach(new ExtObject() as var foo){}
+			
+	}catch(e){
+		++exceptionCount;
+	}
+	test( "BUG[20120803]", exceptionCount == 2 );
+}
