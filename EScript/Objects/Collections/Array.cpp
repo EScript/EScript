@@ -369,7 +369,7 @@ void Array::rt_sort(Runtime & runtime,Object * function/*=nullptr*/,bool reverse
 				change=true;
 			else if (dr==nullptr)
 				change=false;
-			else if (function!=nullptr) { // comarement function given?
+			else if (function!=nullptr) { // comparement function given?
 //				executeFunction(const ObjPtr & fun,const ObjPtr & callingObject,const ParameterValues & params,bool isConstructor=false);
 				ObjRef result=callFunction(runtime,function,ParameterValues(di,dr));
 				if(!runtime.checkNormalState())

@@ -111,24 +111,20 @@ void assertType_throwError(Runtime & runtime, const ObjPtr & obj,const char * cl
 }
 
 //! (static)
-ObjRef callMemberFunction(Runtime & rt, ObjPtr obj, StringId fnNameId, const ParameterValues & params) {
-	if (obj.isNull()) {
-		return nullptr;
-	}
-	return rt.executeFunction(obj->getAttribute(fnNameId).getValue(), obj.get(), params);
+ObjRef callMemberFunction(Runtime & runtime, ObjPtr obj, StringId fnNameId, const ParameterValues & params) {
+	if (obj.isNull())
+		runtime.throwException("Can not call member '"+fnNameId.toString()+"' function without object.");
+	const Attribute & fun = obj->getAttribute(fnNameId).getValue();
+	if (fun.isNull())
+		runtime.throwException("No member to call "+obj->toDbgString()+".'"+fnNameId.toString()+"'(...).");
+	return runtime.executeFunction(fun.getValue(), obj.get(), params);
 }
 
 //! (static)
-ObjRef callMemberFunction(Runtime & rt, ObjPtr obj, const std::string & fnName, const ParameterValues & params) {
-	return callMemberFunction(rt, obj, StringId(fnName), params);
-}
-
-//! (static)
-ObjRef callFunction(Runtime & rt, Object * function, const ParameterValues & params) {
-	if (function == nullptr) {
-		return nullptr;
-	}
-	return rt.executeFunction(function, nullptr, params);
+ObjRef callFunction(Runtime & runtime, Object * function, const ParameterValues & params) {
+	if (function == nullptr)
+		runtime.throwException("callFunction(nullptr): no function to call.");
+	return runtime.executeFunction(function, nullptr, params);
 }
 
 
