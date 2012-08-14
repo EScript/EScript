@@ -139,6 +139,8 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_
 			if(c==')'&&StringUtils::beginsWith(prog+cursor,d.c_str())){
 				cursor+=d.length();
 				return new TObject(String::create(std::string(prog+first,length)));
+			}else if(c=='\n'){
+				line++;
 			}else if(c==0){
 				throw new Error(std::string("Unclosed Raw String; missing '"+d+"'"),line);
 			}
