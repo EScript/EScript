@@ -636,5 +636,15 @@
 	}catch(e){
 		++exceptionCount;
 	}
-	test( "BUG[20120803]", exceptionCount == 2 );
+	
+}
+{	// line numbers are not counted in raw strings
+	var l1=__LINE__;
+	R"(+1
+	+2
+	+3
+	+4)";
+	var l2=__LINE__; // +5
+	
+	test( "BUG[20120814]", l2 == l1+5);
 }
