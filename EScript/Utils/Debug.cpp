@@ -27,14 +27,14 @@ void Debug::registerObj(Object * v) {
 	debug_objects_counter++;
 }
 void Debug::unRegisterObj(Object * v) {
-	debug_objects[reinterpret_cast<void *>(v)]=0;
+	debug_objects[reinterpret_cast<void *>(v)]=nullptr;
 	debug_objects_counter--;
 	//std::cout << "-"<<&debug_objects;
 }
 void Debug::showObjects() {
 	if (debug_objects_counter==0) return;
 	for(const auto & obj : debug_objects) {
-		if (obj.second==0)
+		if (obj.second==nullptr)
 			continue;
 		//<< (void*)(obj.second)
 		std::cout << " : "<< (obj.second)<< (obj.second)->toString();

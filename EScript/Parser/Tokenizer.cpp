@@ -338,7 +338,7 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_
 		cursor++;
 		while (true) {
 			if (prog[cursor]=='\0'||prog[cursor]=='\n')
-				return NULL;
+				return nullptr;
 			cursor++;
 		}
 	}

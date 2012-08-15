@@ -399,7 +399,7 @@ void Parser::pass_2(ParsingContext & ctxt,
 	
 				os << token->toString();
 				for(TObject * next=Token::cast<TObject>(ctxt.tokens.at(cursor+1)); 
-						next!=NULL && next->obj->_getInternalTypeId()==_TypeIds::TYPE_STRING;
+						next!=nullptr && next->obj->_getInternalTypeId()==_TypeIds::TYPE_STRING;
 						++cursor, next = Token::cast<TObject>(ctxt.tokens.at(cursor+1))){
 					os << next->toString();	
 				}

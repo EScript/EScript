@@ -210,7 +210,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	/*!	[ESF]  Map getDate([time])
 		like http://de3.php.net/manual/de/function.getdate.php	*/
 	ES_FUNCTION_DECLARE(globals,"getDate",0,1,{
-		time_t t=(parameter.count()==0)?time(0):static_cast<time_t>(parameter[0]->toInt());
+		time_t t=(parameter.count()==0)?time(nullptr):static_cast<time_t>(parameter[0]->toInt());
 		tm *d=localtime (& t );
 		Map * m=Map::create();
 		m->setValue(String::create("seconds"),Number::create(d->tm_sec));
