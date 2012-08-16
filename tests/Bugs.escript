@@ -690,3 +690,12 @@
 	if(errorsFound<4)
 		outln( "...", errorsFound,"/4");
 }
+{ // controls with empty values in brackets can not be parsed.
+	var errorsFound = 0;
+	try{
+		eval("		fn(){exit();};");
+	}catch(e){
+		++errorsFound;
+	}
+	test( "BUG[20120816]", errorsFound==0);
+}
