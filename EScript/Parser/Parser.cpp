@@ -512,10 +512,10 @@ Object * Parser::readExpression(ParsingContext & ctxt,int & cursor,int to)const 
 	else if (Token::isA<TStartBracket>(tokens.at(cursor)) &&
 			 Token::isA<TEndBracket>(tokens[to]) &&
 			 findCorrespondingBracket<TStartBracket,TEndBracket>(ctxt,cursor,to,1)==to) {
-
 		++cursor; // step over '('
 		Object * innerExpression=readExpression(ctxt,cursor,to-1);
-		++cursor; // step to ')'
+		if(innerExpression) // if expression is not empty
+			++cursor; // step to ')' 
 		return innerExpression;
 	}
 
