@@ -507,7 +507,9 @@ Object * Parser::readExpression(ParsingContext & ctxt,int & cursor,int to)const 
 	/// ---------------------
 	else if (Token::isA<TEndCommand>(tokens[to])) {
 		Object * e=readExpression(ctxt,cursor,to-1);
-		cursor = to;
+		++cursor;
+		if(cursor!=to)
+			throwError(ctxt,"Syntax error.",tokens.at(cursor));
 		return e;
 	}
 
@@ -520,7 +522,9 @@ Object * Parser::readExpression(ParsingContext & ctxt,int & cursor,int to)const 
 
 		++cursor;
 		Object * innerExpression=readExpression(ctxt,cursor,to-1);
-		cursor = to;
+		++cursor;
+		if (cursor!=to)
+			throwError(ctxt,"Syntax error.",tokens.at(cursor));
 		return innerExpression;
 	}
 
@@ -543,7 +547,7 @@ Object * Parser::readExpression(ParsingContext & ctxt,int & cursor,int to)const 
 	///    Syntax Error
 	/// --------------------
 	else {
-		throwError(ctxt,"Syntax error",tokens.at(cursor).get());
+		throwError(ctxt,"Syntax error",tokens.at(cursor));
 		return nullptr;
 	}
 }
@@ -852,7 +856,9 @@ Object * Parser::readBinaryExpression(ParsingContext & ctxt,int & cursor,int to)
 			throwError(ctxt,"Syntax error after '.'",tokens[opPosition]);
 		}
 		cursor = to;
-
+//		if (cursor!=to)
+//			throwError(ctxt,"Syntax error.",tokens.at(cursor));
+		
 		/// "a.b"
 		if (Token::isA<TIdentifier>(tokens[rightExprFrom])){
 			return new GetAttributeExpr(leftExpression,Token::cast<TIdentifier>(tokens[rightExprFrom])->getId());
@@ -905,16 +911,19 @@ Object * Parser::readBinaryExpression(ParsingContext & ctxt,int & cursor,int to)
 					throwError(ctxt,"Expected ]",tokens[opPosition]);
 				}
 			}
-			cursor = to;
-			return FunctionCallExpr::createSysCall( Consts::SYS_CALL_CREATE_ARRAY,
-												paramExps,currentLine);
+			if(cursor!=to)
+				throwError(ctxt,"Syntax error after Map constructor '['...']'.",tokens.at(to));
+			return FunctionCallExpr::createSysCall( Consts::SYS_CALL_CREATE_ARRAY,paramExps,currentLine);
 		}
 		/// Left expression present? -> Index Expression
 		/// "a[1]"
-		cursor=rightExprFrom;
+		cursor = rightExprFrom;
 		std::vector<ObjRef> paramExps;
 		paramExps.push_back(readExpression(ctxt,cursor));
-		cursor = to;
+		// cursor now points to ']'
+		++cursor;
+		if(cursor!=to)
+			throwError(ctxt,"Syntax error after index access '['...']'.",tokens.at(to));
 		return FunctionCallExpr::createFunctionCall(new GetAttributeExpr(leftExpression,Consts::IDENTIFIER_fn_get),
 										paramExps,currentLine);
 
@@ -933,34 +942,34 @@ Object * Parser::readBinaryExpression(ParsingContext & ctxt,int & cursor,int to)
 	else if (op->getString()=="new") {
 		++cursor;
 		if (leftExpression)
-			throwError(ctxt,"new is a unary left operator.",tokens.at(cursor));
+			throwError(ctxt,"'new' is a unary left operator.",tokens.at(cursor));
 
 		int objExprTo=to;
 
-		/// if new has paramteres "(...)", search for their beginning.
-		if (Token::isA<TEndBracket>(tokens[objExprTo])) {
+		/// if new has parameters "(...)", search for their beginning.
+		if (Token::isA<TEndBracket>(tokens[to])) {
 			objExprTo=findCorrespondingBracket<TEndBracket,TStartBracket>(ctxt,objExprTo,rightExprFrom,-1);
 		}
 		/// read parameters
 		std::vector<ObjRef> paramExp;
-		if (objExprTo>cursor) {
+		if (objExprTo<to) {
 			int cursor2=objExprTo;
 			readExpressionsInBrackets(ctxt,cursor2,paramExp);
 
-			objExprTo--; /// why ?????????????
+			objExprTo--; /// step over '('
 		}
 		/// read Object-expression
 		Object * obj=readExpression(ctxt,cursor,objExprTo);
-		cursor = to;
-
+		if(cursor!=objExprTo)
+			throwError(ctxt,"Syntax error.",tokens.at(cursor));
+		cursor = to; // set cursor at end of parameter list
 		return FunctionCallExpr::createConstructorCall(obj,paramExp,currentLine);
 	}
 	/// Function "fn(a,b){return a+b;}"
 	else if (op->getString()=="fn" ){//|| op->getString()=="lambda") {
 		ObjRef result=readFunctionDeclaration(ctxt,cursor);
-		if (cursor!=to)    {
+		if (cursor!=to)
 			throwError(ctxt,"[fn] Syntax error.",tokens.at(cursor));
-		}
 		return result.detachAndDecrease();
 	}
 
