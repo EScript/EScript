@@ -67,7 +67,7 @@ class Parser {
 		void pass_1(ParsingContext & ctxt);
 		void pass_2(ParsingContext & ctxt, Tokenizer::tokenList_t  & enrichedTokens)const;
 		AST::Statement readControl(ParsingContext & ctxt,int & cursor)const;
-		AST::Statement readStatement(ParsingContext & ctxt,int & cursor,int to=-1)const;
+		AST::Statement readStatement(ParsingContext & ctxt,int & cursor)const;
 		Object * readExpression(ParsingContext & ctxt,int & cursor,int to=-1)const;
 		Object * readBinaryExpression(ParsingContext & ctxt,int & cursor,int to)const;
 		AST::BlockExpr * readBlock(ParsingContext & ctxt,int & cursor)const ;
