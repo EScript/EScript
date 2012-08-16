@@ -159,21 +159,21 @@ void Parser::pass_1(ParsingContext & ctxt) {
 			}
 			case TEndBracket::TYPE_ID:{
 				if (!Token::isA<TStartBracket>(cbi.token)) {
-					throwError(ctxt,"Syntax Error: ')'",token);
+					throwError(ctxt,"Syntax error: ')'",token);
 				}
 				bInfStack.pop();
 				continue;
 			}
 			case TEndIndex::TYPE_ID:{
 				if (!Token::isA<TStartIndex>(cbi.token)) {
-					throwError(ctxt,"Syntax Error: ']'",token);
+					throwError(ctxt,"Syntax error: ']'",token);
 				}
 				bInfStack.pop();
 				continue;
 			}
 			case TEndBlock::TYPE_ID:{
 				if (!cbi.isCommandBlock) {
-					throwError(ctxt,"Syntax Error: '}'",token);
+					throwError(ctxt,"Syntax error: '}'",token);
 				}
 				/// BlockExpr is Map Constructor
 				if ( cbi.containsColon) {
@@ -208,7 +208,7 @@ void Parser::pass_1(ParsingContext & ctxt) {
 				if (cbi.shortIf>0) {
 					cbi.shortIf--;
 				} else if (cbi.containsCommands) {
-					throwError(ctxt,"Syntax Error in BlockExpr: ':'",token);
+					throwError(ctxt,"Syntax error in BlockExpr: ':'",token);
 				} else {
 					cbi.containsColon=true;
 					Token * t=new TMapDelimiter();
@@ -223,7 +223,7 @@ void Parser::pass_1(ParsingContext & ctxt) {
 				}
 			} else if (Token::isA<TEndCommand>(token)) {
 				if (cbi.containsColon) {
-					throwError(ctxt,"Syntax Error in Map: ';'",token);
+					throwError(ctxt,"Syntax error in Map: ';'",token);
 				}
 				cbi.containsCommands=true;
 				cbi.shortIf=0;
@@ -440,13 +440,8 @@ void Parser::pass_2(ParsingContext & ctxt,
 	}
 }
 
-/**
- *
- * Object * readExpression(...)
- *
- *
- * Cursor is moved to the last position of the Expression.
- *
+/*! read an expression
+ * \note @p cursor is moved to @p to, or an exception is thrown.
  */
 Object * Parser::readExpression(ParsingContext & ctxt,int & cursor,int to)const  {
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
@@ -508,8 +503,6 @@ Object * Parser::readExpression(ParsingContext & ctxt,int & cursor,int to)const 
 	else if (Token::isA<TEndCommand>(tokens[to])) {
 		Object * e=readExpression(ctxt,cursor,to-1);
 		++cursor;
-		if(cursor!=to)
-			throwError(ctxt,"Syntax error.",tokens.at(cursor));
 		return e;
 	}
 
@@ -520,11 +513,9 @@ Object * Parser::readExpression(ParsingContext & ctxt,int & cursor,int to)const 
 			 Token::isA<TEndBracket>(tokens[to]) &&
 			 findCorrespondingBracket<TStartBracket,TEndBracket>(ctxt,cursor,to,1)==to) {
 
-		++cursor;
+		++cursor; // step over '('
 		Object * innerExpression=readExpression(ctxt,cursor,to-1);
-		++cursor;
-		if (cursor!=to)
-			throwError(ctxt,"Syntax error.",tokens.at(cursor));
+		++cursor; // step to ')'
 		return innerExpression;
 	}
 
@@ -541,20 +532,23 @@ Object * Parser::readExpression(ParsingContext & ctxt,int & cursor,int to)const 
 	/// "3+foo"
 	/// --------------------------
 	if (Object * obj=readBinaryExpression(ctxt,cursor,to)) {
+		if (cursor!=to){
+			throwError(ctxt,"Syntax error in expression.",tokens.at(cursor));
+		}
 		return obj;
 	}
 
 	///    Syntax Error
 	/// --------------------
 	else {
-		throwError(ctxt,"Syntax error",tokens.at(cursor));
+		throwError(ctxt,"Syntax error.",tokens.at(cursor));
 		return NULL;
 	}
 }
 
 
 //! (internal)
-Statement Parser::readStatement(ParsingContext & ctxt,int & cursor,int to)const{
+Statement Parser::readStatement(ParsingContext & ctxt,int & cursor)const{
 
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	if (Token::isA<TControl>(tokens.at(cursor))) {
@@ -563,7 +557,7 @@ Statement Parser::readStatement(ParsingContext & ctxt,int & cursor,int to)const{
 	else if (Token::isA<TStartBlock>(tokens.at(cursor))) {
 		return Statement(Statement::TYPE_STATEMENT, readBlock(ctxt,cursor));
 	}else{
-		Object * exp=readExpression(ctxt,cursor,to);
+		Object * exp=readExpression(ctxt,cursor);
 		if(exp)
 			return Statement(Statement::TYPE_EXPRESSION,exp);
 		return Statement(Statement::TYPE_UNDEFINED);
@@ -621,7 +615,7 @@ BlockExpr * Parser::readBlock(ParsingContext & ctxt,int & cursor)const {
 		/// Commands have to end on ";" or "}".
 		if (!(Token::isA<TEndCommand>(tokens.at(cursor)) || Token::isA<TEndBlock>(tokens.at(cursor)))) {
 			log(ctxt,Logger::LOG_DEBUG, tokens.at(cursor)->toString(),tokens.at(cursor));
-			throwError(ctxt,"Syntax Error in BlockExpr.",tokens.at(cursor));
+			throwError(ctxt,"Syntax error in BlockExpr.",tokens.at(cursor));
 		}
 		++cursor;
 	}
@@ -685,14 +679,18 @@ Object * Parser::readMap(ParsingContext & ctxt,int & cursor)const  {
 			++cursor;
 			continue;
 		} else
-			throwError(ctxt,"Map Syntax Error",tokens.at(cursor));
+			throwError(ctxt,"Syntax error in Map.",tokens.at(cursor));
 	}
 
 	return FunctionCallExpr::createSysCall(Consts::SYS_CALL_CREATE_MAP,paramExp,currentLine);
 
 }
 
-/*!	Binary expression	*/
+/*!	read binary expression	
+	\note called by readExpression
+	\note If the syntax is correct, @p cursor equals @p to after returning. 
+			readExpression issues an SyntaxError otherwise.
+*/
 Object * Parser::readBinaryExpression(ParsingContext & ctxt,int & cursor,int to)const  {
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	int currentLine = tokens.at(cursor).isNull() ? -1 : tokens.at(cursor)->getLine();
@@ -853,24 +851,22 @@ Object * Parser::readBinaryExpression(ParsingContext & ctxt,int & cursor,int to)
 
 	/// "a.b.c"
 	if (op->getString()==".") {
-		if (rightExprFrom>to) {
+		cursor = rightExprFrom;
+		if (cursor>to) {
 			log(ctxt,Logger::LOG_DEBUG, "Error .1 ",tokens[opPosition]);
-			throwError(ctxt,"Syntax error after '.'",tokens[opPosition]);
+			throwError(ctxt,"Syntax error after '.'.",tokens[opPosition]);
 		}
-		cursor = to;
-//		if (cursor!=to)
-//			throwError(ctxt,"Syntax error.",tokens.at(cursor));
 		
 		/// "a.b"
-		if (Token::isA<TIdentifier>(tokens[rightExprFrom])){
-			return new GetAttributeExpr(leftExpression,Token::cast<TIdentifier>(tokens[rightExprFrom])->getId());
+		if (Token::isA<TIdentifier>(tokens[cursor])){
+			return new GetAttributeExpr(leftExpression,Token::cast<TIdentifier>(tokens[cursor])->getId());
 		}
 		/// "a.+"
-		else if (Token::isA<TOperator>(tokens[rightExprFrom])) {
-			return new GetAttributeExpr(leftExpression,Token::cast<TOperator>(tokens[rightExprFrom])->toString());
+		else if (Token::isA<TOperator>(tokens[cursor])) {
+			return new GetAttributeExpr(leftExpression,Token::cast<TOperator>(tokens[cursor])->toString());
 		}
-		else if(Token::isA<TObject>(tokens[rightExprFrom])){
-			Object * obj=Token::cast<TObject>(tokens[rightExprFrom])->obj.get();
+		else if(Token::isA<TObject>(tokens[cursor])){
+			Object * obj=Token::cast<TObject>(tokens[cursor])->obj.get();
 			/// "a.'+'"
 			if (String * s=dynamic_cast<String *>(obj)) {
 				return new GetAttributeExpr(leftExpression,s->toString());
@@ -880,7 +876,7 @@ Object * Parser::readBinaryExpression(ParsingContext & ctxt,int & cursor,int to)
 			}
 		}
 		log(ctxt,Logger::LOG_DEBUG, "Error .2 ",tokens[opPosition]);
-		throwError(ctxt,"Syntax error after '.'",tokens[opPosition]);
+		throwError(ctxt,"Syntax error after '.'.",tokens[opPosition]);
 	}
 	///  Function Call
 	/// "a(b)"  "a(1,2,3)"
@@ -889,9 +885,6 @@ Object * Parser::readBinaryExpression(ParsingContext & ctxt,int & cursor,int to)
 		std::vector<ObjRef> paramExp;
 		readExpressionsInBrackets(ctxt,cursor,paramExp);
 
-		if(cursor!=to){
-			throwError(ctxt,"Error after function call. Forgotten ';' ?",tokens.at(cursor));
-		}
 		FunctionCallExpr * funcCall = FunctionCallExpr::createFunctionCall(leftExpression,paramExp,currentLine);
 		return funcCall;
 	}
@@ -913,8 +906,6 @@ Object * Parser::readBinaryExpression(ParsingContext & ctxt,int & cursor,int to)
 					throwError(ctxt,"Expected ]",tokens[opPosition]);
 				}
 			}
-			if(cursor!=to)
-				throwError(ctxt,"Syntax error after Map constructor '['...']'.",tokens.at(to));
 			return FunctionCallExpr::createSysCall( Consts::SYS_CALL_CREATE_ARRAY,paramExps,currentLine);
 		}
 		/// Left expression present? -> Index Expression
@@ -924,8 +915,6 @@ Object * Parser::readBinaryExpression(ParsingContext & ctxt,int & cursor,int to)
 		paramExps.push_back(readExpression(ctxt,cursor));
 		// cursor now points to ']'
 		++cursor;
-		if(cursor!=to)
-			throwError(ctxt,"Syntax error after index access '['...']'.",tokens.at(to));
 		return FunctionCallExpr::createFunctionCall(new GetAttributeExpr(leftExpression,Consts::IDENTIFIER_fn_get),
 										paramExps,currentLine);
 
@@ -933,12 +922,12 @@ Object * Parser::readBinaryExpression(ParsingContext & ctxt,int & cursor,int to)
 	else if (op->getString()=="?") {
 		cursor=rightExprFrom;
 		Object * alt1=readExpression(ctxt,cursor);
-		++cursor;
+		++cursor; // step to ':'
 		if (!Token::isA<TColon>(tokens.at(cursor))) {
 			throwError(ctxt,"Expected ':'",tokens.at(cursor));
 		}
 		++cursor;
-		Object * alt2=readExpression(ctxt,cursor);
+		Object * alt2=readExpression(ctxt,cursor,to);
 		return new ConditionalExpr(leftExpression,alt1,alt2);
 	} /// new Object
 	else if (op->getString()=="new") {
@@ -962,8 +951,6 @@ Object * Parser::readBinaryExpression(ParsingContext & ctxt,int & cursor,int to)
 		}
 		/// read Object-expression
 		Object * obj=readExpression(ctxt,cursor,objExprTo);
-		if(cursor!=objExprTo)
-			throwError(ctxt,"Syntax error.",tokens.at(cursor));
 		cursor = to; // set cursor at end of parameter list
 		return FunctionCallExpr::createConstructorCall(obj,paramExp,currentLine);
 	}
@@ -1136,7 +1123,7 @@ Object * Parser::readFunctionDeclaration(ParsingContext & ctxt,int & cursor)cons
  * Reads a Control-Statement from tokens beginning at index "cursor".
  * Cursor is placed at the last Token of the statement.
  * @param tokens Program as Token-List.
- * @param curosr Cursor pointing at current Token.
+ * @param cursor Cursor pointing at current Token.
  * @return Control-statement or NULL if no Control-Statement could be read.
  */
 Statement Parser::readControl(ParsingContext & ctxt,int & cursor)const  {
@@ -1553,6 +1540,7 @@ int Parser::findExpression(ParsingContext & ctxt,int cursor)const {
 	int level=0;
 	int to=cursor-1;
 	int lastIdentifier=-10;
+	int cond=0; // number of open conditionals '?'
 
 	Token * t=NULL;
 	while (true) {
@@ -1601,7 +1589,7 @@ int Parser::findExpression(ParsingContext & ctxt,int cursor)const {
 			continue;
 		switch(t->getType()){
 			case TControl::TYPE_ID: {
-				if (Token::cast<TControl>(t)->getId()==Consts::IDENTIFIER_as) {
+				if(Token::cast<TControl>(t)->getId()==Consts::IDENTIFIER_as) {
 					to--;
 					return to;
 				}
@@ -1613,8 +1601,13 @@ int Parser::findExpression(ParsingContext & ctxt,int cursor)const {
 			case TDelimiter::TYPE_ID:
 			case TMapDelimiter::TYPE_ID:
 			case TColon::TYPE_ID:{
-				to--;
-				return to;
+				if(cond==0){
+					--to;
+					return to;
+				}else{
+					--cond;
+					continue;
+				}
 			}
 			case TIdentifier::TYPE_ID:{
 				if(lastIdentifier==to-1){
@@ -1622,6 +1615,11 @@ int Parser::findExpression(ParsingContext & ctxt,int cursor)const {
 					return to;
 				}
 				lastIdentifier=to;
+				continue;
+			}
+			case TOperator::TYPE_ID:{
+				if(Token::cast<TOperator>(t)->toString()=="?")
+					++cond;
 				continue;
 			}
 			default:{
@@ -1806,7 +1804,7 @@ void Parser::readProperties(ParsingContext & ctxt,int from,int to,properties_t &
 			++cursor; // skip ')'
 		}
 		if(cursor<=to && !Token::isA<TDelimiter>(tokens.at(cursor))){ // expect a delimiter or the end.
-			throwError(ctxt,"Syntax error in property",tokens.at(cursor));
+			throwError(ctxt,"Syntax error in property.",tokens.at(cursor));
 		}
 		properties.push_back( std::make_pair(tid->getId(),optionPos) );
 	}
