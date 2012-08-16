@@ -649,3 +649,44 @@
 	
 	test( "BUG[20120814]", l2 == l1+5);
 }
+
+{ // constructors shouldn't need parameters
+	var ok = true;
+	try{
+		eval(R"(
+			var A=new Type;
+			A.B := new Type;
+			new A.B;
+				
+		)");
+	}catch(e){
+		ok=false;
+	}
+	test( "BUG[20120815.1]", ok);
+}
+{ // tokens after attributes and arrays should not be ignored
+	var errorsFound = 0;
+	try{
+		eval("		Array.count 2 1 2 'foo' bla;	");
+	}catch(e){
+		++errorsFound;
+	}	
+	try{
+		eval("		fn( a = [2,3] foo 'bla' ){};	");
+	}catch(e){
+		++errorsFound;
+	}
+	try{
+		eval("		var a = [1,2] bla;	");
+	}catch(e){
+		++errorsFound;
+	}	
+	try{
+		eval("		var a = []; a[1] 'foo';	");
+	}catch(e){
+		++errorsFound;
+	}
+	test( "BUG[20120815.2]", errorsFound==4);
+	if(errorsFound<4)
+		outln( "...", errorsFound,"/4");
+}
