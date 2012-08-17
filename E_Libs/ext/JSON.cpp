@@ -6,7 +6,7 @@
 
 #include "../../EScript/EScript.h"
 #include "../../EScript/Utils/StringUtils.h"
-#include "../../EScript/Parser/Tokenizer.h"
+#include "../../EScript/Compiler/Tokenizer.h"
 
 namespace EScript{
 

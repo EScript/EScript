@@ -6,8 +6,8 @@
 
 #include "../EScript/EScript.h"
 #include "../EScript/Objects/Callables/UserFunction.h"
-#include "../EScript/Parser/Compiler.h"
-#include "../EScript/Parser/Parser.h"
+#include "../EScript/Compiler/Compiler.h"
+#include "../EScript/Compiler/Parser.h"
 #include "../EScript/Utils/IO/IO.h"
 #include "ext/JSON.h"
 
