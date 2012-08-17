@@ -5,17 +5,16 @@
 #include "Parser.h"
 #include "Tokenizer.h"
 #include "Operators.h"
-//#include "../EScript.h"
-#include "../Objects/AST/ControlStatements.h"
-#include "../Objects/AST/FunctionCallExpr.h"
-#include "../Objects/AST/GetAttributeExpr.h"
-#include "../Objects/AST/SetAttributeExpr.h"
-#include "../Objects/AST/IfStatement.h"
-#include "../Objects/AST/ConditionalExpr.h"
-#include "../Objects/AST/LogicOpExpr.h"
-#include "../Objects/AST/LoopStatement.h"
-#include "../Objects/AST/TryCatchStatement.h"
-#include "../Objects/AST/ValueExpr.h"
+#include "AST/ControlStatements.h"
+#include "AST/FunctionCallExpr.h"
+#include "AST/GetAttributeExpr.h"
+#include "AST/SetAttributeExpr.h"
+#include "AST/IfStatement.h"
+#include "AST/ConditionalExpr.h"
+#include "AST/LogicOpExpr.h"
+#include "AST/LoopStatement.h"
+#include "AST/TryCatchStatement.h"
+#include "AST/ValueExpr.h"
 #include "../Consts.h"
 
 #include "../Utils/IO/IO.h"
@@ -645,7 +644,7 @@ EPtr<AST::ASTNode> Parser::readMap(ParsingContext & ctxt,int & cursor)const  {
 
 	++cursor;
 
-	EPtr<AST::ASTNode> exp=nullptr;
+	EPtr<AST::ASTNode> exp;
 	ASTNode::refArray_t paramExp;
 	while (!Token::isA<TEndMap>(tokens.at(cursor))) {
 
@@ -749,8 +748,8 @@ EPtr<AST::ASTNode> Parser::readBinaryExpression(ParsingContext & ctxt,int & curs
 	/// -----------
 	if (op->getString()=="=") {
 		StringId memberIdentifier;
-		EPtr<AST::ASTNode> obj=nullptr;
-		EPtr<AST::ASTNode> indexExp=nullptr;
+		EPtr<AST::ASTNode> obj;
+		EPtr<AST::ASTNode> indexExp;
 		int lValueType=getLValue(ctxt,leftExprFrom,leftExprTo,obj,memberIdentifier,indexExp);
 
 		ERef<ASTNode> rightExpression=readExpression(ctxt,rightExprFrom,to);
@@ -830,9 +829,9 @@ EPtr<AST::ASTNode> Parser::readBinaryExpression(ParsingContext & ctxt,int & curs
 
 		}
 		StringId memberIdentifier;
-		EPtr<AST::ASTNode> obj=nullptr;
+		EPtr<AST::ASTNode> obj;
 
-		EPtr<AST::ASTNode> indexExp=nullptr;
+		EPtr<AST::ASTNode> indexExp;
 		const int lValueType=getLValue(ctxt,leftExprFrom,leftExprTo,obj,memberIdentifier,indexExp);
 
 		EPtr<AST::ASTNode> rightExpression=readExpression(ctxt,rightExprFrom,to);
@@ -1306,8 +1305,8 @@ EPtr<AST::ASTNode> Parser::readControl(ParsingContext & ctxt,int & cursor)const 
 			throwError(ctxt,"[foreach] expects as",tokens.at(cursor));
 		++cursor;
 
-		TIdentifier * valueIdent=nullptr;
-		TIdentifier * keyIdent=nullptr;
+		TIdentifier * valueIdent = nullptr;
+		TIdentifier * keyIdent = nullptr;
 		if (!(valueIdent=Token::cast<TIdentifier>(tokens.at(cursor))))
 			throwError(ctxt,"[foreach] expects Identifier-1",tokens.at(cursor));
 		++cursor;

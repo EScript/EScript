@@ -19,7 +19,6 @@ set(ESCRIPT_SOURCES
 	EScript/EScript.cpp
 	EScript/Instructions/InstructionBlock.cpp
 	EScript/Instructions/Instruction.cpp
-	EScript/Objects/AST/UserFunctionExpr.cpp
 	EScript/Objects/Callables/Delegate.cpp
 	EScript/Objects/Callables/Function.cpp
 	EScript/Objects/Callables/UserFunction.cpp
@@ -39,6 +38,7 @@ set(ESCRIPT_SOURCES
 	EScript/Objects/Values/String.cpp
 	EScript/Objects/Values/Void.cpp
 	EScript/Objects/YieldIterator.cpp
+	EScript/Parser/AST/UserFunctionExpr.cpp
 	EScript/Parser/CompilerContext.cpp
 	EScript/Parser/Compiler.cpp
 	EScript/Parser/Operators.cpp

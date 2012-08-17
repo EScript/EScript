@@ -5,7 +5,7 @@
 #ifndef TOKENS_H
 #define TOKENS_H
 
-#include "../Objects/AST/Block.h"
+#include "AST/Block.h"
 #include "../Utils/EReferenceCounter.h"
 #include "../Utils/Hashing.h"
 #include "../Utils/ObjRef.h"

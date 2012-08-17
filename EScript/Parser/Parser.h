@@ -9,7 +9,7 @@
 #include "Tokenizer.h"
 
 #include "../Objects/Exception.h"
-#include "../Objects/AST/UserFunctionExpr.h"
+#include "AST/UserFunctionExpr.h"
 #include "../Utils/Logger.h"
 
 #include <vector>
