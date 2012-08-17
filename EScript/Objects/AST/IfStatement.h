@@ -5,31 +5,27 @@
 #ifndef ES_IF_STAMTEN_H
 #define ES_IF_STAMTEN_H
 
-#include "../Object.h"
-#include "Statement.h"
+#include "ASTNode.h"
 
 namespace EScript {
 namespace AST {
 
-/*! [IfStatement]  ---|> [Object] */
-class IfStatement : public Object {
+/*! [IfStatement]  ---|> [ASTNode] */
+class IfStatement : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(IfStatement)
 	public:
-		IfStatement( Object * _condition, const Statement & _action,const Statement & _elseAction):
-			condition(_condition),action(_action),elseAction(_elseAction) {}
+		IfStatement( ptr_t _condition, ptr_t _action,ptr_t _elseAction):
+			ASTNode(TYPE_IF_STATEMENT,false),condition(_condition),actionStatement(_action),elseActionStatement(_elseAction) {}
 		virtual ~IfStatement() {}
 
-		ObjPtr getCondition()const				{	return condition;	}
-		const Statement & getAction()const		{	return action;	}
-		const Statement & getElseAction()const	{	return elseAction;	}
-
-		//! ---|> Object
-		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_IF_STATEMENT; }
+		ptr_t getCondition()const		{	return condition;	}
+		ptr_t getAction()const			{	return actionStatement;	}
+		ptr_t getElseAction()const		{	return elseActionStatement;	}
 
 	private:
-		ObjRef condition;
-		Statement action;
-		Statement elseAction;
+		ref_t condition;
+		ref_t actionStatement;
+		ref_t elseActionStatement;
 };
 }
 }

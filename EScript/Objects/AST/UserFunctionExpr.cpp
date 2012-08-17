@@ -3,14 +3,15 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "UserFunctionExpr.h"
-#include "BlockExpr.h"
+#include "Block.h"
 #include "../../EScript.h"
 #include <sstream>
 
 using namespace EScript;
+using namespace EScript::AST;
 
 //! (ctor) UserFunctionExpr::Parameter
-UserFunctionExpr::Parameter::Parameter(const StringId & _name,ObjPtr defaultValueExpression,std::vector<ObjRef> & _typeExpressions):
+UserFunctionExpr::Parameter::Parameter(const StringId & _name,ptr_t defaultValueExpression,refArray_t & _typeExpressions):
 		name(_name),defaultValueExpressionRef(defaultValueExpression),multiParam(false){
 
 	std::swap(_typeExpressions,typeExpressions);
@@ -21,8 +22,9 @@ UserFunctionExpr::Parameter::Parameter(const StringId & _name,ObjPtr defaultValu
 
 
 //! (ctor)
-UserFunctionExpr::UserFunctionExpr(AST::BlockExpr * block,const std::vector<ObjRef> & _sConstrExpressions,int _line):
-		ExtObject(), blockRef(block), sConstrExpressions(_sConstrExpressions),line(_line) {
+UserFunctionExpr::UserFunctionExpr(AST::Block * block,const refArray_t & _sConstrExpressions,int _line):
+		ASTNode(TYPE_USER_FUNCTION_EXPRESSION,true,_line), 
+		blockRef(block), sConstrExpressions(_sConstrExpressions) {
 	//ctor
 }
 

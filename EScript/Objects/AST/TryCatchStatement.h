@@ -5,31 +5,28 @@
 #ifndef TRY_CATCH_STATEMENT_H
 #define TRY_CATCH_STATEMENT_H
 
-#include "../Object.h"
-#include "BlockExpr.h"
+#include "ASTNode.h"
+#include "Block.h"
 
 namespace EScript {
 namespace AST {
 
-/*! [TryCatchStatement]  ---|> [Object] */
-class TryCatchStatement : public Object {
+/*! [TryCatchStatement]  ---|> [ASTNode] */
+class TryCatchStatement : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(TryCatchStatement)
 	public:
-		TryCatchStatement( EPtr<BlockExpr> _tryBlock, EPtr<BlockExpr> _catchBlock, StringId _exceptionVariableName) :
+		TryCatchStatement( ptr_t _tryBlock, ptr_t _catchBlock, StringId _exceptionVariableName) :
+				ASTNode(TYPE_TRY_CATCH_STATEMENT,false),
 				tryBlock(_tryBlock), catchBlock(_catchBlock), exceptionVariableName(_exceptionVariableName){}
 		virtual ~TryCatchStatement(){}
 
 		const StringId & getExceptionVariableName()const	{	return exceptionVariableName;	}
-		Statement getTryBlock()const						{	return Statement(Statement::TYPE_STATEMENT,tryBlock.get());	}
-		Statement getCatchBlock()const						{	return Statement(Statement::TYPE_STATEMENT,catchBlock.get());	}
-
-		//! ---|> Object
-		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_TRY_CATCH_STATEMENT; }
+		ptr_t getTryBlock()const							{	return tryBlock;	}
+		ptr_t getCatchBlock()const							{	return catchBlock;	}
 
 	private:
-		ObjRef conditionRef;
-		ERef<BlockExpr> tryBlock;
-		ERef<BlockExpr> catchBlock;
+		ref_t tryBlock;
+		ref_t catchBlock;
 		StringId exceptionVariableName;
 };
 }

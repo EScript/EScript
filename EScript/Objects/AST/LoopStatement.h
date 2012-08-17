@@ -5,52 +5,49 @@
 #ifndef ES_LOOP_EXPRESSION_H
 #define ES_LOOP_EXPRESSION_H
 
-#include "../Object.h"
-#include "Statement.h"
+#include "ASTNode.h"
 
 namespace EScript {
 namespace AST {
 
-/*! [LoopStatement]  ---|> [Object] */
-class LoopStatement : public Object {
+/*! [LoopStatement]  ---|> [ASTNode] */
+class LoopStatement : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(LoopStatement)
 	public:
 
 		//! (static) Factory: for( @p initStmt; @p cond; @p increaseStmt) @p action
-		static LoopStatement * createForLoop(const Statement & _initStmt,ObjPtr cond,const Statement & increaseStmt,const Statement & action){
+		static LoopStatement * createForLoop(ptr_t _initStmt,ptr_t cond,ptr_t increaseStmt,ptr_t action){
 			return new LoopStatement(_initStmt,cond,action,nullptr,increaseStmt);
 		}
 
 		//! (static) Factory: while( @p cond ) @p action
-		static LoopStatement * createWhileLoop(ObjPtr cond,const Statement & _action){
-			return new LoopStatement(Statement(),cond,_action,nullptr,Statement());
+		static LoopStatement * createWhileLoop(ptr_t cond,ptr_t _action){
+			return new LoopStatement(nullptr,cond,_action,nullptr,nullptr);
 		}
 
 		//! (static) Factory: do @p action while( @p cond )
-		static LoopStatement * createDoWhileLoop(ObjPtr cond,const Statement & _action){
-			return new LoopStatement(Statement(),nullptr,_action,cond,Statement());
+		static LoopStatement * createDoWhileLoop(ptr_t cond,ptr_t _action){
+			return new LoopStatement(nullptr,nullptr,_action,cond,nullptr);
 		}
 
 		virtual ~LoopStatement(){}
 
-		const Statement & getInitStatement()const			{	return initStmt;	}
-		ObjPtr getPreConditionExpression()const				{	return preConditionExpression;	}
-		const Statement & getAction()const					{	return action;	}
-		ObjPtr getPostConditionExpression()const			{	return postConditionExpression;	}
-		const Statement & getIncreaseStatement()const		{	return increaseStmt;	}
-
-		//! ---|> Object
-		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_LOOP_STATEMENT; }
+		ptr_t getInitStatement()const			{	return initStmt;	}
+		ptr_t getPreConditionExpression()const	{	return preConditionExpression;	}
+		ptr_t getAction()const					{	return actionStmt;	}
+		ptr_t getPostConditionExpression()const	{	return postConditionExpression;	}
+		ptr_t getIncreaseStatement()const		{	return increaseStmt;	}
 
 	private:
-		LoopStatement( const Statement & _initStmt,	ObjPtr _preConditionExpression, const Statement & _action, ObjPtr _postConditionExpression, const Statement & _increaseStmt) :
-				initStmt(_initStmt),preConditionExpression(_preConditionExpression),action(_action),postConditionExpression(_postConditionExpression),increaseStmt(_increaseStmt){}
+		LoopStatement( ptr_t _initStmt,	ptr_t _preConditionExpression, ptr_t _action, ptr_t _postConditionExpression, ptr_t _increaseStmt) :
+				ASTNode(TYPE_LOOP_STATEMENT,false),
+				initStmt(_initStmt),preConditionExpression(_preConditionExpression),actionStmt(_action),postConditionExpression(_postConditionExpression),increaseStmt(_increaseStmt){}
 
-		Statement initStmt;
-		ObjRef preConditionExpression;
-		Statement action;
-		ObjRef postConditionExpression;
-		Statement increaseStmt;
+		ref_t initStmt;
+		ref_t preConditionExpression;
+		ref_t actionStmt;
+		ref_t postConditionExpression;
+		ref_t increaseStmt;
 };
 }
 }

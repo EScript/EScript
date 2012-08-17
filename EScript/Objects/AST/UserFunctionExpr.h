@@ -5,18 +5,17 @@
 #ifndef ES_USERFUNCTION_EXPR_H
 #define ES_USERFUNCTION_EXPR_H
 
-#include "../ExtObject.h"
+#include "ASTNode.h"
 #include "../../Utils/CodeFragment.h"
 #include <vector>
 
 namespace EScript {
 namespace AST{
-class BlockExpr;
-}
-class String;
+class Block;
+
 
 /*! [UserFunctionExpr]  ---|> [ExtObject]	*/
-class UserFunctionExpr : public ExtObject {
+class UserFunctionExpr : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(UserFunctionExpr)
 	public:
 	// -------------------------------------------------------------
@@ -28,22 +27,22 @@ class UserFunctionExpr : public ExtObject {
 		class Parameter {
 			private:
 				StringId name;
-				ObjRef defaultValueExpressionRef;
-				std::vector<ObjRef> typeExpressions;
+				ref_t defaultValueExpressionRef;
+				refArray_t typeExpressions;
 				bool multiParam;
 			public:
-				Parameter(const StringId & name,ObjPtr defaultValueExpression,std::vector<ObjRef> & _typeExpressions);
+				Parameter(const StringId & name,ptr_t defaultValueExpression,refArray_t & _typeExpressions);
 
 				StringId getName()const									{   return name;    }
-				const std::vector<ObjRef>  & getTypeExpressions()const	{   return typeExpressions;   }
+				const refArray_t  & getTypeExpressions()const	{   return typeExpressions;   }
 
 				void setMultiParam(bool b)								{   multiParam=b;   }
 				bool isMultiParam()const								{   return multiParam;  }
 
-				ObjPtr getDefaultValueExpression()const {
+				ptr_t getDefaultValueExpression()const {
 					return defaultValueExpressionRef;
 				}
-				void setDefaultValueExpression(Object * newDefaultExpression) {
+				void setDefaultValueExpression(ptr_t newDefaultExpression) {
 					defaultValueExpressionRef=newDefaultExpression;
 				}
 
@@ -56,33 +55,29 @@ class UserFunctionExpr : public ExtObject {
 
 	/*! @name Main */
 	//	@{
-		UserFunctionExpr(AST::BlockExpr * block,const std::vector<ObjRef> & _sConstrExpressions,int line);
+		UserFunctionExpr(Block * block,const refArray_t & _sConstrExpressions,int line);
 		virtual ~UserFunctionExpr() {}
 
-		AST::BlockExpr * getBlock()const					{	return blockRef.get();	}
+		Block * getBlock()const							{	return blockRef.get();	}
 		const CodeFragment & getCode()const					{	return code;	}
-		int getLine()const									{	return line;	}
 		int getMaxParamCount()const;
 		int getMinParamCount()const;
 		const parameterList_t & getParamList()const			{	return params;	}
 		parameterList_t & getParamList()					{	return params;	}
 
-		std::vector<ObjRef> & getSConstructorExpressions() 	{	return sConstrExpressions;	}
-		const std::vector<ObjRef> & getSConstructorExpressions()const	{	return sConstrExpressions;	}
+		refArray_t & getSConstructorExpressions() 	{	return sConstrExpressions;	}
+		const refArray_t & getSConstructorExpressions()const	{	return sConstrExpressions;	}
 
 		void setCode(const CodeFragment & _code)			{	code = _code;	}
 
-		/// ---|> [Object]
-		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_USER_FUNCTION_EXPRESSION;	}
-
 	private:
-		ERef<AST::BlockExpr> blockRef;
+		ERef<Block> blockRef;
 		parameterList_t params;
-		std::vector<ObjRef> sConstrExpressions;
+		refArray_t sConstrExpressions;
 		CodeFragment code;
-		int line;
 	//	@}
 };
+}
 }
 
 #endif // ES_USERFUNCTION_EXPR_H

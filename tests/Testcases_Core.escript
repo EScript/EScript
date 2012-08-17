@@ -206,7 +206,7 @@ var FAILED="\t failed\n";
 		}
 	}
 	{false?v1--:true?v1++:v1--;}
-	if(v1==2){out (OK);}else { errors+=1; out(FAILED); }
+	if(v1==2 && ({ var a=1; a+2;}) == 3){out (OK);}else { errors+=1; out(FAILED); }
 }
 
 //---
@@ -1034,6 +1034,7 @@ R"(a\
 b
 c\n)" == "a\\\nb\nc\\n"	&& R"#(foo)#" == "foo" && R"Delimiter()Delimiter".empty());	
 }
+//out(Runtime.getLocalStackInfo());
 
 //
 //}

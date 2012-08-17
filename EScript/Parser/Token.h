@@ -5,8 +5,7 @@
 #ifndef TOKENS_H
 #define TOKENS_H
 
-#include "../Objects/AST/BlockExpr.h"
-#include "../Objects/Object.h"
+#include "../Objects/AST/Block.h"
 #include "../Utils/EReferenceCounter.h"
 #include "../Utils/Hashing.h"
 #include "../Utils/ObjRef.h"
@@ -119,14 +118,14 @@ struct TEndScript :  public Token	{
 struct TStartBlock :  public Token {
 	static const uint32_t TYPE_ID=0x01 << 4;
 	static uint32_t getTypeId()			{	return TYPE_ID;	}
-	TStartBlock(AST::BlockExpr * _block=nullptr) : Token(getTypeId()),block(_block) {}
-	void setBlock(AST::BlockExpr * _block)    	{   block=_block;   }
-	AST::BlockExpr * getBlock()const          	{   return block.get();   }
+	TStartBlock(AST::Block * _block=nullptr) : Token(getTypeId()),block(_block) {}
+	void setBlock(AST::Block * _block)    	{   block=_block;   }
+	AST::Block * getBlock()const          	{   return block.get();   }
 	virtual std::string toString()const  	{   return "{"; }
 	virtual Token * clone()const   		{   return new TStartBlock(block.get());  }
 
 	private:
-		ERef<AST::BlockExpr> block;
+		ERef<AST::Block> block;
 };
 
 // -----
@@ -172,17 +171,6 @@ struct TColon :  public Token {
 	TColon()  : Token(getTypeId()) 		{	}
 	virtual std::string toString()const 		{	return ":";	}
 	virtual Token * clone()const 		{	return new TColon();	}
-};
-
-
-// -----
-struct TObject :  public Token {
-	static const uint32_t TYPE_ID=0x01 << 10;
-	static uint32_t getTypeId()					{	return TYPE_ID;	}
-	TObject(Object * _obj)  : Token(getTypeId()),obj(_obj) {}
-	virtual std::string toString()const 		{	return obj.toString();	}
-	virtual Token * clone()const 				{	return new TObject(obj->clone());	}
-	ObjRef obj;
 };
 
 // -----
@@ -245,7 +233,55 @@ struct TEndIndex :public TOperator {
 	TEndIndex() : TOperator("]",getTypeId()) 		{}
 	virtual Token * clone()const 		{	return new TEndIndex();	}
 };
-
+// -----
+struct TValueBool :  public Token {
+	static const uint32_t TYPE_ID=0x01 << 17;
+	static uint32_t getTypeId()					{	return TYPE_ID;	}
+	TValueBool(bool v)  : Token(getTypeId()), value(v){	}
+	virtual std::string toString()const 		{	return value ? "true" : "false";	}
+	virtual Token * clone()const 				{	return new TValueBool(value);	}
+	bool getValue()const						{	return value;	}
+	
+	bool value;
+};
+struct TValueIdentifier :  public Token {
+	static const uint32_t TYPE_ID=0x01 << 18;
+	static uint32_t getTypeId()					{	return TYPE_ID;	}
+	TValueIdentifier(const StringId & v)  : Token(getTypeId()), value(v){	}
+	virtual std::string toString()const 		{	return value.toString();	}
+	virtual Token * clone()const 				{	return new TValueIdentifier(value);	}
+	const StringId & getValue()const			{	return value;	}
+	
+	StringId value;
+};
+struct TValueNumber :  public Token {
+	static const uint32_t TYPE_ID=0x01 << 19;
+	static uint32_t getTypeId()					{	return TYPE_ID;	}
+	TValueNumber(double v)  : Token(getTypeId()), value(v){	}
+	virtual std::string toString()const 		{	return "Number";	}
+	virtual Token * clone()const 				{	return new TValueNumber(value);	}
+	double getValue()const						{	return value;	}
+	
+	double value;
+};
+struct TValueString :  public Token {
+	static const uint32_t TYPE_ID=0x01 << 20;
+	static uint32_t getTypeId()					{	return TYPE_ID;	}
+	TValueString(const std::string &v)  : Token(getTypeId()), value(v){	}
+	virtual std::string toString()const 		{	return value;	}
+	virtual Token * clone()const 				{	return new TValueString(value);	}
+	const std::string & getValue()const			{	return value;	}
+	void setString(const std::string & s)		{	value = s;	}
+	
+	std::string value;
+};
+struct TValueVoid :  public Token {
+	static const uint32_t TYPE_ID=0x01 << 21;
+	static uint32_t getTypeId()					{	return TYPE_ID;	}
+	TValueVoid()  : Token(getTypeId()){	}
+	virtual std::string toString()const 		{	return "void";	}
+	virtual Token * clone()const 				{	return new TValueVoid();	}
+};
 
 }
 

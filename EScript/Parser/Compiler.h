@@ -17,7 +17,7 @@ namespace EScript {
 class CompilerContext;
 class Logger;
 namespace AST{
-class Statement;
+class ASTNode;
 }
 
 /*! Compiler
@@ -39,23 +39,20 @@ class Compiler {
 	private:
 		_CountedRef<Logger> logger;
 	//	@}
-
-
-
 	// -------------
 
-	//! @name Internal helper
+	//! @name Internal helpers
 	//	@{
 	public:
 		/*! (static,internal)
 			- Replaces the markers inside the assembly by jump addresses.	*/
 		static void finalizeInstructions( InstructionBlock & instructions );
-
-
-		void compileExpression(CompilerContext & ctxt,ObjPtr expression)const;
-		void compileStatement(CompilerContext & ctxt,const AST::Statement & statement)const;
+		void addExpression(CompilerContext & ctxt,EPtr<AST::ASTNode> expression)const;
+		void addStatement(CompilerContext & ctxt,EPtr<AST::ASTNode> statement)const;
 
 		void throwError(CompilerContext & ctxt,const std::string & message)const;
+	private:
+		void compileASTNode(CompilerContext & ctxt,EPtr<AST::ASTNode> node)const;
 	//	@}
 
 };

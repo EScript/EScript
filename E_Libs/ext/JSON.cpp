@@ -103,27 +103,29 @@ static Object * _parseJSON(Tokenizer::tokenList_t::iterator & cursor,const Token
 	if(cursor==end)
 		return nullptr;
 	Token * token=(*cursor).get();
-	if(dynamic_cast<TOperator*>(token)&& token->toString()=="_-"){ /// unary minus
+	if( Token::isA<TOperator>(token)&& token->toString()=="_-"){ /// unary minus
 		++cursor;
-		TObject * tObj = Token::cast<TObject>(*cursor);
-		if(tObj==nullptr || !dynamic_cast<Number*>(tObj->obj.get())){
+		TValueNumber * tObj = Token::cast<TValueNumber>(*cursor);
+		if(tObj==nullptr ){
 			std::cout << "Number expected! \n";
 			return nullptr;
 		}
-
 		++cursor;
 
-		return Number::create(-tObj->obj->toDouble());
-//    }else if(dynamic_cast<String*>(token) || dynamic_cast<Number*>(token) || dynamic_cast<Bool*>(token)){
-//        ++cursor;
-//        return token->clone();
-//    }else if(dynamic_cast<Void*>(token)){
-//        ++cursor;
-//        return Void::get();
-	}else if(TObject * tObj=dynamic_cast<TObject *>(token)){
+		return Number::create(-tObj->getValue());
+	}else if(TValueBool * tb=Token::cast<TValueBool>(token)){
 		++cursor;
-		return tObj->obj->clone();
-	}else if (dynamic_cast<TStartBlock *>(token)){
+		return Bool::create(tb->getValue());
+	}else if(TValueNumber * tn=Token::cast<TValueNumber>(token)){
+		++cursor;
+		return Number::create(tn->getValue());
+	}else if(TValueString * ts=Token::cast<TValueString>(token)){
+		++cursor;
+		return String::create(ts->getValue());
+	}else if(Token::isA<TValueVoid>(token)){
+		++cursor;
+		return Void::get();
+	}else if (Token::isA<TStartBlock>(token)){
 		Map *m=Map::create();
 		++cursor;
 		while( true){
@@ -134,8 +136,7 @@ static Object * _parseJSON(Tokenizer::tokenList_t::iterator & cursor,const Token
 				cursor++;
 				break;
 			}
-			TObject * tObj2=Token::cast<TObject>(*cursor);
-			String * key= (tObj2==nullptr ? nullptr : dynamic_cast<String*>(tObj2->obj.get()));
+			TValueString * key= Token::cast<TValueString>(*cursor); 
 			if(!key){
 				std::cout << "string expected \n";
 				break;
@@ -159,7 +160,7 @@ static Object * _parseJSON(Tokenizer::tokenList_t::iterator & cursor,const Token
 				std::cout << "M5! \n"<<(*cursor)->toString()<<"\n";
 				break;
 			}
-			m->setValue(key->clone(),o);
+			m->setValue(String::create(key->getValue()),o);
 //            ++cursor;
 			if(cursor==end){
 				std::cout << "unexpected ending. \n";

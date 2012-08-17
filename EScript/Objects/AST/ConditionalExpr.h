@@ -5,30 +5,28 @@
 #ifndef ES_CONDITIONAL_EXPRESSION_H
 #define ES_CONDITIONAL_EXPRESSION_H
 
-#include "../Object.h"
+#include "ASTNode.h"
 
 namespace EScript {
 namespace AST {
 
-/*! [ConditionalExpr]  ---|> [Object] */
-class ConditionalExpr : public Object {
+/*! [ConditionalExpr]  ---|> [ASTNode] */
+class ConditionalExpr : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(ConditionalExpr)
 	public:
-		explicit ConditionalExpr( ObjPtr _condition=nullptr, ObjPtr _action=nullptr,ObjPtr _elseAction=nullptr) :
+		explicit ConditionalExpr( ptr_t _condition=nullptr, ptr_t _action=nullptr,ptr_t _elseAction=nullptr) :
+				ASTNode(TYPE_CONDITIONAL_EXPRESSION,true),
 				condition(_condition),action(_action),elseAction(_elseAction) {}
 		virtual ~ConditionalExpr() {}
 
-		ObjPtr getCondition()const	{	return condition;	}
-		ObjPtr getAction()const		{	return action;	}
-		ObjPtr getElseAction()const	{	return elseAction;	}
-
-		/// ---|> [Object]
-		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_CONDITIONAL_EXPRESSION; }
+		ptr_t getCondition()const	{	return condition;	}
+		ptr_t getAction()const		{	return action;	}
+		ptr_t getElseAction()const	{	return elseAction;	}
 
 	private:
-		ObjRef condition;
-		ObjRef action;
-		ObjRef elseAction;
+		ref_t condition;
+		ref_t action;
+		ref_t elseAction;
 };
 }
 }

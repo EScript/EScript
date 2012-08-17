@@ -5,12 +5,6 @@
 #include "Tokenizer.h"
 
 #include "../Consts.h"
-#include "../Objects/Values/Bool.h"
-#include "../Objects/Identifier.h"
-#include "../Objects/Values/Number.h"
-#include "../Objects/Object.h"
-#include "../Objects/Values/String.h"
-#include "../Objects/Values/Void.h"
 #include "../Utils/StringUtils.h"
 #include "Operators.h"
 
@@ -47,10 +41,10 @@ Token * Tokenizer::identifyStaticToken(StringId id){
 		constants[Consts::IDENTIFIER_namespace]=new TControl(Consts::IDENTIFIER_namespace);
 
 
-		constants[Consts::IDENTIFIER_true]=new TObject(Bool::create(true));
-		constants[Consts::IDENTIFIER_false]=new TObject(Bool::create(false));
-		constants[Consts::IDENTIFIER_void]=new TObject(Void::get());
-		constants[Consts::IDENTIFIER_null]=new TObject(Void::get());
+		constants[Consts::IDENTIFIER_true]=new TValueBool(true);
+		constants[Consts::IDENTIFIER_false]=new TValueBool(false);
+		constants[Consts::IDENTIFIER_void]=new TValueVoid();
+		constants[Consts::IDENTIFIER_null]=new TValueVoid();
 
 	}
 	tokenMap_t::const_iterator it=constants.find(id);
@@ -138,7 +132,7 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_
 			c = prog[cursor];
 			if(c==')'&&StringUtils::beginsWith(prog+cursor,d.c_str())){
 				cursor+=d.length();
-				return new TObject(String::create(std::string(prog+first,length)));
+				return new TValueString((std::string(prog+first,length)));
 			}else if(c=='\n'){
 				line++;
 			}else if(c==0){
@@ -186,10 +180,10 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_
 		double number=StringUtils::getNumber(prog,to);
 		if (to>cursor && !isChar(prog[to])) {
 			cursor=to;
-			return new TObject(Number::create(number));
+			return new TValueNumber(number);
 		} else {
 			std::cout << number ;
-			throw(new Error(  std::string("Syntax Error in Number."),line));
+			throw new Error(  std::string("Syntax Error in Number."),line);
 		}
 
 		// Identifiers, Control commands, true/false
@@ -205,7 +199,7 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_
 		if (o!=nullptr) {
 			return o->clone();
 		}else if (id==Consts::IDENTIFIER_LINE) { // __LINE__
-			return new TObject(Number::create(line));
+			return new TValueNumber(line);
 		}  else  {
 			const Operator *op=Operator::getOperator(id);
 			if (op!=nullptr)
@@ -240,15 +234,15 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_
 		cursor++;
 		return new TColon();
 	} else if (c=='$' && isChar(prog[cursor+1]) ){
-	c=prog[++cursor]; // consume '$'
-	std::string accum;
+		c=prog[++cursor]; // consume '$'
+		std::string accum;
 		while ( isNumber(c) || isChar(c)) {
 			accum+=c;
 			cursor++;
 			c=prog[cursor];
 		}
 //        std::cout << "FOUND ID :"<<accum<<":"<<cursor<<"\n";
-		return new TObject(Identifier::create(accum));
+		return new TValueIdentifier(StringId(accum));
 
 	} else if ( isOperator(c) ) {
 		int i=cursor;
@@ -273,16 +267,18 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_
 			size--;
 			if (size<=0) {
 				std::cout  << std::endl<< accum << std::endl;
-				throw(new Error(std::string("Unknown Operator: ")+accum,line));
+				throw new Error(std::string("Unknown Operator: ")+accum,line);
 			}
 		}
 		// test for unary minus
 		if (op->getString()=="-") {
-			Token * last=tokens.size()>0?tokens.at(tokens.size()-1).get():nullptr; // Bugfix[BUG:20090107]
+			Token * last=tokens.empty()? nullptr : tokens.back().get(); // Bugfix[BUG:20090107]
 			if ( last==nullptr ||
-					(!(dynamic_cast<TEndBracket *>(last) || dynamic_cast<TEndIndex *>(last)||
-					   dynamic_cast<TIdentifier *>(last) || dynamic_cast<TObject *>(last)))){
-//					dynamic_cast<Number *>(last)|| dynamic_cast<String *>(last)||dynamic_cast<Bool *>(last)))){
+					(!(Token::isA<TEndBracket>(last) || Token::isA<TEndIndex>(last)||
+						Token::isA<TIdentifier>(last) || 
+						Token::isA<TValueBool>(last) || Token::isA<TValueIdentifier>(last) ||
+						Token::isA<TValueString>(last) || Token::isA<TValueNumber>(last) || 
+						Token::isA<TValueVoid>(last) ))){
 				// TODO ++,--
 
 				op=Operator::getOperator("_-");
@@ -331,9 +327,9 @@ Token * Tokenizer::readNextToken(const char * prog, int & cursor,int &line,size_
 			c=prog[cursor];
 		}
 		if (c=='\0')
-			throw(new Error(std::string("Unclosed String. 2")+s.str().substr(0,10),line));
+			throw new Error(std::string("Unclosed String. 2")+s.str().substr(0,10),line);
 		cursor++;
-		return new TObject(String::create(s.str()));
+		return new TValueString(s.str());
 	}else if(line==1 && c=='#' &&  prog[cursor+1]=='!') {
 		cursor++;
 		while (true) {

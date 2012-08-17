@@ -18,7 +18,7 @@
 
 namespace EScript {
 namespace AST {
-class Statement;
+class ASTNode;
 }
 class Compiler;
 
@@ -32,10 +32,10 @@ class CompilerContext {
 		typedef std::map<StringId,size_t> nameToIndexMapping_t;
 	public:
 		enum setting_t{
-			VISIBLE_LOCAL_VARIABLES, //!< the local variables declared in a BlockExpr
+			VISIBLE_LOCAL_VARIABLES, //!< the local variables declared in a Block
 			BREAK_MARKER,
 			CONTINUE_MARKER,
-			EXCEPTION_MARKER //!< the marker of the next variables declared in a BlockExpr
+			EXCEPTION_MARKER //!< the marker of the next variables declared in a Block
 		};
 
 	private:
@@ -69,8 +69,8 @@ class CompilerContext {
 			Iff no entry of the given type is found on the stack, false is returned.	*/
 		bool collectLocalVariables(setting_t entryType,std::vector<size_t> & variableIndices);
 
-		void compile(ObjPtr expression);
-		void compile(const AST::Statement & stmt);
+		void addExpression(EPtr<AST::ASTNode> expression);
+		void addStatement(EPtr<AST::ASTNode> stmt);
 
 		uint32_t createMarker()											{	return currentMarkerId++;	}
 		uint32_t declareString(const std::string & str)					{	return instructions.declareString(str);	}

@@ -65,6 +65,9 @@ void Runtime::init(EScript::Namespace & globals) {
 	//!	[ESMF] void Runtime.exception( [message] );
 	ESF_DECLARE(typeObject,"exception",0,1, (runtime.setException(parameter[0].toString()),Void::get()))
 
+	//!	[ESMF] String Runtime.getLocalStackInfo();
+	ESF_DECLARE(typeObject,"getLocalStackInfo",0,0, String::create(runtime.getLocalStackInfo()))
+
 	//!	[ESMF] Number Runtime.getLogCounter(Number);
 	ESF_DECLARE(typeObject,"getLogCounter",1,1, Number::create(runtime.getLogCounter(static_cast<Logger::level_t>(parameter[0].toInt()))))
 
@@ -288,8 +291,11 @@ void Runtime::yieldNext(YieldIterator & yIt){
 		yIt.setFCC( nullptr );
 		yIt.setValue( result );
 	}
-
 }
+std::string Runtime::getLocalStackInfo(){
+	return internals->getLocalStackInfo();
+}
+
 // ----------------------------------------------------------------------------------
 // ---- Logging
 

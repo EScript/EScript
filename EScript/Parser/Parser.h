@@ -9,8 +9,6 @@
 #include "Tokenizer.h"
 
 #include "../Objects/Exception.h"
-#include "../Objects/Values/String.h"
-#include "../Objects/Callables/UserFunction.h"
 #include "../Objects/AST/UserFunctionExpr.h"
 #include "../Utils/Logger.h"
 
@@ -22,8 +20,7 @@
 
 namespace EScript {
 namespace AST{
-class BlockExpr;
-class Statement;
+class Block;
 }
 
 /*! [Parser] */
@@ -47,13 +44,13 @@ class Parser {
 		Parser(Logger * logger=nullptr);
 		~Parser();
 
-		ERef<AST::BlockExpr> parse(const CodeFragment & code);
+		ERef<AST::Block> parse(const CodeFragment & code);
 
 		//! (internal)
 		struct ParsingContext{
 			Tokenizer::tokenList_t & tokens;
-			AST::BlockExpr * rootBlock;
-			std::deque<AST::BlockExpr*> blocks; // used as a stack
+			AST::Block * rootBlock;
+			std::deque<AST::Block*> blocks; // used as a stack
 			CodeFragment code;
 			ParsingContext(Tokenizer::tokenList_t & _tokens,const CodeFragment & _code ) : tokens(_tokens),rootBlock(nullptr),code(_code){}
 		};
@@ -66,21 +63,21 @@ class Parser {
 		Tokenizer tokenizer;
 		void pass_1(ParsingContext & ctxt);
 		void pass_2(ParsingContext & ctxt, Tokenizer::tokenList_t  & enrichedTokens)const;
-		AST::Statement readControl(ParsingContext & ctxt,int & cursor)const;
-		AST::Statement readStatement(ParsingContext & ctxt,int & cursor)const;
-		Object * readExpression(ParsingContext & ctxt,int & cursor,int to=-1)const;
-		Object * readBinaryExpression(ParsingContext & ctxt,int & cursor,int to)const;
-		AST::BlockExpr * readBlock(ParsingContext & ctxt,int & cursor)const ;
-		Object * readMap(ParsingContext & ctxt,int & cursor)const;
-		Object * readFunctionDeclaration(ParsingContext & ctxt,int & cursor)const;
-		void readFunctionParameters(UserFunctionExpr::parameterList_t & params,ParsingContext & ctxt,int & cursor)const;
-		void readExpressionsInBrackets(ParsingContext & ctxt,int & cursor,std::vector<ObjRef> & expressions)const;
+		EPtr<AST::ASTNode> readControl(ParsingContext & ctxt,int & cursor)const;
+		EPtr<AST::ASTNode> readStatement(ParsingContext & ctxt,int & cursor)const;
+		EPtr<AST::ASTNode> readExpression(ParsingContext & ctxt,int & cursor,int to=-1)const;
+		EPtr<AST::ASTNode> readBinaryExpression(ParsingContext & ctxt,int & cursor,int to)const;
+		AST::Block * readBlockExpression(ParsingContext & ctxt,int & cursor)const ;
+		EPtr<AST::ASTNode> readMap(ParsingContext & ctxt,int & cursor)const;
+		EPtr<AST::ASTNode> readFunctionDeclaration(ParsingContext & ctxt,int & cursor)const;
+		void readFunctionParameters(AST::UserFunctionExpr::parameterList_t & params,ParsingContext & ctxt,int & cursor)const;
+		void readExpressionsInBrackets(ParsingContext & ctxt,int & cursor,std::vector<ERef<AST::ASTNode>> & expressions)const;
 
 		typedef std::vector<std::pair<StringId,int> > properties_t; //  (property's id, position of option bracket or -1)*
 		void readProperties(ParsingContext & ctxt,int from,int to,properties_t & properties)const;
 
 		enum lValue_t { LVALUE_NONE, LVALUE_INDEX, LVALUE_MEMBER};
-		lValue_t getLValue(ParsingContext & ctxt,int from,int to,Object * & obj,StringId & identifier,Object * &indexExpression)const;
+		lValue_t getLValue(ParsingContext & ctxt,int from,int to,EPtr<AST::ASTNode> & obj,StringId & identifier,EPtr<AST::ASTNode> &indexExpression)const;
 		int findExpression(ParsingContext & ctxt,int cursor)const;
 
 		void throwError(ParsingContext & ctxt,const std::string & msg,Token * token=nullptr)const;

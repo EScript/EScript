@@ -5,29 +5,26 @@
 #ifndef ES_GETATTRIBUTE_EXPR_H
 #define ES_GETATTRIBUTE_EXPR_H
 
-#include "../Object.h"
+#include "ASTNode.h"
 #include <string>
 
 namespace EScript {
 namespace AST {
 
-/*! [GetAttributeExpr]  ---|> [Object]  */
-class GetAttributeExpr : public Object {
+/*! [GetAttributeExpr]  ---|> [ASTNode]  */
+class GetAttributeExpr : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(GetAttributeExpr)
 	public:
-		GetAttributeExpr(ObjPtr _obj,StringId _attrId) : objExpression(_obj),attrId(_attrId) {}
+		GetAttributeExpr(ptr_t _obj,StringId _attrId) : 
+				ASTNode(TYPE_GET_ATTRIBUTE_EXPRESSION,true),objExpression(_obj),attrId(_attrId) {}
 		virtual ~GetAttributeExpr(){}
 
-		const StringId & getAttrId()const		{   return attrId;  }
-		const std::string & getAttrName()const	{   return attrId.toString();    }
-		ObjPtr getObjectExpression()const		{   return objExpression;    }
-
-		/// ---|> [Object]
-		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_GET_ATTRIBUTE_EXPRESSION; }
-
+		const StringId & getAttrId()const			{	return attrId;  }
+		const std::string & getAttrName()const		{	return attrId.toString();    }
+		ptr_t getObjectExpression()const	{	return objExpression;    }
 
 	private:
-		ObjRef objExpression;
+		ref_t objExpression;
 		StringId attrId;
 };
 }

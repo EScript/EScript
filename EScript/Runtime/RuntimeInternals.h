@@ -44,7 +44,6 @@ class RuntimeInternals  {
 		Object * executeFunctionCallContext(_Ptr<FunctionCallContext> fcc);
 
 		ObjPtr getCallingObject()const 							{  return activeFCCs.empty() ? nullptr : activeFCCs.back()->getCaller();	}
-
 		size_t getStackSize()const								{	return activeFCCs.size();	}
 		size_t _getStackSizeLimit()const						{	return stackSizeLimit;	}
 		void _setStackSizeLimit(const size_t limit)				{	stackSizeLimit = limit;	}
@@ -84,6 +83,7 @@ class RuntimeInternals  {
 		std::string getCurrentFile()const;
 
 		std::string getStackInfo();
+		std::string getLocalStackInfo();
 	// @}
 
 	// --------------------

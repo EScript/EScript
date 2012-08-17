@@ -8,11 +8,11 @@
 
 namespace EScript{
 
-void CompilerContext::compile(ObjPtr expression){
-	compiler.compileExpression(*this,expression);
+void CompilerContext::addExpression(EPtr<AST::ASTNode> expression){
+	compiler.addExpression(*this,expression);
 }
-void CompilerContext::compile(const AST::Statement & stmt){
-	compiler.compileStatement(*this,stmt);
+void CompilerContext::addStatement(EPtr<AST::ASTNode> stmt){
+	compiler.addStatement(*this,stmt);
 }
 
 uint32_t CompilerContext::getCurrentMarker(setting_t type)const{

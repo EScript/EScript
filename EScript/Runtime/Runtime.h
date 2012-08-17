@@ -123,6 +123,7 @@ class Runtime : public ExtObject  {
 		LoggerGroup * getLogger()const					{	return logger.get();	}
 		Logger::level_t getLoggingLevel()				{	return logger->getMinLevel();	}
 		std::string getStackInfo();
+		std::string getLocalStackInfo();
 
 		void log(Logger::level_t l,const std::string & s)	{	logger->log(l,s);	}
 		void resetLogCounter(Logger::level_t level);

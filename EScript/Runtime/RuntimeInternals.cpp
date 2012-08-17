@@ -809,18 +809,10 @@ int RuntimeInternals::getCurrentLine()const{
 		return -1;
 	}
 }
-// -------------------------------------------------------------
-// State / Exceptions
-void RuntimeInternals::setException(const std::string & s) {
-	Exception * e = new Exception(s,getCurrentLine());
-	e->setFilename(getCurrentFile());
-	setException(e);
-}
 
-void RuntimeInternals::setException(Exception * e){
-	if(addStackIngfoToExceptions)
-		e->setStackInfo(getStackInfo());
-	setExceptionState(e);
+std::string RuntimeInternals::getLocalStackInfo(){
+	_Ptr<FunctionCallContext> fcc = getActiveFCC();
+	return fcc.isNotNull() ? fcc->stack_toDbgString() : "";
 }
 
 std::string RuntimeInternals::getStackInfo(){
@@ -862,6 +854,20 @@ std::string RuntimeInternals::getStackInfo(){
 	os<<"\n\n----------------------\n";
 	return os.str();
 }
+// -------------------------------------------------------------
+// State / Exceptions
+void RuntimeInternals::setException(const std::string & s) {
+	Exception * e = new Exception(s,getCurrentLine());
+	e->setFilename(getCurrentFile());
+	setException(e);
+}
+
+void RuntimeInternals::setException(Exception * e){
+	if(addStackIngfoToExceptions)
+		e->setStackInfo(getStackInfo());
+	setExceptionState(e);
+}
+
 
 void RuntimeInternals::throwException(const std::string & s,Object * obj) {
 	std::ostringstream os;
