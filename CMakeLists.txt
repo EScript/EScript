@@ -15,6 +15,13 @@ set(LIB_INSTALL_DIR lib)
 set(CMAKECONFIG_INSTALL_DIR ${LIB_INSTALL_DIR}/cmake/EScript)
 
 set(ESCRIPT_SOURCES
+	EScript/Compiler/AST/UserFunctionExpr.cpp
+	EScript/Compiler/CompilerContext.cpp
+	EScript/Compiler/Compiler.cpp
+	EScript/Compiler/Operators.cpp
+	EScript/Compiler/Parser.cpp
+	EScript/Compiler/Token.cpp
+	EScript/Compiler/Tokenizer.cpp
 	EScript/Consts.cpp
 	EScript/EScript.cpp
 	EScript/Instructions/InstructionBlock.cpp
@@ -38,13 +45,6 @@ set(ESCRIPT_SOURCES
 	EScript/Objects/Values/String.cpp
 	EScript/Objects/Values/Void.cpp
 	EScript/Objects/YieldIterator.cpp
-	EScript/Parser/AST/UserFunctionExpr.cpp
-	EScript/Parser/CompilerContext.cpp
-	EScript/Parser/Compiler.cpp
-	EScript/Parser/Operators.cpp
-	EScript/Parser/Parser.cpp
-	EScript/Parser/Token.cpp
-	EScript/Parser/Tokenizer.cpp
 	EScript/Runtime/FunctionCallContext.cpp
 	EScript/Runtime/Runtime.cpp
 	EScript/Runtime/RuntimeInternals.cpp

@@ -10,7 +10,7 @@
 #include "../Objects/Object.h"
 #include "../Objects/Type.h"
 #include "../Objects/Values/String.h"
-#include "../Parser/Compiler.h"
+#include "../Compiler/Compiler.h"
 #include "../Runtime/Runtime.h"
 #include "IO/IO.h"
 #include "../Consts.h"
