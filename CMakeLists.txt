@@ -4,7 +4,7 @@ project(EScript CXX)
 set(ESCRIPT_VERSION_MAJOR 0)
 set(ESCRIPT_VERSION_MINOR 6)
 set(ESCRIPT_VERSION_PATCH 2)
-set(GEOMETRY_VERSION_STRING ${ESCRIPT_VERSION_MAJOR}.${ESCRIPT_VERSION_MINOR}.${ESCRIPT_VERSION_PATCH})
+set(ESCRIPT_VERSION_STRING ${ESCRIPT_VERSION_MAJOR}.${ESCRIPT_VERSION_MINOR}.${ESCRIPT_VERSION_PATCH})
 
 # Set up install directories
 include(GNUInstallDirs)
@@ -65,7 +65,7 @@ endif()
 add_library(EScript SHARED ${ESCRIPT_SOURCES})
 
 # Set version of library
-set_target_properties(EScript PROPERTIES VERSION ${GEOMETRY_VERSION_STRING}
+set_target_properties(EScript PROPERTIES VERSION ${ESCRIPT_VERSION_STRING}
                                          SOVERSION ${ESCRIPT_VERSION_MAJOR})
 
 # Install the header files
@@ -107,7 +107,7 @@ configure_package_config_file(EScriptConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}
                               PATH_VARS CMAKE_INSTALL_INCLUDEDIR CMAKE_INSTALL_CMAKECONFIGDIR
                               NO_CHECK_REQUIRED_COMPONENTS_MACRO)
 write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/EScriptConfigVersion.cmake
-                                 VERSION ${GEOMETRY_VERSION_STRING}
+                                 VERSION ${ESCRIPT_VERSION_STRING}
                                  COMPATIBILITY SameMajorVersion)
 
 # Install the configuration files
