@@ -698,3 +698,7 @@
 	}
 	test( "BUG[20120816]", errorsFound==0);
 }
+{ // Empty loop body resulted in a statement being nullptr
+	while(false); // Crashes the test with a segmentation fault if the test fails.
+	test("BUG[20120821]", true);
+}

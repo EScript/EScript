@@ -470,7 +470,9 @@ bool initHandler(handlerRegistry_t & m){
 		}
 		ctxt.pushSetting_marker( CompilerContext::BREAK_MARKER ,loopEndMarker);
 		ctxt.pushSetting_marker( CompilerContext::CONTINUE_MARKER ,loopContinueMarker);
-		ctxt.addStatement(self->getAction());
+		if(self->getAction().isNotNull()) {
+			ctxt.addStatement(self->getAction());
+		}
 		ctxt.popSetting();
 		ctxt.popSetting();
 
