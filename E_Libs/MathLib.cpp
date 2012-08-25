@@ -101,6 +101,7 @@ void E_RandomNumberGenerator::init(EScript::Namespace & lib) {
 	ES_MFUNCTION_DECLARE(typeObject, E_RandomNumberGenerator, "categorical", 1, 1, {
 		Array * array = assertType<EScript::Array>(runtime, parameter[0]);
 		std::vector<double> weights;
+		weights.reserve(array->size());
 		for(const auto & element : *array) {
 			weights.push_back(element->toDouble());
 		}
