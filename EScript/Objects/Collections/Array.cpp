@@ -254,7 +254,7 @@ void Array::setValue(ObjPtr key,ObjPtr value) {
 	if (key.isNull() ) return;
 	size_t index=static_cast<size_t>(key->toInt());
 	if (index>=data.size())
-		data.insert(data.end(), index-data.size()+1, 0);
+		data.resize(index + 1, nullptr);
 	data[index]=value;
 }
 
