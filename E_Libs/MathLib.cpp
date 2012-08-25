@@ -97,6 +97,16 @@ void E_RandomNumberGenerator::init(EScript::Namespace & lib) {
 	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "binomial", 2, 2,
 				 Number::create(std::binomial_distribution<int>(parameter[0].toInt(), parameter[1].toDouble())(**self)))
 
+	//! [ESMF] Number RandomNumberGenerator.categorical(Array weights)
+	ES_MFUNCTION_DECLARE(typeObject, E_RandomNumberGenerator, "categorical", 1, 1, {
+		Array * array = assertType<EScript::Array>(runtime, parameter[0]);
+		std::vector<double> weights;
+		for(const auto & element : *array) {
+			weights.push_back(element->toDouble());
+		}
+		return Number::create(std::discrete_distribution<int>(weights.begin(), weights.end())(**self));
+	})
+	
 	//! [ESMF] Number RandomNumberGenerator.chisquare(n)
 	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "chisquare", 1, 1,
 				 Number::create(std::chi_squared_distribution<double>(parameter[0].toDouble())(**self)))
@@ -140,6 +150,10 @@ void E_RandomNumberGenerator::init(EScript::Namespace & lib) {
 	//! [ESMF] Number RandomNumberGenerator.uniform(a,b)
 	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "uniform", 2, 2,
 				 Number::create(std::uniform_real_distribution<double>(parameter[0].toDouble(), parameter[1].toDouble())(**self)))
+
+	//! [ESMF] Number RandomNumberGenerator.weibull(shape, scale)
+	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "weibull", 2, 2,
+				 Number::create(std::weibull_distribution<double>(parameter[0].toDouble(), parameter[1].toDouble())(**self)))
 
 }
 
