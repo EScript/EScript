@@ -56,7 +56,6 @@ set(ESCRIPT_SOURCES
 	EScript/Utils/StringData.cpp
 	EScript/Utils/StringUtils.cpp
 	E_Libs/ext/JSON.cpp
-	E_Libs/ext/Rand.cpp
 	E_Libs/IOLib.cpp
 	E_Libs/MathLib.cpp
 	E_Libs/StdLib.cpp

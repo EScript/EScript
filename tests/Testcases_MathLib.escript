@@ -3,7 +3,7 @@
 	var r1 = new Math.RandomNumberGenerator();
 	var r2 = r1.clone();
 	var r3 = new Math.RandomNumberGenerator();
-	r3.setSeed(r3.getSeed()+1);
+	r3.setSeed(17);
 
 	var a1=[];
 	var a2=[];

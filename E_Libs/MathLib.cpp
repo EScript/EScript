@@ -11,8 +11,9 @@
 #define M_PI_2		1.57079632679489661923
 #endif
 
-#include "ext/Rand.h"
 #include "../EScript/EScript.h"
+#include <ctime>
+#include <random>
 
 namespace EScript{
 namespace MathLib{
@@ -20,27 +21,34 @@ namespace MathLib{
 
 // ---------------------------------------------------------
 
-//! EWrapper for Rand-Class
-class E_RandomNumberGenerator : public ReferenceObject<Rand> {
+//! EWrapper for C++ random number engine
+class E_RandomNumberGenerator : public ReferenceObject<std::mt19937> {
 	ES_PROVIDES_TYPE_NAME(RandomNumberGenerator)
-public:
-	//! (static)
-	static Type * getTypeObject() {
-		static Type * typeObject=new Type(Object::getTypeObject());
-		return typeObject;
-	}
-	static void init(EScript::Namespace & globals);
+	public:
+		//! (static)
+		static Type * getTypeObject() {
+			static Type * typeObject = new Type(Object::getTypeObject());
+			return typeObject;
+		}
+		static void init(EScript::Namespace & globals);
 
-	//! (ctor)
-	E_RandomNumberGenerator(uint32_t seed=0):
-			ReferenceObject_t(seed,getTypeObject()){}
+		//! (ctor)
+		E_RandomNumberGenerator(uint32_t seed) :
+			ReferenceObject_t(std::mt19937(seed), getTypeObject()) {
+		}
+		
+		E_RandomNumberGenerator(const std::mt19937 & engine) :
+			ReferenceObject_t(engine, getTypeObject()) {
+		}
 
-	//! (dtor)
-	virtual ~E_RandomNumberGenerator(){}
+		//! (dtor)
+		virtual ~E_RandomNumberGenerator() {
+		}
 
-	//! ---|> Object
-	virtual E_RandomNumberGenerator * clone()const	{	return new E_RandomNumberGenerator(ref().getSeed());	}
-
+		//! ---|> Object
+		virtual E_RandomNumberGenerator * clone() const {
+			return new E_RandomNumberGenerator(ref());
+		}
 };
 
 
@@ -64,7 +72,7 @@ void init(EScript::Namespace * globals) {
 	E_RandomNumberGenerator::init(*lib);
 
 	// init global E_RandomNumberGenerator-Object
-	declareConstant(globals,"Rand",new E_RandomNumberGenerator);
+	declareConstant(globals, "Rand", new E_RandomNumberGenerator(static_cast<unsigned int>(std::time(nullptr))));
 
 	// ------
 }
@@ -73,82 +81,67 @@ void init(EScript::Namespace * globals) {
 
 //! (static) init members for E_RandomNumberGenerator
 void E_RandomNumberGenerator::init(EScript::Namespace & lib) {
-
 	// E_Rand ---|> [Object]
-	Type * typeObject=getTypeObject();
-	declareConstant(&lib,getClassName(),typeObject);
-
+	Type * typeObject = getTypeObject();
+	declareConstant(&lib, getClassName(), typeObject);
 
 	//! [ESF] new RandomNumberGenerator( [seed] )
-	ESF_DECLARE(typeObject,"_constructor",0,1,(
-			new E_RandomNumberGenerator(parameter[0].toInt(0))))
+	ESF_DECLARE(typeObject, "_constructor", 0, 1, 
+				new E_RandomNumberGenerator(parameter[0].toInt(0)))
 
-	//! [ESF] [0,1] RandomNumberGenerator.bernoulli(p)
-	ESMF_DECLARE(typeObject,E_RandomNumberGenerator,"bernoulli",1,1,(
-			Number::create( self->ref().bernoulli(parameter[0].toDouble()))))
+	//! [ESMF] [0, 1] RandomNumberGenerator.bernoulli(p)
+	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "bernoulli", 1, 1,
+				 Number::create(std::bernoulli_distribution(parameter[0].toDouble())(**self) ? 1 : 0))
 
-	//! [ESF] int RandomNumberGenerator.binomial(n,p)
-	ESMF_DECLARE(typeObject,E_RandomNumberGenerator,"binomial",2,2,
-				Number::create( self->ref().binomial(parameter[0].toInt(),parameter[1].toDouble())))
+	//! [ESMF] Number RandomNumberGenerator.binomial(n,p)
+	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "binomial", 2, 2,
+				 Number::create(std::binomial_distribution<int>(parameter[0].toInt(), parameter[1].toDouble())(**self)))
 
-	//! [ESF] float RandomNumberGenerator.chisquare(n)
-	ESMF_DECLARE(typeObject,E_RandomNumberGenerator,"chisquare",1,1,
-				Number::create(self->ref().chisquare(parameter[0].toInt())))
+	//! [ESMF] Number RandomNumberGenerator.chisquare(n)
+	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "chisquare", 1, 1,
+				 Number::create(std::chi_squared_distribution<double>(parameter[0].toDouble())(**self)))
 
-	//! [ESF] int RandomNumberGenerator.equilikely(a,b)
-	ESMF_DECLARE(typeObject,E_RandomNumberGenerator,"equilikely",2,2,
-				Number::create(self->ref().equilikely(parameter[0].toInt(),parameter[1].toInt())))
+	//! [ESMF] Number RandomNumberGenerator.equilikely(a,b)
+	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "equilikely", 2, 2,
+				 Number::create(std::uniform_int_distribution<int>(parameter[0].toInt(), parameter[1].toInt())(**self)))
 
-	//! [ESF] float RandomNumberGenerator.erlang(n,b)
-	ESMF_DECLARE(typeObject,E_RandomNumberGenerator,"erlang",2,2,
-				Number::create( self->ref().erlang(parameter[0].toInt(),parameter[1].toDouble())))
+	//! [ESMF] Number RandomNumberGenerator.exponential(m)
+	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "exponential", 1, 1,
+				 Number::create(std::exponential_distribution<double>(parameter[0].toDouble())(**self)))
 
-	//! [ESF] float RandomNumberGenerator.exponential(m)
-	ESMF_DECLARE(typeObject,E_RandomNumberGenerator,"exponential",1,1,
-				Number::create(self->ref().exponential(parameter[0].toDouble())))
+	//! [ESMF] Number RandomNumberGenerator.geometric(p)
+	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "geometric", 1, 1,
+				 Number::create(std::geometric_distribution<int>(parameter[0].toDouble())(**self)))
 
-	//! [ESF] int RandomNumberGenerator.geometric(p)
-	ESMF_DECLARE(typeObject,E_RandomNumberGenerator,"geometric",1,1,
-				Number::create( self->ref().geometric(parameter[0].toDouble())))
+	//! [ESMF] Number RandomNumberGenerator.lognormal(a,b)
+	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "lognormal", 2, 2,
+				 Number::create(std::lognormal_distribution<double>(parameter[0].toDouble(), parameter[1].toDouble())(**self)))
 
-	//! [ESF] int RandomNumberGenerator.getSeed()
-	ESMF_DECLARE(typeObject,E_RandomNumberGenerator,"getSeed",0,0,
-				Number::create( self->ref().getSeed()))
+	//! [ESMF] Number RandomNumberGenerator.normal(m,s)
+	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "normal", 2, 2,
+				 Number::create(std::normal_distribution<double>(parameter[0].toDouble(), parameter[1].toDouble())(**self)))
 
-	//! [ESF] float RandomNumberGenerator.lognormal(a,b)
-	ESMF_DECLARE(typeObject,E_RandomNumberGenerator,"lognormal",2,2,
-				Number::create( self->ref().lognormal(parameter[0].toDouble(),parameter[1].toDouble())))
+	//! [ESMF] Number RandomNumberGenerator.pascal(n,p)
+	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "pascal", 2, 2,
+				 Number::create(std::negative_binomial_distribution<int>(parameter[0].toInt(), parameter[1].toDouble())(**self)))
 
-	//! [ESF] float RandomNumberGenerator.normal(m,s)
-	ESMF_DECLARE(typeObject,E_RandomNumberGenerator,"normal",2,2,
-				Number::create( self->ref().normal(parameter[0].toDouble(),parameter[1].toDouble())))
+	//! [ESMF] Number RandomNumberGenerator.poisson(m)
+	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "poisson", 1, 1,
+				 Number::create(std::poisson_distribution<int>(parameter[0].toDouble())(**self)))
 
-	//! [ESF] int RandomNumberGenerator.pascal(n,p)
-	ESMF_DECLARE(typeObject,E_RandomNumberGenerator,"pascal",2,2,
-				Number::create(self->ref().pascal(parameter[0].toInt(),parameter[1].toDouble())))
+	//! [ESMF] self RandomNumberGenerator.setSeed(Number)
+	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "setSeed", 1, 1,
+				 ((**self).seed(parameter[0].toInt()), self))
 
-	//! [ESF] int RandomNumberGenerator.poisson(m)
-	ESMF_DECLARE(typeObject,E_RandomNumberGenerator,"poisson",1,1,
-				Number::create(self->ref().poisson(parameter[0].toDouble())))
+	//! [ESMF] Number RandomNumberGenerator.student(n)
+	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "student", 1, 1,
+				 Number::create(std::student_t_distribution<double>(parameter[0].toDouble())(**self)))
 
-	//! [ESF] float RandomNumberGenerator.random()      [0.0 ... 1.0]
-	ESMF_DECLARE(typeObject,E_RandomNumberGenerator,"random",0,0,
-				Number::create(self->ref().random()))
-
-	//! [ESF] self RandomNumberGenerator.setSeed(Number)
-	ESMF_DECLARE(typeObject,E_RandomNumberGenerator,"setSeed",1,1,
-				(self->ref().setSeed(parameter[0].toInt()),self))
-
-	//! [ESF]float RandomNumberGenerator.student(n)
-	ESMF_DECLARE(typeObject,E_RandomNumberGenerator,"student",1,1,
-				Number::create(self->ref().student(parameter[0].toInt())))
-
-	//! [ESF] float RandomNumberGenerator.uniform(a,b)
-	ESMF_DECLARE(typeObject,E_RandomNumberGenerator,"uniform",2,2,
-				Number::create( self->ref().uniform(parameter[0].toDouble(),parameter[1].toDouble())))
+	//! [ESMF] Number RandomNumberGenerator.uniform(a,b)
+	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "uniform", 2, 2,
+				 Number::create(std::uniform_real_distribution<double>(parameter[0].toDouble(), parameter[1].toDouble())(**self)))
 
 }
-// ---------------------------------------------------------------
 
 }
 }
