@@ -212,18 +212,17 @@ void StdLib::init(EScript::Namespace * globals) {
 		like http://de3.php.net/manual/de/function.getdate.php	*/
 	ES_FUNCTION_DECLARE(globals,"getDate",0,1,{
 		time_t t=(parameter.count()==0)?time(nullptr):static_cast<time_t>(parameter[0]->toInt());
-		tm d;
-		localtime_r(&t, &d);
+		tm *d=localtime (& t );
 		Map * m=Map::create();
-		m->setValue(String::create("seconds"),Number::create(d.tm_sec));
-		m->setValue(String::create("minutes"),Number::create(d.tm_min));
-		m->setValue(String::create("hours"),Number::create(d.tm_hour));
-		m->setValue(String::create("mday"),Number::create(d.tm_mday));
-		m->setValue(String::create("mon"),Number::create(d.tm_mon+1));
-		m->setValue(String::create("year"),Number::create(d.tm_year+1900));
-		m->setValue(String::create("wday"),Number::create(d.tm_wday));
-		m->setValue(String::create("yday"),Number::create(d.tm_yday));
-		m->setValue(String::create("isdst"),Number::create(d.tm_isdst));
+		m->setValue(String::create("seconds"),Number::create(d->tm_sec));
+		m->setValue(String::create("minutes"),Number::create(d->tm_min));
+		m->setValue(String::create("hours"),Number::create(d->tm_hour));
+		m->setValue(String::create("mday"),Number::create(d->tm_mday));
+		m->setValue(String::create("mon"),Number::create(d->tm_mon+1));
+		m->setValue(String::create("year"),Number::create(d->tm_year+1900));
+		m->setValue(String::create("wday"),Number::create(d->tm_wday));
+		m->setValue(String::create("yday"),Number::create(d->tm_yday));
+		m->setValue(String::create("isdst"),Number::create(d->tm_isdst));
 		return m;
 	})
 
