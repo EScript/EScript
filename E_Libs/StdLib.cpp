@@ -15,6 +15,7 @@
 #include <stdlib.h>
 #include <ctime>
 #include <unistd.h>
+#include <cstdlib>
 
 #if defined(_WIN32)
 #include <windows.h>
@@ -225,7 +226,15 @@ void StdLib::init(EScript::Namespace * globals) {
 		m->setValue(String::create("isdst"),Number::create(d->tm_isdst));
 		return m;
 	})
-
+	
+	//! [ESF] string|void getEnv(String)
+	ES_FUNCTION_DECLARE(globals,"getEnv",1,1,{
+		char * value = std::getenv(parameter[0].toString().c_str());
+		if(value==NULL)
+			return Void::get();
+		return String::create(value);
+	})
+	
 	//! [ESF]  string getOS()
 	ESF_DECLARE(globals,"getOS",0,0,String::create(StdLib::getOS()))
 
