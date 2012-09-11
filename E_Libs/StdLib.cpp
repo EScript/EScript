@@ -229,7 +229,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	
 	//! [ESF] string|void getEnv(String)
 	ES_FUNCTION_DECLARE(globals,"getEnv",1,1,{
-		char * value = std::getenv(parameter[0].toString().c_str());
+		const char * value = std::getenv(parameter[0].toString().c_str());
 		if(value==nullptr)
 			return Void::get();
 		return String::create(value);
