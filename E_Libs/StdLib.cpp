@@ -177,12 +177,8 @@ void StdLib::init(EScript::Namespace * globals) {
 	})
 
 	//! [ESF]  string chr(number)
-	ES_FUNCTION_DECLARE(globals,"chr",1,1,{
-		std::ostringstream s;
-		s<< static_cast<char>(parameter[0]->toInt());
-		return String::create(s.str());
-	})
-
+	ESF_DECLARE(globals,"chr",1,1,
+		String::create(std::string(1, static_cast<char>(parameter[0]->toInt()))))
 
 	// clock
 	{
