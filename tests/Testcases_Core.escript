@@ -1028,6 +1028,12 @@ if(!benchmark)
 	test("@(init):", b.a == 17 && b.b==17 && b.c == [] && b.d.value==17  );
 }
 
+{	// StdLib (not complete!)
+	test("StdLib:", !getEnv("PATH").empty() && !getEnv("THIS_SHOULD_NOT_EXIST") &&
+		chr(65)=="A" && ord("A")==65 && ord("")==0 );
+}
+
+
 {	// raw strings & string concatenation
 	test("String literals", "foo" "" "bar" == "foobar" && "0" /*dumdidu*/ '1' "2" +"3" == "0123" && 
 R"(a\

@@ -246,6 +246,9 @@ void StdLib::init(EScript::Namespace * globals) {
 	//!	[ESF] mixed loadOnce(string filename)
 	ESF_DECLARE(globals,"loadOnce",1,1,StdLib::loadOnce(runtime,parameter[0].toString()).detachAndDecrease())
 
+	//! [ESF]  Number ord(String)
+	ESF_DECLARE(globals,"ord",1,1,Number::create(parameter[0].toString().c_str()[0] ))
+
 	//! [ESF] void out(...)
 	ES_FUNCTION_DECLARE(globals,"out",0,-1, {
 		for(ParameterValues::const_iterator it=parameter.begin();it!=parameter.end();++it)
