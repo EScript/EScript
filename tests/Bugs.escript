@@ -702,3 +702,23 @@
 	while(false); // Crashes the test with a segmentation fault if the test fails.
 	test("BUG[20120821]", true);
 }
+
+{	// wrong _printableName can result in an endless loop.
+	var e = new ExtObject;
+	e._printableName @(override) := e;
+	new String(e); // endless loop
+	test("BUG[20121010.1]", true);
+}
+
+{	// setting type attributes on a extObject should issue a warning (which can be overriden by using setAttribute)
+	var errorFound = false;
+	Runtime.setTreatWarningsAsError(true);
+	try{
+		var e = new ExtObject;
+		e.foo ::= 1;
+	}catch(e){
+		errorFound = true;
+	}
+	Runtime.setTreatWarningsAsError(false);
+	test("BUG[20121010.2]", errorFound);
+}
