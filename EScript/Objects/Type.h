@@ -36,7 +36,7 @@ class Type : public Object {
 
 		/// ---|> [Object]
 		virtual Object * clone() const;
-
+		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_TYPE;	}
 	//	@}
 
 	// -------------------------------------------------------------

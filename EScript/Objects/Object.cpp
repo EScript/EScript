@@ -90,9 +90,15 @@ void Object::init(EScript::Namespace & globals) {
 	//! [ESMF] Object Object.getAttributeProperties(key)
 	ESF_DECLARE(typeObject,"getAttributeProperties",1,1,
 				Number::create(static_cast<unsigned int>(caller->getAttribute(parameter[0].toString()).getProperties())))
+				
+	//! [ESMF] Object Object.getLocalAttribute(key)
+	ESF_DECLARE(typeObject,"getLocalAttribute",1,1,caller->getLocalAttribute(parameter[0].toString()).getValue())
 
 	//! [ESMF] Bool Object.isSet(key)
 	ESF_DECLARE(typeObject,"isSet",1,1,Bool::create(!caller->getAttribute(parameter[0].toString()).isNull()))
+
+	//! [ESMF] Bool Object.isSetLocally(key)
+	ESF_DECLARE(typeObject,"isSetLocally",1,1,Bool::create(!caller->getLocalAttribute(parameter[0].toString()).isNull()))
 
 	//! [ESMF] Bool Object.setAttribute(key,value(,flags=ATTR_NORMAL_ATTRIBUTE))
 	ESF_DECLARE(typeObject,"setAttribute",2,3,
@@ -215,11 +221,16 @@ std::string Object::toString()const {
 	const Object * printableName = const_cast<Object*>(this)->getAttribute(Consts::IDENTIFIER_attr_printableName).getValue();
 
 	// #TYPENAME:0x42342
-	// #PRINTABLENAME:TYPENAME:0x42342
+	// #PRINTABLENAME:TYPENAME:0x42342 
+	// \note If _printableName is neighter String nor Identifier it is ignored.
+	//		This removes the possibility of endless recursions, e.g. if the _printableName is the Object itself.
 	std::ostringstream sprinter;
 	sprinter << "#";
-	if(printableName!=NULL)
-		sprinter << printableName->toString() << ":";
+	if(printableName!=NULL){
+		const internalTypeId_t typeId = printableName->_getInternalTypeId();
+		if(typeId==_TypeIds::TYPE_STRING || typeId==_TypeIds::TYPE_IDENTIFIER)
+			sprinter << printableName->toString() << ":";
+	}
 
 	sprinter << getTypeName()<<":"<<static_cast<const void*>(this);
 	return sprinter.str();

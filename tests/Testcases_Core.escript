@@ -666,7 +666,6 @@ if(!benchmark)
 
 	var b=new B();
 
-
 //    print_r(B._getAttributes());
 //    out("A.a: ",A.a," A.b: ",A.b," A.c: ",A.c," A.d: ",A.d," B.a: ",B.a," B.b: ",B.b," B.c: ",B.c," B.d: ",B.d," \n");
 	var C=new Type;
@@ -686,6 +685,8 @@ if(!benchmark)
 	&& B.getType()==Type && B.getBaseType()==A && (new B()).getType()==B && (new B()).getType().getBaseType()==A
 	&& (new B()).f==2 && c1==1 && !(c1==2) && c1!=2
 	&& b.toString().contains("MyUserdefinedA")
+	&& b.isSetLocally($a) && !b.isSetLocally($c) && A.isSetLocally($c) && B.isSetLocally($a)
+	&& A.getLocalAttribute($a)==1 && B.getLocalAttribute($a)==2 && b.getLocalAttribute($a)==2
 	)
 		{out (OK);}else { errors+=1; out(FAILED); }
 

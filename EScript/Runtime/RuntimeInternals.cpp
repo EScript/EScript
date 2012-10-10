@@ -481,6 +481,9 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			if( (properties & Attribute::OVERRIDE_BIT) && (obj->_accessAttribute(instruction.getValue_Identifier(),false) == NULL ) ) {
 				warn("Attribute marked with @(override) does not override.");
 			}
+			if( (properties & Attribute::TYPE_ATTR_BIT) && obj->_getInternalTypeId() != _TypeIds::TYPE_TYPE) {
+				warn("Setting type attribute '"+instruction.getValue_Identifier().toString()+"' to an object which is no Type.");
+			}
 			if(!obj->setAttribute(instruction.getValue_Identifier(),Attribute(value,properties))){
 				warn("Could not set attribute '"+instruction.getValue_Identifier().toString()+"'.");
 			}
