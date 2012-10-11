@@ -6,11 +6,11 @@
 
 // huge(always 0) * 10000 + major * 100 + minor
 #define ES_VERSION 603
-#define ES_VERSION_STRING "EScript 0.6.3 GubbelGubbel - exp (http://escript.berlios.de/)\0"
+#define ES_VERSION_STRING "EScript 0.6.4 GubbelGubbel - stable (http://escript.berlios.de/)\0"
 #define ES_VERSION_NAME "GubbelGubbel\0"
 
 // used for the windows resources file:
-#define ES_VERSION_RES 0,6,3,0
-#define ES_VERSION_RES_STRING "0,6,3,0\0"
+#define ES_VERSION_RES 0,6,4,0
+#define ES_VERSION_RES_STRING "0,6,4,0\0"
 
 #endif // ES_VERSION_H
