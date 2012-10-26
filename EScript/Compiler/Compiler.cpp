@@ -345,6 +345,9 @@ bool initHandler(handlerRegistry_t & m){
 					if( !self->isConstructorCall() ){ // constructor calls don't need a caller
 						ctxt.addInstruction(Instruction::createPushVoid());
 					}
+					if(self->getGetFunctionExpression().isNull()){
+						throw std::runtime_error("Compiler: Empty function call.");
+					}
 					ctxt.addExpression(self->getGetFunctionExpression());
 					break;
 				}

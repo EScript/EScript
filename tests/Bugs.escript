@@ -722,3 +722,13 @@
 	Runtime.setTreatWarningsAsError(false);
 	test("BUG[20121010.2]", errorFound);
 }
+{	// The process crashes when parsing a constructor call with an object expression in brackets and without parameters.
+	var errorFound = false;
+	new (Array); // this is ok and should NOT crash!
+	try{
+		eval("new ();"); // this should result in an exception (syntax error) -- not a crash.
+	}catch(e){
+		errorFound = true;
+	}
+	test("BUG[20121025]", errorFound);
+}

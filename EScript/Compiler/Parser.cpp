@@ -939,7 +939,9 @@ EPtr<AST::ASTNode> Parser::readBinaryExpression(ParsingContext & ctxt,int & curs
 
 		/// if new has parameters "(...)", search for their beginning.
 		if (Token::isA<TEndBracket>(tokens[to])) {
-			objExprTo=findCorrespondingBracket<TEndBracket,TStartBracket>(ctxt,objExprTo,rightExprFrom,-1);
+			const int leftBracket = findCorrespondingBracket<TEndBracket,TStartBracket>(ctxt,objExprTo,rightExprFrom,-1);
+			if(leftBracket>cursor) /// if leftBracket==cursor the brackets enclose the objExpr and not the parameters. e.g. new (A);
+				objExprTo = leftBracket;
 		}
 		/// read parameters
 		ASTNode::refArray_t paramExp;
@@ -951,6 +953,8 @@ EPtr<AST::ASTNode> Parser::readBinaryExpression(ParsingContext & ctxt,int & curs
 		}
 		/// read Object-expression
 		EPtr<AST::ASTNode> obj=readExpression(ctxt,cursor,objExprTo);
+		if(obj.isNull())
+			throwError(ctxt,"[new] Syntax error.",tokens.at(cursor));
 		cursor = to; // set cursor at end of parameter list
 		return FunctionCallExpr::createConstructorCall(obj,paramExp,currentLine);
 	}
