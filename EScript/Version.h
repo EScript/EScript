@@ -5,7 +5,7 @@
 #ifndef ES_VERSION_H
 
 // huge(always 0) * 10000 + major * 100 + minor
-#define ES_VERSION 603
+#define ES_VERSION 604
 #define ES_VERSION_STRING "EScript 0.6.4 GubbelGubbel - stable (http://escript.berlios.de/)\0"
 #define ES_VERSION_NAME "GubbelGubbel\0"
 
