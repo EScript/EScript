@@ -11,7 +11,7 @@
 #include <string>
 #include <stack>
 #include <iostream>
-
+#include <random>
 namespace EScript{
 
 using std::vector;
@@ -316,7 +316,7 @@ void Array::removeIndex(size_t index){
 
 void Array::reverse(){
 	if(size()>1){
-		size_t hSize=static_cast<size_t>(size()/2.0);
+		const size_t hSize=static_cast<size_t>(size()/2.0);
 		size_t j=size()-1;
 		for(size_t i=0;i<hSize;++i,--j){
 			ObjRef o=data[i];
@@ -343,42 +343,79 @@ std::string Array::implode(const std::string & delimiter/*=";"*/){
 	return sprinter.str();
 }
 
+static bool compare(Runtime & runtime,Object * function,Object * a,Object * b){
+	if (function!=nullptr) { // comparement function given?
+		ObjRef result=callFunction(runtime,function,ParameterValues(a,b));
+		return result.toBool();
+	}else{
+		ObjRef result=callMemberFunction(runtime,a,Consts::IDENTIFIER_fn_less,ParameterValues(b));
+		return result.toBool();
+	}
+}
+	
+
 //! (implements quicksort)
 void Array::rt_sort(Runtime & runtime,Object * function/*=nullptr*/,bool reverseOrder ) {
-	if (count()<=1) return;
+	if(count()<=1) return;
 
 	//quicksort(runtime,0,count()-1);
 	std::stack<std::pair<size_t,size_t> > pos;
 	pos.push(std::make_pair(0,count()-1));
 
-	while (! pos.empty()) {
-		size_t left=pos.top().first;
-		size_t right=pos.top().second;
+//	int cCount = 0;
+
+	std::default_random_engine engine;
+	while(! pos.empty()) {
+		const size_t left=pos.top().first;
+		const size_t right=pos.top().second;
 		pos.pop();
 
+		std::uniform_int_distribution<size_t> dis(left, right);
+
 		// PARTITION
-		//int split=partition(runtime,left,right);
+		data[left].swap(data[dis(engine)]); // permutate the first element to pick a random pivot
+
+		/* For larger arrays select the median of three random elements.
+			For good inputs, this introduces an additional overhead; for bad inputs this
+			can speed up the sorting by a factor of 3 (measured). */
+		if( left+100<right ){ 
+			const size_t center = (right+left)/2;
+			data[right].swap(data[dis(engine)]);
+			data[center].swap(data[dis(engine)]);
+
+			Object * s1 = data[left].get();
+			Object * s2 = data[center].get();
+			Object * s3 = data[right].get();
+			
+			// s1 < s2 < s3 || s1 > s2 > s3
+			const bool s1_lt_s2 = compare(runtime,function,s1,s2);
+//			++cCount;
+			if(!runtime.checkNormalState())	return;
+			const bool s2_lt_s3 = compare(runtime,function,s2,s3);
+//			++cCount;
+			if(!runtime.checkNormalState())	return;
+			if( (s1_lt_s2&&s2_lt_s3) || (!s1_lt_s2 && !s2_lt_s3) ){
+				data[left].swap(data[center]);
+			}else{
+				// s1 < s3 < s2 || s1 > s3 > s2
+				const bool s1_lt_s3 = compare(runtime,function,s1,s3);
+				++cCount;
+				if(!runtime.checkNormalState())	return;
+				if( (s1_lt_s3&&!s2_lt_s3) || (!s1_lt_s3 && s2_lt_s3) ){
+					data[left].swap(data[right]);
+//				}else{ // s2 < s1 < s3 || s2 > s1 > s3
+				}
+			}
+		}
 		size_t split=left;
 		for (size_t i=left;i<right;++i) {
 			Object * di=data[i].get();
 			Object * dr=data[right].get();
 
-			bool change=false;
-
-			if (di==nullptr)
-				change=true;
-			else if (dr==nullptr)
-				change=false;
-			else if (function!=nullptr) { // comparement function given?
-//				executeFunction(const ObjPtr & fun,const ObjPtr & callingObject,const ParameterValues & params,bool isConstructor=false);
-				ObjRef result=callFunction(runtime,function,ParameterValues(di,dr));
-				if(!runtime.checkNormalState())
-					return;
-				change=result.toBool();
-			}else{
-				ObjRef result=callMemberFunction(runtime,di,Consts::IDENTIFIER_fn_less,ParameterValues(dr));
-				change=result.toBool();
-			}
+			const bool change=compare(runtime,function,di,dr);
+//			++cCount;
+			if(!runtime.checkNormalState())
+				return;
 
 			if (change^reverseOrder) {
 				data[i].swap(data[split]);
@@ -396,6 +433,7 @@ void Array::rt_sort(Runtime & runtime,Object * function/*=nullptr*/,bool reverse
 		if(right > split+1) // right==split -> no elements to sort, right==split+1 -> only one element
 			pos.push(std::make_pair(split+1,right));
 	}
+//	std::cout << " ("<<cCount<<")";
 }
 
 
@@ -507,7 +545,7 @@ Object * Array::ArrayIterator::value() {
 
 //! ---|> [Iterator]
 void Array::ArrayIterator::next() {
-	index++;
+	++index;
 }
 
 //! ---|> [Iterator]

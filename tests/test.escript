@@ -1,6 +1,24 @@
 // Testcases for HasEScript Scripting-Language
 out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 
+{
+	var t = [];
+	for(var j=0;j<100;++j){
+		var arr = [];
+		for(var i=0;i<5000;++i)
+//			arr += i+Rand.uniform(0,100);
+			arr += Rand.uniform(0,100);
+		var start=clock();
+		arr.sort();
+		t+=clock()-start;
+		out(".");
+	}
+	t.sort();
+	outln(t[50]);
+//	print_r(t);
+//	outln(clock()-start);
+
+}
 //----
 // init
 GLOBALS.benchmark:=false;
