@@ -399,7 +399,7 @@ void Array::rt_sort(Runtime & runtime,Object * function/*=nullptr*/,bool reverse
 			}else{
 				// s1 < s3 < s2 || s1 > s3 > s2
 				const bool s1_lt_s3 = compare(runtime,function,s1,s3);
-				++cCount;
+// 				++cCount;
 				if(!runtime.checkNormalState())	return;
 				if( (s1_lt_s3&&!s2_lt_s3) || (!s1_lt_s3 && s2_lt_s3) ){
 					data[left].swap(data[right]);
