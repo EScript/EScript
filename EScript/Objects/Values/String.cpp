@@ -23,13 +23,6 @@ StringData String::objToStringData(Object * obj){
 
 //---
 
-//! (static)
-Type * String::getTypeObject(){
-	// [String] ---|> [Object]
-	static Type * typeObject = new Type(Object::getTypeObject());
-	return typeObject;
-}
-
 //! initMembers
 void String::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();

@@ -3,19 +3,10 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Iterator.h"
-
 #include "../EScript.h"
-
 #include "Values/Bool.h"
 
 using namespace EScript;
-
-//! (static)
-Type * Iterator::getTypeObject(){
-	// [Iterator] ---|> [Object]
-	static Type * typeObject = new Type(Object::getTypeObject());
-	return typeObject;
-}
 
 //! initMembers
 void Iterator::init(EScript::Namespace & globals) {

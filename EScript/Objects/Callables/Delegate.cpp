@@ -9,13 +9,6 @@
 using namespace EScript;
 //---
 
-//! (static)
-Type * Delegate::getTypeObject(){
-	// [Delegate] ---|> [Object]
-	static Type * typeObject = new Type(Object::getTypeObject());
-	return typeObject;
-}
-
 //! initMembers
 void Delegate::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();
@@ -41,10 +34,6 @@ Delegate::Delegate(ObjPtr object,ObjPtr function):
 	//ctor
 }
 
-//! (dtor)
-Delegate::~Delegate() {
-	//dtor
-}
 
 //! ---|> [Object]
 Delegate * Delegate::clone() const{

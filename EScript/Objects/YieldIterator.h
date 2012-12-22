@@ -5,21 +5,21 @@
 #ifndef ES_YIELD_ITERATOR_H
 #define ES_YIELD_ITERATOR_H
 
-#include "Object.h"
+#include "Type.h"
 #include "../Runtime/FunctionCallContext.h"
 
 namespace EScript {
 
-/*! [YieldIterator] ---|> [Object]   */
+//! [YieldIterator] ---|> [Object]
 class YieldIterator : public Object {
+		ES_PROVIDES_TYPE_OBJECT(Object)
 		ES_PROVIDES_TYPE_NAME(YieldIterator)
 	public:
-		static Type * getTypeObject();
 		static void init(EScript::Namespace & globals);
 		// ----
 
 		YieldIterator()	: Object(getTypeObject()),counter(0) {}
-		virtual ~YieldIterator() {	}
+		virtual ~YieldIterator()					{	}
 
 		Object * value()const						{	return currentValue.get();	}
 		Object * key()const	;

@@ -15,6 +15,7 @@ namespace EScript {
 
 /*! [Array]  ---|> [Collection] ---|> [Object]  */
 class Array : public Collection {
+		ES_PROVIDES_TYPE_OBJECT(Collection)
 		ES_PROVIDES_TYPE_NAME(Array)
 
 	//---------------------
@@ -45,7 +46,7 @@ class Array : public Collection {
 	private:
 		static std::stack<Array *> pool;
 
-		Array(Type * type = nullptr);
+		Array(Type * type = nullptr) : Collection(type?type:getTypeObject()){}
 
 		void init(const ParameterValues & p);
 		void init(size_t num,Object ** objs);
@@ -56,7 +57,7 @@ class Array : public Collection {
 		static Array * create(size_t num,Object ** objs,Type * type = nullptr);
 		static Array * create(size_t num,char ** strings,Type * type = nullptr);
 		static void release(Array * b);
-		virtual ~Array();
+		virtual ~Array()	{ }
 	//	@}
 
 	//---------------------
@@ -64,7 +65,6 @@ class Array : public Collection {
 	//! @name TypeObject
 	// @{
 	public:
-		static Type * getTypeObject();
 		static void init(EScript::Namespace & globals);
 	//	@}
 

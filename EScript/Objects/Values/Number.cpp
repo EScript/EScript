@@ -22,13 +22,6 @@ using namespace EScript;
 
 std::stack<Number *> Number::numberPool;
 
-//! (static)
-Type * Number::getTypeObject(){
-	// [Number] ---|> [Object]
-	static Type * typeObject = new Type(Object::getTypeObject());
-	return typeObject;
-}
-
 //! initMembers
 void Number::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();

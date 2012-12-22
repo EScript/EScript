@@ -9,13 +9,6 @@
 #include <sstream>
 using namespace EScript;
 
-//! (static)
-Type * Exception::getTypeObject(){
-	// [Exception] ---|> [Object]
-	static Type * typeObject = new Type(ExtObject::getTypeObject());
-	return typeObject;
-}
-
 //! initMembers
 void Exception::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();

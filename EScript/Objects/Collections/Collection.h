@@ -5,7 +5,7 @@
 #ifndef COLLECTION_H
 #define COLLECTION_H
 
-#include "../Object.h"
+#include "../Type.h"
 #include "../../Utils/ObjArray.h"
 
 namespace EScript {
@@ -13,13 +13,13 @@ class Iterator;
 
 /*! (abstract) [Collection] ---|>  Object]  */
 class Collection : public Object {
+		ES_PROVIDES_TYPE_OBJECT(Object)
 		ES_PROVIDES_TYPE_NAME(Collection)
 	public:
-		static Type * getTypeObject();
 		static void init(EScript::Namespace & globals);
 		// ---
-		Collection(Type * type = nullptr);
-		virtual ~Collection();
+		Collection(Type * type = nullptr) : Object(type?type:getTypeObject()) { }
+		virtual ~Collection()	{ }
 
 		/// ---o
 		virtual Object * getValue(ObjPtr key);

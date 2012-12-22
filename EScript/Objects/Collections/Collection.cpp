@@ -9,14 +9,6 @@
 
 namespace EScript{
 
-//! (static)
-Type * Collection::getTypeObject()	{
-
-	// Collection ---|> [Object]
-	static Type * typeObject = new Type(Object::getTypeObject());
-	return typeObject;
-}
-
 //! initMembers
 void Collection::init(EScript::Namespace & globals) {
 
@@ -97,15 +89,6 @@ void Collection::init(EScript::Namespace & globals) {
 
 //---
 
-//! (ctor)
-Collection::Collection(Type * type):Object(type?type:getTypeObject()) {
-	//ctor
-}
-
-//! (dtor)
-Collection::~Collection() {
-	//dtor
-}
 
 //! ---o
 Object * Collection::getValue(ObjPtr /*key*/) {

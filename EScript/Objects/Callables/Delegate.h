@@ -5,20 +5,20 @@
 #ifndef ES_DELEGATE_H
 #define ES_DELEGATE_H
 
-#include "../Object.h"
+#include "../Type.h"
 
 namespace EScript {
 
-/*! [Delegate] ---|> [Object]   */
+//! [Delegate] ---|> [Object]
 class Delegate : public Object {
+		ES_PROVIDES_TYPE_OBJECT(Object)
 		ES_PROVIDES_TYPE_NAME(Delegate)
 	public:
-		static Type * getTypeObject();
 		static void init(EScript::Namespace & globals);
 		// ----
 
 		Delegate(ObjPtr object,ObjPtr function);
-		virtual ~Delegate();
+		virtual ~Delegate()	{ }
 
 		Object * getObject()const				{	return myObjectRef.get();	}
 		Object * getFunction()const				{	return functionRef.get();	}

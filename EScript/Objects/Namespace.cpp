@@ -9,13 +9,6 @@
 using namespace EScript;
 //---
 
-
-//! (static)
-Type * Namespace::getTypeObject()	{
-	static Type * typeObject = new Type(ExtObject::getTypeObject());
-	return typeObject;
-}
-
 //! initMembers
 void Namespace::init(EScript::Namespace & globals) {
 	// [Namespace] ---|> [ExtObject] ---|> [Object]
@@ -29,26 +22,6 @@ void Namespace::init(EScript::Namespace & globals) {
 }
 
 //---
-
-//! (ctor)
-Namespace::Namespace():
-		ExtObject(getTypeObject()) {
-
-	//ctor
-}
-
-//! (ctor)
-Namespace::Namespace(Type * type):
-		ExtObject(type) {
-
-	//ctor
-}
-
-
-//! (dtor)
-Namespace::~Namespace() {
-	//dtor
-}
 
 //! ---|> [Object]
 Namespace * Namespace::clone() const{

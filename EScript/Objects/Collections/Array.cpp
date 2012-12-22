@@ -14,15 +14,6 @@
 #include <random>
 namespace EScript{
 
-using std::vector;
-
-//! (static)
-Type * Array::getTypeObject(){
-	// [Array] ---|> [Collection]
-	static Type * typeObject = new Type(Collection::getTypeObject());
-	return typeObject;
-}
-
 //! initMembers
 void Array::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();
@@ -201,15 +192,6 @@ void Array::release(Array * a){
 }
 
 // -----------------------------------------------------------------------
-//! (ctor)
-Array::Array(Type * type):Collection(type?type:getTypeObject()) {
-	//ctor
-}
-
-//! (dtor)
-Array::~Array() {
-	//dtor
-}
 
 //! (internal)
 void Array::init(const ParameterValues & p) {

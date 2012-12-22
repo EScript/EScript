@@ -5,7 +5,7 @@
 #ifndef NUMBER_H
 #define NUMBER_H
 
-#include "../Object.h"
+#include "../Type.h"
 #include <stack>
 #include <string>
 
@@ -19,9 +19,9 @@ namespace EScript {
 
 /*! [Number] ---|> [Object] */
 class Number : public Object {
+		ES_PROVIDES_TYPE_OBJECT(Object)
 		ES_PROVIDES_TYPE_NAME(Number)
 	public:
-		static Type * getTypeObject();
 		static void init(EScript::Namespace & globals);
 
 		// ---

@@ -4,20 +4,20 @@
 // ------------------------------------------------------
 #ifndef E_ITERATOR_H
 #define E_ITERATOR_H
-#include "Object.h"
+#include "Type.h"
 
 namespace EScript {
 
 //! (abstract) [Iterator] ---|> [Object]
 class Iterator : public Object {
+		ES_PROVIDES_TYPE_OBJECT(Object)
 		ES_PROVIDES_TYPE_NAME(Iterator)
 	public:
-		static Type * getTypeObject();
 		static void init(EScript::Namespace & globals);
 
 		// ---
 		Iterator(Type * type=nullptr) : Object(type?type:getTypeObject()) {}
-		virtual ~Iterator()			{}
+		virtual ~Iterator()			{	}
 
 		/// ---o
 		virtual Object * key()		{	return nullptr;	}

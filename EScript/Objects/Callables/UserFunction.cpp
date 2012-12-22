@@ -8,13 +8,6 @@
 
 using namespace EScript;
 
-
-//! (static)
-Type * UserFunction::getTypeObject()	{
-	static Type * typeObject = new Type(ExtObject::getTypeObject());
-	return typeObject;
-}
-
 //! (static) initMembers
 void UserFunction::init(EScript::Namespace & globals) {
 	// [UserFunction] ---|> [ExtObject] ---|> [Object]
@@ -52,11 +45,8 @@ UserFunction::UserFunction(const UserFunction & other) :
 //! (ctor)
 UserFunction::UserFunction() :
 		ExtObject(getTypeObject()),line(-1),paramCount(0),minParamValueCount(0),maxParamValueCount(0) {
-//	initInstructions();
 	//ctor
 }
-//! (ctor)
-UserFunction::~UserFunction(){}
 
 //! ---|> Object
 std::string UserFunction::toDbgString()const{

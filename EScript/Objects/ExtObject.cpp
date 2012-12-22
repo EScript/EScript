@@ -8,13 +8,6 @@
 
 using namespace EScript;
 
-//! (static)
-Type * ExtObject::getTypeObject(){
-	// [ExtObject] ---|> [Object]
-	static Type * typeObject = new Type(Object::getTypeObject());
-	return typeObject;
-}
-
 //! (static) initMembers
 void ExtObject::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();
@@ -46,8 +39,7 @@ ExtObject * ExtObject::create(){
 
 
 //! (ctor)
-ExtObject::ExtObject():
-		Object(ExtObject::getTypeObject()) {
+ExtObject::ExtObject() : Object(ExtObject::getTypeObject()) {
 	//ctor
 }
 
@@ -64,10 +56,6 @@ ExtObject::ExtObject(Type * type) : Object(type) {
 	//ctor
 }
 
-//! (dtor)
-ExtObject::~ExtObject() {
-	//dtor
-}
 
 //! ---|> [Object]
 Object * ExtObject::clone() const{

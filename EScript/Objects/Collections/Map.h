@@ -13,6 +13,7 @@ namespace EScript {
 
 /*! [Map] ---|> [Collection] ---|> [Object] */
 class Map : public Collection {
+		ES_PROVIDES_TYPE_OBJECT(Collection)
 		ES_PROVIDES_TYPE_NAME(Map)
 
 	//---------------------
@@ -58,8 +59,8 @@ class Map : public Collection {
 		static Map * create(const std::unordered_map<StringId,Object *> &);
 
 		// ---
-		Map(Type * type = nullptr);
-		virtual ~Map();
+		Map(Type * type = nullptr) : Collection(type?type:getTypeObject()){}
+		virtual ~Map(){}
 	//	@}
 
 	//---------------------
@@ -67,7 +68,6 @@ class Map : public Collection {
 	//! @name TypeObject
 	// @{
 	public:
-		static Type * getTypeObject();
 		static void init(EScript::Namespace & globals);
 	//	@}
 
@@ -106,7 +106,7 @@ class Map : public Collection {
 				ES_PROVIDES_TYPE_NAME(MapIterator)
 			public:
 				MapIterator(Map * ar);
-				virtual ~MapIterator();
+				virtual ~MapIterator() { }
 
 				/// ---|> [Iterator]
 				virtual Object * key();

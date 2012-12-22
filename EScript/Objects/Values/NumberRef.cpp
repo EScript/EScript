@@ -8,13 +8,6 @@
 using namespace EScript;
 //---
 
-//---
-//! (static)
-Type * NumberRef::getTypeObject(){
-	// [NumberRef] ---|> [Number]
-	static Type * typeObject = new Type(Number::getTypeObject());
-	return typeObject;
-}
 
 //! initMembers
 void NumberRef::init(EScript::Namespace & globals) {

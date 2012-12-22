@@ -8,13 +8,6 @@
 
 using namespace EScript;
 
-//! (static)
-Type * Function::getTypeObject()	{
-	//! Function ---> Object
-	static Type * typeObject = new Type(Object::getTypeObject());
-	return typeObject;
-}
-
 //! (static) initMembers
 void Function::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();
@@ -50,6 +43,3 @@ Function::Function(functionPtr _fnptr) :
 		Object(getTypeObject()),fnptr(_fnptr),minParamCount(0),maxParamCount(-1),originalName(0),callCounter(0) {
 }
 
-//! (ctor)
-Function::~Function() {
-}

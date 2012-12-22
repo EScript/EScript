@@ -11,13 +11,6 @@
 
 namespace EScript{
 
-//! (static)
-Type * Bool::getTypeObject(){
-	// [Bool] ---|> [Object]
-	static Type * typeObject = new Type(Object::getTypeObject());
-	return typeObject;
-}
-
 //! initMembers
 void Bool::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();
@@ -102,10 +95,5 @@ void Bool::release(Bool * o){
 }
 
 //---
-
-Bool::Bool(bool _value,Type * type) :
-		Object(type?type:getTypeObject()),value(_value) {
-	//ctor
-}
 
 } // namespace EScript

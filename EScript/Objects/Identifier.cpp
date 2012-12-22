@@ -7,13 +7,6 @@
 
 namespace EScript{
 
-//! (static)
-Type * Identifier::getTypeObject(){
-	// [Identifier] ---|> [Object]
-	static Type * typeObject = new Type(Object::getTypeObject());
-	return typeObject;
-}
-
 //! (static) initMembers
 void Identifier::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();
@@ -40,11 +33,6 @@ Identifier * Identifier::create( const std::string & s){
 Identifier::Identifier(const StringId &_id):
 		Object(getTypeObject()),id(_id) {
 	//ctor
-}
-
-//! (dtor)
-Identifier::~Identifier() {
-	//dtor
 }
 
 //! ---|> [Object]

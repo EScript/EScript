@@ -23,15 +23,8 @@ namespace EScript{
 
 // ----------------------------------------------------------------------
 // ---- Initialization
-//! (static)
-Type * Runtime::getTypeObject(){
-	// [Runtime] ---|> [ExtObject]
-	static Type * typeObject = new Type(ExtObject::getTypeObject());
-	return typeObject;
-}
-/**
- * initMembers
- */
+
+//!	initMembers
 void Runtime::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();
 	initPrintableName(typeObject,getClassName());

@@ -5,21 +5,21 @@
 #ifndef LIBFUNCTION_H
 #define LIBFUNCTION_H
 
-#include "../Object.h"
+#include "../Type.h"
 #include "../../Utils/ObjArray.h"
 
 namespace EScript {
 class Runtime;
 
-/*! [Function] ---|> [Object]   */
+//! [Function] ---|> [Object]
 class Function : public Object {
+		ES_PROVIDES_TYPE_OBJECT(Object)
 		ES_PROVIDES_TYPE_NAME(Function)
 	public:
 
 	/*! @name Initialization */
 	//	@{
 	public:
-		static Type * getTypeObject();
 		static void init(EScript::Namespace & globals);
 	//	@}
 
@@ -28,7 +28,7 @@ class Function : public Object {
 		// ---
 		Function(functionPtr fnptr);
 		Function(StringId originalName, int minParamCount, int maxParamCount, functionPtr fnptr);
-		virtual ~Function();
+		virtual ~Function()	{}
 
 		int getCallCounter()const							{	return callCounter;	}
 		functionPtr getFnPtr()const							{	return fnptr;	}

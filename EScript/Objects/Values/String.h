@@ -5,7 +5,7 @@
 #ifndef STRING_H
 #define STRING_H
 
-#include "../Object.h"
+#include "../Type.h"
 #include "../../Utils/StringData.h"
 #include <stack>
 #include <string>
@@ -14,6 +14,7 @@ namespace EScript {
 
 /*! [String] ---|> [Object] */
 class String : public Object {
+		ES_PROVIDES_TYPE_OBJECT(Object)
 		ES_PROVIDES_TYPE_NAME(String)
 	private:
 		static std::stack<String *> stringPool;
@@ -24,7 +25,6 @@ class String : public Object {
 		static StringData objToStringData(Object * obj);
 
 	public:
-		static Type * getTypeObject();
 		static void init(EScript::Namespace & globals);
 
 		static String * create(const std::string & s)				{	return create(StringData(s));	}

@@ -8,18 +8,6 @@
 #include <string>
 
 using namespace EScript;
-//---
-
-using std::map;
-
-//---
-
-//! (static)
-Type * Map::getTypeObject(){
-	// [Map] ---|> [Collection]
-	static Type * typeObject = new Type(Collection::getTypeObject());
-	return typeObject;
-}
 
 //! initMembers
 void Map::init(EScript::Namespace & globals) {
@@ -80,16 +68,6 @@ Map * Map::create(const std::unordered_map<StringId,Object *> & attr){
 }
 
 //---
-
-//! (ctor)
-Map::Map(Type * type):Collection(type?type:getTypeObject()) {
-	//ctor
-}
-
-//! (dtor)
-Map::~Map() {
-	//dtor
-}
 
 void Map::unset(ObjPtr key){
 	if(!key.isNull())
@@ -199,9 +177,6 @@ Map::MapIterator::MapIterator(Map * _map):Iterator(),mapRef(_map) {
 	it = mapRef->data.begin();
 }
 
-//! (dtor)
-Map::MapIterator::~MapIterator() {
-}
 
 //! ---|> [Iterator]
 Object * Map::MapIterator::key() {

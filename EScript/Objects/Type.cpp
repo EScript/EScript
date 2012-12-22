@@ -10,13 +10,17 @@ namespace EScript{
 
 //! (static)
 Type * Type::getTypeObject(){
-	static Type * typeObject = nullptr;
-	if(typeObject==nullptr){
-		// This object defines the type of all 'Type' objects.
-		// It inherits from Object and the type of the object is defined by itself.
-		typeObject = new Type(Object::getTypeObject(),nullptr);
-		typeObject->typeRef = typeObject;
-	}
+	struct factory{ // use factory for static one time initialization
+		Type * operator()(){
+			// This object defines the type of all 'Type' objects.
+			// It inherits from Object and the type of the object is defined by itself.
+			Type * typeObject = new Type(Object::getTypeObject(),nullptr);
+			typeObject->typeRef = typeObject;
+			return typeObject;
+		}
+	};
+
+	static Type * typeObject = factory()();
 	return typeObject;
 }
 
