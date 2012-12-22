@@ -42,6 +42,9 @@ void Number::init(EScript::Namespace & globals) {
 
 	//- Operators
 
+	//! [ESMF] + Number
+	ESF_DECLARE(typeObject,"+_pre",0,0,caller)
+	
 	//! [ESMF] - Number
 	ESF_DECLARE(typeObject,"_-_pre",0,0,Number::create( -caller->toDouble()))
 
