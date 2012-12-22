@@ -19,9 +19,9 @@ class GetAttributeExpr : public ASTNode {
 				ASTNode(TYPE_GET_ATTRIBUTE_EXPRESSION,true),objExpression(_obj),attrId(_attrId) {}
 		virtual ~GetAttributeExpr(){}
 
-		const StringId & getAttrId()const			{	return attrId;  }
-		const std::string & getAttrName()const		{	return attrId.toString();    }
-		ptr_t getObjectExpression()const	{	return objExpression;    }
+		const StringId & getAttrId()const			{	return attrId;	}
+		const std::string & getAttrName()const		{	return attrId.toString();	}
+		ptr_t getObjectExpression()const			{	return objExpression;	}
 
 	private:
 		ref_t objExpression;

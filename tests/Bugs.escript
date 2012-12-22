@@ -10,15 +10,15 @@
 		this.nr:=i;
 	};
 
-	var nr=2;
-	var a=new A(nr*3);
+	var nr = 2;
+	var a = new A(nr*3);
 	test( "BUG[20070327]",	a.nr==6 );
 }
 {
 	// Bug[20070626] - Lost object namespace in Blocks inside functions
 	// Found 2007-06-26
 
-	var A=new Type();
+	var A = new Type();
 
 	GLOBALS.f2:=fn(){
 		out(this.a);
@@ -27,12 +27,12 @@
 	A.f:=fn(){
 		a++;
 		this.a++;
-		for(var i=0;i<3;++i)
+		for(var i = 0;i<3;++i)
 		{
 			a++;
 			this.a++;
 			{
-				var a=0;
+				var a = 0;
 				a--;
 				this.a++;
 			}
@@ -43,7 +43,7 @@
 		this.a++;
 		return(a);
 	};
-	var a=new A();
+	var a = new A();
 	test( "BUG[20070626]", a.f()==14 );
 
 }
@@ -52,23 +52,23 @@
 
 
 	var s1="foo";
-	var s2=s1;
+	var s2 = s1;
 	s2+="bar";
 	//out(s1,":",s2,"\n");
 
-	var i1=1;
-	var i2=i1;
+	var i1 = 1;
+	var i2 = i1;
 	i2++;
 	//out("\n",i1,"\n"); // ==1
 
-	var o1=new ExtObject();
+	var o1 = new ExtObject();
 	o1.a:=1;
-	var o2=o1;
+	var o2 = o1;
 	o2.a++;
 	//out("\n",o1.a,"\n"); // ==2
 
 	var a=[1,2,3];
-	var b=a[0];
+	var b = a[0];
 	b++;
 	//out("\n",a[0],"\n"); //==1
 
@@ -83,12 +83,12 @@
 	// Bug [2007-08-07]
 	/*
 	GLOBALS.loader=...
-	while (true) {
-	if (loader) {
-		if (!loader.load(5)) {
+	while(true) {
+	if(loader) {
+		if(!loader.load(5)) {
 
-			loader=false; // geht nicht
-			GLOBALS.loader=false; // geht
+			loader = false; // geht nicht
+			GLOBALS.loader = false; // geht
 		}
 	*/
 };
@@ -99,10 +99,10 @@
 {
 	//Bug BUG[20080210.1] no call by value with simple types
 
-	var f=fn(x){
+	var f = fn(x){
 		x++;
 	};
-	var a=1;
+	var a = 1;
 	f(a);
 	test( "BUG[20080210]", a==1 );
 
@@ -110,11 +110,11 @@
 { // MEMLEAK
 //   Bug BUG[20080210.2] wrong Parsing of fn(){}something;
 //   Does not create Syntax error
-	var errorFound=false;
+	var errorFound = false;
 	try{
-		eval('var f=fn(){ out("!!");  } bla bla bla;');
+		eval('var f = fn(){ out("!!");  } bla bla bla;');
 	}catch(e){
-		errorFound=true;
+		errorFound = true;
 	}
 	test( "BUG[20080210.2]", errorFound );
 }
@@ -122,12 +122,12 @@
 
 	// this should create a runtime error (Block.+ not found) OR a syntax error .
 	// (Not shure about what's better...)
-	var errorFound=false;
+	var errorFound = false;
 	Runtime.setTreatWarningsAsError(true);
 	try{
 		eval('+out("");');
 	}catch(e){
-		errorFound=true;
+		errorFound = true;
 	}
 	Runtime.setTreatWarningsAsError(false);
 
@@ -136,7 +136,7 @@
 {
 	// Calling object is not set properly when calling member function without this.
 
-	var A=new Type();
+	var A = new Type();
 	A.v:=1;
 	A.f1:=fn(){
 		 return this.v;
@@ -144,8 +144,8 @@
 	A.f2:=fn(){
 		return f1(); // this should be equivalent to this.f1()
 	};
-	var a=new A();
-	a.v=2;
+	var a = new A();
+	a.v = 2;
 
 	   test( "BUG[20080324]", a.f2()==2 );
 }
@@ -156,10 +156,10 @@
 }
 {
 	 // Linebreaks inside Strings are ignored in line counting.
-	var l1=__LINE__;
+	var l1 = __LINE__;
 	"line 1: dum di dum
 	line 2:da da";
-	var l2=__LINE__;
+	var l2 = __LINE__;
 	   test( "BUG[20090107.2]", (l2-l1)==3 );
 }
 {
@@ -171,27 +171,27 @@
 //{
 //    // Parser does not realize forgotten ';' after function calls.
 //    out("BUG[20090417.2]\t");
-//    var f=fn(i){out(i);};
+//    var f = fn(i){out(i);};
 //
-//    var errorFound=false;
+//    var errorFound = false;
 //    try{
 //        eval('f("a")out("b");');
 //    }catch(e){
-//        errorFound=true;
+//        errorFound = true;
 //    }
 //    out(errorFound,"\n");
 //}
 {
 	// '!=' is not automatically ! '==' as default
 
-	var C=new Type();
+	var C = new Type();
 	C.m1:=1;
 	C.setAttribute("==",  fn(b){
 		if(b---|>Number){
 			return this.m1==b;
 		}else return false;
 	});
-	var c1=new C();
+	var c1 = new C();
 	test( "BUG[20090418]", c1==1 && !(c1==c1) &&  c1!=c1 );
 }
 {
@@ -199,7 +199,7 @@
 
 	GLOBALS.g1:=1;
 	{
-		g1=2;
+		g1 = 2;
 	}
 	   test( "BUG[20090424]", g1==2 );
 }
@@ -221,7 +221,7 @@
 {
 	// Array.indexOf() does not use EScript.== operator
 
-	var A=new Type();
+	var A = new Type();
 	A.'==':=fn(other){
 		return (other---|>getType());
 	};
@@ -232,15 +232,15 @@
 {
 	// Array and Map cloning: Simple types are not copied but referenced.
 
-	var i=0;
+	var i = 0;
 	var m1={ 'a':1 };
-	var m2=m1.clone();
+	var m2 = m1.clone();
 	if(m1==m2) i++;
 	m1['a']++;
 	if(m1!=m2) i++;
 
 	var a1=[1];
-	var a2=a1.clone();
+	var a2 = a1.clone();
 	if(a1==a2) i++;
 	a1[0]++;
 	if(a1!=a2) i++;
@@ -265,43 +265,43 @@
 {
 	//Memory not freed when a Map is cloned. (this can only be tested in memory debug mode)
 	var m1={1:2};
-	var m2=m1.clone();
+	var m2 = m1.clone();
 	out("MemLeak[20100604] \t ok?\n");
 }
 { // MEMLEAK
 	// assignInheritedAttribute not used in ExtObject
 
 	Type.thisShouldntBeHere::=true;
-	var A=new Type(ExtObject);
-	var a=new A();
+	var A = new Type(ExtObject);
+	var a = new A();
 
-	var errorFound=false;
+	var errorFound = false;
 	Runtime.setTreatWarningsAsError(true);
 	try{
 		a.thisShouldntBeHere;
 	}catch(e){
-		errorFound=true;
+		errorFound = true;
 	}
 	Runtime.setTreatWarningsAsError(false);
 	test( "BUG[20100605]", errorFound );
-	Type.thisShouldntBeHere=void;
+	Type.thisShouldntBeHere = void;
 
 }
 {	// Object member functions are accessible locally without an Object!
 
-	var errorFound=false;
+	var errorFound = false;
 	Runtime.setTreatWarningsAsError(true);
 	try{
 		isSet; // this should not exist.
 	}catch(e){
-		errorFound=true;
+		errorFound = true;
 	}
 	Runtime.setTreatWarningsAsError(false);
 	test( "BUG[20100618]", errorFound );
 }
 { // do...while with continue does not re-check condition;
 
-	var i=0;
+	var i = 0;
 	do{
 		++i;
 		continue;
@@ -310,35 +310,35 @@
 }
 {	// parser does not accept functions as default parameter
 
-	var ok=true;
+	var ok = true;
 	try{
 		eval("fn(a=fn(){}){}; fn(a={1:2}){};");
 	}catch(e){
-		ok=false;
+		ok = false;
 	}
 	test( "BUG[20100717]", ok );
 }
 { 	// undeclared member attribute not detected
 
-	var errorFound=false;
+	var errorFound = false;
 	Runtime.setTreatWarningsAsError(true);
 	try{
-	var A=new Type();
+	var A = new Type();
 		A._constructor::=fn(){
 			noMemberWithThisName = 1;
 		};
 		new A();
 	}catch(e){
-		errorFound=true;
+		errorFound = true;
 	}
 	Runtime.setTreatWarningsAsError(false);
 	test( "BUG[20100815]", errorFound );
 }
 {	// assigning to an undefined member of a Type-Object results in a crash.
 	Runtime.setTreatWarningsAsError(true);
-	var ok=true;
+	var ok = true;
 	try{
-		var a=new Type();
+		var a = new Type();
 		a.foo = 5;
 		FOO.bla = 5;
 	}catch(e){
@@ -351,14 +351,14 @@
 	var lineOfException;
 	try{
 		lineOfFunction = __LINE__ + 1;
-		var f=fn(Number a){};
+		var f = fn(Number a){};
 		f("bla");
 	}catch(e){
-		lineOfException=e.getLine();
+		lineOfException = e.getLine();
 //		out(lineOfException,":",lineOfFunction);
 	}
 	// check exception line
-	var exceptionLineCorrect=false;
+	var exceptionLineCorrect = false;
 	try{
 		Runtime.exception(""+__LINE__);
 	}catch(e){
@@ -371,19 +371,19 @@
 
 //{ 	// endless recursion does not throw an exception but results in a crash
 //
-//	var errorFound=false;
+//	var errorFound = false;
 //	var oldLimit = Runtime._getStackSizeLimit();
 //	Runtime._setStackSizeLimit(Runtime._getStackSize()+20);
-//	var i=0;
+//	var i = 0;
 //	try{
-//		var f=i->fn(){
+//		var f = i->fn(){
 ////			out(Runtime._getStackSize()," ");
 //			++this;
 //			(this->thisFn)();
 //		};
 //		f();
 //	}catch(e){
-//		errorFound=true;
+//		errorFound = true;
 //	}
 ////    out("\n",i,"\n");
 //	Runtime._setStackSizeLimit(oldLimit);
@@ -391,14 +391,14 @@
 //
 //}
 {	// system crashes if a wrong parameter type is given in a user constructor call.
-	var exceptionCaught=false;
+	var exceptionCaught = false;
 	try{
-		var A=new Type();
+		var A = new Type();
 		A._constructor ::= fn( Array a){
 		};
 		new A("foo");
 	}catch(e){
-		exceptionCaught=true;
+		exceptionCaught = true;
 	}
 	test( "BUG[20110321]", exceptionCaught);
 }
@@ -406,9 +406,9 @@
 {	// execution of default parameter expressions and type checks are performed in the calling context and not the function context
 
 	// typeCheck
-	var exceptionCaught=false;
+	var exceptionCaught = false;
 	try{
-		var f=fn(Array a){
+		var f = fn(Array a){
 		};
 
 		{
@@ -417,12 +417,12 @@
 		}
 	}catch(e){
 		Runtime.warn(e);
-		exceptionCaught=true;
+		exceptionCaught = true;
 	}
 
 	// default parameter expression
 	try{
-		var f=fn(a=new Array()){
+		var f = fn(a = new Array()){
 		};
 
 		{
@@ -431,13 +431,13 @@
 		}
 	}catch(e){
 		Runtime.warn(e);
-		exceptionCaught=true;
+		exceptionCaught = true;
 	}
 	test( "BUG[20110328]", !exceptionCaught);
 }
 {	// cloned ReferenceObjects are broken (due to silly ReferenceObjectClonePolicies idea)
 
-	var exceptionCaught=false;
+	var exceptionCaught = false;
 	try{
 		var r1 = new Math.RandomNumberGenerator();
 		r1.equilikely(0,10);
@@ -445,7 +445,7 @@
 
 	}catch(e){
 		Runtime.warn(e);
-		exceptionCaught=true;
+		exceptionCaught = true;
 	}
 	test( "BUG[20110530]", !exceptionCaught);
 
@@ -468,7 +468,7 @@
 }
 
 {	// continue without loop crashes the runtime.
-	var exceptionCounter=0;
+	var exceptionCounter = 0;
 	try{
 		eval("(fn(){	continue; })();" );
 	}catch(e){
@@ -482,12 +482,12 @@
 	test( "BUG[20110808]", exceptionCounter==2);
 }
 {	// calling library functions which do not accept parameters does not produce a warning.
-	var errorFound=false;
+	var errorFound = false;
 	Runtime.setTreatWarningsAsError(true);
 	try{
 		clock(12,3,4);
 	}catch(e){
-		errorFound=true;
+		errorFound = true;
 	}
 	Runtime.setTreatWarningsAsError(false);
 	test( "BUG[20110905]", errorFound );
@@ -500,7 +500,7 @@
 	// adding object attribute AFTER creating an inherited Type and an instance.
 	A.m := 1;
 
-	var exceptionCounter=0;
+	var exceptionCounter = 0;
 	Runtime.setTreatWarningsAsError(true);
 	try{	a.m;		}catch(e){	++exceptionCounter;	}
 	try{	a.m = 1;	}catch(e){	++exceptionCounter;	}
@@ -522,7 +522,7 @@
 
 {	// assignment to inherited static attributes does not work.
 //	Runtime.setTreatWarningsAsError(true);
-	var errorFound=false;
+	var errorFound = false;
 	try{
 		var A = new Type();
 		A.staticAttribute ::= 0;
@@ -541,7 +541,7 @@
 
 }
 {	// Using invalid superconstructor parameters for the base-constructor is not detected and can crash the program
-	var errorFound=false;
+	var errorFound = false;
 	try{
 		var A = new Type();
 		A._constructor ::= fn()@(super("A Map is expected here!")){};
@@ -552,9 +552,9 @@
 	test( "BUG[20120226]", errorFound );
 }
 {	// local variables can be assigned by using ':=', which should produce a warning.
-	var errorFound=false;
-	var result1=false;
-	var result2=false;
+	var errorFound = false;
+	var result1 = false;
+	var result2 = false;
 	
 	Runtime.setTreatWarningsAsError(true);
 	try{
@@ -574,11 +574,11 @@
 	test( "BUG[20120226.2]", !result1 && result2 && errorFound );
 }
 { // Attributes with @(init) are initialized twice, if an object has an user defined constructor
-	var A=new Type();
+	var A = new Type();
 	A.m @(init) := fn(){	return 5;	};
 	A._constructor ::= fn(){	this.result := m;	};
 
-	var a=new A();
+	var a = new A();
 
 	test( "BUG[20120228]", a.result == 5 );
 }
@@ -639,12 +639,12 @@
 	
 }
 {	// line numbers are not counted in raw strings
-	var l1=__LINE__;
+	var l1 = __LINE__;
 	R"(+1
 	+2
 	+3
 	+4)";
-	var l2=__LINE__; // +5
+	var l2 = __LINE__; // +5
 	
 	test( "BUG[20120814]", l2 == l1+5);
 }
@@ -653,13 +653,13 @@
 	var ok = true;
 	try{
 		eval(R"(
-			var A=new Type;
+			var A = new Type;
 			A.B := new Type;
 			new A.B;
 				
 		)");
 	}catch(e){
-		ok=false;
+		ok = false;
 	}
 	test( "BUG[20120815.1]", ok);
 }

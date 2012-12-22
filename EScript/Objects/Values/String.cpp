@@ -17,7 +17,7 @@ std::stack<String *> String::stringPool;
 
 //! static, internal
 StringData String::objToStringData(Object * obj){
-	String * strObj=dynamic_cast<String*>(obj);
+	String * strObj = dynamic_cast<String*>(obj);
 	return strObj==nullptr ? StringData(obj->toString()) : strObj->sData;
 }
 
@@ -26,7 +26,7 @@ StringData String::objToStringData(Object * obj){
 //! (static)
 Type * String::getTypeObject(){
 	// [String] ---|> [Object]
-	static Type * typeObject=new Type(Object::getTypeObject());
+	static Type * typeObject = new Type(Object::getTypeObject());
 	return typeObject;
 }
 
@@ -43,8 +43,8 @@ void String::init(EScript::Namespace & globals) {
 
 	//! [ESMF] String String[(Number)position ]
 	ES_MFUNCTION_DECLARE(typeObject,String,"_get",1,1, {
-		int pos=parameter[0]->toInt();
-		if (static_cast<unsigned int>(pos)>=self->getString().length())
+		int pos = parameter[0]->toInt();
+		if(static_cast<unsigned int>(pos)>=self->getString().length())
 			return nullptr;
 		return  String::create(self->getString().substr(pos,1));
 	})
@@ -54,7 +54,7 @@ void String::init(EScript::Namespace & globals) {
 	//! [ESMF] Bool String.beginsWith( (String)search )
 	ES_MFUNCTION_DECLARE(typeObject,String,"beginsWith",1,1, {
 		const string & s(self->getString());
-		string search=parameter[0]->toString();
+		string search = parameter[0]->toString();
 		if(s.length()<search.length())
 			return Bool::create(false);
 		return Bool::create(s.substr(0,search.length())==search);
@@ -63,12 +63,12 @@ void String::init(EScript::Namespace & globals) {
 	//! [ESMF] Bool String.contains (String)search [,(Number)startIndex] )
 	ES_MFUNCTION_DECLARE(typeObject,String,"contains",1,2, {
 		const string & s(self->getString());
-		string search=parameter[0]->toString();
-		size_t start=s.length();
-		if (parameter.count()>1) {
-			start=static_cast<size_t>(parameter[1].toInt());
-			if (start>=s.length())
-				start=s.length();
+		string search = parameter[0]->toString();
+		size_t start = s.length();
+		if(parameter.count()>1) {
+			start = static_cast<size_t>(parameter[1].toInt());
+			if(start>=s.length())
+				start = s.length();
 		}
 		return Bool::create(s.rfind(search,start)!=string::npos);
 	})
@@ -79,7 +79,7 @@ void String::init(EScript::Namespace & globals) {
 	//! [ESMF] Bool String.endsWith( (String)search )
 	ES_MFUNCTION_DECLARE(typeObject,String,"endsWith",1,1, {
 		const string & s(self->getString());
-		string search=parameter[0]->toString();
+		string search = parameter[0]->toString();
 		if(s.length()<search.length()) return Bool::create(false);
 		return Bool::create(s.substr(s.length()-search.length(),search.length())==search);
 	})
@@ -89,10 +89,10 @@ void String::init(EScript::Namespace & globals) {
 		const string & s(self->getString());
 		std::ostringstream sprinter;
 		sprinter<<s;
-		const std::string fill=parameter[1].toString(" ");
+		const std::string fill = parameter[1].toString(" ");
 		if(!fill.empty()){
 			const int count = (parameter[0].toInt()-s.length())/fill.length();
-			for(int i=0;i<count;++i)
+			for(int i = 0;i<count;++i)
 				sprinter<<fill;
 			
 		}
@@ -102,15 +102,15 @@ void String::init(EScript::Namespace & globals) {
 	//! [ESMF] Number|false String.find( (String)search [,(Number)startIndex] )
 	ES_MFUNCTION_DECLARE(typeObject,String,"find",1,2, {
 		const string & s(self->getString());
-		string search=parameter[0].toString();
-		size_t start=0;
-		if (parameter.count()>1) {
-			start=static_cast<size_t>(parameter[1].toInt());
-			if (start>=s.length())
+		string search = parameter[0].toString();
+		size_t start = 0;
+		if(parameter.count()>1) {
+			start = static_cast<size_t>(parameter[1].toInt());
+			if(start>=s.length())
 				return Bool::create(false);
 		}
-		size_t pos=s.find(search,start);
-		if (pos==string::npos ) {
+		size_t pos = s.find(search,start);
+		if(pos==string::npos ) {
 			return Bool::create(false);
 		} else return Number::create(pos);
 	})
@@ -126,19 +126,19 @@ void String::init(EScript::Namespace & globals) {
 
 	//! [ESMF] String String.substr( (Number)begin [,(Number)length] )
 	ES_MFUNCTION_DECLARE(typeObject,String,"substr",1,2, {
-		int start=parameter[0].toInt();
-		int length=self->getString().length();
-		if (start>=length) return String::create("");
-		if (start<0) start=length+start;
-		if (start<0) start=0;
-		int count=length-start;
-		if (parameter.count()>1) {
-			int i=parameter[1].toInt();
-			if (i<count) {
-				if (i<0) {
+		int start = parameter[0].toInt();
+		int length = self->getString().length();
+		if(start>=length) return String::create("");
+		if(start<0) start = length+start;
+		if(start<0) start = 0;
+		int count = length-start;
+		if(parameter.count()>1) {
+			int i = parameter[1].toInt();
+			if(i<count) {
+				if(i<0) {
 					count+=i;
 				} else {
-					count=i;
+					count = i;
 				}
 			}
 		}
@@ -159,13 +159,13 @@ void String::init(EScript::Namespace & globals) {
 		const string & subject(self->getString());
 
 		//Map * m
-		if ( Map * m=parameter[0].toType<Map>()) {
+		if( Map * m = parameter[0].toType<Map>()) {
 			assertParamCount(runtime,parameter.count(),1,2);
 			std::vector<keyValuePair_t> rules;
-			ERef<Iterator> iRef=m->getIterator();
-			while (!iRef->end()) {
-				ObjRef key=iRef->key();
-				ObjRef value=iRef->value();
+			ERef<Iterator> iRef = m->getIterator();
+			while(!iRef->end()) {
+				ObjRef key = iRef->key();
+				ObjRef value = iRef->value();
 				rules.push_back(std::make_pair(key.toString(),value.toString()));
 				iRef->next();
 			}
@@ -181,16 +181,16 @@ void String::init(EScript::Namespace & globals) {
 	//! [ESMF] Number|false String.rFind( (String)search [,(Number)startIndex] )
 	ES_MFUNCTION_DECLARE(typeObject,String,"rFind",1,2, {
 		const string & s(self->getString());
-		string search=parameter[0].toString();
-		size_t start=s.length();
-		if (parameter.count()>1) {
-			start=static_cast<size_t>(parameter[1].toInt());
-			if (start>=s.length())
-				start=s.length();
+		string search = parameter[0].toString();
+		size_t start = s.length();
+		if(parameter.count()>1) {
+			start = static_cast<size_t>(parameter[1].toInt());
+			if(start>=s.length())
+				start = s.length();
 			//std::cout << " #"<<start<< " ";
 		}
-		size_t pos=s.rfind(search,start);
-		if (pos==string::npos ) {
+		size_t pos = s.rfind(search,start);
+		if(pos==string::npos ) {
 			return Bool::create(false);
 		} else return Number::create(pos);
 	})
@@ -203,7 +203,7 @@ void String::init(EScript::Namespace & globals) {
 		std::vector<std::string> result;
 		StringUtils::split( self->getString(), parameter[0].toString(), result, parameter[1].toInt(-1) );
 
-		Array * a=Array::create();
+		Array * a = Array::create();
 		for(const auto & str : result) {
 			a->pushBack(String::create(str));
 		}
@@ -225,7 +225,7 @@ void String::init(EScript::Namespace & globals) {
 	ES_MFUNCTION_DECLARE(typeObject,String,"*",1,1,{
 		string s;
 		string s2( self->getString() );
-		for (int i=parameter[0].toInt();i>0;--i)
+		for(int i = parameter[0].toInt();i>0;--i)
 			s+=s2;
 		return  String::create(s);
 	})
@@ -237,7 +237,7 @@ void String::init(EScript::Namespace & globals) {
 	ES_MFUNCTION_DECLARE(typeObject,String,"*=",1,1,{
 		string s;
 		string s2( self->getString() );
-		for (int i=parameter[0]->toInt();i>0;--i)
+		for(int i = parameter[0]->toInt();i>0;--i)
 			s+=s2;
 		self->setString(s);
 		return  caller;
@@ -266,7 +266,7 @@ String * String::create(const StringData & sData){
 	if(stringPool.empty()){
 		return new String (sData);
 	}else{
-		String * o=stringPool.top();
+		String * o = stringPool.top();
 		stringPool.pop();
 		o->setString(sData);
 		return o;
@@ -324,13 +324,13 @@ std::string String::toDbgString()const{
 
 //! ---|> [Object]
 double String::toDouble()const {
-	int to=0;
+	int to = 0;
 	return StringUtils::getNumber(sData.str().c_str(),to, true);
 }
 
 //! ---|> [Object]
 int String::toInt()const {
-	int to=0;
+	int to = 0;
 	return static_cast<int>(StringUtils::getNumber(sData.str().c_str(),to,  true));
 }
 

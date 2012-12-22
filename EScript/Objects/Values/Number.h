@@ -46,7 +46,7 @@ class Number : public Object {
 			return std::abs(v - u) <= std::numeric_limits<float>::epsilon() * std::min(std::abs(u), std::abs(v));
 		}
 
-		explicit Number(double value,Type * type=nullptr,bool isReference=false);
+		explicit Number(double value,Type * type = nullptr,bool isReference = false);
 		virtual ~Number();
 
 		/**
@@ -74,7 +74,7 @@ class Number : public Object {
 		virtual double toDouble()const;
 		virtual bool toBool()const;
 		virtual bool rt_isEqual(Runtime & rt,const ObjPtr o);
-		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_NUMBER;	}
+		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_NUMBER;	}
 
 	protected:
 		union{

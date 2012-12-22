@@ -28,7 +28,7 @@ class Statement {
 
 		Statement( type_t _type, ObjPtr _expression) :
 				type(_type),expression(_expression),line(-1) {}
-		explicit Statement( type_t _type=TYPE_UNDEFINED ) : type(_type),line(-1) {}
+		explicit Statement( type_t _type = TYPE_UNDEFINED ) : type(_type),line(-1) {}
 
 		~Statement(){}
 
@@ -36,7 +36,7 @@ class Statement {
 		ObjPtr getExpression()const		{	return expression;	}
 
 		int getLine()const				{	return line;	}
-		void setLine(int newLine)		{	line=newLine;	}
+		void setLine(int newLine)		{	line = newLine;	}
 
 		bool isValid()const				{	return type!=TYPE_UNDEFINED;	}
 		bool operator==(const Statement & other) const {

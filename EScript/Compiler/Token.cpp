@@ -5,5 +5,5 @@
 #include "Token.h"
 
 namespace EScript {
-	int Token::tokenCount=0;
+	int Token::tokenCount = 0;
 }

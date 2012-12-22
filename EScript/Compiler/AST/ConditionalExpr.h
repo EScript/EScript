@@ -14,7 +14,7 @@ namespace AST {
 class ConditionalExpr : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(ConditionalExpr)
 	public:
-		explicit ConditionalExpr( ptr_t _condition=nullptr, ptr_t _action=nullptr,ptr_t _elseAction=nullptr) :
+		explicit ConditionalExpr( ptr_t _condition = nullptr, ptr_t _action = nullptr,ptr_t _elseAction = nullptr) :
 				ASTNode(TYPE_CONDITIONAL_EXPRESSION,true),
 				condition(_condition),action(_action),elseAction(_elseAction) {}
 		virtual ~ConditionalExpr() {}

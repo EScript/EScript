@@ -12,20 +12,20 @@ using namespace EScript;
 
 //! (static)
 Type * Namespace::getTypeObject()	{
-	static Type * typeObject=new Type(ExtObject::getTypeObject());
+	static Type * typeObject = new Type(ExtObject::getTypeObject());
 	return typeObject;
 }
 
 //! initMembers
 void Namespace::init(EScript::Namespace & globals) {
 	// [Namespace] ---|> [ExtObject] ---|> [Object]
-	Type * typeObject=getTypeObject();
+	Type * typeObject = getTypeObject();
 	initPrintableName(typeObject,getClassName());
 
 	declareConstant(&globals,getClassName(),typeObject);
 
-	//! [ESMF] Namespace new Namespace()
-	ESF_DECLARE(typeObject,"_constructor",0,0, new Namespace())
+	//! [ESMF] Namespace new Namespace
+	ESF_DECLARE(typeObject,"_constructor",0,0, new Namespace)
 }
 
 //---
@@ -52,7 +52,7 @@ Namespace::~Namespace() {
 
 //! ---|> [Object]
 Namespace * Namespace::clone() const{
-	Namespace * c=new Namespace(getType());
+	Namespace * c = new Namespace(getType());
 	c->cloneAttributesFrom(this);
 	return c;
 }

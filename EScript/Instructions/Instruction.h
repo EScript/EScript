@@ -63,13 +63,13 @@ class Instruction {
 		void setValue_uint32(const uint32_t v)		{	value_uint32 = v;	}
 
 		double getValue_Number()const				{	return value_number;	}
-		void setValue_Number(double v)				{	value_number=v;	}
+		void setValue_Number(double v)				{	value_number = v;	}
 
 		StringId getValue_Identifier()const			{	return StringId(value_identifier);	}
-		void setValue_Identifier(StringId v)		{	value_identifier=v.getValue();	}
+		void setValue_Identifier(StringId v)		{	value_identifier = v.getValue();	}
 
 		bool getValue_Bool()const					{	return value_bool;	}
-		void setValue_Bool(bool v)					{	value_bool=v;	}
+		void setValue_Bool(bool v)					{	value_bool = v;	}
 
 		static Instruction createAssignAttribute(const StringId & varName);
 		static Instruction createAssignLocal(const uint32_t localVarIdx);

@@ -26,14 +26,14 @@ class BlockExpr : public Object {
 		BlockExpr(int lineNr=-1) : line(lineNr) {}
 		virtual ~BlockExpr() {}
 
-		statementList & getStatements()                 {   return statements;  }
-		const statementList & getStatements()const      {   return statements;  }
+		statementList & getStatements()					{	return statements;	}
+		const statementList & getStatements()const		{	return statements;	}
 		int getLine()const								{	return line;	}
 
 
 		/*! returns false if variable was already declared */
 		bool declareVar(StringId id)					{	return vars.insert(id).second;	}
-		const declaredVariableMap_t & getVars()const 	{ 	return vars;    }
+		const declaredVariableMap_t & getVars()const	{	return vars;	}
 		bool isLocalVar(StringId id)					{	return vars.count(id)>0;	}
 		void addStatement(const Statement & s)			{	if(s.isValid())		statements.push_back(s);	}
 		bool hasLocalVars()const						{	return !vars.empty(); }

@@ -47,12 +47,12 @@ class UserFunction : public ExtObject {
 			paramCount = paramsCount , minParamValueCount = minValues,maxParamValueCount = maxValues;
 		}
 		const InstructionBlock & getInstructionBlock()const	{	return instructions;	}
-		InstructionBlock & getInstructionBlock() 			{	return instructions;	}
+		InstructionBlock & getInstructionBlock()			{	return instructions;	}
 		int getLine()const									{	return line;	}
 		void setLine(const int l)							{	line = l;	}
 
 		/// ---|> [Object]
-		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_USER_FUNCTION;	}
+		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_USER_FUNCTION;	}
 		virtual UserFunction * clone()const					{	return new UserFunction(*this);	}
 		virtual std::string toDbgString()const;
 	private:

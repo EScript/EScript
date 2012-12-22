@@ -12,7 +12,7 @@ using namespace EScript;
 //! (static)
 Type * Exception::getTypeObject(){
 	// [Exception] ---|> [Object]
-	static Type * typeObject=new Type(ExtObject::getTypeObject());
+	static Type * typeObject = new Type(ExtObject::getTypeObject());
 	return typeObject;
 }
 
@@ -57,11 +57,6 @@ void Exception::init(EScript::Namespace & globals) {
 Exception::Exception(const std::string & _msg,int _line,Type * type):
 		ExtObject(type?type:getTypeObject()),msg(_msg),line(_line),filenameId(0) {
 	//ctor
-}
-
-//! (dtor)
-Exception::~Exception() {
-	//dtor
 }
 
 //! ---|> [Object]

@@ -25,7 +25,7 @@ std::stack<Number *> Number::numberPool;
 //! (static)
 Type * Number::getTypeObject(){
 	// [Number] ---|> [Object]
-	static Type * typeObject=new Type(Object::getTypeObject());
+	static Type * typeObject = new Type(Object::getTypeObject());
 	return typeObject;
 }
 
@@ -59,8 +59,8 @@ void Number::init(EScript::Namespace & globals) {
 
 	//! [ESMF] Number / Number2
 	ES_FUNCTION_DECLARE(typeObject,"/",1,1,{
-		const double d=parameter[0]->toDouble();
-		if (d==0){
+		const double d = parameter[0]->toDouble();
+		if(d==0){
 			runtime.setException("Division by zero");
 			return nullptr;
 		}
@@ -78,8 +78,8 @@ void Number::init(EScript::Namespace & globals) {
 
 	//! [ESMF] Number % Number2
 	ES_MFUNCTION_DECLARE(typeObject,Number,"%",1,1,{
-		const double d=parameter[0]->toDouble();
-		if (d==0){
+		const double d = parameter[0]->toDouble();
+		if(d==0){
 			runtime.setException("Modulo with zero");
 			return nullptr;
 		}
@@ -90,16 +90,16 @@ void Number::init(EScript::Namespace & globals) {
 
 	//! [ESMF] Number++
 	ES_MFUNCTION_DECLARE(typeObject,Number,"++_post",0,0,{
-		const double & val=self->getValue();
-		Object * ret=Number::create(val);
+		const double & val = self->getValue();
+		Object * ret = Number::create(val);
 		self->setValue(val+1.0);
 		return ret;
 	})
 
 	//! [ESMF] Number--
 	ES_MFUNCTION_DECLARE(typeObject,Number,"--_post",0,0,{
-		const double & val=self->getValue();
-		Object * ret=Number::create(val);
+		const double & val = self->getValue();
+		Object * ret = Number::create(val);
 		self->setValue(val-1.0);
 		return ret;
 	})
@@ -121,8 +121,8 @@ void Number::init(EScript::Namespace & globals) {
 
 	//! [ESMF] Numbern /= Number2
 	ES_MFUNCTION_DECLARE(typeObject,Number,"/=",1,1,{
-		const double d=parameter[0]->toDouble();
-		if (d==0){
+		const double d = parameter[0]->toDouble();
+		if(d==0){
 			runtime.setException("Division by zero");
 			return nullptr;
 		}
@@ -132,8 +132,8 @@ void Number::init(EScript::Namespace & globals) {
 
 	//! [ESMF] Numbern %= Number2
 	ES_MFUNCTION_DECLARE(typeObject,Number,"%=",1,1,{
-		const double d=parameter[0]->toDouble();
-		if (d==0){
+		const double d = parameter[0]->toDouble();
+		if(d==0){
 			runtime.setException("Modulo with zero");
 			return nullptr;
 		}
@@ -176,7 +176,7 @@ void Number::init(EScript::Namespace & globals) {
 	//! [ESMF] Number Number.abs()
 	ES_FUNCTION_DECLARE(typeObject,"abs",0,0,{
 		assertParamCount(runtime,parameter.count(),0,0);
-		const double d=caller->toDouble();
+		const double d = caller->toDouble();
 		return  Number::create( d>0?d:-d);
 	})
 
@@ -197,11 +197,11 @@ void Number::init(EScript::Namespace & globals) {
 
 	/*!	[ESMF] Number Number.clamp(min,max)	*/
 	ES_FUNCTION_DECLARE(typeObject,"clamp",2,2, {
-		const double d=caller->toDouble();
-		const double min=parameter[0]->toDouble();
+		const double d = caller->toDouble();
+		const double min = parameter[0]->toDouble();
 		if(d<=min)
 			return Number::create(min);
-		const double max=parameter[1]->toDouble();
+		const double max = parameter[1]->toDouble();
 		return Number::create(d<=max ? d : max );
 	})
 
@@ -211,7 +211,7 @@ void Number::init(EScript::Namespace & globals) {
 	//! [ESMF] Number Number.floor()
 	ESF_DECLARE(typeObject,"floor",0,0,Number::create(floor( caller->toDouble())))
 
-	//! [ESMF] String Number.format([Number precision=3[, Bool scientific=true[, Number width=0[, String fill='0']]]])
+	//! [ESMF] String Number.format([Number precision = 3[, Bool scientific = true[, Number width = 0[, String fill='0']]]])
 	ESMF_DECLARE(typeObject,Number,"format",0,4,String::create(self->format(
 			static_cast<std::streamsize >(parameter[0].toInt(3)), parameter[1].toBool(true),
 			static_cast<std::streamsize >(parameter[2].toInt(0)), parameter[3].toString("0")[0])))
@@ -219,7 +219,7 @@ void Number::init(EScript::Namespace & globals) {
 	//! [ESMF] Number Number.ln()
 	ESF_DECLARE(typeObject,"ln",0,0,Number::create(log(caller->toDouble())))
 
-	//! [ESMF] Number Number.log([basis=10])
+	//! [ESMF] Number Number.log([basis = 10])
 	ESF_DECLARE(typeObject,"log",0,1,Number::create( parameter.count()>0?log(caller->toDouble())/log(parameter[0]->toDouble()) : log10(caller->toDouble())))
 
 	//! [ESMF] bool Number.matches(other)
@@ -231,16 +231,16 @@ void Number::init(EScript::Namespace & globals) {
 	//! [ESMF] String Number.radToDeg()
 	ESF_DECLARE(typeObject,"radToDeg",0,0,Number::create( (caller->toFloat()*180.0)/M_PI))
 
-	/*! [ESMF] Number Number.round( [reference=1.0] )
+	/*! [ESMF] Number Number.round( [reference = 1.0] )
 		@param reference Reference value to which should be rounded:  x.round(reference) ^== reference * round(x/reference)
 		@example (123.456).round(0.1) == 123.5
 				(123.456).round(5) == 125
 				(123.456).round(10) == 120 */
 	ES_FUNCTION_DECLARE(typeObject,"round",0,1,{
 		if(parameter.count()==0)
-			return 	Number::create(round( caller->toDouble()));
+			return Number::create(round( caller->toDouble()));
 		const double reference = parameter[0].toDouble();
-		if (reference==0){
+		if(reference==0){
 			runtime.setException("round with zero");
 			return nullptr;
 		}
@@ -284,7 +284,7 @@ Number * Number::create(double value){
 	if(numberPool.empty()){
 		return new Number(value);
 	}else{
-		Number * n=numberPool.top();
+		Number * n = numberPool.top();
 		numberPool.pop();
 		n->setValue(value);
 		return n;
@@ -322,7 +322,7 @@ void Number::release(Number * n){
 Number::Number(double _value,Type * type,bool isReference):
 	Object(type?type:getTypeObject()),valuePtr(nullptr){
 	if(!isReference)
-		doubleValue=_value;
+		doubleValue = _value;
 	//ctor
 }
 
@@ -338,8 +338,8 @@ double Number::getValue()const{
 
 //! ---o
 void Number::setValue(double _value){
-//    *((double *)value)=_value;
-	doubleValue=_value;
+//	*((double *)value)=_value;
+	doubleValue = _value;
 }
 
 double Number::modulo(double m)const{
@@ -357,7 +357,7 @@ Object * Number::clone() const {
 std::string Number::format(std::streamsize precision, bool scientific, std::streamsize width, char fill) const {
 	std::ostringstream sprinter;
 	sprinter.precision(precision);
-	if (scientific) {
+	if(scientific) {
 		sprinter.setf(std::ios::scientific, std::ios::floatfield);
 	} else {
 		sprinter.setf(std::ios::fixed, std::ios::floatfield);

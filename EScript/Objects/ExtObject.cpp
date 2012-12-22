@@ -11,13 +11,13 @@ using namespace EScript;
 //! (static)
 Type * ExtObject::getTypeObject(){
 	// [ExtObject] ---|> [Object]
-	static Type * typeObject=new Type(Object::getTypeObject());
+	static Type * typeObject = new Type(Object::getTypeObject());
 	return typeObject;
 }
 
 //! (static) initMembers
 void ExtObject::init(EScript::Namespace & globals) {
-	Type * typeObject=getTypeObject();
+	Type * typeObject = getTypeObject();
 	typeObject->allowUserInheritance(true);
 	initPrintableName(typeObject,getClassName());
 
@@ -27,7 +27,7 @@ void ExtObject::init(EScript::Namespace & globals) {
 	ES_MFUNCTION_DECLARE(typeObject,Type,"_constructor",0,1,{
 		ERef<ExtObject> result(new ExtObject(self));
 		if(parameter.count()>0){
-			Map * m=assertType<Map>(runtime,parameter[0]);
+			Map * m = assertType<Map>(runtime,parameter[0]);
 			for(const auto & keyValuePair : *m) {
 				result->setAttribute(keyValuePair.first, Attribute(keyValuePair.second.value));
 			}
@@ -41,7 +41,7 @@ void ExtObject::init(EScript::Namespace & globals) {
 
 //! (static) factory
 ExtObject * ExtObject::create(){
-	return new ExtObject();
+	return new ExtObject;
 }
 
 
@@ -52,14 +52,14 @@ ExtObject::ExtObject():
 }
 
 ExtObject::ExtObject(const ExtObject & other): Object(other.getType()){
-//	if (typeRef.isNotNull())
+//	if(typeRef.isNotNull())
 //		typeRef->copyObjAttributesTo(this);
 	cloneAttributesFrom(&other);
 }
 
 //! (ctor)
 ExtObject::ExtObject(Type * type) : Object(type) {
-	if (typeRef.isNotNull())
+	if(typeRef.isNotNull())
 		typeRef->copyObjAttributesTo(this);
 	//ctor
 }
@@ -71,7 +71,7 @@ ExtObject::~ExtObject() {
 
 //! ---|> [Object]
 Object * ExtObject::clone() const{
-	ExtObject * c=new ExtObject(getType());
+	ExtObject * c = new ExtObject(getType());
 	c->cloneAttributesFrom(this);
 	return c;
 }

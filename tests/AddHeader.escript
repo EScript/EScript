@@ -1,35 +1,35 @@
 // AddHeader.escript (2011-01-23)
 // Small example script used to add and update the licence note at the beginning of every file.
 
-var rootDir=args[2];
+var rootDir = args[2];
 
 if(!rootDir){
 	out("Usage: EScript "+__FILE__+" {rootDirectory} \n");
 	return;
 }
 
-var files=IO.dir( rootDir , IO.DIR_FILES|IO.DIR_RECURSIVE );
+var files = IO.dir( rootDir , IO.DIR_FILES|IO.DIR_RECURSIVE );
 files.filter( fn(filename){return filename.endsWith(".h") || filename.endsWith(".cpp"); } );
 
 foreach(files as var file){
 	out(file,"\t");
 
-	var input=IO.fileGetContents(file); // read file
+	var input = IO.fileGetContents(file); // read file
 
 	// use '\n' as line ending
 	var lineEnding="\n";
 
 	// extract lines
-	var lines=input.split("\n");
+	var lines = input.split("\n");
 	if(lines.empty()){
 		out("empty\n");
 		continue;
 	}
 
 	var output="";
-	var headerRead=false;
+	var headerRead = false;
 	if(lines[0].beginsWith("/*")){
-		headerRead=true;
+		headerRead = true;
 	}else{
 		output+="// " + file.substr(file.rFind("/")+1) + lineEnding;
 		output+="// This file is part of the EScript programming language." + lineEnding;
@@ -51,15 +51,15 @@ foreach(files as var file){
 		// remove whitespaces at the end and replace whitespaces at the beginnen by tabs.
 		line = line.rTrim();
 		if(line.beginsWith(" ")||line.beginsWith("\t")){
-			var spaceCount=0;
-			var tabCount=0;
-			for(var pos=0; true ; ++pos){
-				var c=line[pos];
+			var spaceCount = 0;
+			var tabCount = 0;
+			for(var pos = 0; true ; ++pos){
+				var c = line[pos];
 				if(c==" "){
 					++spaceCount;
 					if(spaceCount==4){
 						++tabCount;
-						spaceCount=0;
+						spaceCount = 0;
 					}
 				}else if(c=="\t"){
 					++tabCount;

@@ -29,7 +29,7 @@ class AttributeContainer {
 		~AttributeContainer(){}
 
 		Attribute * accessAttribute(const StringId & id){
-			const attributeMap_t::iterator f=attributes.find(id);
+			const attributeMap_t::iterator f = attributes.find(id);
 			return f==attributes.end() ? nullptr : &f->second;
 		}
 		const_iterator begin()const										{	return attributes.begin();	}
@@ -41,8 +41,8 @@ class AttributeContainer {
 		const attributeMap_t & getAttributes()const						{	return attributes;	}
 		void collectAttributes(std::unordered_map<StringId,Object *> & attrs);
 		void initAttributes(Runtime & rt);
-		void setAttribute(const StringId & id,const Attribute & attr) 	{	attributes[id] = attr;	}
-		size_t size()const 												{	return attributes.size();	}
+		void setAttribute(const StringId & id,const Attribute & attr)	{	attributes[id] = attr;	}
+		size_t size()const												{	return attributes.size();	}
 
 	private:
 		attributeMap_t attributes;

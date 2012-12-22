@@ -22,14 +22,14 @@ class Delegate : public Object {
 
 		Object * getObject()const				{	return myObjectRef.get();	}
 		Object * getFunction()const				{	return functionRef.get();	}
-		void setObject(ObjPtr newObject)		{	myObjectRef=newObject;		}
-		void setFunction(ObjPtr newFunction)	{	functionRef=newFunction;	}
+		void setObject(ObjPtr newObject)		{	myObjectRef = newObject;		}
+		void setFunction(ObjPtr newFunction)	{	functionRef = newFunction;	}
 
 		/// ---|> [Object]
 		virtual Delegate * clone() const;
 		virtual bool rt_isEqual(Runtime &rt, const ObjPtr o);
 		virtual std::string toDbgString()const;
-		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_DELEGATE;	}
+		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_DELEGATE;	}
 	private:
 		ObjRef myObjectRef;
 		ObjRef functionRef;

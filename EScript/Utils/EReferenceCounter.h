@@ -16,7 +16,8 @@ struct _DefaultReleaseHandler{
 
 /*! (Non virtual) base class for reference counting.
 	@p Obj_t  Should be the new class itself.
-	@p ObjReleaseHandler_T 	A class which has the function 'static void release(Ojb_t *)' for releasing (deleting or storing) counted objects.	*/
+	@p ObjReleaseHandler_T	A class which has the function 'static void release(Ojb_t *)' 
+		for releasing (deleting or storing) counted objects.	*/
 template<class Obj_t, class ObjReleaseHandler_T = _DefaultReleaseHandler<Obj_t> >
 class EReferenceCounter {
 		int refCounter;

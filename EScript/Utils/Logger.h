@@ -27,7 +27,7 @@ class Logger : public EReferenceCounter<Logger> {
 			LOG_FATAL = 6,
 			LOG_NONE = 10
 		};
-		Logger(level_t _minLevel=LOG_ALL,level_t _maxLevel = LOG_NONE) : minLevel(_minLevel),maxLevel(_maxLevel){}
+		Logger(level_t _minLevel = LOG_ALL,level_t _maxLevel = LOG_NONE) : minLevel(_minLevel),maxLevel(_maxLevel){}
 		virtual ~Logger(){}
 
 		void debug(const std::string & msg)			{	log(LOG_DEBUG,msg);	}
@@ -43,7 +43,7 @@ class Logger : public EReferenceCounter<Logger> {
 		void warn(const std::string & msg)			{	log(LOG_WARNING,msg);	}
 
 	private:
-		bool testLevel(level_t t)const				{	return 	static_cast<int>(t)>=static_cast<int>(minLevel) &&
+		bool testLevel(level_t t)const				{	return	static_cast<int>(t)>=static_cast<int>(minLevel) &&
 																static_cast<int>(t)<=static_cast<int>(maxLevel); }
 
 		//! ---o
@@ -60,7 +60,7 @@ class Logger : public EReferenceCounter<Logger> {
 		--------> [Logger*]		*/
 class LoggerGroup : public Logger {
 	public:
-		LoggerGroup(level_t _minLevel=LOG_ALL,level_t _maxLevel = LOG_NONE) : Logger(_minLevel,_maxLevel){}
+		LoggerGroup(level_t _minLevel = LOG_ALL,level_t _maxLevel = LOG_NONE) : Logger(_minLevel,_maxLevel){}
 		virtual ~LoggerGroup(){}
 
 		void addLogger(const std::string & name,Logger * logger);
@@ -81,7 +81,7 @@ class LoggerGroup : public Logger {
 		--------> std::ostream		*/
 class StdLogger : public Logger {
 	public:
-		StdLogger(std::ostream & stream, level_t _minLevel=LOG_ALL,level_t _maxLevel = LOG_NONE) : Logger(_minLevel,_maxLevel),out(stream){}
+		StdLogger(std::ostream & stream, level_t _minLevel = LOG_ALL,level_t _maxLevel = LOG_NONE) : Logger(_minLevel,_maxLevel),out(stream){}
 		virtual ~StdLogger(){}
 	private:
 		//! ---|> Logger

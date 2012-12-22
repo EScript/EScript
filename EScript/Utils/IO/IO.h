@@ -39,9 +39,9 @@ uint64_t getFileSize(const std::string& filename);
 
 /*!
  * @param dirname
- * @param flags       1 ... Files
- *                    2 ... Directories
- *                    4 ... Recurse Subdirectories
+ * @param flags		1 ... Files
+ *					2 ... Directories
+ *					4 ... Recurse Subdirectories
  * @throw std::ios_base::failure on failure.	*/
 std::vector<std::string> getFilesInDir(const std::string & dirname, uint8_t flags);
 
@@ -49,13 +49,13 @@ std::string dirname(const std::string & filename);
 
 /*! Remove "." and ".." from the inputPath if possible.
  *	\example
- *		foo 					-> foo
- *		/var/bla/ 				-> /var/bla/
- *		bla/./foo 				-> bla/foo
- *		bla/foo/./../../bar/. 	-> bar
- *		/// 					-> /
- *		// 						-> /
- *		../../foo/bla/.. 		-> ../../foo		*/
+ *		foo						-> foo
+ *		/var/bla/				-> /var/bla/
+ *		bla/./foo				-> bla/foo
+ *		bla/foo/./../../bar/.	-> bar
+ *		///						-> /
+ *		//						-> /
+ *		../../foo/bla/..		-> ../../foo		*/
 std::string condensePath(const std::string & inputPath);
 
 }

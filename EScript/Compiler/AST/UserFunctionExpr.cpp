@@ -38,7 +38,7 @@ int UserFunctionExpr::getMaxParamCount()const{
 }
 
 int UserFunctionExpr::getMinParamCount()const{
-	int i=0;
+	int i = 0;
 	for(const auto & param : params) {
 		if(param.isMultiParam() || param.getDefaultValueExpression() != nullptr) {
 			break;

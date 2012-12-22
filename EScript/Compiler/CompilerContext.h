@@ -44,7 +44,7 @@ class CompilerContext {
 			uint32_t marker;
 			nameToIndexMapping_t localVariables;
 
-			SettingsStackEntry(setting_t _type=VISIBLE_LOCAL_VARIABLES) : type(_type),marker(Instruction::INVALID_JUMP_ADDRESS){}
+			SettingsStackEntry(setting_t _type = VISIBLE_LOCAL_VARIABLES) : type(_type),marker(Instruction::INVALID_JUMP_ADDRESS){}
 			SettingsStackEntry(setting_t _type,uint32_t _marker) : type(_type),marker(_marker){}
 
 		};
@@ -99,7 +99,7 @@ class CompilerContext {
 		void popSetting()												{	settingsStack.pop_back();	}
 
 		uint32_t registerInternalFunction(const ObjPtr userFunction)	{	return instructions.registerInternalFunction(userFunction);	}
-		void setLine(int l)												{	currentLine=l;	}
+		void setLine(int l)												{	currentLine = l;	}
 
 		//! All newly defined variables are also added to the topmost collection.
 		void pushLocalVarsCollector(std::vector<size_t> * collection)	{	variableCollectorStack.push(collection);	}

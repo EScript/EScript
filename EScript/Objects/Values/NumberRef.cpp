@@ -12,7 +12,7 @@ using namespace EScript;
 //! (static)
 Type * NumberRef::getTypeObject(){
 	// [NumberRef] ---|> [Number]
-	static Type * typeObject=new Type(Number::getTypeObject());
+	static Type * typeObject = new Type(Number::getTypeObject());
 	return typeObject;
 }
 
@@ -79,7 +79,7 @@ NumberRef::NumberRef(long & _valueRef,Type * type):
 
 //! (dtor)
 NumberRef::~NumberRef() {
-	valuePtr=nullptr;
+	valuePtr = nullptr;
 	//dtor
 }
 

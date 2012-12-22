@@ -11,12 +11,12 @@ namespace EScript {
 class Object;
 
 /**
- *    JSON support for EScript
- *    [static-helper]
+ *	JSON support for EScript
+ *	[static-helper]
  */
 struct JSON	{
-	static void toJSON(std::ostringstream & out,Object * obj,bool formatted=true,int level=0);
-	static std::string toJSON(Object * obj,bool formatted=true);
+	static void toJSON(std::ostringstream & out,Object * obj,bool formatted = true,int level = 0);
+	static std::string toJSON(Object * obj,bool formatted = true);
 	static Object* parseJSON(const std::string &s);
 };
 

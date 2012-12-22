@@ -10,7 +10,7 @@
 
 namespace EScript {
 
-/*! [Bool] ---|> [Object]   */
+//! [Bool] ---|> [Object]
 class Bool : public Object {
 		ES_PROVIDES_TYPE_NAME(Bool)
 	public:
@@ -22,20 +22,20 @@ class Bool : public Object {
 
 		// ---
 
-		explicit Bool(bool value,Type * type=nullptr);
-		virtual ~Bool();
+		explicit Bool(bool value,Type * type = nullptr);
+		virtual ~Bool(){}
 
-		void setValue(bool b)				{	value=b;	}
+		void setValue(bool b)								{	value = b;	}
 
 		/// ---|> [Object]
-		virtual Object * clone()const;
-		virtual std::string toString()const;
-		virtual bool toBool()const;
-		virtual double toDouble()const;
-		virtual bool rt_isEqual(Runtime & rt,const ObjPtr o);
-		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_BOOL;	}
+		virtual Object * clone()const						{	return Bool::create(value);	}
+		virtual std::string toString()const					{	return value?"true":"false";	}
+		virtual bool toBool()const							{	return value;	}
+		virtual double toDouble()const						{	return value?1:0;	}
+		virtual bool rt_isEqual(Runtime &,const ObjPtr o)	{	return value==o.toBool(false);	}
+		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_BOOL;	}
 
-	protected:
+	private:
 		bool value;
 };
 }

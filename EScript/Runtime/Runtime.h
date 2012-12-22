@@ -23,7 +23,7 @@ class YieldIterator;
 class RuntimeInternals;
 
 
-/*! [Runtime] ---|> [ExtObject]    */
+//! [Runtime] ---|> [ExtObject]
 class Runtime : public ExtObject  {
 		ES_PROVIDES_TYPE_NAME(Runtime)
 	public:
@@ -33,7 +33,7 @@ class Runtime : public ExtObject  {
 	// ------------------------------------------------
 
 	/// @name Main
-	// 	@{
+	//	@{
 	private:
 		std::unique_ptr<RuntimeInternals> internals;
 	public:
@@ -45,17 +45,17 @@ class Runtime : public ExtObject  {
 	// ------------------------------------------------
 
 	/// @name Variables
-	// 	@{
+	//	@{
 	public:
 		Namespace * getGlobals()const;
 
 		bool assignToAttribute(ObjPtr obj,StringId attrId,ObjPtr value);
-	// 	@}
+	//	@}
 
 	// ------------------------------------------------
 
 	/// @name Execution
-	// 	@{
+	//	@{
 	public:
 		ObjPtr getCallingObject()const;
 
@@ -76,7 +76,7 @@ class Runtime : public ExtObject  {
 	// ------------------------------------------------
 
 	/// @name Internal state / Exceptions
-	// 	@{
+	//	@{
 	public:
 		bool assertNormalState()const __attribute__((deprecated));
 
@@ -105,14 +105,13 @@ class Runtime : public ExtObject  {
 		 * (otherwise, they are not handled and the program is likely to crash).
 		 * In all other situations try to use setException(...)
 		 */
-		void throwException(const std::string & s,Object * obj=nullptr);
-
-	// 	@}
+		void throwException(const std::string & s,Object * obj = nullptr);
+	//	@}
 
 	// ------------------------------------------------
 
 	/// @name Debugging
-	// 	@{
+	//	@{
 	public:
 		void enableLogCounting();
 		void disableLogCounting();
@@ -134,7 +133,7 @@ class Runtime : public ExtObject  {
 
 	private:
 		_CountedRef<LoggerGroup> logger;
-	// 	@}
+	//	@}
 
 };
 }

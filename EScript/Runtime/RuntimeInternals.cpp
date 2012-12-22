@@ -173,7 +173,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			const uint32_t numParams = instruction.getValue_uint32();
 
 			ParameterValues params(numParams);
-			for(int i=numParams-1;i>=0;--i ){
+			for(int i = numParams-1;i>=0;--i ){
 				params.set(i,fcc->stack_popObjectValue());
 			}
 
@@ -204,7 +204,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			// pop the parameters for the first constructor
 			const uint32_t numParams = instruction.getValue_uint32();
 			ParameterValues params(numParams);
-			for(int i=numParams-1;i>=0;--i ){
+			for(int i = numParams-1;i>=0;--i ){
 				params.set(i,fcc->stack_popObjectValue());
 			}
 
@@ -326,7 +326,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 						
 				// pop super constructor parameters
 				ParameterValues params(numParams);
-				for(int i=numParams-1;i>=0;--i ){
+				for(int i = numParams-1;i>=0;--i ){
 					params.set(i,fcc->stack_popObjectValue());
 				}
 
@@ -503,7 +503,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 			const uint32_t funId = fcc->stack_popUInt32();
 
 			ParameterValues params(numParams);
-			for(int i=numParams-1;i>=0;--i ){
+			for(int i = numParams-1;i>=0;--i ){
 				params.set(i,fcc->stack_popObjectValue());
 			}
 			fcc->stack_pushObject( sysCall(funId,params) );
@@ -515,7 +515,7 @@ Object * RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> 
 				-------------
 				pop result	*/
 			ObjRef value = fcc->stack_popObjectValue();
-			ERef<YieldIterator> yIt = new YieldIterator();
+			ERef<YieldIterator> yIt = new YieldIterator;
 			yIt->setFCC(fcc);
 			yIt->setValue(value);
 			fcc->increaseInstructionCursor();
@@ -645,7 +645,7 @@ RuntimeInternals::executeFunctionResult_t RuntimeInternals::startFunctionExecuti
 			return startFunctionExecution(delegate->getFunction(),delegate->getObject(),params);
 		}
 		case _TypeIds::TYPE_FUNCTION:{ // is  C++ function ?
-			Function * libfun=static_cast<Function*>(fun.get());
+			Function * libfun = static_cast<Function*>(fun.get());
 			{	// check param count
 				const int min = libfun->getMinParamCount();
 				const int max = libfun->getMaxParamCount();
@@ -654,7 +654,7 @@ RuntimeInternals::executeFunctionResult_t RuntimeInternals::startFunctionExecuti
 					os<<"Too few parameters: Expected " <<min<<", got "<<params.count()<<'.';
 					setException(os.str());
 					return std::make_pair(result.get(),static_cast<FunctionCallContext*>(nullptr));
-				} else  if (max>=0 && static_cast<int>(params.count())>max) {
+				} else  if(max>=0 && static_cast<int>(params.count())>max) {
 					std::ostringstream os;
 					os<<"Too many parameters: Expected " <<max<<", got "<<params.count()<<'.';
 					warn(os.str());
@@ -674,7 +674,7 @@ RuntimeInternals::executeFunctionResult_t RuntimeInternals::startFunctionExecuti
 				setException(std::string("C++ exception: ") + e.what());
 			} catch (Object * obj) {
 				// workaround: this should be covered by catching the Exception* directly, but that doesn't always seem to work!?!
-				Exception * e=dynamic_cast<Exception *>(obj);
+				Exception * e = dynamic_cast<Exception *>(obj);
 				if(e){
 					setExceptionState(e);
 				}else{
@@ -821,10 +821,10 @@ std::string RuntimeInternals::getLocalStackInfo(){
 std::string RuntimeInternals::getStackInfo(){
 	std::ostringstream os;
 	os<<"\n\n----------------------\nCall stack:";
-	int nr=0;
+	int nr = 0;
 	const int skipStart = activeFCCs.size()>50 ? 20 : activeFCCs.size()+1;
 	const int skipEnd = activeFCCs.size()>50 ? activeFCCs.size()-20 : 0;
-	for(std::vector<_CountedRef<FunctionCallContext> >::reverse_iterator it=activeFCCs.rbegin();it!=activeFCCs.rend();++it){
+	for(std::vector<_CountedRef<FunctionCallContext> >::reverse_iterator it = activeFCCs.rbegin();it!=activeFCCs.rend();++it){
 		++nr;
 		if( nr>=skipStart && nr<skipEnd){
 			continue;
@@ -900,9 +900,9 @@ void RuntimeInternals::initSystemFunctions(){
 	{	//! [ESF] Map SYS_CALL_CREATE_MAP( key0,value0, key1,value1, ... )
 		struct _{
 			ES_FUNCTION( sysCall) {
-					if ( (parameter.count()%2)==1 ) runtime.warn("Map: Last parameter ignored!");
-					Map * a=Map::create();
-					for (ParameterValues::size_type i=0;i<parameter.count();i+=2)
+					if( (parameter.count()%2)==1 ) runtime.warn("Map: Last parameter ignored!");
+					Map * a = Map::create();
+					for(ParameterValues::size_type i = 0;i<parameter.count();i+=2)
 						a->setValue(parameter[i],parameter[i+1]);
 				return a;
 			}
@@ -943,7 +943,7 @@ void RuntimeInternals::initSystemFunctions(){
 			ES_FUNCTION( sysCall) {
 				assertParamCount(runtime,1,1);
 				ObjRef it;
-				if(	Collection * c=parameter[0].toType<Collection>()){
+				if(	Collection * c = parameter[0].toType<Collection>()){
 					it = c->getIterator();
 				}else if(parameter[0].toType<YieldIterator>()){
 					it = parameter[0].get();

@@ -27,8 +27,8 @@ class Map : public Collection {
 			MapEntry(const MapEntry &other) : key(other.key),value(other.value) {}
 			MapEntry & operator=(const MapEntry &other){
 				if(this!=&other){
-					key=other.key;
-					value=other.value;
+					key = other.key;
+					value = other.value;
 				}
 				return *this;
 			}
@@ -58,7 +58,7 @@ class Map : public Collection {
 		static Map * create(const std::unordered_map<StringId,Object *> &);
 
 		// ---
-		Map(Type * type=nullptr);
+		Map(Type * type = nullptr);
 		virtual ~Map();
 	//	@}
 
@@ -91,7 +91,7 @@ class Map : public Collection {
 		size_type erase(const std::string & key){	return data.erase(key);	}
 		Object * getValue(const std::string & key);
 		Object * getKeyObject(const std::string & key);
-		void merge(Collection * c,bool overwrite=true);
+		void merge(Collection * c,bool overwrite = true);
 		void rt_filter(Runtime & runtime,ObjPtr function, const ParameterValues & additionalValues);
 		void unset(ObjPtr key);
 		void swap(Map * other);

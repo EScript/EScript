@@ -17,13 +17,13 @@ class NumberRef : public Number {
 		static void init(EScript::Namespace & globals);
 
 		// ---
-		explicit NumberRef(double & valueRef,Type * type=nullptr);
-		explicit NumberRef(float & valueRef,Type * type=nullptr);
-		explicit NumberRef(int & valueRef,Type * type=nullptr);
-		explicit NumberRef(unsigned int & valueRef,Type * type=nullptr);
-		explicit NumberRef(char & valueRef,Type * type=nullptr);
-		explicit NumberRef(unsigned char & valueRef,Type * type=nullptr);
-		explicit NumberRef(long & valueRef,Type * type=nullptr);
+		explicit NumberRef(double & valueRef,Type * type = nullptr);
+		explicit NumberRef(float & valueRef,Type * type = nullptr);
+		explicit NumberRef(int & valueRef,Type * type = nullptr);
+		explicit NumberRef(unsigned int & valueRef,Type * type = nullptr);
+		explicit NumberRef(char & valueRef,Type * type = nullptr);
+		explicit NumberRef(unsigned char & valueRef,Type * type = nullptr);
+		explicit NumberRef(long & valueRef,Type * type = nullptr);
 		virtual ~NumberRef();
 
 		/// ---|> Number

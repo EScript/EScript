@@ -21,24 +21,24 @@ std::string JSON::toJSON(Object * obj,bool formatted/*=true*/){
 void JSON::toJSON(std::ostringstream & out,Object * obj,bool formatted/*=true*/,int level/*=0*/){
 	if(dynamic_cast<Void *>(obj) || (obj==nullptr) ){
 		out<<"null";
-	}else if(Object * number=dynamic_cast<Number *>(obj)){
+	}else if(Object * number = dynamic_cast<Number *>(obj)){
 		out<<number->toFloat();
-	}else if(Bool * b=dynamic_cast<Bool *>(obj)){
+	}else if(Bool * b = dynamic_cast<Bool *>(obj)){
 		out<<b->toString();
-	}else if(String * s=dynamic_cast<String *>(obj)){
+	}else if(String * s = dynamic_cast<String *>(obj)){
 		out<<"\""<<StringUtils::escape(s->toString())<<"\"";
-	}else if(Array * a=dynamic_cast<Array *>(obj)){
-		ERef<Iterator> itRef=dynamic_cast<Iterator *>(a->getIterator());
+	}else if(Array * a = dynamic_cast<Array *>(obj)){
+		ERef<Iterator> itRef = dynamic_cast<Iterator *>(a->getIterator());
 
 		out<<"[";
 		if(formatted){
 			out<<"\n";
 		}
-		bool first=true;
-		while ( (!itRef.isNull()) && (! itRef->end())) {
-			ObjRef valueRef=itRef->value();
+		bool first = true;
+		while( (!itRef.isNull()) && (! itRef->end())) {
+			ObjRef valueRef = itRef->value();
 			if(first){
-				first=false;
+				first = false;
 			}else{
 				out<<",";
 				if(formatted){
@@ -46,7 +46,7 @@ void JSON::toJSON(std::ostringstream & out,Object * obj,bool formatted/*=true*/,
 				}
 			}
 			if(formatted){
-				for(int j=0;j<level+1;j++)
+				for(int j = 0;j<level+1;++j)
 					out <<"\t";
 			}
 			toJSON(out,valueRef.get(),formatted,level+1);
@@ -54,23 +54,23 @@ void JSON::toJSON(std::ostringstream & out,Object * obj,bool formatted/*=true*/,
 		}
 		if(formatted){
 			out <<"\n";
-			for(int j=0;j<level;j++)
+			for(int j = 0;j<level;++j)
 				out <<"\t";
 		}
 		out<<"]";
-	}else if(Map * m=dynamic_cast<Map *>(obj)){
-		ERef<Iterator> itRef=dynamic_cast<Iterator *>(m->getIterator());
+	}else if(Map * m = dynamic_cast<Map *>(obj)){
+		ERef<Iterator> itRef = dynamic_cast<Iterator *>(m->getIterator());
 		out<<"{";
 		if(formatted){
 			out<<"\n";
 		}
-		bool first=true;
-		while ( (!itRef.isNull()) && (! itRef->end())) {
+		bool first = true;
+		while( (!itRef.isNull()) && (! itRef->end())) {
 
-			ObjRef keyRef=itRef->key();
-			ObjRef valueRef=itRef->value();
+			ObjRef keyRef = itRef->key();
+			ObjRef valueRef = itRef->value();
 			if(first){
-				first=false;
+				first = false;
 			}else{
 				out<<",";
 				if(formatted){
@@ -78,7 +78,7 @@ void JSON::toJSON(std::ostringstream & out,Object * obj,bool formatted/*=true*/,
 				}
 			}
 			if(formatted){
-				for(int j=0;j<level+1;j++)
+				for(int j = 0;j<level+1;++j)
 					out <<"\t";
 			}
 			out<<"\""<<keyRef.toString()<<"\":"; // TODO! Escape
@@ -88,7 +88,7 @@ void JSON::toJSON(std::ostringstream & out,Object * obj,bool formatted/*=true*/,
 		}
 		if(formatted){
 			out <<"\n";
-			for(int j=0;j<level;j++)
+			for(int j = 0;j<level;++j)
 				out <<"\t";
 		}
 		out<<"}";
@@ -113,27 +113,27 @@ static Object * _parseJSON(Tokenizer::tokenList_t::iterator & cursor,const Token
 		++cursor;
 
 		return Number::create(-tObj->getValue());
-	}else if(TValueBool * tb=Token::cast<TValueBool>(token)){
+	}else if(TValueBool * tb = Token::cast<TValueBool>(token)){
 		++cursor;
 		return Bool::create(tb->getValue());
-	}else if(TValueNumber * tn=Token::cast<TValueNumber>(token)){
+	}else if(TValueNumber * tn = Token::cast<TValueNumber>(token)){
 		++cursor;
 		return Number::create(tn->getValue());
-	}else if(TValueString * ts=Token::cast<TValueString>(token)){
+	}else if(TValueString * ts = Token::cast<TValueString>(token)){
 		++cursor;
 		return String::create(ts->getValue());
 	}else if(Token::isA<TValueVoid>(token)){
 		++cursor;
 		return Void::get();
-	}else if (Token::isA<TStartBlock>(token)){
-		Map *m=Map::create();
+	}else if(Token::isA<TStartBlock>(token)){
+		Map *m = Map::create();
 		++cursor;
 		while( true){
 			if(cursor==end){
 				std::cout << "M1 \n";
 				break;
 			}else  if( Token::isA<TEndBlock>(*cursor)){
-				cursor++;
+				++cursor;
 				break;
 			}
 			TValueString * key= Token::cast<TValueString>(*cursor); 
@@ -154,7 +154,7 @@ static Object * _parseJSON(Tokenizer::tokenList_t::iterator & cursor,const Token
 				std::cout << "M4! \n";
 				break;
 			}
-			Object * o=_parseJSON(cursor,end);
+			Object * o = _parseJSON(cursor,end);
 			if(!o){
 
 				std::cout << "M5! \n"<<(*cursor)->toString()<<"\n";
@@ -166,10 +166,10 @@ static Object * _parseJSON(Tokenizer::tokenList_t::iterator & cursor,const Token
 				std::cout << "unexpected ending. \n";
 				break;
 			}else  if(Token::isA<TEndBlock>(*cursor)){
-				cursor++;
+				++cursor;
 				break;
 			}else if(Token::isA<TDelimiter>(*cursor)){
-				cursor++;
+				++cursor;
 				continue;
 			}
 			std::cout << "',' or '}' expected \n";
@@ -177,18 +177,18 @@ static Object * _parseJSON(Tokenizer::tokenList_t::iterator & cursor,const Token
 			break;
 		}
 		return m;
-	}else if (Token::isA<TStartIndex>(token)){
-		Array *a=Array::create();
+	}else if(Token::isA<TStartIndex>(token)){
+		Array *a = Array::create();
 		++cursor;
 		while( true){
 			if(cursor==end){
 				std::cout << "A1! \n";
 				break;
 			}else if(Token::isA<TEndIndex>(*cursor)){
-				cursor++;
+				++cursor;
 				break;
 			}
-			Object * o=_parseJSON(cursor,end);
+			Object * o = _parseJSON(cursor,end);
 			if(!o){
 				std::cout << "A2! \n";
 				break;
@@ -199,10 +199,10 @@ static Object * _parseJSON(Tokenizer::tokenList_t::iterator & cursor,const Token
 				std::cout << "A3! \n";
 				break;
 			}else  if(Token::isA<TEndIndex>(*cursor)){
-				cursor++;
+				++cursor;
 				break;
 			}else if(Token::isA<TDelimiter>(*cursor)){
-				cursor++;
+				++cursor;
 				continue;
 			}
 			std::cout << "A4! \n";
@@ -211,7 +211,7 @@ static Object * _parseJSON(Tokenizer::tokenList_t::iterator & cursor,const Token
 		}
 		return a;
 	}
-	else if(TIdentifier* ti=Token::cast<TIdentifier>(token)){
+	else if(TIdentifier* ti = Token::cast<TIdentifier>(token)){
 		std::cout << "Unknown Identifier: "<<ti->toString()<<"\n";
 		return nullptr;
 
@@ -225,15 +225,15 @@ Object* JSON::parseJSON(const std::string &s){
 
 	Tokenizer::tokenList_t tokens;
 	t.getTokens(s.c_str(),tokens);
-	Tokenizer::tokenList_t::iterator it=tokens.begin();
+	Tokenizer::tokenList_t::iterator it = tokens.begin();
 	Object * result= _parseJSON(it,tokens.end());
 	if(it!=tokens.end() && !Token::isA<TEndScript>(*it)){
 		std::cout << "JSON Syntax Error\n";
 	}
 	if(result==nullptr){
-		result=String::create(s);
+		result = String::create(s);
 	}
-//	for(it=tokens.begin();it!=tokens.end();++it){
+//	for(it = tokens.begin();it!=tokens.end();++it){
 //		Token::removeReference(*it);
 //	}
 	return result;

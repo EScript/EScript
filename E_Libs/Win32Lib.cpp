@@ -13,7 +13,7 @@ using namespace EScript;
 
 //! (static)
 void Win32Lib::init(EScript::Namespace * globals) {
-	Namespace * lib=new Namespace();
+	Namespace * lib = new Namespace;
 	declareConstant(globals,"Win32",lib);
 
 	//! [ESF]	void setClipboard( string )
@@ -25,14 +25,14 @@ void Win32Lib::init(EScript::Namespace * globals) {
 	//! [ESF]	bool loadLibrary(string )
 	ES_FUNCTION_DECLARE(lib,"loadLibrary",1,1, {
 		HINSTANCE hDLL;
-		libInitFunction *  f;    // Function pointer
+		libInitFunction *  f;	// Function pointer
 
 		hDLL = LoadLibrary(parameter[0]->toString().c_str());
-		if (hDLL == nullptr)
+		if(hDLL == nullptr)
 			return Bool::create(false);
 
 		f = reinterpret_cast<libInitFunction*>(GetProcAddress(hDLL,"init"));
-		if (!f)    {
+		if(!f)	{
 			// handle the error
 			FreeLibrary(hDLL);
 			return Bool::create(false);
@@ -46,7 +46,7 @@ void Win32Lib::init(EScript::Namespace * globals) {
 
 //! (static)
 void Win32Lib::setClipboard(const std::string & s){
-	if (OpenClipboard(nullptr)) {
+	if(OpenClipboard(nullptr)) {
 		EmptyClipboard();
 		HGLOBAL hClipboardData;
 		hClipboardData = GlobalAlloc(GMEM_DDESHARE, s.size()+1);
@@ -63,7 +63,7 @@ void Win32Lib::setClipboard(const std::string & s){
 
 //! (static)
 std::string Win32Lib::getClipboard(){
-	if (!OpenClipboard(nullptr)) {
+	if(!OpenClipboard(nullptr)) {
 		std::cout << "Could not open Clipboard!\n";
 		return "";
 	}
@@ -71,10 +71,10 @@ std::string Win32Lib::getClipboard(){
 	HGLOBAL hClipboardData;
 	char * lpstr;
 
-	hClipboardData=GetClipboardData(CF_TEXT);
-	lpstr=reinterpret_cast<char*>(GlobalLock(hClipboardData));
+	hClipboardData = GetClipboardData(CF_TEXT);
+	lpstr = reinterpret_cast<char*>(GlobalLock(hClipboardData));
 
-	std::string s=std::string(lpstr);
+	std::string s = std::string(lpstr);
 	//std::cout << s;
 	// ...
 

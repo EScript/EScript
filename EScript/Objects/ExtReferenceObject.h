@@ -50,7 +50,7 @@ class ExtReferenceObject : public Object, private attributeProvider {
 		typedef ExtReferenceObject<_T,comparisonPolicy,attributeProvider> ExtReferenceObject_t;
 
 		// ---
-		ExtReferenceObject(const _T & _obj, Type * type=nullptr) :
+		ExtReferenceObject(const _T & _obj, Type * type = nullptr) :
 					Object(type), attributeProvider(), obj(_obj){
 
 			if(type!=nullptr && !attributeProvider::areObjAttributesInitialized(this)){
@@ -75,10 +75,10 @@ class ExtReferenceObject : public Object, private attributeProvider {
 	/*! @name Reference */
 	//	@{
 	public:
-		inline const _T & ref() const 						{	return obj;	}
-		inline _T & ref()  									{	return obj;	}
-		inline const _T & operator*()const					{	return obj;	}
-		inline _T & operator*()								{	return obj;	}
+		inline const _T & ref() const			{	return obj;	}
+		inline _T & ref() 						{	return obj;	}
+		inline const _T & operator*()const		{	return obj;	}
+		inline _T & operator*()					{	return obj;	}
 
 	private:
 		_T obj;

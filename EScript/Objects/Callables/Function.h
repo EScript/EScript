@@ -36,11 +36,11 @@ class Function : public Object {
 		int getMinParamCount()const							{	return minParamCount;	}
 		StringId getOriginalName()const						{	return originalName;	}
 		void increaseCallCounter()							{	++callCounter;	}
-		void resetCallCounter()								{	callCounter=0;	}
+		void resetCallCounter()								{	callCounter = 0;	}
 
 		/// ---|> [Object]
-		virtual Object * clone()const 						{	return new Function(fnptr);	}
-		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_FUNCTION;	}
+		virtual Object * clone()const						{	return new Function(fnptr);	}
+		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_FUNCTION;	}
 	private:
 		functionPtr fnptr;
 		int minParamCount,maxParamCount;

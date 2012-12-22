@@ -5,10 +5,10 @@ var FAILED="\t failed\n";
 
 //---
 {	// Bool operations && || !
-	var a=0;
-	a>0 || (a=a+1)>0 && (a=a+3)>0 || (a=0)>0;
-	a==7 && (a=10)>0;
-	a==4 && (a=5)>0;
+	var a = 0;
+	a>0 || (a = a+1)>0 && (a = a+3)>0 || (a = 0)>0;
+	a==7 && (a = 10)>0;
+	a==4 && (a = 5)>0;
 
 	test("Bool operations:", true
 		&& a==5 && !false
@@ -17,19 +17,19 @@ var FAILED="\t failed\n";
 //---
 {
 	out("Assignment Operations:" );
-	var a=0;
+	var a = 0;
 	a+=10; // 0+10 = 10
 	a*=5;  // 10*5 = 50
 	a/=2;  // 50/2 = 25
 	a%=17; // 25 % 17 = 8
 	var c;
-	var b=c=3;
+	var b = c = 3;
 
 	if( a==8 && b==3 && c==3){out (OK);}else { errors+=1; out(FAILED); }
 }
 //---
 {
-	var b=false;
+	var b = false;
 	(fn(value){value|=true;})(b); // test call by value
 
 	var b2 = true;
@@ -50,7 +50,7 @@ var FAILED="\t failed\n";
 
 // ---
 {	// Number
-	var n=1;
+	var n = 1;
 	(fn(value){value++;})(n); // test call by value
 	var i=(9).sqrt();
 
@@ -58,7 +58,8 @@ var FAILED="\t failed\n";
 	n2 &= 12; // 7 & 12 == 4
 	var n2b = (n2 -= 10); // 4-10 == -6
 
-	var n3 = 17;
+	var n3 = +17;
+	n3 = +n3; // operator Number.+_pre
 	var n3a = --n3;
 	var n3b = n3--;
 
@@ -142,7 +143,7 @@ var FAILED="\t failed\n";
 //---
 {
 	out("Void:\t\t");
-	var v=void;
+	var v = void;
 	if( void==v && v!=false && false==v && v!==false && v===void && void != 0 && 0==void && !((1)===void) && !(void===0)
 	// strange, but ok. (0).==(void.toNumber())
 	&& 0 == void)
@@ -152,43 +153,43 @@ var FAILED="\t failed\n";
 //---
 {
 	out("While: \t\t");
-	var a=0;
-	while(a<8){a=a+1;}
+	var a = 0;
+	while(a<8){a = a+1;}
 	while(a>5){a--;}
-	var b=0;
-	var c=0;
+	var b = 0;
+	var c = 0;
 	while( true){
 		if(++b%2 != 0) {{continue; }}
 		if(++c==5) break;
 	}
-	var d=0;
+	var d = 0;
 	do{d++;}while(d<0);
 	if(a == 5 && b == 10 && c==5 && d==1){out (OK);}else { errors+=1; out(FAILED); }
 }
 //---
 {
 	out("For: \t\t");
-	var a=0;
-	var i=0;
-	for(i=5;i<10;){
+	var a = 0;
+	var i = 0;
+	for(i = 5;i<10;){
 		a+=i;
 		//out(a,"-",i,"\n");
 		i++;
 	}
-	for(i=10;i>5;i--){
+	for(i = 10;i>5;i--){
 		if( (i%2) >0) continue;
 		if(i<7) break;
 		a+=i;
 		// out(a,"-",i,"\n");
 	}
 	// a==53
-	var j=0;
-	for(var j=0;j<5;++j)
+	var j = 0;
+	for(var j = 0;j<5;++j)
 		a+=j;
 	// a==53 + 0+1+2+3+4==63
 
 	// this $a is a different local variable and not touched.
-	for(var a=0;a<5;++a){
+	for(var a = 0;a<5;++a){
 		var a="foo";
 	}
 
@@ -198,21 +199,21 @@ var FAILED="\t failed\n";
 //---
 {
 	out("Blocks:\t\t");
-	var v1=1;
+	var v1 = 1;
 	{
-		var v1=2;
+		var v1 = 2;
 		{
-			v1=v1+1;
+			v1 = v1+1;
 		}
 	}
 	{false?v1--:true?v1++:v1--;}
-	if(v1==2 && ({ var a=1; a+2;}) == 3){out (OK);}else { errors+=1; out(FAILED); }
+	if(v1==2 && ({ var a = 1; a+2;}) == 3){out (OK);}else { errors+=1; out(FAILED); }
 }
 
 //---
 {	// UserFunctions:
 	//global plusRec;
-	var a=10;
+	var a = 10;
 	GLOBALS.plusRec := fn (a,b){
 		if(a<=0) return b;
 		return plusRec(a-1,b+1);
@@ -222,59 +223,59 @@ var FAILED="\t failed\n";
 		return thisFn(a-1,b+1);
 	};
 
-	var minusOne=fn(a){
+	var minusOne = fn(a){
 //		out(getRuntime().getStackInfo());
 		return a-1;
 	};
 
-	var increase=fn(a,b=1){
+	var increase = fn(a,b = 1){
 		return a+b;
 	};
-	var repeat=fn(Number n,String s="-"){
+	var repeat = fn(Number n,String s="-"){
 		return (s*n);
 	};
-	var typeException=false;
+	var typeException = false;
 	try{
 		repeat(true);
 	}catch(e){
-		typeException=true;
+		typeException = true;
 	}
 
 	// multiParam
-	var mulSum=fn(factor,Number values*){
-		var a=0;
+	var mulSum = fn(factor,Number values*){
+		var a = 0;
 		foreach(values as var v) a+=v;
 		return factor * a;
 	};
-	var typeException2=false;
+	var typeException2 = false;
 	try{
 		out(mulSum(2,"foo"));
 	}catch(e){
-		typeException2=true;
+		typeException2 = true;
 	}
 
 	// multi possibilities
-	var f=fn( [Number,"bla"] p1,[Number] p2=7,[1,2,3] p3* = 3){
+	var f = fn( [Number,"bla"] p1,[Number] p2 = 7,[1,2,3] p3* = 3){
 
 	};
 
 	f("bla",3);
-	var typeException3=false;
+	var typeException3 = false;
 	try{
 		f("bla",3,4);
 	}catch(e){
-		typeException3=true;
+		typeException3 = true;
 	}
 
 	// skipped parameter
-	var f2=fn(a=1,b=2,c=3){
+	var f2 = fn(a = 1,b = 2,c = 3){
 		return a+b+c;
 	};
-//	var x=new Array(1,,,4);
+//	var x = new Array(1,,,4);
 //	print_r(x);
 
 	// function members
-	var f3=fn(){
+	var f3 = fn(){
 		if(!thisFn.isSet($staticVar))
 			thisFn.staticVar:=0;
 		thisFn.staticVar+=1;
@@ -282,7 +283,7 @@ var FAILED="\t failed\n";
 	};
 
 	// cloning USerFunction Objects
-	var f4=fn(a=1){ thisFn.m+=a; return thisFn.m; };
+	var f4 = fn(a = 1){ thisFn.m+=a; return thisFn.m; };
 	f4.m:=0;
 	f4(7);
 	var f4b = f4.clone();
@@ -316,12 +317,12 @@ var FAILED="\t failed\n";
 
 		&& [1,2,3].map( (fn(key,value,sumA,sumB){return value+sumA+sumB;}).bindLastParams(90,10) )  == [101,102,103]
 		&& plusRec.getFilename() == __FILE__
-		&& (fn(a){}).getMinParamCount() == 1 && (fn(a*){}).getMinParamCount() == 0 && (fn(a,b,c=2){}).getMinParamCount() == 2
-		&& (fn(a){}).getMaxParamCount() == 1 && !(fn(a*){}).getMaxParamCount() && (fn(a,b,c=2){}).getMaxParamCount() == 3
+		&& (fn(a){}).getMinParamCount() == 1 && (fn(a*){}).getMinParamCount() == 0 && (fn(a,b,c = 2){}).getMinParamCount() == 2
+		&& (fn(a){}).getMaxParamCount() == 1 && !(fn(a*){}).getMaxParamCount() && (fn(a,b,c = 2){}).getMaxParamCount() == 3
 
 		,UserFunction
 	 );
-	 f3.staticVar=0; // reset staticVar for next testing loop.
+	 f3.staticVar = 0; // reset staticVar for next testing loop.
 	 UserFunction.bindLastParams = void; // need to remove the UserFunction extension for memory debug mode
 }
 //---
@@ -340,7 +341,7 @@ var FAILED="\t failed\n";
 		return new thisFn.Wrapper( this, params );
 	};
 	{	// (internals)
-		UserFunction.bindLastParams2.Wrapper := new Type();
+		UserFunction.bindLastParams2.Wrapper := new Type;
 		var Wrapper = UserFunction.bindLastParams2.Wrapper;
 		Wrapper.additionalParamValues := void;
 		Wrapper.fun := void;
@@ -376,7 +377,7 @@ var FAILED="\t failed\n";
 }
 //---
 {	// Array
-	var a=new Array(17,27,1000);
+	var a = new Array(17,27,1000);
 	a.pushBack("foo","bar");
 	a.pushBack("ding");
 	a.removeIndex(2); // remove 1000
@@ -387,14 +388,14 @@ var FAILED="\t failed\n";
 
 	a[0]=a[0]+1;
 
-	var i=a.getIterator();
+	var i = a.getIterator();
 	while(!i.end()){
 		accum+=i.value();
 		i.next();
 	}
 
 
-	var keyOfHoobel=fn(a){
+	var keyOfHoobel = fn(a){
 		var key;
 		var value;
 		foreach(a as key,value){
@@ -418,8 +419,8 @@ var FAILED="\t failed\n";
 	//out(accum);
 	// accum=="1827Hoobelbarding18bardidu"
 
-	var b=new Array(1,2);	// b: 1,2
-	var c=b.clone();		// c: 1,2
+	var b = new Array(1,2);	// b: 1,2
+	var c = b.clone();		// c: 1,2
 	b.pushBack("foo");		// b: 1,2,foo
 	c.append([3,4]);		// c: 1,2,3,4
 	b.swap(c);				// b: 1,2,3,4 c: 1,2,foo
@@ -427,7 +428,7 @@ var FAILED="\t failed\n";
 
 	var e=[3,23,7,3,100,1,35];
 
-	var q=new ExtObject(); // used for sorting by the distance from 59
+	var q = new ExtObject; // used for sorting by the distance from 59
 	q.c:=59;
 	var a2 = [1,2,3];
 	a2.set(0,"foo");
@@ -487,13 +488,13 @@ var FAILED="\t failed\n";
 
 //---
 {	// Map
-	var m=new Map();
+	var m = new Map;
 	m["foo"]="bar";
 	m["bla"]="da";
 	m["dum"]=m["bla"];
 
 	var accum="";
-	var i=m.getIterator();
+	var i = m.getIterator();
 
 	while(!i.end()){
 		accum+= "|"+i.key() +":" +i.value()+m[i.key()]+"";
@@ -501,7 +502,7 @@ var FAILED="\t failed\n";
 	}
 	accum+=m.count();
 
-	var m1=new Map();
+	var m1 = new Map;
 	m1["foo"]="bar";
 	m1["bla"]=[1,2,3];
 
@@ -530,18 +531,18 @@ var FAILED="\t failed\n";
 //---
 {
 	// element access
-	var O=new Type();
+	var O = new Type;
 	O._get::=fn(index){
 		return index*2;
 	};
-	var o=new O();
+	var o = new O;
 	test("Collection:",o[100]==200 ,Collection);
 }
 
 //---
 {
 	out("try/catch/throw:");
-	var i=0;
+	var i = 0;
 	try{
 	//	out("FOOBA!");
 		{{{1/0;}}}
@@ -557,8 +558,8 @@ var FAILED="\t failed\n";
 	}catch(e){
 		i+=e;
 	}
-	var f=fn(){
-		var e=new Exception("foo");
+	var f = fn(){
+		var e = new Exception("foo");
 		e.value:=8;
 		throw e;
 	};
@@ -577,9 +578,9 @@ if(!benchmark)
 {//disble for benchmarks
 	out("load:\t\t");
 	GLOBALS.loadTestVar:=0;
-	var r=load(__DIR__+"/loadme.escript");
-	var r2=loadOnce("loadme.escript");
-	var r3=loadOnce(__DIR__+"/loadme.escript"); // should be the same file as in the previous line as __DIR__ is in the searchPath
+	var r = load(__DIR__+"/loadme.escript");
+	var r2 = loadOnce("loadme.escript");
+	var r3 = loadOnce(__DIR__+"/loadme.escript"); // should be the same file as in the previous line as __DIR__ is in the searchPath
 
 //    out(__FILE__,"\t",__DIR__);
 	if( __FILE__==__DIR__+"/Testcases_Core.escript"&&  testFunction(3)==9 && r==5 && r2==5 && r3===void && loadTestVar==2)
@@ -587,15 +588,15 @@ if(!benchmark)
 }
 //---
 if(GLOBALS.isSet($TestObject)){  // TestObject is defined in test.cpp
-	var t=new TestObject(1,1);
-	t.m1=9; // int
-	t.m2=9; // float
+	var t = new TestObject(1,1);
+	t.m1 = 9; // int
+	t.m2 = 9; // float
 	t.m1+=1.7; // (int) (9 + 1.7) == 10
 	t.m2+=1.7; // 9+1.7 == 10.7
 	t.m1++;
 	t.m2++;
 
-	var m2=t.getM2();
+	var m2 = t.getM2();
 
 	test("NumberRef", t.getM1()== 11 && t.getM2().matches(11.7) );
 }
@@ -604,13 +605,13 @@ if(!benchmark)
 {
  //disble for benchmarks
    out("Get-/setAttribute:");
-   var normalPlus=GLOBALS.Number.getAttribute("+");
+   var normalPlus = GLOBALS.Number.getAttribute("+");
    Number.setAttribute("+",fn(i){
 		return this-i;
    },EScript.ATTR_TYPE_ATTR_BIT);
-   var a=1+2; // = 1-2;
+   var a = 1+2; // = 1-2;
    Number.setAttribute("+",normalPlus,EScript.ATTR_TYPE_ATTR_BIT);
-   var b=1+2; // = 1+2//
+   var b = 1+2; // = 1+2//
  /// Fakultät
    Number.setAttribute("!_post",fn(){
 	   if(this<=1) return this;
@@ -630,7 +631,7 @@ if(!benchmark)
 //---
 {
 	out("Inheritance:\t");
-	var A=new Type(ExtObject);
+	var A = new Type(ExtObject);
 	A._constructor:=fn(){
 //        this.a:=getType().a;
 //        out("FOOO",this,"\n");
@@ -645,13 +646,13 @@ if(!benchmark)
 
 	A._printableName ::= "MyUserdefinedA"; /// change the type name used for toString.
 //    print_r(A._getAttributes());
-	var a=new A();
+	var a = new A;
 //	print_r(a._getAttributes());
 //	print_r(A._getAttributes());
 //	print_r(A.getObjAttributes());
 //	print_r(A.getTypeAttributes());
 
-	var B=new Type(A); ///
+	var B = new Type(A); ///
 	B._constructor::=fn(){
 		f++;
 	};
@@ -664,11 +665,11 @@ if(!benchmark)
 	B.e++;
 	B.f++;
 
-	var b=new B();
+	var b = new B;
 
 //    print_r(B._getAttributes());
 //    out("A.a: ",A.a," A.b: ",A.b," A.c: ",A.c," A.d: ",A.d," B.a: ",B.a," B.b: ",B.b," B.c: ",B.c," B.d: ",B.d," \n");
-	var C=new Type;
+	var C = new Type;
 	C.m1:=1;
 	C."==" :=  fn(b){
 		if(b---|>Number){
@@ -676,14 +677,14 @@ if(!benchmark)
 		}else return null;
 	};
 
-	var c1=new C();
+	var c1 = new C;
 //    out(c1==1);
 //    out(c1==2);
 //    out(c1!=2);
 
 	if( A.a==1 &&A.b==1 &&A.c==2 &&A.d==1 &&A.e==2  &&A.f==2 &&B.a==2 &&B.b==2 &&B.c==2 &&B.d==2&&B.e==2&&B.f==2
-	&& B.getType()==Type && B.getBaseType()==A && (new B()).getType()==B && (new B()).getType().getBaseType()==A
-	&& (new B()).f==2 && c1==1 && !(c1==2) && c1!=2
+	&& B.getType()==Type && B.getBaseType()==A && (new B).getType()==B && (new B).getType().getBaseType()==A
+	&& (new B).f==2 && c1==1 && !(c1==2) && c1!=2
 	&& b.toString().contains("MyUserdefinedA")
 	&& b.isSetLocally($a) && !b.isSetLocally($c) && A.isSetLocally($c) && B.isSetLocally($a)
 	&& A.getLocalAttribute($a)==1 && B.getLocalAttribute($a)==2 && b.getLocalAttribute($a)==2
@@ -691,12 +692,12 @@ if(!benchmark)
 		{out (OK);}else { errors+=1; out(FAILED); }
 
 //    {
-//        var A=new Object();
+//        var A = new Object;
 //        A.setClassMember("a",1);
 //
-//        var B=new A();
+//        var B = new A;
 //        /// this should produce a warning
-//        B.a=2;
+//        B.a = 2;
 //        out(A.a,"\t",B.a); /// should be 1 2
 //    }
 }
@@ -704,22 +705,22 @@ if(!benchmark)
 //---
 {
 	out("Superconstructor:");
-	 var A=new Type(ExtObject);
+	 var A = new Type(ExtObject);
 	A._constructor::=fn(a,p*){
 		this.m1:=a;
 		foreach(p as var v){
 			m1-=v;
 		}
 	};
-	var A2=new Type(A); // useless in-between type whithout constructor
-	var B=new Type(A2);
+	var A2 = new Type(A); // useless in-between type whithout constructor
+	var B = new Type(A2);
 	B._constructor::=fn(v,x,y).(v*2,x,y){
 		m1=-m1;
 	};
-	var C=new Type(B);
-	var a=new A(100,30,20); // 100-30-20
-	var b=new C(100,30,20); // -(100*2-30-20) = -150
-	var c=new C(100,30,20);
+	var C = new Type(B);
+	var a = new A(100,30,20); // 100-30-20
+	var b = new C(100,30,20); // -(100*2-30-20) = -150
+	var c = new C(100,30,20);
 
 	if( a.m1==50 && b.m1==-150 && c.m1==-150)
 		{out (OK);}else { errors+=1; out(FAILED); }
@@ -727,7 +728,7 @@ if(!benchmark)
 //---
 {
 	out("eval:\t\t");
-	var a=eval("var b=0;while(b<10)b++; b;");
+	var a = eval("var b = 0;while(b<10)b++; b;");
 	if( a==10 && eval("fn(a){return a*a;};")(5) == 25 )
 		{out (OK);}else { errors+=1; out(FAILED); }
 }
@@ -736,7 +737,7 @@ if(!benchmark)
 	out("getDate:\t");
 //    out(time().toHex(),"\n");
 //    out(time().toIntStr(),"\n");
-//    var d=getDate(time());
+//    var d = getDate(time());
 //    out("year-mon-mday hours:minutes.seconds".replaceAll(d));
 //    print_r(d);
 
@@ -746,10 +747,10 @@ if(!benchmark)
 //---
 {
 	out("Identifier/isSet:");
-	var a=new ExtObject({ $foo2:2 });
+	var a = new ExtObject({ $foo2:2 });
 	a.foo:=1;
-	var t1=a.getAttribute($foo);
-	a.$foo=2;
+	var t1 = a.getAttribute($foo);
+	a.$foo = 2;
 
 	if( t1==1 && a.foo==2 && a.isSet($foo) && a.isSet('foo') &&	!a.isSet('bar') && a.foo2==2
 		&& $a != "a" && $a !== "a" && "a" !== $a && "a" == $a
@@ -758,18 +759,18 @@ if(!benchmark)
 }
 //---
 {	// Delegate
-	var a=new ExtObject();
+	var a = new ExtObject;
 	a.m1:=1;
 	a.f:=fn(Number p1){
 		return this.m1+p1;
 	};
-	var d=new Delegate(a,a.f);
+	var d = new Delegate(a,a.f);
 
-	var d2=a -> fn(){return this.m1;};
+	var d2 = a -> fn(){return this.m1;};
 
 	// WARNING! Altough this can lead to perhaps unexpected behavior, Delegates allow a access to primitive types by reference!!!!!
 	// I strongly encourage you to use this feature with care!
-	var i=0;
+	var i = 0;
 	(i -> fn(){	this++; })();
 
 	test( "Delegate:", true
@@ -780,7 +781,7 @@ if(!benchmark)
 //---
 {
 	var list=[getDate(),{"foo":true,"bar":false,"dum":void},-1];
-	var jsonList=toJSON(list,false);
+	var jsonList = toJSON(list,false);
 //    out("\n",jsonList);
 //    print_r(list);
 //    print_r(parseJSON(jsonList));
@@ -798,8 +799,8 @@ if(!benchmark)
 {
 	out("PrioQueueTest:\t");
 
-	var PriorityQueue=new Type(ExtObject);
-	PriorityQueue._constructor:=fn(comparison='<',data=void){
+	var PriorityQueue = new Type(ExtObject);
+	PriorityQueue._constructor:=fn(comparison='<',data = void){
 		this.comparison:=comparison;
 		this.a:=[];
 		if(data){
@@ -812,17 +813,17 @@ if(!benchmark)
 	};
 	PriorityQueue.add:=fn(e){
 		a.pushBack(e);
-		var i=count()-1;
+		var i = count()-1;
 		while(i>0){
 			var p=( (i+1)/2).floor()-1;
 			if( compare(e,a[p])){
-				var t=a[p];
+				var t = a[p];
 				a[p]=e;
 				a[i]=t;
 			}else{
 				break;
 			}
-			i=p;
+			i = p;
 		}
 	};
 	PriorityQueue."+=":=PriorityQueue.add;
@@ -833,14 +834,14 @@ if(!benchmark)
 		return a.clear();
 	};
 	PriorityQueue.swap:=fn(i,j){
-		var tmp=a[i];
+		var tmp = a[i];
 		a[i]=a[j];
 		a[j]=tmp;
 	};
 	PriorityQueue.extract:=fn(){
 		if(count()==0)
 			return void;
-		var min=a[0];
+		var min = a[0];
 		if(count()>1){
 			a[0]=a.popBack();
 			heapify(0);
@@ -849,23 +850,23 @@ if(!benchmark)
 	};
 	PriorityQueue.heapify:=fn(i){
 		var left=((i+1)*2)-1;
-		var right=left+1;
-		var minI=i;
+		var right = left+1;
+		var minI = i;
 		if(left>=count())
 			return;
 		if( compare(a[left],a[minI]) )
-			minI=left;
+			minI = left;
 		if(right<count() && compare(a[right],a[minI]))
-			minI=right;
+			minI = right;
 		if(minI!=i){
 			swap(i,minI);
 			heapify(minI);
 		}
 	};
 	var a=[83,5,2,756,23,8,3,43,1,74,1,78,3,45,7,123,3];
-	var q=new PriorityQueue('<',a);
+	var q = new PriorityQueue('<',a);
 	var a2=[];
-	while(var v=q.extract()){
+	while(var v = q.extract()){
 		a2+=v;
 	}
 	a.sort();
@@ -873,22 +874,22 @@ if(!benchmark)
 		{out (OK);}else { errors+=1; out(FAILED); }
 
 
-//    for(var i=0;i<100;i++){
+//    for(var i = 0;i<100;i++){
 //        q+=Rand.equilikely(0,100000);
 //    }
 
 }
 {
-	var f1=fn(end){
-		var v=1;
-		for(var i=0;i<end;++i){
+	var f1 = fn(end){
+		var v = 1;
+		for(var i = 0;i<end;++i){
 			yield v;
 			v*=2;
 		}
 	};
 
 	var a=[];
-	for(var it=f1(5);!it.end();it.next()){
+	for(var it = f1(5);!it.end();it.next()){
 		a+=it.value();
 	}
 //	out(a==[1,2,4,8,16]);
@@ -908,7 +909,7 @@ if(!benchmark)
 
 	var s3="";
 	{
-		var it=f2();
+		var it = f2();
 		for(;!it.end();it.next())
 			s3+=it.value();
 		s3+=it.value();
@@ -938,7 +939,7 @@ if(!benchmark)
 
 {
 	// @(const,private)
-	var A = new Type();
+	var A = new Type;
 	A.constant @(const) := 99;
 	A.privateMember @(private) := void;
 	A.privateFunction @(private,const) ::= fn(){
@@ -976,7 +977,7 @@ if(!benchmark)
 
 
 	// private constructors and factory methods
-	var C = new Type();
+	var C = new Type;
 	C.create ::= fn(){	return new this;	};
 	C._constructor @(private) ::= fn(){	};
 	var D = new Type(C);
@@ -984,14 +985,14 @@ if(!benchmark)
 	C.create();
 	D.create();
 	D.create2();
-	try{	new C();	}catch(e){	++exceptionCount;	}
+	try{	new C;	}catch(e){	++exceptionCount;	}
 	
 
 	test("@(const,private):",exceptionCount==6 && b.publicFunction()==117);
 }
 
 {	//@(override)
-	var A = new Type();
+	var A = new Type;
 	A.a := 1;
 	A.b ::= 2;
 
@@ -1004,7 +1005,7 @@ if(!benchmark)
 	try{	B.c @(override) := 20;	}catch(e){	++exceptionCount;	} // should issue a warning, but should still be executed
 	Runtime.setTreatWarningsAsError(false);
 
-	var b = new B();
+	var b = new B;
 	b.a @(override) := 100;
 
 	test("@(override):", A.a == 1 && exceptionCount==1 && b.a == 100 && b.c==20 );
@@ -1012,19 +1013,19 @@ if(!benchmark)
 
 
 {	//@(init)
-	var A = new Type();
+	var A = new Type;
 	A.a @(init) := fn(){	return 17;	};
 	A.b @(init) := 17->fn(){	return this;	};
 	A.c @(init) := Array;
 
-	var T = new Type();
+	var T = new Type;
 	T._constructor ::= fn(){
 		this.value := 17;
 	};
 	A.d @(init) := T;
 
 	var B = new Type(A);
-	var b = new B();
+	var b = new B;
 
 	test("@(init):", b.a == 17 && b.b==17 && b.c == [] && b.d.value==17  );
 }
@@ -1057,19 +1058,19 @@ c\n)" == "a\\\nb\nc\\n"	&& R"#(foo)#" == "foo" && R"Delimiter()Delimiter".empty(
 //	out(":",__LINE__,"\n");
 //
 //	try { // too few params
-//		var f=fn(p1,p2,p3,p4=1){};
+//		var f = fn(p1,p2,p3,p4 = 1){};
 //		f(1,2);
 //	}catch(e){++exceptionCount;}
 //
 //	out(":",__LINE__,"\n");
 //	try { // too many params
-//		var f=fn(p1,p2,p3,p4=1){};
+//		var f = fn(p1,p2,p3,p4 = 1){};
 //		f(1,2,3,4,5);
 //	}catch(e){++exceptionCoun;}
 //	out(":",__LINE__,"\n");
 //
 //	try { // wrong type
-//		var f=fn([1,2,Array] p1){ return 1; };
+//		var f = fn([1,2,Array] p1){ return 1; };
 //		okCount += f(1);
 //		okCount += f(2);
 //		okCount += f([]);

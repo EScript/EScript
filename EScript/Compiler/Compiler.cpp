@@ -217,7 +217,7 @@ bool initHandler(handlerRegistry_t & m){
 		if(self->getStatements().empty()){
 			ctxt.addInstruction(Instruction::createPushVoid());
 		}else{
-			for ( Block::cStatementCursor c = self->getStatements().begin();  c != self->getStatements().end(); ++c) {
+			for( Block::cStatementCursor c = self->getStatements().begin();  c != self->getStatements().end(); ++c) {
 				if(c+1 == self->getStatements().end()){ // last statemenet ? --> keep the result
 					ctxt.addExpression( *c );
 				}else{
@@ -240,7 +240,7 @@ bool initHandler(handlerRegistry_t & m){
 		if(self->hasLocalVars())
 			ctxt.pushSetting_localVars(self->getVars());
 
-		for ( AST::Block::cStatementCursor c = self->getStatements().begin();  c != self->getStatements().end(); ++c) {
+		for( AST::Block::cStatementCursor c = self->getStatements().begin();  c != self->getStatements().end(); ++c) {
 			ctxt.addStatement(*c);
 		}
 		if(self->hasLocalVars()){

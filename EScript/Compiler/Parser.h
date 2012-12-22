@@ -23,16 +23,15 @@ namespace AST{
 class Block;
 }
 
-/*! [Parser] */
+//! [Parser]
 class Parser {
 	public:
-
-		/*! [ParserException] ---|> [Exception] ---|> [Object]    */
+		//! [ParserException] ---|> [Exception] ---|> [Object]
 		class ParserException:public Exception {
 			ES_PROVIDES_TYPE_NAME(ParserException)
 
 			public:
-				explicit ParserException(const std::string  & _msg,Token * token=nullptr):
+				explicit ParserException(const std::string  & _msg,Token * token = nullptr):
 					Exception(_msg,  (token==nullptr? -1 : token->getLine())) {
 				}
 				explicit ParserException(const std::string  & _msg,const _CountedRef<Token> & token):
@@ -41,8 +40,7 @@ class Parser {
 		};
 		//-----------
 
-		Parser(Logger * logger=nullptr);
-		~Parser();
+		Parser(Logger * logger = nullptr);
 
 		ERef<AST::Block> parse(const CodeFragment & code);
 
@@ -58,7 +56,7 @@ class Parser {
 	private:
 
 		_CountedRef<Logger> logger;
-		void log(ParsingContext & ctxt,Logger::level_t messageLevel, const std::string & msg,const _CountedRef<Token> & token=nullptr)const;
+		void log(ParsingContext & ctxt,Logger::level_t messageLevel, const std::string & msg,const _CountedRef<Token> & token = nullptr)const;
 
 		Tokenizer tokenizer;
 		void pass_1(ParsingContext & ctxt);
@@ -80,7 +78,7 @@ class Parser {
 		lValue_t getLValue(ParsingContext & ctxt,int from,int to,EPtr<AST::ASTNode> & obj,StringId & identifier,EPtr<AST::ASTNode> &indexExpression)const;
 		int findExpression(ParsingContext & ctxt,int cursor)const;
 
-		void throwError(ParsingContext & ctxt,const std::string & msg,Token * token=nullptr)const;
+		void throwError(ParsingContext & ctxt,const std::string & msg,Token * token = nullptr)const;
 		void throwError(ParsingContext & ctxt,const std::string & msg,const _CountedRef<Token> & token)const	{	throwError(ctxt,msg,token.get());	}
 };
 }

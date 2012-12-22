@@ -11,14 +11,14 @@ using namespace EScript;
 
 //! (static)
 Type * UserFunction::getTypeObject()	{
-	static Type * typeObject=new Type(ExtObject::getTypeObject());
+	static Type * typeObject = new Type(ExtObject::getTypeObject());
 	return typeObject;
 }
 
 //! (static) initMembers
 void UserFunction::init(EScript::Namespace & globals) {
 	// [UserFunction] ---|> [ExtObject] ---|> [Object]
-	Type * t=getTypeObject();
+	Type * t = getTypeObject();
 	declareConstant(&globals,getClassName(),t);
 
 	//! [ESMF] String UserFunction.getFilename()

@@ -56,7 +56,7 @@ class E_RandomNumberGenerator : public ReferenceObject<std::mt19937> {
 
 //! (static) MathLib init
 void init(EScript::Namespace * globals) {
-	Namespace * lib=new Namespace();
+	Namespace * lib = new Namespace;
 	declareConstant(globals,"Math",lib);
 
 	declareConstant(lib,"PI",Number::create(M_PI));

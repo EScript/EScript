@@ -21,7 +21,7 @@ class Namespace;
 class Type;
 class ObjectReleaseHandler;
 
-/*! [Object]    */
+//! [Object]
 class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 		ES_PROVIDES_TYPE_NAME(Object)
 

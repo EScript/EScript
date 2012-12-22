@@ -17,7 +17,7 @@ namespace EScript {
 
 //! (static)
 void init() {
-	Namespace * SGLOBALS=getSGlobals();
+	Namespace * SGLOBALS = getSGlobals();
 
 	Object::init(*SGLOBALS);
 	Type::init(*SGLOBALS);
@@ -45,7 +45,7 @@ void init() {
 	declareConstant(SGLOBALS,"SGLOBALS",SGLOBALS);
 
 	// init EScript namespace
-	Namespace * escript = new Namespace();
+	Namespace * escript = new Namespace;
 	declareConstant(SGLOBALS,"EScript",escript);
 
 	declareConstant(escript,"VERSION",Number::create(ES_VERSION));

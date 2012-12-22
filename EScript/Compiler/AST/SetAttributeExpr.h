@@ -28,12 +28,12 @@ class SetAttributeExpr : public ASTNode {
 
 		virtual ~SetAttributeExpr(){}
 
-		const StringId & getAttrId()const				{   return attrId;  }
-		ptr_t getObjectExpression()const				{   return objExpr;   }
-		Attribute::flag_t getAttributeProperties()const	{   return attrFlags;    }
-		ptr_t getValueExpression()const 				{   return valueExpr;    }
-		std::string getAttrName()const					{   return attrId.toString();    }
-		bool isAssignment()const						{   return assign;    }
+		const StringId & getAttrId()const				{	return attrId;	}
+		ptr_t getObjectExpression()const				{	return objExpr;	}
+		Attribute::flag_t getAttributeProperties()const	{	return attrFlags;	}
+		ptr_t getValueExpression()const					{	return valueExpr;	}
+		std::string getAttrName()const					{	return attrId.toString();	}
+		bool isAssignment()const						{	return assign;	}
 
 	private:
 		friend class EScript::Runtime;

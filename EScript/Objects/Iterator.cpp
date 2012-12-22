@@ -13,7 +13,7 @@ using namespace EScript;
 //! (static)
 Type * Iterator::getTypeObject(){
 	// [Iterator] ---|> [Object]
-	static Type * typeObject=new Type(Object::getTypeObject());
+	static Type * typeObject = new Type(Object::getTypeObject());
 	return typeObject;
 }
 
@@ -42,36 +42,3 @@ void Iterator::init(EScript::Namespace & globals) {
 }
 
 //---
-
-//! (ctor)
-Iterator::Iterator(Type * type):Object(type?type:getTypeObject()) {
-	//ctor
-}
-
-//! (dtor)
-Iterator::~Iterator() {
-	//dtor
-}
-
-//! ---o
-Object * Iterator::key() {
-	return nullptr;
-}
-
-//! ---o
-Object * Iterator::value() {
-	return nullptr;
-}
-
-//! ---o
-void Iterator::reset() {
-}
-
-//! ---o
-void Iterator::next() {
-}
-
-//! ---o
-bool Iterator::end() {
-	return true;
-}

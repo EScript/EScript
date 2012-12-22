@@ -26,7 +26,7 @@ namespace EScript{
 //! (static)
 Type * Runtime::getTypeObject(){
 	// [Runtime] ---|> [ExtObject]
-	static Type * typeObject=new Type(ExtObject::getTypeObject());
+	static Type * typeObject = new Type(ExtObject::getTypeObject());
 	return typeObject;
 }
 /**
@@ -110,12 +110,12 @@ void Runtime::init(EScript::Namespace & globals) {
 		EPtr<Array> paramArr( (parameter.count()>2) ? assertType<Array>(runtime,parameter[2]) : nullptr );
 		ParameterValues params(paramArr.isNotNull() ? paramArr->count() : 0);
 		if(paramArr.isNotNull()){
-			int i=0;
+			int i = 0;
 			for(const auto & param : *paramArr.get()) {
 				params.set(i++, param);
 			}
 		}
-		ObjRef resultRef=runtime.executeFunction(fun.get(),obj.get(),params);
+		ObjRef resultRef = runtime.executeFunction(fun.get(),obj.get(),params);
 		return resultRef.detachAndDecrease();
 	})
 
@@ -264,7 +264,7 @@ void Runtime::setTreatWarningsAsError(bool b){
 }
 void Runtime::throwException(const std::string & s,Object * obj){	internals->throwException(s,obj);	}
 
-void Runtime::warn(const std::string & s) 	{	internals->warn(s);	}
+void Runtime::warn(const std::string & s)	{	internals->warn(s);	}
 
 void Runtime::yieldNext(YieldIterator & yIt){
 	_Ptr<FunctionCallContext> fcc = yIt.getFCC();
@@ -315,7 +315,7 @@ public:
 
 void Runtime::enableLogCounting(){
 	if(logger->getLogger("countingLogger")==nullptr)
-		logger->addLogger("countingLogger",new CountingLogger());
+		logger->addLogger("countingLogger",new CountingLogger);
 }
 
 void Runtime::disableLogCounting(){

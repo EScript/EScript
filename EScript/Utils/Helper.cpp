@@ -86,7 +86,7 @@ void initPrintableName(Type * type, const std::string & printableName){
 
 //! (static, internal)
 void assertParamCount_2(Runtime & runtime, int paramCount, int min, int max) {
-	if (min >= 0 && paramCount < min) {
+	if(min >= 0 && paramCount < min) {
 		std::ostringstream sprinter;
 		sprinter << "Too few parameters: Expected " << min << ", got " << paramCount << ".";
 		ObjPtr caller = runtime.getCallingObject();
@@ -94,7 +94,7 @@ void assertParamCount_2(Runtime & runtime, int paramCount, int min, int max) {
 			sprinter << caller->toString();
 		}
 		runtime.throwException(sprinter.str());
-	} else  if (max >= 0 && paramCount > max) {
+	} else  if(max >= 0 && paramCount > max) {
 		std::ostringstream sprinter;
 		sprinter << "Too many parameters: Expected " << max << ", got " << paramCount << ".";
 		ObjPtr caller = runtime.getCallingObject();
@@ -112,17 +112,17 @@ void assertType_throwError(Runtime & runtime, const ObjPtr & obj,const char * cl
 
 //! (static)
 ObjRef callMemberFunction(Runtime & runtime, ObjPtr obj, StringId fnNameId, const ParameterValues & params) {
-	if (obj.isNull())
+	if(obj.isNull())
 		runtime.throwException("Can not call member '"+fnNameId.toString()+"' function without object.");
 	const Attribute & fun = obj->getAttribute(fnNameId).getValue();
-	if (fun.isNull())
+	if(fun.isNull())
 		runtime.throwException("No member to call "+obj->toDbgString()+".'"+fnNameId.toString()+"'(...).");
 	return runtime.executeFunction(fun.getValue(), obj.get(), params);
 }
 
 //! (static)
 ObjRef callFunction(Runtime & runtime, Object * function, const ParameterValues & params) {
-	if (function == nullptr)
+	if(function == nullptr)
 		runtime.throwException("callFunction(nullptr): no function to call.");
 	return runtime.executeFunction(function, nullptr, params);
 }
@@ -130,7 +130,7 @@ ObjRef callFunction(Runtime & runtime, Object * function, const ParameterValues 
 
 ////! (static)
 //void out(Object * obj) {
-//	if (obj == nullptr) {
+//	if(obj == nullptr) {
 //		std::cout << "nullptr";
 //	} else {
 //		std::cout << obj->toString();

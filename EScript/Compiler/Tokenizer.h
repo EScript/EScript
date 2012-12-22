@@ -13,7 +13,7 @@
 #include <cstddef>
 #include <string>
 #include <cstring>
-#include <map>
+#include <unordered_map>
 #include <vector>
 
 namespace EScript {
@@ -21,18 +21,14 @@ namespace EScript {
 /*! [Tokenizer] */
 class Tokenizer {
 	public:
-		typedef std::map<StringId, _CountedRef<Token> > tokenMap_t;
+		typedef std::unordered_map<StringId, _CountedRef<Token> > tokenMap_t;
 		typedef std::vector<_CountedRef<Token> > tokenList_t;
 		static Token * identifyStaticToken(StringId id);
 
-		Tokenizer();
-		virtual ~Tokenizer();
-		/**
-		 *  [Tokenizer::Error] ---|> [Exception] ---|> [Object]
-		 */
-		class Error:public Exception {
+		//!	[Tokenizer::Error] ---|> [Exception] ---|> [Object]
+		class Error : public Exception {
 			public:
-				explicit Error(std::string s,int _line=-1):Exception(std::string("Tokenizer: ")+s) {
+				explicit Error(const std::string & s,int _line=-1):Exception(std::string("Tokenizer: ")+s) {
 					setLine(_line);
 				}
 		};
@@ -46,27 +42,14 @@ class Tokenizer {
 		Token * readNextToken(const char * prog, int & cursor,int &line,size_t & startPos,tokenList_t & tokens);
 		Token * identifyToken(StringId id)const;
 
-		inline bool isNumber(char c) const;
-		inline bool isChar(char c) const;
-		inline bool isWhitechar(char c) const;
-		inline bool isOperator(char c) const;
+		static bool isNumber(const char c)	{	return c>='0' && c<='9';	}
+		static bool isChar(char c)			{	return (c>='a' && c<='z') || (c>='A' && c<='Z') || c=='_';	}
+		static bool isWhitechar(char c)		{	return (c=='\n'||c==' '||c=='\t'||c==13||c==3);	}
+		static bool isOperator(char c)		{	return strchr("+-/*|%&!<>=^.?:~@",c)!=nullptr;	}
 
 		tokenMap_t customTokens;
 };
-// -----------------------------------------------------------------------------
-// inline
-bool Tokenizer::isNumber(char c) const {
-	return c>='0' && c<='9';
-}
-bool Tokenizer::isChar(char c) const {
-	return (c>='a' && c<='z') || (c>='A' && c<='Z') || c=='_';
-}
-bool Tokenizer::isWhitechar(char c) const {
-	return (c=='\n'||c==' '||c=='\t'||c==13||c==3);
-}
-bool Tokenizer::isOperator(char c) const {
-	return strchr("+-/*|%&!<>=^.?:~@",c)!=nullptr;
-}
+
 }
 
 #endif // TOKENIZER_H

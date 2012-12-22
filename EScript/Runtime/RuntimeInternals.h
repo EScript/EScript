@@ -16,7 +16,7 @@ class RuntimeInternals  {
 		Runtime &runtime;
 
 	/// @name Main
-	// 	@{
+	//	@{
 		RuntimeInternals(RuntimeInternals & other); // = delete
 	public:
 		RuntimeInternals(Runtime & rt);
@@ -29,7 +29,7 @@ class RuntimeInternals  {
 	// --------------------
 
 	/// @name Function execution
-	// 	@{
+	//	@{
 	public:
 		typedef std::pair<Object *,FunctionCallContext* >  executeFunctionResult_t;
 
@@ -43,7 +43,7 @@ class RuntimeInternals  {
 
 		Object * executeFunctionCallContext(_Ptr<FunctionCallContext> fcc);
 
-		ObjPtr getCallingObject()const 							{  return activeFCCs.empty() ? nullptr : activeFCCs.back()->getCaller();	}
+		ObjPtr getCallingObject()const							{  return activeFCCs.empty() ? nullptr : activeFCCs.back()->getCaller();	}
 		size_t getStackSize()const								{	return activeFCCs.size();	}
 		size_t _getStackSizeLimit()const						{	return stackSizeLimit;	}
 		void _setStackSizeLimit(const size_t limit)				{	stackSizeLimit = limit;	}
@@ -66,7 +66,7 @@ class RuntimeInternals  {
 	// --------------------
 
 	/// @name Globals
-	// 	@{
+	//	@{
 	public:
 		ObjPtr getGlobalVariable(const StringId & id);
 		Namespace * getGlobals()const;
@@ -77,7 +77,7 @@ class RuntimeInternals  {
 	// --------------------
 
 	/// @name Information
-	// 	@{
+	//	@{
 	public:
 		int getCurrentLine()const;
 		std::string getCurrentFile()const;
@@ -89,7 +89,7 @@ class RuntimeInternals  {
 	// --------------------
 
 	/// @name Internal state / Exceptions
-	// 	@{
+	//	@{
 	public:
 		enum state_t{	STATE_NORMAL,STATE_EXITING,STATE_EXCEPTION	};
 		bool checkNormalState()const					{	return state==STATE_NORMAL;	}
@@ -116,7 +116,7 @@ class RuntimeInternals  {
 		 * (otherwise, they are not handled and the program is likely to crash).
 		 * In all other situations try to use setException(...)
 		 */
-		void throwException(const std::string & s,Object * obj=nullptr);
+		void throwException(const std::string & s,Object * obj = nullptr);
 
 		void setExitState(const ObjPtr & value) {
 			resultValue = value;
@@ -136,7 +136,7 @@ class RuntimeInternals  {
 	// --------------------
 
 	/// @name System calls
-	// 	@{
+	//	@{
 	//! (interna) Used by the Runtime.
 	private:
 		std::vector<ERef<Function> > systemFunctions;

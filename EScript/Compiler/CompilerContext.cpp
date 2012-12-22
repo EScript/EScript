@@ -16,7 +16,7 @@ void CompilerContext::addStatement(EPtr<AST::ASTNode> stmt){
 }
 
 uint32_t CompilerContext::getCurrentMarker(setting_t type)const{
-	for(std::vector<SettingsStackEntry>::const_reverse_iterator it=settingsStack.rbegin();it!=settingsStack.rend();++it){
+	for(std::vector<SettingsStackEntry>::const_reverse_iterator it = settingsStack.rbegin();it!=settingsStack.rend();++it){
 		const SettingsStackEntry & entry = *it;
 		if(entry.type == type)
 			return entry.marker;
@@ -29,7 +29,7 @@ void CompilerContext::pushSetting_basicLocalVars(){
 	SettingsStackEntry & entry = settingsStack.back();
 
 	const std::vector<StringId> & names = instructions.getLocalVariables();
-	for(size_t i=0;i<names.size();++i){
+	for(size_t i = 0;i<names.size();++i){
 		entry.localVariables[ names[i] ] = i;
 		if(!variableCollectorStack.empty()){
 			variableCollectorStack.top()->push_back(i);
@@ -51,7 +51,7 @@ void CompilerContext::pushSetting_localVars(const std::set<StringId> & variableN
 }
 
 int CompilerContext::getCurrentVarIndex(const StringId & name)const{
-	for(std::vector<SettingsStackEntry>::const_reverse_iterator it=settingsStack.rbegin();it!=settingsStack.rend();++it){
+	for(std::vector<SettingsStackEntry>::const_reverse_iterator it = settingsStack.rbegin();it!=settingsStack.rend();++it){
 		const SettingsStackEntry & entry = *it;
 		if(entry.type != VISIBLE_LOCAL_VARIABLES)
 			continue;
@@ -65,7 +65,7 @@ int CompilerContext::getCurrentVarIndex(const StringId & name)const{
 
 bool CompilerContext::collectLocalVariables(setting_t entryType,std::vector<size_t> & variableIndices){
 	variableIndices.clear();
-	for(std::vector<SettingsStackEntry>::const_reverse_iterator it=settingsStack.rbegin();it!=settingsStack.rend();++it){
+	for(std::vector<SettingsStackEntry>::const_reverse_iterator it = settingsStack.rbegin();it!=settingsStack.rend();++it){
 		const SettingsStackEntry & entry = *it;
 		if(entry.type == VISIBLE_LOCAL_VARIABLES){
 			for(const auto & nameIndexPair : entry.localVariables) {

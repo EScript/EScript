@@ -14,7 +14,7 @@
 
 namespace EScript {
 
-/*! [FunctionCallContext]    */
+/*! [FunctionCallContext]	*/
 class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionCallContext> {
 	private:
 		static std::stack<FunctionCallContext *> pool;
@@ -56,7 +56,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		void markAsProvidingCallerAsResult()			{	providesCallerAsResult = true;	}
 		void enableStopExecutionAfterEnding()			{	stopExecutionAfterEnding = true;	}
 
-		ObjPtr getCaller()const    						{   return caller; }
+		ObjPtr getCaller()const							{	return caller; }
 		int getCurrentLine()const{
 			return instructionCursor == getInstructions().end() ? -1 : instructionCursor->getLine();
 		}
@@ -104,7 +104,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 	//	-----------------------------
 
 	//! @name Value Stack operations
-	//! 	\todo use StackEntry to manage obj ownership and return References
+	//!	\todo use StackEntry to manage obj ownership and return References
 	// @{
 	private:
 
@@ -164,7 +164,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 				valueStack.insert(valueStack.end(),StackEntry::OBJECT_PTR)->value.value_ObjPtr = obj.get();
 			}
 		}
-		void stack_pushVoid() 							{	valueStack.push_back(StackEntry::VOID);		}
+		void stack_pushVoid()							{	valueStack.push_back(StackEntry::VOID);		}
 
 		size_t stack_size()const						{	return valueStack.size();	}
 		void stack_pop() {

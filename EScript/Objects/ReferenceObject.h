@@ -45,12 +45,12 @@ class ReferenceObject : public Object {
 		// ---
 		ReferenceObject(Type * type) :
 				Object(type), obj()							{	}
-		ReferenceObject(const _T & _obj, Type * type=nullptr):
+		ReferenceObject(const _T & _obj, Type * type = nullptr):
 				Object(type),obj(_obj)						{	}
 		virtual ~ReferenceObject()							{	}
 
-		inline const _T & ref() const 						{	return obj;	}
-		inline _T & ref()  									{	return obj;	}
+		inline const _T & ref() const						{	return obj;	}
+		inline _T & ref() 									{	return obj;	}
 
 		inline const _T & operator*()const					{	return obj;	}
 		inline _T & operator*()								{	return obj;	}

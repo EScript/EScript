@@ -21,11 +21,11 @@ using namespace EScript::IO;
 std::vector<std::string> DefaultFileSystemHandler::dir(const std::string & dirname, uint8_t flags) {
 
 	DIR *directoryHandle = opendir(dirname.c_str());
-	if (!directoryHandle)
+	if(!directoryHandle)
 		throw std::ios_base::failure( std::string("Could not open dir: '"+dirname+'\''));
 
 	std::vector<std::string> files;
-	for( dirent * entry=readdir(directoryHandle) ; entry!=nullptr ; entry=readdir(directoryHandle)){
+	for( dirent * entry = readdir(directoryHandle) ; entry!=nullptr ; entry = readdir(directoryHandle)){
 		if(entry->d_name[0] == '.')
 			continue;
 
@@ -52,7 +52,7 @@ std::vector<std::string> DefaultFileSystemHandler::dir(const std::string & dirna
 StringData DefaultFileSystemHandler::loadFile(const std::string & filename){
 
 	std::ifstream inputFile( filename.c_str(), std::ios::in | std::ios::binary);
-	if ( inputFile.fail())
+	if( inputFile.fail())
 		throw std::ios_base::failure(std::string("Could not open file for reading: '"+filename+'\''));
 
 	inputFile.seekg( 0, std::ios::end );
@@ -76,7 +76,7 @@ void DefaultFileSystemHandler::saveFile(const std::string & filename, const std:
 	if(!overwrite && getEntryType(filename)==TYPE_FILE)
 		throw std::ios_base::failure(std::string("File already exists: '"+filename+'\''));
 	std::ofstream outputFile( filename.c_str(), std::ios::out | std::ios::binary);
-	if ( outputFile.fail())
+	if( outputFile.fail())
 		throw std::ios_base::failure(std::string("Could not open file for writing: '"+filename+'\''));
 
 	outputFile.write( content.data(), content.length() );

@@ -15,46 +15,46 @@ using std::string;
 
 
 double StringUtils::getNumber(const char * s,int &cursor,bool checkSign) {
-	char c=s[cursor];
+	char c = s[cursor];
 	string accum="";
-	bool sign=true;
+	bool sign = true;
 
-	if ( checkSign && c=='-' && s[cursor+1]>='0' &&  s[cursor+1]<='9' ) {
-		cursor++;
-		sign=false;
-		c=s[cursor];
+	if( checkSign && c=='-' && s[cursor+1]>='0' &&  s[cursor+1]<='9' ) {
+		++cursor;
+		sign = false;
+		c = s[cursor];
 	}
 
-	if (c=='0' && (s[cursor+1]=='x'|| s[cursor+1]=='X')) {
-		cursor++;
+	if(c=='0' && (s[cursor+1]=='x'|| s[cursor+1]=='X')) {
+		++cursor;
 		accum="0x";
-		while (true) {
-			cursor++;
-			c=s[cursor];
-			if ( (c>='0' && c<='9') || (c>='a' && c<='f') || (c>='A' && c<='F')) {
+		while(true) {
+			++cursor;
+			c = s[cursor];
+			if( (c>='0' && c<='9') || (c>='a' && c<='f') || (c>='A' && c<='F')) {
 				accum+=c;
 				continue;
 			}
 			break;
 		}
-		unsigned int number=0;
+		unsigned int number = 0;
 		sscanf(accum.c_str(),"%x",&number);
 		return sign?static_cast<double>(number) : -static_cast<double>(number);
-	} else if (c>='0' && c<='9') {
-		//const char * begin=s+cursor;
-		int dot=0;
+	} else if(c>='0' && c<='9') {
+		//const char * begin = s+cursor;
+		int dot = 0;
 		char numAccum[100];
-		int i=0;
-		while (i<99) {
+		int i = 0;
+		while(i<99) {
 			numAccum[i++]=c;
-			cursor++;
-			c=s[cursor];
-			if ( isdigit(c) || (c=='.' && isdigit(s[cursor+1]) && dot++ < 1))
+			++cursor;
+			c = s[cursor];
+			if( isdigit(c) || (c=='.' && isdigit(s[cursor+1]) && dot++ < 1))
 				continue;
-			else if ( (c=='E' ||c=='e')&& (s[cursor+1]=='+' || s[cursor+1]=='-')) {
+			else if( (c=='E' ||c=='e')&& (s[cursor+1]=='+' || s[cursor+1]=='-')) {
 				numAccum[i++]=c;
-				cursor++;
-				c=s[cursor];
+				++cursor;
+				c = s[cursor];
 				continue;
 			}
 			break;
@@ -62,13 +62,13 @@ double StringUtils::getNumber(const char * s,int &cursor,bool checkSign) {
 		numAccum[i]=0;
 
 		// float;
-		if (dot) {
-			double number=0;//std::atof(numAccum.c_str());
+		if(dot) {
+			double number = 0;//std::atof(numAccum.c_str());
 			sscanf(numAccum,"%lf",&number);
 			//std::cout << number << " ";
 			return sign?number:-number;
 		} else {
-			int number=static_cast<int>(std::atof(numAccum)); // atoi???
+			int number = static_cast<int>(std::atof(numAccum)); // atoi???
 			//std::cout << number << " ";
 			return sign?number:-number;
 		}
@@ -81,32 +81,32 @@ string StringUtils::trim(const string & s) {
 	if(s.empty())
 		return std::string();
 	unsigned int start,end;
-	for (start=0;start<s.length();++start) {
-		char c=s[start];
-		if (c==' '||c=='\t'||c=='\n'||c=='\r'||c=='\0'||c==11)
+	for(start = 0;start<s.length();++start) {
+		char c = s[start];
+		if(c==' '||c=='\t'||c=='\n'||c=='\r'||c=='\0'||c==11)
 			continue;
 		break;
 	}
-	for (end=s.length()-1;end>=start;--end) {
-		char c=s[end];
-		if (c==' '||c=='\t'||c=='\n'||c=='\r'||c=='\0'||c==11)
+	for(end = s.length()-1;end>=start;--end) {
+		char c = s[end];
+		if(c==' '||c=='\t'||c=='\n'||c=='\r'||c=='\0'||c==11)
 			continue;
 		break;
 	}
-	const int count=end-start+1;
+	const int count = end-start+1;
 	return count>0 ? s.substr(start,count) : std::string();
 }
 string StringUtils::rTrim(const string & s){
-	for(int right=s.length()-1 ; right >= 0 ; --right){
-		char c=s[right];
+	for(int right = s.length()-1 ; right >= 0 ; --right){
+		char c = s[right];
 		if( !(c==' '||c=='\t'||c=='\n'||c=='\r'||c=='\0'||c==11))
 			return s.substr(0,right+1);
 	}
 	return std::string();
 }
 string StringUtils::lTrim(const string & s){
-	for(size_t left=0 ; left<s.length() ; ++left){
-		char c=s[left];
+	for(size_t left = 0 ; left<s.length() ; ++left){
+		char c = s[left];
 		if( !(c==' '||c=='\t'||c=='\n'||c=='\r'||c=='\0'||c==11))
 			return s.substr(left,s.length()-left);
 	}
@@ -116,29 +116,29 @@ string StringUtils::lTrim(const string & s){
 string StringUtils::replaceAll(const string &subject,const string &find,const string &replace,int count) {
 	std::ostringstream s;
 
-	unsigned int cursor=0;
-	unsigned int len=subject.length();
-	unsigned int fLen=find.length();
-	//unsigned int pos=string::npos;
-	int nr=0;
-	while (cursor<len&& nr!=count) {
-		size_t pos=subject.find(find,cursor);
+	unsigned int cursor = 0;
+	unsigned int len = subject.length();
+	unsigned int fLen = find.length();
+	//unsigned int pos = string::npos;
+	int nr = 0;
+	while(cursor<len&& nr!=count) {
+		size_t pos = subject.find(find,cursor);
 
 		//std::cout << " found "<<search<<" at "<< pos<<"\n";
-		if (pos==string::npos) {
+		if(pos==string::npos) {
 			break;
 		}
 
-		if (pos>cursor) {
+		if(pos>cursor) {
 			s<<subject.substr(cursor,pos-cursor);
-			cursor=pos;
+			cursor = pos;
 		}
 		s<<replace;
 		cursor+=fLen;
 		++nr;
 	}
 
-	if (cursor<len) {
+	if(cursor<len) {
 		s<<subject.substr(cursor,len-cursor);
 	}
 
@@ -147,11 +147,11 @@ string StringUtils::replaceAll(const string &subject,const string &find,const st
 
 string StringUtils::replaceMultiple(const string &subject,const std::vector<std::pair<std::string,std::string> > & rules,int max){
 	typedef std::pair<std::string,std::string> keyValuePair_t;
-	const size_t ruleCount=rules.size();
+	const size_t ruleCount = rules.size();
 	std::vector<size_t> findLen(ruleCount);
 	std::vector<size_t> pos(ruleCount);
 
-	size_t i=0;
+	size_t i = 0;
 	for(const auto & keyValuePair : rules) {
 		// length of the search pattern
 		findLen[i] = keyValuePair.first.length();
@@ -159,19 +159,19 @@ string StringUtils::replaceMultiple(const string &subject,const std::vector<std:
 		pos[i] = subject.find(keyValuePair.first, 0);
 		++i;
 	}
-	int nr=0;
+	int nr = 0;
 	std::ostringstream s;
-	size_t cursor=0;
-	const size_t len=subject.length();
+	size_t cursor = 0;
+	const size_t len = subject.length();
 	while(cursor<len&& nr!=max) {
 		// select next match
-		size_t nextPos=string::npos;
-		size_t nextFindLength=0;
+		size_t nextPos = string::npos;
+		size_t nextFindLength = 0;
 
-		std::vector<keyValuePair_t>::const_iterator nextReplace=rules.begin();
-		std::vector<keyValuePair_t>::const_iterator ruleIt=rules.begin();
+		std::vector<keyValuePair_t>::const_iterator nextReplace = rules.begin();
+		std::vector<keyValuePair_t>::const_iterator ruleIt = rules.begin();
 
-		for(i=0;i<ruleCount;++i,++ruleIt) {
+		for(i = 0;i<ruleCount;++i,++ruleIt) {
 
 			// search not found -> continue
 			if(pos[i]==string::npos) {
@@ -182,26 +182,26 @@ string StringUtils::replaceMultiple(const string &subject,const std::vector<std:
 				pos[i]=subject.find((*ruleIt).first,cursor);
 			}
 			// nearest founding?
-			if (pos[i]<nextPos) {
-				nextReplace=ruleIt;
-				nextPos=pos[i];
-				nextFindLength=findLen[i];
+			if(pos[i]<nextPos) {
+				nextReplace = ruleIt;
+				nextPos = pos[i];
+				nextFindLength = findLen[i];
 			}
 
 		}
 		// found nothing? -> finished
-		if (nextPos==string::npos)
+		if(nextPos==string::npos)
 			break;
 
 		// append string
 		s<<subject.substr(cursor,nextPos-cursor);
 		s<<(*nextReplace).second;
-		cursor=nextPos+nextFindLength;
+		cursor = nextPos+nextFindLength;
 
 		++nr;
 	}
 	// add ending
-	if (cursor<len)
+	if(cursor<len)
 		s<<subject.substr(cursor,len-cursor);
 
 	return s.str();
@@ -212,18 +212,18 @@ string StringUtils::replaceMultiple(const string &subject,const std::vector<std:
 string StringUtils::UCS2LE_to_ANSII(const std::string & source)   {
 	std::ostringstream s;
 	size_t length = source.length();
-	if (length%2==1)
+	if(length%2==1)
 		length--;
 	const uint8_t * c = reinterpret_cast<const uint8_t*>(source.data());
-	for (size_t i=0;i<length;i+=2) {
+	for(size_t i = 0;i<length;i+=2) {
 		// ascii char
-		if (c[i+1]==0x00) {
+		if(c[i+1]==0x00) {
 			s<<static_cast<char>(c[i]);
 		}
 		// wrong encoding (illegal character)
-		else if (c[i]==0xfe && c[i+1]==0xff)
+		else if(c[i]==0xfe && c[i+1]==0xff)
 			throw "UCS2LE_to_ANSII wrong encoding! Try big ending instead.";
-		else if (c[i]==0xff && c[i+1]==0xfe) // ignore
+		else if(c[i]==0xff && c[i+1]==0xfe) // ignore
 			continue;
 
 //            // 4 byte TODO: http://en.wikipedia.org/wiki/UTF-16/UCS-2
@@ -239,20 +239,20 @@ string StringUtils::UCS2LE_to_ANSII(const std::string & source)   {
 }
 
 bool StringUtils::beginsWith(const char * subject,const char * find) {
-	for(size_t i=0 ; find[i]!=0 ; ++i){
-		if (subject[i]!=find[i])
+	for(size_t i = 0 ; find[i]!=0 ; ++i){
+		if(subject[i]!=find[i])
 			return false;
 	}
 	return true;
 }
 
 bool StringUtils::stepWhitespaces(const char * subject,int & cursor) {
-	while (true) {
-		char c=subject[cursor];
+	while(true) {
+		char c = subject[cursor];
 
-		if (c==' '||c=='\t'||c=='\n'||c=='\r'||c=='\0'||c==11) {
-			cursor++;
-		} else if (c==0) {
+		if(c==' '||c=='\t'||c=='\n'||c=='\r'||c=='\0'||c==11) {
+			++cursor;
+		} else if(c==0) {
 			return false;
 		} else {
 			return true;
@@ -261,14 +261,14 @@ bool StringUtils::stepWhitespaces(const char * subject,int & cursor) {
 }
 
 bool StringUtils::stepText(const char * subject,int & cursor,const char * search) {
-	int _cursor=cursor;
-	while (true) {
-		const char s=search[0];
-		if (s==0) {
-			cursor=_cursor;
+	int _cursor = cursor;
+	while(true) {
+		const char s = search[0];
+		if(s==0) {
+			cursor = _cursor;
 			return true;
 		}
-		if (subject[_cursor]!=s ||subject[_cursor]==0 )
+		if(subject[_cursor]!=s ||subject[_cursor]==0 )
 			return false;
 		++_cursor;
 		++search;
@@ -284,18 +284,18 @@ void StringUtils::split(const string & subject,const string & delimiter, std::ve
 		result.push_back(subject);
 	}else{
 		size_t cursor = 0;
-		for( int i=1 ; i!=max&&cursor<=len-delimiterLen ; ++i){
+		for( int i = 1 ; i!=max&&cursor<=len-delimiterLen ; ++i){
 			size_t pos = subject.find(delimiter,cursor);
 			if( pos==string::npos ) // no delimiter found? -> to the end
-				pos=len;
+				pos = len;
 			result.push_back( subject.substr(cursor,pos-cursor) );
-			cursor=pos+delimiterLen;
+			cursor = pos+delimiterLen;
 
 			if(cursor==len){ // ending on delimiter? -> add empty part
 				result.push_back("");
 			}
 		}
-		if (cursor<len)
+		if(cursor<len)
 			result.push_back( subject.substr(cursor,len-cursor) );
 	}
 }
@@ -342,7 +342,7 @@ std::string StringUtils::toUpper(const std::string & s){
 }
 std::string StringUtils::getLine(const std::string &s,const int lineIndex){
 	size_t cursor = 0;
-	for(int i=0;i<lineIndex;++i){
+	for(int i = 0;i<lineIndex;++i){
 		cursor = s.find('\n',cursor);
 		if(cursor == std::string::npos){
 			return "";

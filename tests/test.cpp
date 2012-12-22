@@ -63,7 +63,7 @@ public:
 
 	//! (static)
 	static void init(Namespace & ns){
-		Type * typeObject=getTypeObject();
+		Type * typeObject = getTypeObject();
 		declareConstant(&ns,getClassName(),typeObject);
 
 		//! TestObject new TestObject([i [,j]])
@@ -91,7 +91,7 @@ int main(int argc,char * argv[]) {
 	Debug::clearObjects();
 #endif
 
-	ERef<Runtime> rt(new Runtime());
+	ERef<Runtime> rt(new Runtime);
 
 	declareConstant(rt->getGlobals(),"args",Array::create(argc,argv));
 
@@ -100,13 +100,13 @@ int main(int argc,char * argv[]) {
 	std::pair<bool,ObjRef> result = EScript::loadAndExecute(*rt.get(),file);
 
 	// --- output result
-	if (!result.second.isNull()) {
+	if(!result.second.isNull()) {
 		std::cout << "\n\n --- "<<"\nResult: " << result.second.toString()<<"\n";
 	}
 
 	// --- cleanup
-	result.second=nullptr;
-	rt=nullptr;
+	result.second = nullptr;
+	rt = nullptr;
 
 #ifdef ES_DEBUG_MEMORY
 	Debug::showObjects();

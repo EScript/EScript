@@ -10,12 +10,12 @@ namespace EScript{
 
 //! (static)
 Type * Type::getTypeObject(){
-	static Type * typeObject=nullptr;
+	static Type * typeObject = nullptr;
 	if(typeObject==nullptr){
 		// This object defines the type of all 'Type' objects.
 		// It inherits from Object and the type of the object is defined by itself.
-		typeObject=new Type(Object::getTypeObject(),nullptr);
-		typeObject->typeRef=typeObject;
+		typeObject = new Type(Object::getTypeObject(),nullptr);
+		typeObject->typeRef = typeObject;
 	}
 	return typeObject;
 }
@@ -23,12 +23,12 @@ Type * Type::getTypeObject(){
 //! initMembers
 void Type::init(EScript::Namespace & globals) {
 	// [Type] ---|> [Object]
-	Type * typeObject=getTypeObject();
+	Type * typeObject = getTypeObject();
 	initPrintableName(typeObject,getClassName());
 
 	declareConstant(&globals,getClassName(),typeObject);
 
-	//! [ESMF] Type new Type( [BaseType=ExtObject] )
+	//! [ESMF] Type new Type( [BaseType = ExtObject] )
 	ES_FUNCTION_DECLARE(typeObject,"_constructor",0,1,{
 		Type * baseType = parameter.count() == 0 ? ExtObject::getTypeObject() : assertType<Type>(runtime,parameter[0]);
 		if(!baseType->allowsUserInheritance()){
@@ -107,7 +107,7 @@ static const char * typeAttrErrorHint =
 
 
 Attribute * Type::findTypeAttribute(const StringId & id){
-	Type * t=this;
+	Type * t = this;
 	do{
 		Attribute * attr = t->attributes.accessAttribute(id);
 		if( attr != nullptr ){
@@ -118,7 +118,7 @@ Attribute * Type::findTypeAttribute(const StringId & id){
 			}
 			return attr;
 		}
-		t=t->getBaseType();
+		t = t->getBaseType();
 	}while(t!=nullptr);
 	return nullptr;
 }
@@ -186,10 +186,10 @@ void Type::collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs)
 
 //! ---|> Object
 bool Type::isA(Type * type) const {
-	if (type == nullptr)
+	if(type == nullptr)
 		return false;
 
-	for(Type * t=getBaseType();t!=nullptr;t=t->getBaseType()){
+	for(Type * t = getBaseType();t!=nullptr;t = t->getBaseType()){
 		if(t==type)
 			return true;
 	}

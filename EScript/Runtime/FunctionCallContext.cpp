@@ -19,11 +19,11 @@ std::stack<FunctionCallContext *> FunctionCallContext::pool;
 
 //! (static) Factory
 FunctionCallContext * FunctionCallContext::create(const EPtr<UserFunction> userFunction,const ObjPtr _caller){
-	FunctionCallContext * fcc=nullptr;
+	FunctionCallContext * fcc = nullptr;
 	if(pool.empty()){
-		fcc=new FunctionCallContext();
+		fcc = new FunctionCallContext;
 	}else{
-		fcc=pool.top();
+		fcc = pool.top();
 		pool.pop();
 	}
 //	assert(userFunction.isNotNull()); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

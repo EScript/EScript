@@ -14,7 +14,7 @@ namespace EScript{
 //! (static)
 Type * Bool::getTypeObject(){
 	// [Bool] ---|> [Object]
-	static Type * typeObject=new Type(Object::getTypeObject());
+	static Type * typeObject = new Type(Object::getTypeObject());
 	return typeObject;
 }
 
@@ -75,14 +75,14 @@ Bool * Bool::create(bool value){
 	return new Bool(value);
 	#endif
 	if(boolPool.empty()){
-		for(int i=0;i<32;i++){
+		for(int i = 0;i<32;++i){
 			boolPool.push(new Bool(false));
 		}
 		return create(value);
 	}else{
-		Bool * o=boolPool.top();
+		Bool * o = boolPool.top();
 		boolPool.pop();
-		o->value=value;
+		o->value = value;
 //        std::cout << ".";
 		return o;
 	}
@@ -103,38 +103,9 @@ void Bool::release(Bool * o){
 
 //---
 
-Bool::Bool(bool _value,Type * type):
+Bool::Bool(bool _value,Type * type) :
 		Object(type?type:getTypeObject()),value(_value) {
 	//ctor
-}
-
-Bool::~Bool() {
-	//dtor
-}
-
-//! ---|> [Object]
-Object * Bool::clone() const {
-	return Bool::create(value);
-}
-
-//! ---|> [Object]
-std::string Bool::toString()const {
-	return value?"true":"false";
-}
-
-//! ---|> [Object]
-double Bool::toDouble()const {
-	return value?1:0;
-}
-
-//! ---|> [Object]
-bool Bool::toBool()const {
-	return value;
-}
-
-//! ---|> [Object]
-bool Bool::rt_isEqual(Runtime &,const ObjPtr o){
-	return  value==o.toBool(false);
 }
 
 } // namespace EScript

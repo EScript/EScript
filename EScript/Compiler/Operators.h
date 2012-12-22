@@ -7,15 +7,14 @@
 
 #include "../Utils/StringId.h"
 #include <string>
-#include <map>
+#include <unordered_map>
 
 namespace EScript {
 
-
-/*! Operator    */
+//! Operator
 class Operator {
 	public:
-		enum associativity_t{	L=0,R=1	};
+		enum associativity_t{	L = 0,R = 1	};
 
 		static const Operator * getOperator(StringId id);
 		static const Operator * getOperator(const char * op)	{	return getOperator(StringId(op));	}
@@ -26,11 +25,11 @@ class Operator {
 		associativity_t getAssociativity()const	{	return associativity;	}
 
 	private:
-		typedef std::map<StringId,Operator> operatorMap_t;
+		typedef std::unordered_map<StringId,Operator> operatorMap_t;
 		static operatorMap_t ops;
-		static void declareOperator(int precedence,const std::string & op,associativity_t associativity=L);
+		static void declareOperator(int precedence,const std::string & op,associativity_t associativity = L);
 
-		Operator(StringId id,int precedence,const std::string & _s,associativity_t associativity=L);
+		Operator(StringId id,int precedence,const std::string & _s,associativity_t associativity = L);
 
 		StringId id;
 		int precedence;

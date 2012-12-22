@@ -17,9 +17,9 @@ StringData::Data * StringData::createData(const std::string & s){
 	else if(dataPool.empty()){
 		return new Data(s);
 	}else{
-		Data * d=dataPool.top();
+		Data * d = dataPool.top();
 		dataPool.pop();
-		d->s=s;
+		d->s = s;
 		return d;
 	}
 }
@@ -30,7 +30,7 @@ StringData::Data * StringData::createData(const char * c,size_t size){
 	else if(dataPool.empty()){
 		return new Data(c,size);
 	}else{
-		Data * d=dataPool.top();
+		Data * d = dataPool.top();
 		dataPool.pop();
 		std::string s(c,size);
 		d->s.swap(s);
@@ -50,7 +50,7 @@ void StringData::setData(Data * newData){
 		if(--data->referenceCounter <=0 )
 			releaseData(data);
 		++newData->referenceCounter;
-		data=newData;
+		data = newData;
 	}
 }
 
@@ -58,12 +58,12 @@ void StringData::setData(Data * newData){
 StringData::Data * StringData::getEmptyData(){
 	struct UndeletableEmptyStringFactory{
 		static Data * create(){
-			Data * emptyString=new Data("");
+			Data * emptyString = new Data("");
 			++emptyString->referenceCounter;
 			return emptyString;
 		}
 	};
-	static Data * emptyString=UndeletableEmptyStringFactory::create();
+	static Data * emptyString = UndeletableEmptyStringFactory::create();
 	return emptyString;
 }
 

@@ -11,7 +11,7 @@ using namespace EScript;
 //! (static)
 Type * YieldIterator::getTypeObject(){
 	// [Iterator] ---|> [Object]
-	static Type * typeObject=new Type(Object::getTypeObject());
+	static Type * typeObject = new Type(Object::getTypeObject());
 	return typeObject;
 }
 

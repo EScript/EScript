@@ -8,7 +8,7 @@
 
 namespace EScript {
 
-/*! (abstract) [Iterator] ---|> [Object]    */
+//! (abstract) [Iterator] ---|> [Object]
 class Iterator : public Object {
 		ES_PROVIDES_TYPE_NAME(Iterator)
 	public:
@@ -16,17 +16,15 @@ class Iterator : public Object {
 		static void init(EScript::Namespace & globals);
 
 		// ---
-		Iterator(Type * type=nullptr);
-		virtual ~Iterator();
+		Iterator(Type * type=nullptr) : Object(type?type:getTypeObject()) {}
+		virtual ~Iterator()			{}
 
 		/// ---o
-		virtual Object * key();
-		virtual Object * value();
-		virtual void reset();
-		virtual void next();
-		virtual bool end();
-
-		/// ---|> [Object]
+		virtual Object * key()		{	return nullptr;	}
+		virtual Object * value()	{	return nullptr;	}
+		virtual void reset()		{	}
+		virtual void next()			{	}
+		virtual bool end()			{	return true;	}
 };
 }
 

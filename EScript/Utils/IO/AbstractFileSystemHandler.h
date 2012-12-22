@@ -38,9 +38,9 @@ public:
 	}
 	/*!	---o
 	 * @param dirname
-	 * @param flags       1 ... Files
-	 *                    2 ... Directories
-	 *                    4 ... Recurse Subdirectories
+	 * @param flags		1 ... Files
+	 *					2 ... Directories
+	 *					4 ... Recurse Subdirectories
 	 * @throw std::ios_base::failure on failure.	*/
 	virtual std::vector<std::string> dir(const std::string & /*dirname*/, uint8_t /*flags*/) {
 		throw std::ios_base::failure("unsupported operation");

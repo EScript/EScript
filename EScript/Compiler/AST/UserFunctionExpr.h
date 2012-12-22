@@ -33,17 +33,15 @@ class UserFunctionExpr : public ASTNode {
 			public:
 				Parameter(const StringId & name,ptr_t defaultValueExpression,refArray_t & _typeExpressions);
 
-				StringId getName()const									{   return name;    }
-				const refArray_t  & getTypeExpressions()const	{   return typeExpressions;   }
+				StringId getName()const							{	return name;	}
+				const refArray_t  & getTypeExpressions()const	{	return typeExpressions;	}
 
-				void setMultiParam(bool b)								{   multiParam=b;   }
-				bool isMultiParam()const								{   return multiParam;  }
+				void setMultiParam(bool b)						{	multiParam = b;	}
+				bool isMultiParam()const						{	return multiParam;	}
 
-				ptr_t getDefaultValueExpression()const {
-					return defaultValueExpressionRef;
-				}
+				ptr_t getDefaultValueExpression()const			{	return defaultValueExpressionRef;	}
 				void setDefaultValueExpression(ptr_t newDefaultExpression) {
-					defaultValueExpressionRef=newDefaultExpression;
+					defaultValueExpressionRef = newDefaultExpression;
 				}
 
 		};
@@ -65,7 +63,7 @@ class UserFunctionExpr : public ASTNode {
 		const parameterList_t & getParamList()const			{	return params;	}
 		parameterList_t & getParamList()					{	return params;	}
 
-		refArray_t & getSConstructorExpressions() 	{	return sConstrExpressions;	}
+		refArray_t & getSConstructorExpressions()	{	return sConstrExpressions;	}
 		const refArray_t & getSConstructorExpressions()const	{	return sConstrExpressions;	}
 
 		void setCode(const CodeFragment & _code)			{	code = _code;	}

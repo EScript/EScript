@@ -10,13 +10,13 @@ namespace EScript{
 //! (static)
 Type * Identifier::getTypeObject(){
 	// [Identifier] ---|> [Object]
-	static Type * typeObject=new Type(Object::getTypeObject());
+	static Type * typeObject = new Type(Object::getTypeObject());
 	return typeObject;
 }
 
 //! (static) initMembers
 void Identifier::init(EScript::Namespace & globals) {
-	Type * typeObject=getTypeObject();
+	Type * typeObject = getTypeObject();
 	initPrintableName(typeObject,getClassName());
 
 	declareConstant(&globals,getClassName(),typeObject);

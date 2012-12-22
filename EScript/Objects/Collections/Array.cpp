@@ -19,7 +19,7 @@ using std::vector;
 //! (static)
 Type * Array::getTypeObject(){
 	// [Array] ---|> [Collection]
-	static Type * typeObject=new Type(Collection::getTypeObject());
+	static Type * typeObject = new Type(Collection::getTypeObject());
 	return typeObject;
 }
 
@@ -62,7 +62,7 @@ void Array::init(EScript::Namespace & globals) {
 
 	//! [ESMF] int|false Array.indexOf(Object[,begin])
 	ES_MFUNCTION_DECLARE(typeObject, Array,"indexOf",1,2,{
-		int i=self->rt_indexOf(runtime,parameter[0],parameter[1].toUInt(0));
+		int i = self->rt_indexOf(runtime,parameter[0],parameter[1].toUInt(0));
 		if(i<0)
 			return Bool::create(false);
 		else
@@ -71,16 +71,16 @@ void Array::init(EScript::Namespace & globals) {
 
 	//! [ESMF] Obj Array.popBack();
 	ES_MFUNCTION_DECLARE(typeObject,Array,"popBack",0,0,{
-		if (self->count()==0) return nullptr;
-		ObjRef oRef=self->back();
+		if(self->count()==0) return nullptr;
+		ObjRef oRef = self->back();
 		self->popBack();
 		return oRef.detachAndDecrease();
 	})
 
 	//! [ESMF] Obj Array.popFront();
 	ES_MFUNCTION_DECLARE(typeObject, Array, "popFront", 0,0, {
-		if (self->count()==0) return nullptr;
-		ObjRef oRef=self->front();
+		if(self->count()==0) return nullptr;
+		ObjRef oRef = self->front();
 		self->popFront();
 		return oRef.detachAndDecrease();
 	})
@@ -113,7 +113,7 @@ void Array::init(EScript::Namespace & globals) {
 		const size_t newSize = static_cast<size_t>(parameter[0].toUInt());
 		self->resize(newSize);
 		if(parameter.count()>1){
-			for(size_t i=oldSize;i<newSize;++i){
+			for(size_t i = oldSize;i<newSize;++i){
 				self->at(i) = parameter[1]->getRefOrCopy();
 			}
 		}
@@ -150,11 +150,11 @@ std::stack<Array *> Array::pool;
 
 //! (static)
 Array * Array::create(Type * type){
-	Array * a=nullptr;
+	Array * a = nullptr;
 	if( !(type==nullptr || type==Array::getTypeObject()) || pool.empty()){
-		a=new Array();
+		a = new Array;
 	}else{
-		a=pool.top();
+		a = pool.top();
 		pool.pop();
 	}
 	return a;
@@ -162,21 +162,21 @@ Array * Array::create(Type * type){
 
 //! (static)
 Array * Array::create(const ParameterValues & p,Type * type){
-	Array * a=create(type);
+	Array * a = create(type);
 	a->init(p);
 	return a;
 }
 
 //! (static)
 Array * Array::create(size_t num,Object ** objs,Type * type){
-	Array * a=create(type);
+	Array * a = create(type);
 	a->init(num,objs);
 	return a;
 }
 
 //! (static)
 Array * Array::create(size_t num,char ** strings,Type * type){
-	Array * a=create(type);
+	Array * a = create(type);
 	a->init(num,strings);
 	return a;
 }
@@ -193,10 +193,10 @@ void Array::release(Array * a){
 	}else{
 		delete a;
 	}
-//	static size_t max=0;
+//	static size_t max = 0;
 //	if(pool.size()>max){
 //		std::cout << "\r"<<max;
-//		max=pool.size();
+//		max = pool.size();
 //	}
 }
 
@@ -231,10 +231,10 @@ void Array::init(size_t num, char ** strings) {
 
 //! ---|> [Object]
 Object * Array::clone()const {
-	Array * newArray=new Array(getType());
+	Array * newArray = new Array(getType());
 
 	newArray->resize(count());
-	size_t i=0;
+	size_t i = 0;
 	for(const auto & element : data) {
 		newArray->data[i++] = element->getRefOrCopy();
 	}
@@ -243,17 +243,17 @@ Object * Array::clone()const {
 
 /*!	---|> Collection*/
 Object * Array::getValue(ObjPtr key) {
-	if (key.isNull()) return nullptr;
-	size_t  index=static_cast<size_t>(key->toInt());
-	if (index>=data.size()) return nullptr;
+	if(key.isNull()) return nullptr;
+	size_t  index = static_cast<size_t>(key->toInt());
+	if(index>=data.size()) return nullptr;
 	return data.at(index).get();
 }
 
 /*!	---|> Collection*/
 void Array::setValue(ObjPtr key,ObjPtr value) {
-	if (key.isNull() ) return;
-	size_t index=static_cast<size_t>(key->toInt());
-	if (index>=data.size())
+	if(key.isNull() ) return;
+	size_t index = static_cast<size_t>(key->toInt());
+	if(index>=data.size())
 		data.resize(index + 1, nullptr);
 	data[index]=value;
 }
@@ -290,11 +290,11 @@ size_t Array::rt_removeValue(Runtime & runtime,const ObjPtr value,const int limi
 	if(start > size() || value.isNull() || limit==0)
 		return 0;
 
-	size_t numberOfDeletions=0;
+	size_t numberOfDeletions = 0;
 	std::vector<ObjRef> tempArray;
 	std::vector<ObjRef>::const_iterator startIt = begin();
 	std::advance(startIt, start);
-	for (const_iterator it=begin();it!=end();++it) {
+	for(const_iterator it = begin();it!=end();++it) {
 		if( it>=startIt && (limit<0 || numberOfDeletions<static_cast<size_t>(limit)) && value->isEqual(runtime,*it) ){
 			++numberOfDeletions;
 		}else{
@@ -316,10 +316,10 @@ void Array::removeIndex(size_t index){
 
 void Array::reverse(){
 	if(size()>1){
-		const size_t hSize=static_cast<size_t>(size()/2.0);
-		size_t j=size()-1;
-		for(size_t i=0;i<hSize;++i,--j){
-			ObjRef o=data[i];
+		const size_t hSize = static_cast<size_t>(size()/2.0);
+		size_t j = size()-1;
+		for(size_t i = 0;i<hSize;++i,--j){
+			ObjRef o = data[i];
 			data[i]=data[j];
 			data[j]=o;
 		}
@@ -329,12 +329,12 @@ void Array::reverse(){
 std::string Array::implode(const std::string & delimiter/*=";"*/){
 	std::ostringstream sprinter;
 
-	ERef<Iterator> iRef=getIterator();
-	int j=0;
-	while (! iRef->end()) {
-		ObjRef value=iRef->value();
-		if (!value.isNull()) {
-			if (j++>0)
+	ERef<Iterator> iRef = getIterator();
+	int j = 0;
+	while(! iRef->end()) {
+		ObjRef value = iRef->value();
+		if(!value.isNull()) {
+			if(j++>0)
 				sprinter << delimiter;
 			sprinter << value.toString();
 		}
@@ -344,11 +344,11 @@ std::string Array::implode(const std::string & delimiter/*=";"*/){
 }
 
 static bool compare(Runtime & runtime,Object * function,Object * a,Object * b){
-	if (function!=nullptr) { // comparement function given?
-		ObjRef result=callFunction(runtime,function,ParameterValues(a,b));
+	if(function!=nullptr) { // comparement function given?
+		ObjRef result = callFunction(runtime,function,ParameterValues(a,b));
 		return result.toBool();
 	}else{
-		ObjRef result=callMemberFunction(runtime,a,Consts::IDENTIFIER_fn_less,ParameterValues(b));
+		ObjRef result = callMemberFunction(runtime,a,Consts::IDENTIFIER_fn_less,ParameterValues(b));
 		return result.toBool();
 	}
 }
@@ -366,8 +366,8 @@ void Array::rt_sort(Runtime & runtime,Object * function/*=nullptr*/,bool reverse
 
 	std::default_random_engine engine;
 	while(! pos.empty()) {
-		const size_t left=pos.top().first;
-		const size_t right=pos.top().second;
+		const size_t left = pos.top().first;
+		const size_t right = pos.top().second;
 		pos.pop();
 
 		std::uniform_int_distribution<size_t> dis(left, right);
@@ -407,19 +407,19 @@ void Array::rt_sort(Runtime & runtime,Object * function/*=nullptr*/,bool reverse
 				}
 			}
 		}
-		size_t split=left;
-		for (size_t i=left;i<right;++i) {
-			Object * di=data[i].get();
-			Object * dr=data[right].get();
+		size_t split = left;
+		for(size_t i = left;i<right;++i) {
+			Object * di = data[i].get();
+			Object * dr = data[right].get();
 
-			const bool change=compare(runtime,function,di,dr);
+			const bool change = compare(runtime,function,di,dr);
 //			++cCount;
 			if(!runtime.checkNormalState())
 				return;
 
-			if (change^reverseOrder) {
+			if(change^reverseOrder) {
 				data[i].swap(data[split]);
-				split++;
+				++split;
 			}
 		}
 		data[split].swap(data[right]);
@@ -446,7 +446,7 @@ void Array::rt_filter(Runtime & runtime,ObjPtr function, const ParameterValues &
 
 	for(const auto & element : data) {
 		parameters.set(0, element);
-		ObjRef resultRef=callFunction(runtime,function.get(),parameters);
+		ObjRef resultRef = callFunction(runtime,function.get(),parameters);
 		if( resultRef.toBool() ){
 			tempArray.push_back(element);
 		}
@@ -457,10 +457,10 @@ void Array::rt_filter(Runtime & runtime,ObjPtr function, const ParameterValues &
 void Array::append(Collection * c){
 	if(c==nullptr || c==this)
 		return;
-	size_t i=count();
+	size_t i = count();
 	resize( count()+c->count() );
-	for(ERef<Iterator> iRef=c->getIterator(); !iRef->end() ;iRef->next()){
-		ObjRef value=iRef->value();
+	for(ERef<Iterator> iRef = c->getIterator(); !iRef->end() ;iRef->next()){
+		ObjRef value = iRef->value();
 		if(!value.isNull())
 			data[i++]=value->getRefOrCopy();
 	}
@@ -550,7 +550,7 @@ void Array::ArrayIterator::next() {
 
 //! ---|> [Iterator]
 void Array::ArrayIterator::reset() {
-	index=0;
+	index = 0;
 }
 
 //! ---|> [Iterator]

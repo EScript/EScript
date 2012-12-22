@@ -36,7 +36,7 @@ class Type : public Object {
 
 		/// ---|> [Object]
 		virtual Object * clone() const;
-		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_TYPE;	}
+		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_TYPE;	}
 	//	@}
 
 	// -------------------------------------------------------------
@@ -85,8 +85,8 @@ class Type : public Object {
 		static const flag_t FLAG_CONTAINS_OBJ_ATTRS = 1<<1;
 		static const flag_t FLAG_ALLOWS_USER_INHERITANCE = 1<<2;
 
-		inline bool getFlag(flag_t f)const 			{	return (flags&f) >0;	}
-		inline void setFlag(flag_t f,bool b=true) 	{	b? flags|=f : flags-=(flags&f);	}
+		inline bool getFlag(flag_t f)const			{	return (flags&f) >0;	}
+		inline void setFlag(flag_t f,bool b = true)	{	b? flags|=f : flags-=(flags&f);	}
 		inline flag_t getFlags()const				{	return flags;	}
 	private:
 		flag_t flags;

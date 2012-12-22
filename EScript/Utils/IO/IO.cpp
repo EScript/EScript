@@ -50,7 +50,7 @@ std::vector<std::string> IO::getFilesInDir(const std::string & dirname, uint8_t 
 }
 
 std::string IO::dirname(const std::string & filename) {
-	const size_t slash=filename.find_last_of("/\\");
+	const size_t slash = filename.find_last_of("/\\");
 	return slash==std::string::npos ? "." : filename.substr(0,slash);
 }
 
@@ -69,7 +69,7 @@ std::string IO::condensePath(const std::string & inputPath){
 	}
 	// rebuild
 	std::string output;
-	for(std::deque<std::string>::const_iterator it=parts2.begin();it!=parts2.end();++it){
+	for(std::deque<std::string>::const_iterator it = parts2.begin();it!=parts2.end();++it){
 		if(it!=parts2.begin())
 			output+='/';
 		output += *it;

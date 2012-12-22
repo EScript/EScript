@@ -3,12 +3,12 @@ out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
 
 {
 	var t = [];
-	for(var j=0;j<100;++j){
+	for(var j = 0;j<100;++j){
 		var arr = [];
-		for(var i=0;i<5000;++i)
+		for(var i = 0;i<5000;++i)
 //			arr += i+Rand.uniform(0,100);
 			arr += Rand.uniform(0,100);
-		var start=clock();
+		var start = clock();
 		arr.sort();
 		t+=clock()-start;
 		out(".");
@@ -31,8 +31,8 @@ GLOBALS.test := fn(description,result,checkCoverageType=false){
 		out(description.fillUp(25," "),result?"ok":"failed");
 
 		if(checkCoverageType){
-			var numFunctions=0;
-			var coveredFunctions=0;
+			var numFunctions = 0;
+			var coveredFunctions = 0;
 			var missing = [];
 			foreach(checkCoverageType._getAttributes() as var fun){
 				if(! (fun---|>Function))
@@ -57,8 +57,8 @@ GLOBALS.test := fn(description,result,checkCoverageType=false){
 
 (fn(){})._asm(); // ... to mark _asm as executed.
 
-var start=clock();
-var outBackup=out;
+var start = clock();
+var outBackup = out;
 addSearchPath(__DIR__);
 
 //----
@@ -67,7 +67,7 @@ var t = load("Testcases_Core.escript");
 if(benchmark){
 	var progress = fn( percent ){
 		var i = (percent*20).floor();
-		SGLOBALS.out("\r","|"+"="*i+"|"+" "*(20-i)+"| "+percent.round(0.01)*100+"%    ");
+		SGLOBALS.out("\r","|"+"="*i+"|"+" "*(20-i)+"| "+percent.round(0.01)*100+"%	");
 	};
 
 	GLOBALS.out:=fn(values*){ ;};
@@ -80,9 +80,9 @@ if(benchmark){
 	
 	progress(0);
 
-	for(var i=0;i<tries;i++){
+	for(var i = 0;i<tries;++i){
 		var startTime = clock();
-		for(var j=0;j<innerLoops;j++){
+		for(var j = 0;j<innerLoops;++j){
 			t();
 		}
 		var time = (clock()-startTime)*1000;
@@ -113,7 +113,7 @@ load("Testcases_Runtime.escript");
 //	load(__DIR__+"/Testcases_Win32Lib.escript");
 load("Bugs.escript");
 
-GLOBALS.out=outBackup;
+GLOBALS.out = outBackup;
 
 out("\n-----\n");
 if(errors>0)

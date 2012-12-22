@@ -31,8 +31,8 @@ class Block : public ASTNode {
 
 		virtual ~Block() {}
 
-		statementList_t & getStatements()					{	return statements;  }
-		const statementList_t & getStatements()const		{	return statements;  }
+		statementList_t & getStatements()				{	return statements;	}
+		const statementList_t & getStatements()const	{	return statements;	}
 
 
 		/*! returns false if variable was already declared */

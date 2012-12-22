@@ -39,22 +39,22 @@ std::string StdLib::getOS(){
 
 //! (static)
 void StdLib::print_r(Object * o,int maxLevel,int level) {
-	if (!o) return;
-	if (level>maxLevel) {
+	if(!o) return;
+	if(level>maxLevel) {
 		std::cout << " ... \n";
 		return;
 	}
 
-	if (Array * a=dynamic_cast<Array *>(o)) {
+	if(Array * a = dynamic_cast<Array *>(o)) {
 		std::cout << "[\n";
-		ERef<Iterator> itRef=a->getIterator();
-		int nr=0;
-		while (!itRef->end()) {
-			ObjRef valueRef=itRef->value();
-			ObjRef keyRef=itRef->key();
-			if (nr++>0)std::cout << ",\n";
-			if (!valueRef.isNull()) {
-				for (int i=0;i<level;i++)
+		ERef<Iterator> itRef = a->getIterator();
+		int nr = 0;
+		while(!itRef->end()) {
+			ObjRef valueRef = itRef->value();
+			ObjRef keyRef = itRef->key();
+			if(nr++>0)std::cout << ",\n";
+			if(!valueRef.isNull()) {
+				for(int i = 0;i<level;++i)
 					std::cout << "\t";
 				std::cout << "["<<keyRef.toString() <<"] : ";
 				print_r(valueRef.get(),maxLevel,level+1);
@@ -63,20 +63,20 @@ void StdLib::print_r(Object * o,int maxLevel,int level) {
 			itRef->next();
 		}
 		std::cout << "\n";
-		for (int i=0;i<level-1;i++)
+		for(int i = 0;i<level-1;++i)
 			std::cout << "\t";
 		std::cout << "]";
-	} else if (Map * m=dynamic_cast<Map *>(o)) {
+	} else if(Map * m = dynamic_cast<Map *>(o)) {
 		std::cout << "{\n";
-		ERef<Iterator> itRef=m->getIterator();
-		int nr=0;
-		while (!itRef->end()) {
-			ObjRef valueRef=itRef->value();
-			ObjRef keyRef=itRef->key();
-			if (nr++>0)
+		ERef<Iterator> itRef = m->getIterator();
+		int nr = 0;
+		while(!itRef->end()) {
+			ObjRef valueRef = itRef->value();
+			ObjRef keyRef = itRef->key();
+			if(nr++>0)
 				std::cout << ",\n";
-			if (!valueRef.isNull()) {
-				for (int i=0;i<level;i++)
+			if(!valueRef.isNull()) {
+				for(int i = 0;i<level;++i)
 					std::cout << "\t";
 				std::cout << "["<<keyRef.toString() <<"] : ";
 				print_r(valueRef.get(),maxLevel,level+1);
@@ -86,11 +86,11 @@ void StdLib::print_r(Object * o,int maxLevel,int level) {
 			itRef->next();
 		}
 		std::cout << "\n";
-		for (int i=0;i<level-1;i++)
+		for(int i = 0;i<level-1;++i)
 			std::cout << "\t";
 		std::cout << "}";
 	} else {
-		if (dynamic_cast<String *>(o))
+		if(dynamic_cast<String *>(o))
 			std::cout << "\""<<o->toString()<<"\"";
 		else std::cout << o->toString();
 	}
@@ -104,7 +104,7 @@ static std::string findFile(Runtime & runtime, const std::string & filename){
 	std::string file(IO::condensePath(filename));
 	if( IO::getEntryType(file)!=IO::TYPE_FILE ){
 		if(Array * searchPaths = dynamic_cast<Array*>(runtime.getAttribute(seachPathsId).getValue())){
-			for(ERef<Iterator> itRef=searchPaths->getIterator();!itRef->end();itRef->next()){
+			for(ERef<Iterator> itRef = searchPaths->getIterator();!itRef->end();itRef->next()){
 				ObjRef valueRef = itRef->value();
 				std::string s(IO::condensePath(valueRef.toString()+'/'+filename));
 				if( IO::getEntryType(s)==IO::TYPE_FILE ){
@@ -122,12 +122,12 @@ ObjRef StdLib::loadOnce(Runtime & runtime,const std::string & filename){
 	static const StringId mapId("__loadOnce_loadedFiles");
 
 	std::string condensedFilename( IO::condensePath(findFile(runtime,filename)) );
-	Map * m=dynamic_cast<Map*>(runtime.getAttribute(mapId).getValue());
+	Map * m = dynamic_cast<Map*>(runtime.getAttribute(mapId).getValue());
 	if(m==nullptr){
-		m=Map::create();
+		m = Map::create();
 		runtime.setAttribute(mapId, Attribute(m));
 	}
-	ObjRef obj=m->getValue(condensedFilename);
+	ObjRef obj = m->getValue(condensedFilename);
 	if(obj.toBool()){ // already loaded?
 		return nullptr;
 	}
@@ -209,8 +209,8 @@ void StdLib::init(EScript::Namespace * globals) {
 		like http://de3.php.net/manual/de/function.getdate.php	*/
 	ES_FUNCTION_DECLARE(globals,"getDate",0,1,{
 		time_t t=(parameter.count()==0)?time(nullptr):static_cast<time_t>(parameter[0]->toInt());
-		tm *d=localtime (& t );
-		Map * m=Map::create();
+		tm *d = localtime (& t );
+		Map * m = Map::create();
 		m->setValue(String::create("seconds"),Number::create(d->tm_sec));
 		m->setValue(String::create("minutes"),Number::create(d->tm_min));
 		m->setValue(String::create("hours"),Number::create(d->tm_hour));
@@ -317,7 +317,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	//! [ESF]  number time()
 	ESF_DECLARE(globals,"time",0,0,Number::create(static_cast<double>(time(nullptr))))
 
-	//! [ESF]  string toJSON(obj[,formatted=true])
+	//! [ESF]  string toJSON(obj[,formatted = true])
 	ESF_DECLARE(globals,"toJSON",1,2,String::create(JSON::toJSON(parameter[0].get(),parameter[1].toBool(true))))
 
 }

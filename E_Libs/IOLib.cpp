@@ -10,20 +10,20 @@
 using namespace EScript;
 
 static const int E_UNDEFINED_FILE=-1;
-static const int E_FILE_DOES_NOT_EXIST=0;
-static const int E_FILE=1;
-static const int E_DIRECTORY=2;
+static const int E_FILE_DOES_NOT_EXIST = 0;
+static const int E_FILE = 1;
+static const int E_DIRECTORY = 2;
 
-static const int E_DIR_FILES=1;
-static const int E_DIR_DIRECTORIES=2;
-static const int E_DIR_BOTH=3;
-static const int E_DIR_RECURSIVE=4;
+static const int E_DIR_FILES = 1;
+static const int E_DIR_DIRECTORIES = 2;
+static const int E_DIR_BOTH = 3;
+static const int E_DIR_RECURSIVE = 4;
 
 // ---------------------------------------------------
 
 //! init
 void IOLib::init(EScript::Namespace * o) {
-	Namespace * lib=new Namespace();
+	Namespace * lib = new Namespace;
 	declareConstant(o,"IO",lib);
 
 	//! [ESF] string fileGetContents(string filename,[format])
@@ -36,8 +36,8 @@ void IOLib::init(EScript::Namespace * o) {
 			runtime.setException(e.what());
 			return nullptr;
 		}
-		if (parameter.count()>1) {
-			if (parameter[1]->toString()=="UTF16LE") {
+		if(parameter.count()>1) {
+			if(parameter[1]->toString()=="UTF16LE") {
 				std::string contentS(StringUtils::UCS2LE_to_ANSII(content.str()));
 				return String::create(contentS);
 			} else {

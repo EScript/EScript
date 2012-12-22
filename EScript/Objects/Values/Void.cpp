@@ -8,7 +8,7 @@ using namespace EScript;
 
 //! (static)
 Void * Void::get() {
-	static ERef<Void> instance=new Void;
+	static ERef<Void> instance = new Void;
 	return instance.get();
 }
 

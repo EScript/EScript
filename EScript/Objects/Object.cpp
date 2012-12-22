@@ -15,25 +15,25 @@ namespace EScript{
 
 //! (static)
 Type * Object::getTypeObject(){
-	static Type * typeObject=nullptr;
+	static Type * typeObject = nullptr;
 	if(typeObject==nullptr){
 		// This object defines the basic type of all objects.
 		// It does not inherit from anything else, but the type object itself is of type 'Type'.
-		typeObject=new Type(nullptr,nullptr);
-		typeObject->typeRef=Type::getTypeObject();
+		typeObject = new Type(nullptr,nullptr);
+		typeObject->typeRef = Type::getTypeObject();
 	}
 	return typeObject;
 }
 
 //! initMembers
 void Object::init(EScript::Namespace & globals) {
-	Type * typeObject=getTypeObject();
+	Type * typeObject = getTypeObject();
 	typeObject->allowUserInheritance(true);
 	initPrintableName(typeObject,getClassName());
 
 	declareConstant(&globals,getClassName(),typeObject);
 
-	//! [ESMF] Object new Object()
+	//! [ESMF] Object new Object
 	ESMF_DECLARE(typeObject,Type,"_constructor",0,0,new Object(self))
 
 	//! [ESMF] Object Object.clone()
@@ -100,7 +100,7 @@ void Object::init(EScript::Namespace & globals) {
 	//! [ESMF] Bool Object.isSetLocally(key)
 	ESF_DECLARE(typeObject,"isSetLocally",1,1,Bool::create(!caller->getLocalAttribute(parameter[0].toString()).isNull()))
 
-	//! [ESMF] Bool Object.setAttribute(key,value(,flags=ATTR_NORMAL_ATTRIBUTE))
+	//! [ESMF] Bool Object.setAttribute(key,value(,flags = ATTR_NORMAL_ATTRIBUTE))
 	ESF_DECLARE(typeObject,"setAttribute",2,3,
 				Bool::create(caller->setAttribute(parameter[0].toString(),
 													Attribute(parameter[1],
@@ -125,36 +125,36 @@ void Object::init(EScript::Namespace & globals) {
 
 //! (static)
 void ObjectReleaseHandler::release(Object * o) {
-	if (o->countReferences()!=0) {
+	if(o->countReferences()!=0) {
 		std::cout << "\n !"<<o<<":"<<o->countReferences();
 		return;
 	}
 	switch(o->_getInternalTypeId()){
 		case _TypeIds::TYPE_NUMBER:{
 			// the real c++ type can be somthing else than Number, but the typeId does not lie.
-			if (o->getType()==Number::getTypeObject()) {
-				Number * n=static_cast<Number *>(o);
+			if(o->getType()==Number::getTypeObject()) {
+				Number * n = static_cast<Number *>(o);
 				Number::release(n);
 				return;
 			}
 			break;
 		}
 		case _TypeIds::TYPE_BOOL:{
-			if (o->getType()==Bool::getTypeObject()) {
+			if(o->getType()==Bool::getTypeObject()) {
 				Bool::release(static_cast<Bool*>(o));
 				return;
 			}
 			break;
 		}
 		case _TypeIds::TYPE_STRING:{
-			if (o->getType()==String::getTypeObject()) {
+			if(o->getType()==String::getTypeObject()) {
 				String::release(static_cast<String*>(o));
 				return;
 			}
 			break;
 		}
 		case _TypeIds::TYPE_ARRAY:{
-			if (o->getType()==Array::getTypeObject()) {
+			if(o->getType()==Array::getTypeObject()) {
 				Array::release(static_cast<Array*>(o));
 				return;
 			}
@@ -204,10 +204,10 @@ Object * Object::clone() const {
 
 //! ---o
 bool Object::isA(Type * type) const {
-	if (type == nullptr)
+	if(type == nullptr)
 		return false;
 
-	for(Type * t=getType();t!=nullptr;t=t->getBaseType()){
+	for(Type * t = getType();t!=nullptr;t = t->getBaseType()){
 		if(t==type)
 			return true;
 	}
@@ -275,7 +275,7 @@ bool Object::rt_isEqual(Runtime &,const ObjPtr other){
 }
 
 bool Object::isEqual(Runtime &runtime,const ObjPtr other) {
-	ObjRef resultRef=callMemberFunction(runtime,this,Consts::IDENTIFIER_fn_equal,ParameterValues(other));
+	ObjRef resultRef = callMemberFunction(runtime,this,Consts::IDENTIFIER_fn_equal,ParameterValues(other));
 	return resultRef.toBool();
 }
 

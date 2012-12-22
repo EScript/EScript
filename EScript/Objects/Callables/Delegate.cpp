@@ -12,7 +12,7 @@ using namespace EScript;
 //! (static)
 Type * Delegate::getTypeObject(){
 	// [Delegate] ---|> [Object]
-	static Type * typeObject=new Type(Object::getTypeObject());
+	static Type * typeObject = new Type(Object::getTypeObject());
 	return typeObject;
 }
 
@@ -53,7 +53,7 @@ Delegate * Delegate::clone() const{
 
 //! ---|> [Object]
 bool Delegate::rt_isEqual(Runtime &,const ObjPtr o){
-	Delegate * d=o.toType<Delegate>();
+	Delegate * d = o.toType<Delegate>();
 	return (d!=nullptr) &&   d->getObject()==getObject() && d->getFunction()==getFunction();
 }
 

@@ -13,14 +13,14 @@ namespace EScript{
 Type * Collection::getTypeObject()	{
 
 	// Collection ---|> [Object]
-	static Type * typeObject=new Type(Object::getTypeObject());
+	static Type * typeObject = new Type(Object::getTypeObject());
 	return typeObject;
 }
 
 //! initMembers
 void Collection::init(EScript::Namespace & globals) {
 
-	Type * typeObject=getTypeObject();
+	Type * typeObject = getTypeObject();
 	initPrintableName(typeObject,getClassName());
 
 	declareConstant(&globals,getClassName(),typeObject);
@@ -34,7 +34,7 @@ void Collection::init(EScript::Namespace & globals) {
 
 	//! [ESMF] Object Collection.get(key [,default value] )
 	ES_MFUNCTION_DECLARE(typeObject,Collection,"get",1,2,{
-		ObjPtr result=self->getValue(parameter[0]);
+		ObjPtr result = self->getValue(parameter[0]);
 		return (parameter.count()>1 && result.isNull())?parameter[1].get():result.get();
 	})
 
@@ -86,7 +86,7 @@ void Collection::init(EScript::Namespace & globals) {
 	ESMF_DECLARE(typeObject,Collection, "findValue",1,1,
 				self->rt_findValue(runtime,parameter[0]))
 
-	//! [ESMF] KEY Collection.reduce(fn(runningVar,key,value){ return ...}[,initialValue=void,[,additionalParameters]])
+	//! [ESMF] KEY Collection.reduce(fn(runningVar,key,value){ return ...}[,initialValue = void,[,additionalParameters]])
 	ES_MFUNCTION_DECLARE(typeObject,Collection,"reduce",1,-1,{
 		ParameterValues additionalValues(parameter.count()>2 ? parameter.count()-2 : 0);
 		if(!additionalValues.empty())
@@ -134,9 +134,9 @@ Iterator * Collection::getIterator() {
  *   'c'.'=='('a') , 'c'.'=='('b') , 'c'.'=='('c') -> return 2
  */
 Object * Collection::rt_findValue(Runtime & runtime,ObjPtr subject){
-	for(ERef<Iterator> it=getIterator(); !it->end() ; it->next()){
-		ObjRef key=it->key();
-		ObjRef value=it->value();
+	for(ERef<Iterator> it = getIterator(); !it->end() ; it->next()){
+		ObjRef key = it->key();
+		ObjRef value = it->value();
 		if(subject->isEqual(runtime,value)){
 			return key.detachAndDecrease();
 		}
@@ -149,9 +149,9 @@ Object * Collection::rt_findValue(Runtime & runtime,ObjPtr subject){
  *   'c'.'=='('a') , 'c'.'=='('b') , 'c'.'=='('c') -> return true
  */
 bool Collection::rt_contains(Runtime & runtime,ObjPtr subject){
-	for(ERef<Iterator> it=getIterator(); !it->end() ; it->next()){
-		ObjRef key=it->key();
-		ObjRef value=it->value();
+	for(ERef<Iterator> it = getIterator(); !it->end() ; it->next()){
+		ObjRef key = it->key();
+		ObjRef value = it->value();
 		if(subject->isEqual(runtime,value)){
 			return true;
 		}
@@ -170,34 +170,34 @@ Object * Collection::rt_reduce(Runtime & runtime,ObjPtr function,ObjPtr initialV
 	if(!additionalValues.empty())
 		std::copy(additionalValues.begin(),additionalValues.end(),parameters.begin()+3);
 
-	for(ERef<Iterator> it=getIterator(); !it->end() ; it->next()){
-		ObjRef key=it->key();
-		ObjRef value=it->value();
+	for(ERef<Iterator> it = getIterator(); !it->end() ; it->next()){
+		ObjRef key = it->key();
+		ObjRef value = it->value();
 //		std::cout << "running var: ["<<runningVar.toString()<<"]\n";
 		parameters.set(0,runningVar);
 		parameters.set(1,key);
 		parameters.set(2,value);
-		runningVar=callFunction(runtime,function.get(),parameters);
+		runningVar = callFunction(runtime,function.get(),parameters);
 	}
 	return runningVar.detachAndDecrease();
 }
 
 //! ---|> Object
 bool Collection::rt_isEqual(Runtime &runtime,const ObjPtr other){
-	Collection * c=other.toType<Collection>();
-	if (c==nullptr || count()!=c->count() ) return false;
+	Collection * c = other.toType<Collection>();
+	if(c==nullptr || count()!=c->count() ) return false;
 
-	bool b=true;
-	for(ERef<Iterator> it=getIterator(); !it->end() ;  it->next()){
-		ObjRef key=it->key();
-		ObjRef value=it->value();
-		if (value.isNull())
-			value=Void::get();
+	bool b = true;
+	for(ERef<Iterator> it = getIterator(); !it->end() ;  it->next()){
+		ObjRef key = it->key();
+		ObjRef value = it->value();
+		if(value.isNull())
+			value = Void::get();
 
-		ObjRef value2=c->getValue(key.get());
-		b=value->isEqual(runtime,value2);
+		ObjRef value2 = c->getValue(key.get());
+		b = value->isEqual(runtime,value2);
 
-		if (!b) break;
+		if(!b) break;
 	}
 	return b;
 }
@@ -208,7 +208,7 @@ bool Collection::rt_isEqual(Runtime &runtime,const ObjPtr other){
  */
 Object * Collection::rt_map(Runtime & runtime,ObjPtr function, const ParameterValues & additionalValues){
 	// Create new, empty Collection
-	ObjRef obj=callMemberFunction(runtime,this,Consts::IDENTIFIER_fn_constructor,ParameterValues());
+	ObjRef obj = callMemberFunction(runtime,this,Consts::IDENTIFIER_fn_constructor,ParameterValues());
 	ERef<Collection> newCollectionRef = obj.toType<Collection>();
 	if(newCollectionRef.isNull()){
 		runtime.setException("Collection.map(..) No Contructor found!");
@@ -221,12 +221,12 @@ Object * Collection::rt_map(Runtime & runtime,ObjPtr function, const ParameterVa
 		std::copy(additionalValues.begin(),additionalValues.end(),parameters.begin()+2);
 
 
-	for( ERef<Iterator> it=getIterator(); ! it->end() ; it->next()){
-		ObjRef key=it->key();
-		ObjRef value=it->value();
+	for( ERef<Iterator> it = getIterator(); ! it->end() ; it->next()){
+		ObjRef key = it->key();
+		ObjRef value = it->value();
 		parameters.set(0,key);
 		parameters.set(1,value);
-		ObjRef newValue=runtime.executeFunction(function.get(),nullptr,parameters);
+		ObjRef newValue = runtime.executeFunction(function.get(),nullptr,parameters);
 		if(!newValue.isNull())
 			newCollectionRef->setValue(key.get(),newValue.get());
 	}
@@ -235,18 +235,18 @@ Object * Collection::rt_map(Runtime & runtime,ObjPtr function, const ParameterVa
 
 //! ---o ???
 Object * Collection::rt_extract(Runtime & runtime,StringId functionId,bool decision/*=true*/){
-	ERef<Iterator> it=getIterator();
+	ERef<Iterator> it = getIterator();
 
-	ObjRef currentValue=nullptr;
-	while (! it->end()) {
-		ObjRef value=it->value();
+	ObjRef currentValue = nullptr;
+	while(! it->end()) {
+		ObjRef value = it->value();
 
-		if (currentValue.isNull()) {
-			currentValue=value;
+		if(currentValue.isNull()) {
+			currentValue = value;
 		} else {
-			ObjRef result=callMemberFunction(runtime,value.get(),functionId,ParameterValues(currentValue.get()));
+			ObjRef result = callMemberFunction(runtime,value.get(),functionId,ParameterValues(currentValue.get()));
 			if(result.toBool()==decision)
-				currentValue=value;
+				currentValue = value;
 		}
 		it->next();
 	}

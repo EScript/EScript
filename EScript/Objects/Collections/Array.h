@@ -22,7 +22,7 @@ class Array : public Collection {
 	//! @name Types
 	// @{
 	public:
-		typedef ObjRef					 		value_type;
+		typedef ObjRef							value_type;
 
 		typedef std::vector<value_type>			container_t;
 		typedef container_t::iterator			iterator;
@@ -45,16 +45,16 @@ class Array : public Collection {
 	private:
 		static std::stack<Array *> pool;
 
-		Array(Type * type=nullptr);
+		Array(Type * type = nullptr);
 
 		void init(const ParameterValues & p);
 		void init(size_t num,Object ** objs);
 		void init(size_t num,char ** strings);
 	public:
-		static Array * create(Type * type=nullptr);
-		static Array * create(const ParameterValues & p,Type * type=nullptr);
-		static Array * create(size_t num,Object ** objs,Type * type=nullptr);
-		static Array * create(size_t num,char ** strings,Type * type=nullptr);
+		static Array * create(Type * type = nullptr);
+		static Array * create(const ParameterValues & p,Type * type = nullptr);
+		static Array * create(size_t num,Object ** objs,Type * type = nullptr);
+		static Array * create(size_t num,char ** strings,Type * type = nullptr);
 		static void release(Array * b);
 		virtual ~Array();
 	//	@}
@@ -96,17 +96,17 @@ class Array : public Collection {
 		std::string implode(const std::string & delimiter=";");
 		void popBack()							{	data.pop_back();	}
 		void popFront()							{	data.erase(begin());	}
-		void pushBack(const ObjPtr & obj)		{	if (!obj.isNull()) data.push_back(obj);	}
-		void pushFront(const ObjPtr & obj)		{	if (!obj.isNull())	data.insert(begin(),obj.get());	}
+		void pushBack(const ObjPtr & obj)		{	if(!obj.isNull()) data.push_back(obj);	}
+		void pushFront(const ObjPtr & obj)		{	if(!obj.isNull())	data.insert(begin(),obj.get());	}
 		void removeIndex(size_t index);
 		void reserve(size_t capacity);
 		void resize(size_t newSize);
 		void reverse();
 		void rt_filter(Runtime & runtime,ObjPtr function, const ParameterValues & additionalValues);
 		/// returns -1 if not found
-		int rt_indexOf(Runtime & runtime,ObjPtr search,size_t begin=0);
-		size_t rt_removeValue(Runtime & runtime,const ObjPtr value,const int limit=-1,const size_t begin=0);
-		void rt_sort(Runtime & runtime,Object * function=nullptr,bool reverseOrder=false);
+		int rt_indexOf(Runtime & runtime,ObjPtr search,size_t begin = 0);
+		size_t rt_removeValue(Runtime & runtime,const ObjPtr value,const int limit=-1,const size_t begin = 0);
+		void rt_sort(Runtime & runtime,Object * function = nullptr,bool reverseOrder = false);
 		size_t size() const						{	return data.size();		}
 		Array * slice(int startIndex,int length);
 		void splice(int startIndex,int length,Array * replacement);
@@ -150,7 +150,7 @@ class Array : public Collection {
 	//! @name ---|> Object
 	// @{
 		virtual Object * clone()const;
-		virtual internalTypeId_t _getInternalTypeId()const 	{	return _TypeIds::TYPE_ARRAY;	}
+		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_ARRAY;	}
 	//	@}
 
 	//---------------------
