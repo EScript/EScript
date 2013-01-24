@@ -195,7 +195,12 @@ void Array::release(Array * a){
 
 //! (internal)
 void Array::init(const ParameterValues & p) {
-	data.assign(std::begin(p), std::end(p));
+	data.clear();
+	data.reserve(p.count());
+	for(size_t i = 0; i < p.count(); ++i) {
+		data.emplace_back(p[i]);
+	}
+//	data.assign(std::begin(p), std::end(p));
 }
 
 /*!	(internal)*/
@@ -327,14 +332,12 @@ std::string Array::implode(const std::string & delimiter/*=";"*/){
 
 static bool compare(Runtime & runtime,Object * function,Object * a,Object * b){
 	if(function!=nullptr) { // comparement function given?
-		ObjRef result = callFunction(runtime,function,ParameterValues(a,b));
-		return result.toBool();
+		return callFunction(runtime,function,ParameterValues(a,b)).toBool();
 	}else{
-		ObjRef result = callMemberFunction(runtime,a,Consts::IDENTIFIER_fn_less,ParameterValues(b));
-		return result.toBool();
+		return callMemberFunction(runtime,a,Consts::IDENTIFIER_fn_less,ParameterValues(b)).toBool();
 	}
 }
-	
+
 
 //! (implements quicksort)
 void Array::rt_sort(Runtime & runtime,Object * function/*=nullptr*/,bool reverseOrder ) {
@@ -360,7 +363,7 @@ void Array::rt_sort(Runtime & runtime,Object * function/*=nullptr*/,bool reverse
 		/* For larger arrays select the median of three random elements.
 			For good inputs, this introduces an additional overhead; for bad inputs this
 			can speed up the sorting by a factor of 3 (measured). */
-		if( left+100<right ){ 
+		if( left+100<right ){
 			const size_t center = (right+left)/2;
 			data[right].swap(data[dis(engine)]);
 			data[center].swap(data[dis(engine)]);
@@ -368,7 +371,7 @@ void Array::rt_sort(Runtime & runtime,Object * function/*=nullptr*/,bool reverse
 			Object * s1 = data[left].get();
 			Object * s2 = data[center].get();
 			Object * s3 = data[right].get();
-			
+
 			// s1 < s2 < s3 || s1 > s2 > s3
 			const bool s1_lt_s2 = compare(runtime,function,s1,s2);
 //			++cCount;
@@ -428,8 +431,7 @@ void Array::rt_filter(Runtime & runtime,ObjPtr function, const ParameterValues &
 
 	for(const auto & element : data) {
 		parameters.set(0, element);
-		ObjRef resultRef = callFunction(runtime,function.get(),parameters);
-		if( resultRef.toBool() ){
+		if( callFunction(runtime,function.get(),parameters).toBool() ){
 			tempArray.push_back(element);
 		}
 	}

@@ -31,19 +31,19 @@ class RuntimeInternals  {
 	/// @name Function execution
 	//	@{
 	public:
-		typedef std::pair<Object *,FunctionCallContext* >  executeFunctionResult_t;
+		typedef std::pair<RtValue,FunctionCallContext* >  executeFunctionResult_t;
 
 		/*! (internal)
 			Start the execution of a function. A c++ function is executed immediatly and the result is <result,nullptr>.
-			A UserFunction produces a FunctionCallContext which still has to be executed. The result is then <nullptr,fcc>
+			A UserFunction produces a FunctionCallContext which still has to be executed. The result is then <UNDEFINED,fcc>
 			\note the @p params value may be altered by this function and should not be used afterwards!	*/
 		executeFunctionResult_t startFunctionExecution(const ObjPtr & fun,const ObjPtr & callingObject,ParameterValues & params);
 
 		executeFunctionResult_t startInstanceCreation(EPtr<Type> type,ParameterValues & params);
 
-		Object * executeFunctionCallContext(_Ptr<FunctionCallContext> fcc);
+		RtValue executeFunctionCallContext(_Ptr<FunctionCallContext> fcc);
 
-		ObjPtr getCallingObject()const							{  return activeFCCs.empty() ? nullptr : activeFCCs.back()->getCaller();	}
+		ObjPtr getCallingObject()const							{	return activeFCCs.empty() ? nullptr : activeFCCs.back()->getCaller();	}
 		size_t getStackSize()const								{	return activeFCCs.size();	}
 		size_t _getStackSizeLimit()const						{	return stackSizeLimit;	}
 		void _setStackSizeLimit(const size_t limit)				{	stackSizeLimit = limit;	}
@@ -52,7 +52,7 @@ class RuntimeInternals  {
 		std::vector<_CountedRef<FunctionCallContext> > activeFCCs;
 		size_t stackSizeLimit;
 
-		static bool checkParameterConstraint(Runtime & rt,const ObjPtr & value,const ObjPtr & constraint);
+		static bool checkParameterConstraint(Runtime & rt,const RtValue & value,const ObjPtr & constraint);
 		_Ptr<FunctionCallContext> getActiveFCC()const			{	return activeFCCs.empty() ? nullptr : activeFCCs.back();	}
 
 		void pushActiveFCC(const _Ptr<FunctionCallContext> fcc)	{
@@ -93,7 +93,7 @@ class RuntimeInternals  {
 	public:
 		enum state_t{	STATE_NORMAL,STATE_EXITING,STATE_EXCEPTION	};
 		bool checkNormalState()const					{	return state==STATE_NORMAL;	}
-		ObjPtr getResult()const							{	return resultValue;	}
+		RtValue getResult()const							{	return resultValue;	}
 		state_t getState()const							{	return state;	}
 		void resetState() {
 			state = STATE_NORMAL;
@@ -118,18 +118,18 @@ class RuntimeInternals  {
 		 */
 		void throwException(const std::string & s,Object * obj = nullptr);
 
-		void setExitState(const ObjPtr & value) {
+		void setExitState(const RtValue & value) {
 			resultValue = value;
 			state = STATE_EXITING;
 		}
-		void setExceptionState(const ObjPtr & exceptionObj) {
-			resultValue = exceptionObj;
+		void setExceptionState(const RtValue & exceptionValue) {
+			resultValue = exceptionValue;
 			state = STATE_EXCEPTION;
 		}
 
 	private:
 		state_t state;
-		ObjRef resultValue;
+		RtValue resultValue;
 		bool addStackIngfoToExceptions;
 	// @}
 
@@ -142,7 +142,7 @@ class RuntimeInternals  {
 		std::vector<ERef<Function> > systemFunctions;
 		void initSystemFunctions();
 	public:
-		Object * sysCall(uint32_t sysFnId,ParameterValues & params);
+		RtValue sysCall(uint32_t sysFnId,ParameterValues & params);
 	//	@}
 };
 }

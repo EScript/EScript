@@ -14,6 +14,7 @@
 #include "../Objects/Callables/Delegate.h"
 #include "../Objects/YieldIterator.h"
 #include "../Utils/Logger.h"
+#include "RtValue.h"
 #include <algorithm>
 #include <iostream>
 #include <sstream>
@@ -46,17 +47,17 @@ void Runtime::init(EScript::Namespace & globals) {
 
 	//!	[ESMF] void Runtime._setStackSizeLimit(number);
 	ESF_DECLARE(typeObject,"_setStackSizeLimit",1,1,
-				(runtime._setStackSizeLimit(parameter[0].toUInt()),Void::get()) )
+				(runtime._setStackSizeLimit(parameter[0].toUInt()),rtValue(nullptr)))
 
 	//!	[ESMF] void Runtime.disableLogCounting( );
-	ESF_DECLARE(typeObject,"disableLogCounting",0,1, (runtime.disableLogCounting(),Void::get()))
+	ESF_DECLARE(typeObject,"disableLogCounting",0,1, (runtime.disableLogCounting(),rtValue(nullptr)))
 
 
 	//!	[ESMF] void Runtime.enableLogCounting( );
-	ESF_DECLARE(typeObject,"enableLogCounting",0,1, (runtime.enableLogCounting(),Void::get()))
+	ESF_DECLARE(typeObject,"enableLogCounting",0,1, (runtime.enableLogCounting(),rtValue(nullptr)))
 
 	//!	[ESMF] void Runtime.exception( [message] );
-	ESF_DECLARE(typeObject,"exception",0,1, (runtime.setException(parameter[0].toString()),Void::get()))
+	ESF_DECLARE(typeObject,"exception",0,1, (runtime.setException(parameter[0].toString()),rtValue(nullptr)))
 
 	//!	[ESMF] String Runtime.getLocalStackInfo();
 	ESF_DECLARE(typeObject,"getLocalStackInfo",0,0, String::create(runtime.getLocalStackInfo()))
@@ -72,34 +73,31 @@ void Runtime::init(EScript::Namespace & globals) {
 
 	//!	[ESMF] void Runtime.log(Number,String);
 	ESF_DECLARE(typeObject,"log",2,2,
-				(runtime.log(static_cast<Logger::level_t>(parameter[0].toInt()),parameter[1].toString()),Void::get()) )
+				(runtime.log(static_cast<Logger::level_t>(parameter[0].toInt()),parameter[1].toString()),rtValue(nullptr)))
 
 	//!	[ESMF] void Runtime.resetLogCounter(Number);
 	ESF_DECLARE(typeObject,"resetLogCounter",1,1,
-				(runtime.resetLogCounter(static_cast<Logger::level_t>(parameter[0].toInt())),Void::get()) )
+				(runtime.resetLogCounter(static_cast<Logger::level_t>(parameter[0].toInt())),rtValue(nullptr)))
 
 	//!	[ESMF] void Runtime._setAddStackInfoToExceptions(bool);
 	ESF_DECLARE(typeObject,"_setAddStackInfoToExceptions",1,1,
-				(runtime.setAddStackInfoToExceptions(parameter[0].toBool()),Void::get()) )
+				(runtime.setAddStackInfoToExceptions(parameter[0].toBool()),rtValue(nullptr)))
 
 	//!	[ESMF] void Runtime.setLoggingLevel(Number);
 	ESF_DECLARE(typeObject,"setLoggingLevel",1,1,
-				(runtime.setLoggingLevel(static_cast<Logger::level_t>(parameter[0].toInt())),Void::get()) )
+				(runtime.setLoggingLevel(static_cast<Logger::level_t>(parameter[0].toInt())),rtValue(nullptr)))
 
 	//!	[ESMF] void Runtime.setTreatWarningsAsError(bool);
 	ESF_DECLARE(typeObject,"setTreatWarningsAsError",1,1,
-				(runtime.setTreatWarningsAsError(parameter[0].toBool()),Void::get()) )
+				(runtime.setTreatWarningsAsError(parameter[0].toBool()),rtValue(nullptr)))
 
 	//!	[ESMF] void Runtime.warn([message]);
-	ESF_DECLARE(typeObject,"warn",0,1, (runtime.warn(parameter[0].toString()),Void::get()))
+	ESF_DECLARE(typeObject,"warn",0,1, (runtime.warn(parameter[0].toString()),rtValue(nullptr)))
 
 	// --- internals and experimental functions
 
 	//! [ESF]  Object _callFunction(fun[,obj[,Array params]])
 	ES_FUNCTION_DECLARE(typeObject,"_callFunction",1,3, {
-		ObjPtr fun(parameter[0]);
-		ObjPtr obj(parameter[1].get());
-
 		EPtr<Array> paramArr( (parameter.count()>2) ? assertType<Array>(runtime,parameter[2]) : nullptr );
 		ParameterValues params(paramArr.isNotNull() ? paramArr->count() : 0);
 		if(paramArr.isNotNull()){
@@ -108,8 +106,7 @@ void Runtime::init(EScript::Namespace & globals) {
 				params.set(i++, param);
 			}
 		}
-		ObjRef resultRef = runtime.executeFunction(fun.get(),obj.get(),params);
-		return resultRef.detachAndDecrease();
+		return runtime.executeFunction(parameter[0],parameter[1],params);
 	})
 
 	//! [ESF]  Object _getCurrentCaller()
@@ -169,7 +166,7 @@ ObjRef Runtime::createInstance(const EPtr<Type> & type,const ParameterValues & _
 		return nullptr;
 	ParameterValues params(_params);
 	RuntimeInternals::executeFunctionResult_t result = internals->startInstanceCreation(type,params);
-	ObjRef realResult;
+	RtValue realResult;
 	if(result.second){
 		_CountedRef<FunctionCallContext> fcc = result.second;
 		realResult = internals->executeFunctionCallContext(fcc);
@@ -180,9 +177,9 @@ ObjRef Runtime::createInstance(const EPtr<Type> & type,const ParameterValues & _
 	if(internals->getState()==RuntimeInternals::STATE_EXCEPTION){
 		realResult = internals->getResult();
 		internals->resetState();
-		throw(realResult.detachAndDecrease());
+		throw realResult;
 	}
-	return realResult;
+	return realResult.getObject(); // \todo RtValue createObject?????; use move????
 }
 
 ObjRef Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & caller,const ParameterValues & _params){
@@ -190,7 +187,7 @@ ObjRef Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & caller,const P
 		return nullptr;
 	ParameterValues params(_params);
 	RuntimeInternals::executeFunctionResult_t result = internals->startFunctionExecution(fun,caller,params);
-	ObjRef realResult;
+	RtValue realResult;
 	if(result.second){
 		_CountedRef<FunctionCallContext> fcc = result.second;
 		realResult = internals->executeFunctionCallContext(fcc);
@@ -201,9 +198,9 @@ ObjRef Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & caller,const P
 	if(internals->getState()==RuntimeInternals::STATE_EXCEPTION){
 		realResult = internals->getResult();
 		internals->resetState();
-		throw realResult.detachAndDecrease();
+		throw realResult;
 	}
-	return realResult;
+	return realResult.toObject();
 }
 
 ObjPtr Runtime::getCallingObject()const				{	return internals->getCallingObject();	}
@@ -224,13 +221,13 @@ void Runtime::info(const std::string & s)			{	logger->info(s);	}
 
 void Runtime::setAddStackInfoToExceptions(bool b)	{	internals->setAddStackInfoToExceptions(b);	}
 
-void Runtime::_setExceptionState(const ObjPtr e)	{	internals->setExceptionState(e);	}
+void Runtime::_setExceptionState(const RtValue & e)	{	internals->setExceptionState(e);	}
 
 void Runtime::setException(const std::string & s)	{	internals->setException(s);	}
 
 void Runtime::setException(Exception * e)			{	internals->setException(e);	}
 
-void Runtime::_setExitState(const ObjPtr e)			{	internals->setExitState(e);	}
+void Runtime::_setExitState(const RtValue & e)			{	internals->setExitState(e);	}
 
 void Runtime::_setStackSizeLimit(const size_t s)	{	internals->_setStackSizeLimit(s);	}
 
@@ -265,15 +262,14 @@ void Runtime::yieldNext(YieldIterator & yIt){
 		setException("Invalid YieldIterator");
 		return;
 	}
-	ObjRef result = internals->executeFunctionCallContext( fcc );
+	RtValue result = internals->executeFunctionCallContext( fcc );
 	// error occured? throw an exception!
 	if(internals->getState()==RuntimeInternals::STATE_EXCEPTION){
 		result = internals->getResult();
 		internals->resetState();
-		throw(result.detachAndDecrease());
+		throw result;
 	}
-
-	ERef<YieldIterator> newYieldIterator = result.toType<YieldIterator>();
+	ERef<YieldIterator> newYieldIterator = result.detachObject<YieldIterator>();
 
 	// function exited with another yield? -> reuse the data for the current iterator
 	if(newYieldIterator.isNotNull()){
@@ -282,7 +278,7 @@ void Runtime::yieldNext(YieldIterator & yIt){
 	} // function returned without yield? -> update and terminate the current iterator
 	else{
 		yIt.setFCC( nullptr );
-		yIt.setValue( result );
+		yIt.setValue( result.toObject() );
 	}
 }
 std::string Runtime::getLocalStackInfo(){

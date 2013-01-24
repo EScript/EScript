@@ -21,9 +21,9 @@ class YieldIterator : public Object {
 		YieldIterator()	: Object(getTypeObject()),counter(0) {}
 		virtual ~YieldIterator()					{	}
 
-		Object * value()const						{	return currentValue.get();	}
+		Object * value()const					{	return currentValue.get();	}
 		Object * key()const	;
-		void setValue(ObjPtr newResult)				{	currentValue = newResult;	}
+		void setValue(Object* newResult)		{	currentValue = newResult;	}
 
 		_Ptr<FunctionCallContext> getFCC()const		{	return fcc;	}
 		void setFCC(_Ptr<FunctionCallContext> _fcc)	{	fcc = _fcc;	}

@@ -552,7 +552,7 @@ var FAILED="\t failed\n";
 //		out("\n",e);
 	//	out("\nZeile:",__LINE__);
 		i+=2;
-	}
+	} // i == 2
 	try{
 		throw 4;
 	}catch(e){

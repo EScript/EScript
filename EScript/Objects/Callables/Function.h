@@ -7,6 +7,7 @@
 
 #include "../Type.h"
 #include "../../Utils/ObjArray.h"
+#include "../../Runtime/RtValue.h"
 
 namespace EScript {
 class Runtime;
@@ -24,7 +25,7 @@ class Function : public Object {
 	//	@}
 
 	// -----
-		typedef Object * ( * functionPtr)(Runtime & runtime,Object * caller, const ParameterValues & parameter);
+		typedef RtValue ( * functionPtr)(Runtime & runtime,Object * caller, const ParameterValues & parameter);
 		// ---
 		Function(functionPtr fnptr);
 		Function(StringId originalName, int minParamCount, int maxParamCount, functionPtr fnptr);

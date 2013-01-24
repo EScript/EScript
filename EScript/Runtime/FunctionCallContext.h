@@ -9,6 +9,7 @@
 #include "../Utils/EReferenceCounter.h"
 #include "../Utils/ObjRef.h"
 #include "../Consts.h"
+#include "RtValue.h"
 
 #include <stack>
 
@@ -51,7 +52,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		bool providesCallerAsResult;
 		bool stopExecutionAfterEnding;  //! ... or otherwise, continue with the execution of the parent-context.
 	public:
-		/*! Marks that the return value of the context should be used as the calling context's calling object. 
+		/*! Marks that the return value of the context should be used as the calling context's calling object.
 			This is the case, if the context belongs to a superconstructor call. */
 		void markAsProvidingCallerAsResult()			{	providesCallerAsResult = true;	}
 		void enableStopExecutionAfterEnding()			{	stopExecutionAfterEnding = true;	}
@@ -88,109 +89,65 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 	private:
 		std::vector<ObjRef> localVariables;
 	public:
-		void assignToLocalVariable(const uint32_t index,const ObjPtr value){
+		void assignToLocalVariable(const uint32_t index, ObjRef && value){
+			if(index>=localVariables.size())
+				throwError(UNKNOWN_LOCAL_VARIABLE);
+			localVariables[index] = std::move(value);
+		}
+		void assignToLocalVariable(const uint32_t index, const ObjRef & value){
 			if(index>=localVariables.size())
 				throwError(UNKNOWN_LOCAL_VARIABLE);
 			localVariables[index] = value;
 		}
-		ObjPtr getLocalVariable(const uint32_t index)const{
+		Object * getLocalVariable(const uint32_t index)const{
 			if(index>=localVariables.size())
 				throwError(UNKNOWN_LOCAL_VARIABLE);
-			return localVariables[index];
+			return localVariables[index].get();
 		}
 		std::string getLocalVariablesAsString(const bool includeUndefined)const;
+		void resetLocalVariable(const uint32_t index){
+			if(index>=localVariables.size())
+				throwError(UNKNOWN_LOCAL_VARIABLE);
+			localVariables[index] = nullptr;
+		}
 	// @}
 
 	//	-----------------------------
 
-	//! @name Value Stack operations
+	//! @name RtValue Stack operations
 	//!	\todo use StackEntry to manage obj ownership and return References
 	// @{
 	private:
-
-
-		struct StackEntry{
-			enum dataType_t{
-				VOID,
-				OBJECT_PTR,
-				BOOL,
-				UINT32,
-				NUMBER,
-				IDENTIFIER,
-				STRING_IDX,
-				UNDEFINED
-//				UINT32_PAIR // \todo coming with c++11
-			}dataType;
-			union value_t{
-				Object * value_ObjPtr;
-				bool value_bool;
-				uint32_t value_uint32;
-				double value_number;
-				uint32_t value_indentifier; // \todo c++0x unrestricted union allows StringId
-				uint32_t value_stringIndex;
-			}value;
-
-			StackEntry(dataType_t _dataType = VOID) : dataType(_dataType) {}
-			~StackEntry(){}
-			std::string toString()const;
-		};
+		typedef RtValue StackEntry;
 		std::vector<StackEntry> valueStack;
 
 	public:
 		void stack_clear();
-		void stack_dup() {
-			StackEntry & entry = stack_top();
-			if(entry.dataType == StackEntry::OBJECT_PTR)
-				Object::addReference(entry.value.value_ObjPtr);
-			valueStack.push_back(entry);
-		}
+		void stack_dup()								{		valueStack.emplace_back(stack_top());	}
 		bool stack_empty()const							{	return valueStack.empty();	}
-		void stack_pushBool(const bool value)			{	valueStack.insert(valueStack.end(),StackEntry::BOOL)->value.value_bool = value; }
-		void stack_pushUndefined()						{	valueStack.push_back(StackEntry::UNDEFINED);	 }
+		void stack_pushBool(const bool value)			{	valueStack.emplace_back(value); }
+		void stack_pushUndefined()						{	valueStack.emplace_back(StackEntry());	 }
 		void stack_pushFunction(const uint32_t functionIndex){
-			UserFunction * uFun = userFunction->getInstructionBlock().getUserFunction(functionIndex);
-			Object::addReference(uFun);
-			valueStack.insert(valueStack.end(),StackEntry::OBJECT_PTR)->value.value_ObjPtr = uFun;
+			valueStack.emplace_back(userFunction->getInstructionBlock().getUserFunction(functionIndex));
 		}
-		void stack_pushNumber(const double & value)		{	valueStack.insert(valueStack.end(),StackEntry::NUMBER)->value.value_number = value; }
-		void stack_pushUInt32(const uint32_t value)		{	valueStack.insert(valueStack.end(),StackEntry::UINT32)->value.value_uint32 = value; }
-		void stack_pushIdentifier(const StringId & strId){	valueStack.insert(valueStack.end(),StackEntry::IDENTIFIER)->value.value_uint32 = strId.getValue(); }
-		void stack_pushStringIndex(const uint32_t value){	valueStack.insert(valueStack.end(),StackEntry::STRING_IDX)->value.value_stringIndex = value; }
-		void stack_pushObject(const ObjPtr & obj)	{
-			if(obj.isNull()){
-				stack_pushVoid();
-			}else{
-				Object::addReference(obj.get());
-				valueStack.insert(valueStack.end(),StackEntry::OBJECT_PTR)->value.value_ObjPtr = obj.get();
-			}
-		}
-		void stack_pushVoid()							{	valueStack.push_back(StackEntry::VOID);		}
+		void stack_pushNumber(const double & value)		{	valueStack.emplace_back(value); }
+		void stack_pushUInt32(const uint32_t value)		{	valueStack.emplace_back(value); }
+		void stack_pushIdentifier(const StringId & strId){	valueStack.emplace_back(strId); }
+		void stack_pushStringIndex(const uint32_t value){	valueStack.emplace_back(StackEntry::createLocalStringIndex(value)); }
+		void stack_pushObject(const ObjPtr & obj)		{	valueStack.emplace_back(obj.get());	}
+		void stack_pushValue(RtValue && value)			{	valueStack.emplace_back(std::move(value));	}
+		void stack_pushVoid()							{	valueStack.emplace_back(nullptr);		}
 
 		size_t stack_size()const						{	return valueStack.size();	}
-		void stack_pop() {
-			StackEntry & entry = stack_top();
-			if(entry.dataType == StackEntry::OBJECT_PTR)
-				Object::removeReference(entry.value.value_ObjPtr);
-			valueStack.pop_back();
-		}
+		void stack_pop()								{	valueStack.pop_back();	}
 		bool stack_popBool(){
-			StackEntry & entry = stack_top();
-			bool b = false;
-			if(entry.dataType == StackEntry::OBJECT_PTR){
-				b = entry.value.value_ObjPtr == nullptr ? false : entry.value.value_ObjPtr->toBool();
-				Object::removeReference(entry.value.value_ObjPtr);
-			}else if(entry.dataType == StackEntry::BOOL){
-				b = entry.value.value_bool;
-			}else if(entry.dataType == StackEntry::VOID || entry.dataType == StackEntry::UNDEFINED){
-			}else{ // Number || Identifier || STRING_IDX
-				b = true;
-			}
+			const bool b = stack_top().toBool();
 			valueStack.pop_back();
 			return b;
 		}
 		StringId stack_popIdentifier(){
 			StackEntry & entry = stack_top();
-			if(entry.dataType != StackEntry::IDENTIFIER)
+			if(entry.valueType != StackEntry::IDENTIFIER)
 				throwError(STACK_WRONG_DATA_TYPE);
 			const StringId id( entry.value.value_indentifier );
 			valueStack.pop_back();
@@ -198,7 +155,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		}
 		uint32_t stack_popUInt32(){
 			StackEntry & entry = stack_top();
-			if(entry.dataType != StackEntry::UINT32)
+			if(entry.valueType != StackEntry::UINT32)
 				throwError(STACK_WRONG_DATA_TYPE);
 			const uint32_t number( entry.value.value_uint32 );
 			valueStack.pop_back();
@@ -206,7 +163,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		}
 		double stack_popNumber(){
 			StackEntry & entry = stack_top();
-			if(entry.dataType != StackEntry::NUMBER)
+			if(entry.valueType != StackEntry::NUMBER)
 				throwError(STACK_WRONG_DATA_TYPE);
 			const double number( entry.value.value_number );
 			valueStack.pop_back();
@@ -214,16 +171,22 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		}
 		uint32_t stack_popStringIndex(){
 			StackEntry & entry = stack_top();
-			if(entry.dataType != StackEntry::STRING_IDX)
+			if(entry.valueType != StackEntry::LOCAL_STRING_IDX)
 				throwError(STACK_WRONG_DATA_TYPE);
-			const uint32_t index( entry.value.value_stringIndex );
+			const uint32_t index( entry.value.value_localStringIndex );
 			valueStack.pop_back();
 			return index;
 		}
-		Object * stack_popObject();
+		ObjRef stack_popObject();
 
 		//! Works like stack_popObject(), but returns an obj->cloneOrReference() if the contained value is already an Object.
-		Object * stack_popObjectValue();
+		ObjRef stack_popObjectValue();
+		
+		RtValue stack_popValue(){
+			const RtValue v = stack_top();
+			valueStack.pop_back();
+			return v;
+		}
 
 		std::string stack_toDbgString()const;
 	private:

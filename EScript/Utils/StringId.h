@@ -16,6 +16,8 @@ class StringId{
 	private:
 		uint32_t id;
 	public:
+		static const std::string & toString(const uint32_t value)	{ return identifierIdToString(value);	}
+		
 		StringId() : id(0) {}
 		explicit StringId( uint32_t _id) : id(_id) {}
 		/*implicit*/ StringId( const std::string & str) : id(stringToIdentifierId(str)) {}

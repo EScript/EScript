@@ -46,7 +46,8 @@ std::string FunctionCallContext::getLocalVariablesAsString(const bool includeUnd
 		ObjPtr value = getLocalVariable(i);
 		if(value.isNull() && !includeUndefined )
 			continue;
-		os << '$' << vars[i].toString() << '=' << (value.isNotNull() ? value->toDbgString() : "undefined" )<< '\t';
+//		os << '$' << vars[i].toString() << '=' << (value.isNotNull() ? value->toDbgString() : "undefined" )<< '\t';
+		os << '$' << vars[i].toString() << '=' << value.toString("undefined") << '\t';
 	}
 	return os.str();
 
@@ -84,16 +85,16 @@ void FunctionCallContext::stack_clear(){
 		stack_pop();
 	}
 }
-Object * FunctionCallContext::stack_popObject(){
+ObjRef FunctionCallContext::stack_popObject(){
 	StackEntry & entry = stack_top();
-	Object * obj;
-	switch(entry.dataType){
+	ObjRef obj;
+	switch(entry.valueType){
 	case StackEntry::VOID:
-		obj = nullptr;
+		obj = Void::get();
 		break;
-	case StackEntry::OBJECT_PTR:{
-		obj = entry.value.value_ObjPtr;
-		Object::decreaseReference(obj);
+	case StackEntry::OBJECT_PTR:{ // move object
+		obj._set( entry.value.value_obj );
+		entry.valueType = StackEntry::UNDEFINED;
 		break;
 	}
 	case StackEntry::BOOL:{
@@ -112,68 +113,58 @@ Object * FunctionCallContext::stack_popObject(){
 		obj = Identifier::create(StringId(entry.value.value_indentifier));
 		break;
 	}
-	case StackEntry::STRING_IDX:{
-		obj = String::create(getInstructionBlock().getStringConstant(entry.value.value_stringIndex));
+	case StackEntry::LOCAL_STRING_IDX:{
+		obj = String::create(getInstructionBlock().getStringConstant(entry.value.value_localStringIndex));
 		break;
 	}
 	case StackEntry::UNDEFINED:{
-		return nullptr;
+//		std::cout << "popUndefined";
 	}
 	default:
-		obj = nullptr;
+		obj = Void::get();
 	}
 	valueStack.pop_back();
-	return obj ? obj : Void::get();
+	return obj;
 }
-Object * FunctionCallContext::stack_popObjectValue(){
+ObjRef FunctionCallContext::stack_popObjectValue(){
 	StackEntry & entry = stack_top();
-
-	switch(entry.dataType){
+	ObjRef obj;
+	switch(entry.valueType){
 	case StackEntry::VOID:
-		valueStack.pop_back();
-		return Void::get();
+		obj = Void::get();
+		break;
 	case StackEntry::OBJECT_PTR:{
-		ObjRef obj = entry.value.value_ObjPtr; //! \todo optimize!
-		if(obj.isNotNull()){
-			Object::decreaseReference(obj.get());
-			obj = obj->getRefOrCopy();
-		}
-		valueStack.pop_back();
-		return obj.detachAndDecrease();
+		obj = entry.getObject()->getRefOrCopy();
+		break;
 	}
 	case StackEntry::BOOL:{
-		const bool b = entry.value.value_bool;
-		valueStack.pop_back();
-		return Bool::create(b);
+		obj = Bool::create(entry.value.value_bool);
+		break;
 	}
 	case StackEntry::UINT32:{
-		const bool value = entry.value.value_uint32;
-		valueStack.pop_back();
-		return Number::create(value);
+		obj = Number::create(entry.value.value_uint32);
+		break;
 	}
 	case StackEntry::NUMBER:{
-		const double value = entry.value.value_number;
-		valueStack.pop_back();
-		return Number::create(value);
+		obj = Number::create(entry.value.value_number);
+		break;
 	}
 	case StackEntry::IDENTIFIER:{
-		const StringId value(entry.value.value_indentifier);
-		valueStack.pop_back();
-		return Identifier::create(value);
+		obj = Identifier::create(StringId(entry.value.value_indentifier));
+		break;
 	}
-	case StackEntry::STRING_IDX:{
-		const uint32_t value = entry.value.value_stringIndex;
-		valueStack.pop_back();
-		return String::create(getInstructionBlock().getStringConstant(value));
+	case StackEntry::LOCAL_STRING_IDX:{
+		obj = String::create(getInstructionBlock().getStringConstant(entry.value.value_localStringIndex));
+		break;
 	}
 	case StackEntry::UNDEFINED:{
-		valueStack.pop_back();
-		return nullptr;
+//		std::cout << "popUndefined";
 	}
 	default:;
+//		obj = Void::get();
 	}
-
-	return Void::get();
+	valueStack.pop_back();
+	return obj;
 }
 
 void FunctionCallContext::throwError(FunctionCallContext::error_t error)const{
@@ -190,46 +181,46 @@ void FunctionCallContext::throwError(FunctionCallContext::error_t error)const{
 	}
 }
 
-std::string FunctionCallContext::StackEntry::toString()const{
-	std::ostringstream out;
-	switch(dataType){
-	case VOID:{
-		out << "Void";
-		break;
-	}
-	case OBJECT_PTR:{
-		out << value.value_ObjPtr;
-		break;
-	}
-	case BOOL:{
-		out << (value.value_bool ? "true" : "false");
-		break;
-	}
-	case UINT32:{
-		out << value.value_uint32;
-		break;
-	}
-	case NUMBER:{
-		out << value.value_number;
-		break;
-	}
-	case IDENTIFIER:{
-		out << StringId(value.value_indentifier).toString();
-		break;
-	}
-	case STRING_IDX:{
-		out << "#" << value.value_stringIndex;
-		break;
-	}
-	case UNDEFINED:{
-		out << "UNDEFINED";
-		break;
-	}
-	default:
-		out << "???";
-	}
-	return out.str();
-}
+//std::string FunctionCallContext::StackEntry::toString()const{
+//	std::ostringstream out;
+//	switch(dataType){
+//	case VOID:{
+//		out << "Void";
+//		break;
+//	}
+//	case OBJECT_PTR:{
+//		out << value.value_ObjPtr;
+//		break;
+//	}
+//	case BOOL:{
+//		out << (value.value_bool ? "true" : "false");
+//		break;
+//	}
+//	case UINT32:{
+//		out << value.value_uint32;
+//		break;
+//	}
+//	case NUMBER:{
+//		out << value.value_number;
+//		break;
+//	}
+//	case IDENTIFIER:{
+//		out << StringId(value.value_indentifier).toString();
+//		break;
+//	}
+//	case STRING_IDX:{
+//		out << "#" << value.value_stringIndex;
+//		break;
+//	}
+//	case UNDEFINED:{
+//		out << "UNDEFINED";
+//		break;
+//	}
+//	default:
+//		out << "???";
+//	}
+//	return out.str();
+//}
 std::string  FunctionCallContext::stack_toDbgString()const{
 	std::ostringstream out;
 	out<<"[";

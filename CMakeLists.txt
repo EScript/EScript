@@ -44,6 +44,7 @@ set(ESCRIPT_SOURCES
 	EScript/Objects/Values/Void.cpp
 	EScript/Objects/YieldIterator.cpp
 	EScript/Runtime/FunctionCallContext.cpp
+	EScript/Runtime/RtValue.cpp
 	EScript/Runtime/Runtime.cpp
 	EScript/Runtime/RuntimeInternals.cpp
 	EScript/Utils/AttributeContainer.cpp

@@ -19,7 +19,7 @@
 		}
 */
 #define ES_FUNCTION(_name) \
-	static EScript::Object * _name(	EScript::Runtime & runtime UNUSED_ATTRIBUTE, \
+	static EScript::RtValue _name(	EScript::Runtime & runtime UNUSED_ATTRIBUTE, \
 									EScript::Object * caller UNUSED_ATTRIBUTE, \
 									const EScript::ParameterValues & parameter UNUSED_ATTRIBUTE)
 

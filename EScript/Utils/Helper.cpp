@@ -143,7 +143,7 @@ ObjRef _eval(Runtime & runtime, const CodeFragment & code){
 	Compiler compiler(runtime.getLogger());
 	ERef<UserFunction> script = compiler.compile(code);
 	if(script.isNull())
-		return ObjRef();
+		return nullptr;
 	return runtime.executeFunction(script.get(),nullptr,ParameterValues());
 }
 
@@ -175,7 +175,7 @@ std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & fi
 std::pair<bool, ObjRef> eval(Runtime & runtime, const StringData & code,const StringId & fileId) {
 	try {
 		ObjRef result = _eval(runtime,CodeFragment( (fileId.empty() ? Consts::FILENAME_INLINE : fileId), code));
-		return std::make_pair(true,result);
+		return std::make_pair(true,std::move(result));
 	} catch (Object * error) {
 		std::ostringstream os;
 		os << "Error occurred while evaluating '" << code.str() << "':\n" << error->toString();

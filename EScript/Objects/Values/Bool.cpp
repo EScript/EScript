@@ -23,15 +23,15 @@ void Bool::init(EScript::Namespace & globals) {
 
 	//! Bool Bool & ((Bool)obj)
 	ESF_DECLARE(typeObject,"&",1,1,
-				Bool::create( caller->toBool() & parameter[0]->toBool()))
+				( caller->toBool() & parameter[0].toBool())>0 )
 
 	//! [ESMF] Bool Bool | ((Bool)obj)
 	ESF_DECLARE(typeObject,"|",1,1,
-				Bool::create( caller->toBool() | parameter[0]->toBool()))
+				( caller->toBool() | parameter[0].toBool())>0 )
 
 	//! [ESMF] Bool Bool ^ ((Bool)obj)
 	ESF_DECLARE(typeObject,"^",1,1,
-				Bool::create( caller->toBool() ^ parameter[0]->toBool()))
+				( caller->toBool() ^ parameter[0].toBool())>0 )
 
 //	//! [ESMF] Bool !Bool
 //	ES_FUNCTION_DECLARE(typeObject,"!_pre",0,0,{
@@ -52,11 +52,11 @@ void Bool::init(EScript::Namespace & globals) {
 
 	//! [ESMF] Bool Bool > ((Bool)obj)
 	ESF_DECLARE(typeObject,">",1,1,
-				Bool::create( caller->toBool() > parameter[0]->toBool()))
+				( caller->toBool() > parameter[0].toBool()))
 
 	//! [ESMF] Bool Bool < ((Bool)obj)
 	ESF_DECLARE(typeObject,"<",1,1,
-				Bool::create( caller->toBool() < parameter[0]->toBool()))
+				( caller->toBool() < parameter[0].toBool()))
 
 
 }
@@ -64,6 +64,8 @@ void Bool::init(EScript::Namespace & globals) {
 static std::stack<Bool *> boolPool;
 
 Bool * Bool::create(bool value){
+//static int count = 0;
+//std::cout << ++count<<" "; //2807  // (1396)
 	#ifdef ES_DEBUG_MEMORY
 	return new Bool(value);
 	#endif

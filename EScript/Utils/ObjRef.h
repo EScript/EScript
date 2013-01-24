@@ -25,16 +25,29 @@ class _CountedRef  {
 
 		~_CountedRef()											{	_T::removeReference(obj);	}
 
+		//! Just set; dont touch the counter.
+		void _set(_T * _obj)									{	obj = _obj;	}
+
 		/*! Assignment */
 		_CountedRef& operator=(const _CountedRef& other) {
 			if( other.obj!=obj ){
 				_T::addReference(other.obj);
 				_T::removeReference(obj);
-				obj = other.obj;
+				_set(other.obj);
 			}
 			return *this;
 		}
 
+		/*! Assignment */
+		_CountedRef& operator=(_T * _obj) {
+			if( _obj!=obj ){
+				_T::addReference(_obj);
+				_T::removeReference(obj);
+				_set(_obj);
+			}
+			return *this;
+		}
+		
 		/*! Assignment */
 		_CountedRef& operator=(_CountedRef&& other) {
 			swap(other);
@@ -46,7 +59,7 @@ class _CountedRef  {
 			to nullptr. */
 		_T * detach() {
 			_T * const o = obj;
-			obj = nullptr;
+			_set(nullptr);
 			return o;
 		}
 
@@ -56,7 +69,7 @@ class _CountedRef  {
 		_T * detachAndDecrease() {
 			_T * const o = obj;
 			_T::decreaseReference(o);
-			obj = nullptr;
+			_set(nullptr);
 			return o;
 		}
 

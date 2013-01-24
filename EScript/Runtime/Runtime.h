@@ -17,6 +17,7 @@
 namespace EScript {
 
 class Exception;
+class RtValue;
 class StringData;
 class YieldIterator;
 
@@ -94,10 +95,10 @@ class Runtime : public ExtObject {
 		void setException(Exception * e);
 
 		//! (internal) Like 'setException' but does NOT annotate the given exception but just uses it.
-		void _setExceptionState(const ObjPtr e);
+		void _setExceptionState(const RtValue & e);
 
 		//! (internal)
-		void _setExitState(const ObjPtr e);
+		void _setExitState(const RtValue & e);
 
 		/**
 		 * Throws a runtime exception (a C++ Exception, not an internal one!).

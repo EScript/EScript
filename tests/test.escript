@@ -1,27 +1,35 @@
 // Testcases for HasEScript Scripting-Language
 out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
-
-{
-	var t = [];
-	for(var j = 0;j<100;++j){
-		var arr = [];
-		for(var i = 0;i<5000;++i)
-//			arr += i+Rand.uniform(0,100);
-			arr += Rand.uniform(0,100);
-		var start = clock();
-		arr.sort();
-		t+=clock()-start;
-		out(".");
-	}
-	t.sort();
-	outln(t[50]);
-//	print_r(t);
-//	outln(clock()-start);
-
-}
+//
+//	// skipped parameter
+//	var f2 = fn(a = 1,b = 2,c = 3){
+//		return a+b+c;
+//	};
+//	outln(f2._asm());
+//	
+//	outln(f2(,10,100));
+//exit 5; // BUG!
+//{
+//	var t = [];
+//	for(var j = 0;j<100;++j){
+//		var arr = [];
+//		for(var i = 0;i<5000;++i)
+////			arr += i+Rand.uniform(0,100);
+//			arr += Rand.uniform(0,100);
+//		var start = clock();
+//		arr.sort();
+//		t+=clock()-start;
+//		out(".");
+//	}
+//	t.sort();
+//	outln(t[50]);
+////	print_r(t);
+////	outln(clock()-start);
+//
+//}
 //----
 // init
-GLOBALS.benchmark:=false;
+GLOBALS.benchmark:=true;
 GLOBALS.errors:=0; // error count
 //! new testing function
 GLOBALS.test := fn(description,result,checkCoverageType=false){

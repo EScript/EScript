@@ -170,15 +170,15 @@ void StdLib::init(EScript::Namespace * globals) {
 	//! [ESF] void assert( expression[,text])
 	ES_FUNCTION_DECLARE(globals,"assert",1,2, {
 		assertParamCount(runtime,parameter.count(),1,2);
-		if(!parameter[0]->toBool()){
-			runtime.setException(parameter.count()>1?parameter[1]->toString():"Assert failed.");
+		if(!parameter[0].toBool()){
+			runtime.setException(parameter.count()>1?parameter[1].toString():"Assert failed.");
 		}
 		return nullptr;
 	})
 
 	//! [ESF]  string chr(number)
 	ESF_DECLARE(globals,"chr",1,1,
-		String::create(std::string(1, static_cast<char>(parameter[0]->toInt()))))
+		String::create(std::string(1, static_cast<char>(parameter[0].toInt()))))
 
 	// clock
 	{
@@ -203,12 +203,12 @@ void StdLib::init(EScript::Namespace * globals) {
 
 	//!	[ESF]  Object eval(string)
 	ESF_DECLARE(globals,"eval",1,1,
-				_eval(runtime,CodeFragment(Consts::FILENAME_INLINE, StringData(parameter[0].toString()))).detachAndDecrease())
+				_eval(runtime,CodeFragment(Consts::FILENAME_INLINE, StringData(parameter[0].toString()))))
 
 	/*!	[ESF]  Map getDate([time])
 		like http://de3.php.net/manual/de/function.getdate.php	*/
 	ES_FUNCTION_DECLARE(globals,"getDate",0,1,{
-		time_t t=(parameter.count()==0)?time(nullptr):static_cast<time_t>(parameter[0]->toInt());
+		time_t t=(parameter.count()==0)?time(nullptr):static_cast<time_t>(parameter[0].toInt());
 		tm *d = localtime (& t );
 		Map * m = Map::create();
 		m->setValue(String::create("seconds"),Number::create(d->tm_sec));
@@ -222,7 +222,7 @@ void StdLib::init(EScript::Namespace * globals) {
 		m->setValue(String::create("isdst"),Number::create(d->tm_isdst));
 		return m;
 	})
-	
+
 	//! [ESF] string|void getEnv(String)
 	ES_FUNCTION_DECLARE(globals,"getEnv",1,1,{
 		const char * value = std::getenv(parameter[0].toString().c_str());
@@ -230,7 +230,7 @@ void StdLib::init(EScript::Namespace * globals) {
 			return Void::get();
 		return String::create(value);
 	})
-	
+
 	//! [ESF]  string getOS()
 	ESF_DECLARE(globals,"getOS",0,0,String::create(StdLib::getOS()))
 
@@ -238,10 +238,10 @@ void StdLib::init(EScript::Namespace * globals) {
 	ESF_DECLARE(globals,"getRuntime",0,0, &runtime)
 
 	//!	[ESF] mixed load(string filename)
-	ESF_DECLARE(globals,"load",1,1,_loadAndExecute(runtime,findFile(runtime,parameter[0].toString())).detachAndDecrease())
+	ESF_DECLARE(globals,"load",1,1,_loadAndExecute(runtime,findFile(runtime,parameter[0].toString())))
 
 	//!	[ESF] mixed loadOnce(string filename)
-	ESF_DECLARE(globals,"loadOnce",1,1,StdLib::loadOnce(runtime,parameter[0].toString()).detachAndDecrease())
+	ESF_DECLARE(globals,"loadOnce",1,1,StdLib::loadOnce(runtime,parameter[0].toString()))
 
 	//! [ESF]  Number ord(String)
 	ESF_DECLARE(globals,"ord",1,1,Number::create(parameter[0].toString().c_str()[0] ))
@@ -254,7 +254,7 @@ void StdLib::init(EScript::Namespace * globals) {
 		std::cout.flush();
 		return nullptr;
 	})
-	
+
 	//! [ESF] void outln(...)
 	ES_FUNCTION_DECLARE(globals,"outln",0,-1, {
 		for(const auto & param : parameter) {
@@ -288,7 +288,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	})
 
 	//!	[ESF]  number system(command)
-	ESF_DECLARE(globals,"system",1,1,Number::create(system(parameter[0]->toString().c_str())))
+	ESF_DECLARE(globals,"system",1,1,Number::create(system(parameter[0].toString().c_str())))
 
 	//!	[ESF] Number exec(String path, Array argv)
 	ES_FUNCTION_DECLARE(globals, "exec", 2, 2, {
@@ -304,7 +304,7 @@ void StdLib::init(EScript::Namespace * globals) {
 		}
 		argv[argc] = nullptr;
 
-		Number * result = Number::create(execv(parameter[0]->toString().c_str(), argv));
+		Number * result = Number::create(execv(parameter[0].toString().c_str(), argv));
 
 		for(uint_fast32_t i = 0; i < argc; ++i) {
 			delete [] argv[i];

@@ -58,6 +58,7 @@ public:
 	~_ObjArray()								{	if(paramCount > 2) delete [] params; }
 	//! \note no range check is performed.
 	inline void set(size_type i,ObjPtr v)		{	params[i]=v; }
+	inline void emplace(size_type i,ObjRef && v){	params[i] = std::move(v); }
 
 	inline size_type count()const				{	return paramCount;	}
 	inline size_type size()const				{	return paramCount;	}

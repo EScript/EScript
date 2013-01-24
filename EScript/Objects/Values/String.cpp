@@ -47,7 +47,7 @@ void String::init(EScript::Namespace & globals) {
 	//! [ESMF] Bool String.beginsWith( (String)search )
 	ES_MFUNCTION_DECLARE(typeObject,String,"beginsWith",1,1, {
 		const string & s(self->getString());
-		string search = parameter[0]->toString();
+		string search = parameter[0].toString();
 		if(s.length()<search.length())
 			return Bool::create(false);
 		return Bool::create(s.substr(0,search.length())==search);
@@ -56,7 +56,7 @@ void String::init(EScript::Namespace & globals) {
 	//! [ESMF] Bool String.contains (String)search [,(Number)startIndex] )
 	ES_MFUNCTION_DECLARE(typeObject,String,"contains",1,2, {
 		const string & s(self->getString());
-		string search = parameter[0]->toString();
+		string search = parameter[0].toString();
 		size_t start = s.length();
 		if(parameter.count()>1) {
 			start = static_cast<size_t>(parameter[1].toInt());
@@ -72,7 +72,7 @@ void String::init(EScript::Namespace & globals) {
 	//! [ESMF] Bool String.endsWith( (String)search )
 	ES_MFUNCTION_DECLARE(typeObject,String,"endsWith",1,1, {
 		const string & s(self->getString());
-		string search = parameter[0]->toString();
+		string search = parameter[0].toString();
 		if(s.length()<search.length()) return Bool::create(false);
 		return Bool::create(s.substr(s.length()-search.length(),search.length())==search);
 	})
@@ -144,7 +144,7 @@ void String::init(EScript::Namespace & globals) {
 
 	//! [ESMF] String String.replace((String)search,(String)replace)
 	ESMF_DECLARE(typeObject,String,"replace",2,2,
-				String::create(StringUtils::replaceAll(self->getString(),parameter[0]->toString(),parameter[1]->toString(),1)))
+				String::create(StringUtils::replaceAll(self->getString(),parameter[0].toString(),parameter[1]->toString(),1)))
 
 	typedef std::pair<std::string,std::string> keyValuePair_t;
 	//! [ESMF] String.replaceAll( (Map | ((String)search,(String)replace)) [,(Number)max])
@@ -165,7 +165,7 @@ void String::init(EScript::Namespace & globals) {
 			return String::create(StringUtils::replaceMultiple(subject,rules,parameter[1].toInt(-1)));
 		}
 
-		const std::string search(parameter[0]->toString());
+		const std::string search(parameter[0].toString());
 		const std::string replace(parameter[1]->toString());
 
 		return String::create(StringUtils::replaceAll(subject,search,replace,parameter[2].toInt(-1)));
@@ -212,7 +212,7 @@ void String::init(EScript::Namespace & globals) {
 	//- Operators
 
 	//! [ESMF] String String+(String)Obj
-	ESMF_DECLARE(typeObject,String,"+",1,1,String::create( self->getString() + parameter[0]->toString()))
+	ESMF_DECLARE(typeObject,String,"+",1,1,String::create( self->getString() + parameter[0].toString()))
 
 	//! [ESMF] String String*(Number)Obj
 	ES_MFUNCTION_DECLARE(typeObject,String,"*",1,1,{

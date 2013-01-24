@@ -17,7 +17,7 @@ void Win32Lib::init(EScript::Namespace * globals) {
 	declareConstant(globals,"Win32",lib);
 
 	//! [ESF]	void setClipboard( string )
-	ESF_DECLARE(lib,"setClipboard",1,1,(Win32Lib::setClipboard(parameter[0].toString()),Void::get()))
+	ESF_DECLARE(lib,"setClipboard",1,1,(Win32Lib::setClipboard(parameter[0].toString()),rtValue(nullptr)))
 
 	//! [ESF]	string getClipboard( )
 	ESF_DECLARE(lib,"getClipboard",0,0,String::create(Win32Lib::getClipboard()))
@@ -27,7 +27,7 @@ void Win32Lib::init(EScript::Namespace * globals) {
 		HINSTANCE hDLL;
 		libInitFunction *  f;	// Function pointer
 
-		hDLL = LoadLibrary(parameter[0]->toString().c_str());
+		hDLL = LoadLibrary(parameter[0].toString().c_str());
 		if(hDLL == nullptr)
 			return Bool::create(false);
 

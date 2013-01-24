@@ -90,7 +90,7 @@ void Object::init(EScript::Namespace & globals) {
 	//! [ESMF] Object Object.getAttributeProperties(key)
 	ESF_DECLARE(typeObject,"getAttributeProperties",1,1,
 				Number::create(static_cast<unsigned int>(caller->getAttribute(parameter[0].toString()).getProperties())))
-				
+
 	//! [ESMF] Object Object.getLocalAttribute(key)
 	ESF_DECLARE(typeObject,"getLocalAttribute",1,1,caller->getLocalAttribute(parameter[0].toString()).getValue())
 
@@ -219,7 +219,7 @@ std::string Object::toString()const {
 	const Object * printableName = getAttribute(Consts::IDENTIFIER_attr_printableName).getValue();
 
 	// #TYPENAME:0x42342
-	// #PRINTABLENAME:TYPENAME:0x42342 
+	// #PRINTABLENAME:TYPENAME:0x42342
 	// \note If _printableName is neighter String nor Identifier it is ignored.
 	//		This removes the possibility of endless recursions, e.g. if the _printableName is the Object itself.
 	std::ostringstream sprinter;
@@ -275,8 +275,7 @@ bool Object::rt_isEqual(Runtime &,const ObjPtr other){
 }
 
 bool Object::isEqual(Runtime &runtime,const ObjPtr other) {
-	ObjRef resultRef = callMemberFunction(runtime,this,Consts::IDENTIFIER_fn_equal,ParameterValues(other));
-	return resultRef.toBool();
+	return callMemberFunction(runtime,this,Consts::IDENTIFIER_fn_equal,ParameterValues(other.get())).toBool();
 }
 
 Object * Object::getRefOrCopy() {

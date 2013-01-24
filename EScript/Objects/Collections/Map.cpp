@@ -163,8 +163,7 @@ void Map::rt_filter(Runtime & runtime,ObjPtr function, const ParameterValues & a
 		const MapEntry & sourceEntry = keyEntryPair.second;
 		parameters.set(0,sourceEntry.key);
 		parameters.set(1,sourceEntry.value);
-		ObjRef resultRef = callFunction(runtime,function.get(),parameters);
-		if( resultRef.toBool() ){
+		if( callFunction(runtime,function.get(),parameters).toBool() ){
 			tempMap[keyEntryPair.first] = sourceEntry;
 		}
 	}

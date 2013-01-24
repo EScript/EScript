@@ -26,7 +26,7 @@ void Collection::init(EScript::Namespace & globals) {
 
 	//! [ESMF] Object Collection.get(key [,default value] )
 	ES_MFUNCTION_DECLARE(typeObject,Collection,"get",1,2,{
-		ObjPtr result = self->getValue(parameter[0]);
+		ObjPtr result = self->getValue(parameter[0].get());
 		return (parameter.count()>1 && result.isNull())?parameter[1].get():result.get();
 	})
 
@@ -160,7 +160,7 @@ Object * Collection::rt_reduce(Runtime & runtime,ObjPtr function,ObjPtr initialV
 		parameters.set(0,runningVar);
 		parameters.set(1,key);
 		parameters.set(2,value);
-		runningVar = callFunction(runtime,function.get(),parameters);
+		runningVar = callFunction(runtime,function.get(),parameters); 
 	}
 	return runningVar.detachAndDecrease();
 }
@@ -220,15 +220,14 @@ Object * Collection::rt_map(Runtime & runtime,ObjPtr function, const ParameterVa
 Object * Collection::rt_extract(Runtime & runtime,StringId functionId,bool decision/*=true*/){
 	ERef<Iterator> it = getIterator();
 
-	ObjRef currentValue = nullptr;
+	ObjRef currentValue;
 	while(! it->end()) {
 		ObjRef value = it->value();
 
 		if(currentValue.isNull()) {
 			currentValue = value;
 		} else {
-			ObjRef result = callMemberFunction(runtime,value.get(),functionId,ParameterValues(currentValue.get()));
-			if(result.toBool()==decision)
+			if(callMemberFunction(runtime,value.get(),functionId,ParameterValues(currentValue.get())).toBool()==decision)
 				currentValue = value;
 		}
 		it->next();

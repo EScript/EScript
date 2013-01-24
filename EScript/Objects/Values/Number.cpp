@@ -37,18 +37,18 @@ void Number::init(EScript::Namespace & globals) {
 
 	//! [ESMF] + Number
 	ESF_DECLARE(typeObject,"+_pre",0,0,caller)
-	
+
 	//! [ESMF] - Number
-	ESF_DECLARE(typeObject,"_-_pre",0,0,Number::create( -caller->toDouble()))
+	ESF_DECLARE(typeObject,"_-_pre",0,0,-caller->toDouble())
 
 	//! [ESMF] Number + Number2
-	ESF_DECLARE(typeObject,"+",1,1,Number::create( caller->toDouble() + parameter[0]->toDouble()))
+	ESF_DECLARE(typeObject,"+",1,1, caller->toDouble() + parameter[0].toDouble())
 
 	//! [ESMF] Number - Number2
-	ESF_DECLARE(typeObject,"-",1,1,Number::create( caller->toDouble()-parameter[0]->toDouble()))
+	ESF_DECLARE(typeObject,"-",1,1,caller->toDouble()-parameter[0].toDouble())
 
 	//! [ESMF] Number * Number2
-	ESF_DECLARE(typeObject,"*",1,1,Number::create( caller->toDouble()*parameter[0]->toDouble()))
+	ESF_DECLARE(typeObject,"*",1,1,caller->toDouble()*parameter[0]->toDouble())
 
 	//! [ESMF] Number / Number2
 	ES_FUNCTION_DECLARE(typeObject,"/",1,1,{
@@ -57,44 +57,42 @@ void Number::init(EScript::Namespace & globals) {
 			runtime.setException("Division by zero");
 			return nullptr;
 		}
-		return  Number::create( caller->toDouble()/d);
+		return caller->toDouble()/d;
 	})
 
 	//! [ESMF] Number & Number2
-	ESF_DECLARE(typeObject,"&",1,1,Number::create( static_cast<double>(caller->toInt()&parameter[0]->toInt())))
+	ESF_DECLARE(typeObject,"&",1,1, static_cast<double>(caller->toInt()&parameter[0]->toInt()))
 
 	//! [ESMF] Number | Number2
-	ESF_DECLARE(typeObject,"|",1,1,Number::create( static_cast<double>(caller->toInt()|parameter[0]->toInt())))
+	ESF_DECLARE(typeObject,"|",1,1, static_cast<double>(caller->toInt()|parameter[0]->toInt()))
 
 	//! [ESMF] Number ^ Number2
-	ESF_DECLARE(typeObject,"^",1,1,Number::create( static_cast<double>(caller->toInt()^parameter[0]->toInt())))
+	ESF_DECLARE(typeObject,"^",1,1, static_cast<double>(caller->toInt()^parameter[0]->toInt()))
 
 	//! [ESMF] Number % Number2
 	ES_MFUNCTION_DECLARE(typeObject,Number,"%",1,1,{
-		const double d = parameter[0]->toDouble();
+		const double d = parameter[0].toDouble();
 		if(d==0){
 			runtime.setException("Modulo with zero");
 			return nullptr;
 		}
-		return  Number::create( self->modulo(d) );
+		return self->modulo(d);
 	})
 
 	//- Modificators
 
 	//! [ESMF] Number++
 	ES_MFUNCTION_DECLARE(typeObject,Number,"++_post",0,0,{
-		const double & val = self->getValue();
-		Object * ret = Number::create(val);
+		const double val = self->getValue();
 		self->setValue(val+1.0);
-		return ret;
+		return val;
 	})
 
 	//! [ESMF] Number--
 	ES_MFUNCTION_DECLARE(typeObject,Number,"--_post",0,0,{
-		const double & val = self->getValue();
-		Object * ret = Number::create(val);
+		const double val = self->getValue();
 		self->setValue(val-1.0);
-		return ret;
+		return val;
 	})
 
 	//! [ESMF] caller ++Number
@@ -150,19 +148,19 @@ void Number::init(EScript::Namespace & globals) {
 	//- Comparisons
 
 	//! [ESMF] Numbern > Number2
-	ESF_DECLARE(typeObject,">",1,1,Bool::create( caller->toDouble()>parameter[0]->toDouble()))
+	ESF_DECLARE(typeObject,">",1,1,caller->toDouble()>parameter[0]->toDouble())
 
 	//! [ESMF] Numbern >= Number2
-	ESF_DECLARE(typeObject,">=",1,1,Bool::create( caller->toDouble()>=parameter[0]->toDouble()))
+	ESF_DECLARE(typeObject,">=",1,1,caller->toDouble()>=parameter[0]->toDouble())
 
 	//! [ESMF] Numbern < Number2
-	ESF_DECLARE(typeObject,"<",1,1,Bool::create( caller->toDouble()<parameter[0]->toDouble()))
+	ESF_DECLARE(typeObject,"<",1,1,caller->toDouble()<parameter[0]->toDouble())
 
 	//! [ESMF] Numbern <= Number2
-	ESF_DECLARE(typeObject,"<=",1,1,Bool::create( caller->toDouble()<=parameter[0]->toDouble()))
+	ESF_DECLARE(typeObject,"<=",1,1,caller->toDouble()<=parameter[0]->toDouble())
 
 	//! [ESMF] Bool (Numbern ~= Number2)
-	ESF_DECLARE(typeObject,"~=",1,1,Bool::create( Number::matches(caller->toFloat(), parameter[0]->toFloat())))
+	ESF_DECLARE(typeObject,"~=",1,1, Number::matches(caller->toFloat(), parameter[0]->toFloat()))
 
 	// - Misc
 
@@ -174,35 +172,35 @@ void Number::init(EScript::Namespace & globals) {
 	})
 
 	//! [ESMF] Number Number.acos
-	ESF_DECLARE(typeObject,"acos",0,0,Number::create(acos(caller->toDouble())))
+	ESF_DECLARE(typeObject,"acos",0,0,std::acos(caller->toDouble()))
 
 	//! [ESMF] Number Number.asin
-	ESF_DECLARE(typeObject,"asin",0,0,Number::create(asin(caller->toDouble())))
+	ESF_DECLARE(typeObject,"asin",0,0,std::asin(caller->toDouble()))
 
 	//! [ESMF] Number Number.atan
-	ESF_DECLARE(typeObject,"atan",0,0,Number::create(atan(caller->toDouble())))
+	ESF_DECLARE(typeObject,"atan",0,0,std::atan(caller->toDouble()))
 
 	//! [ESMF] Number Number.ceil()
-	ESF_DECLARE(typeObject,"ceil",0,0,Number::create(ceil( caller->toDouble())))
+	ESF_DECLARE(typeObject,"ceil",0,0,std::ceil( caller->toDouble()))
 
 	//! [ESMF] Number Number.cos
-	ESF_DECLARE(typeObject,"cos",0,0,Number::create(cos(caller->toDouble())))
+	ESF_DECLARE(typeObject,"cos",0,0,std::cos(caller->toDouble()))
 
 	/*!	[ESMF] Number Number.clamp(min,max)	*/
 	ES_FUNCTION_DECLARE(typeObject,"clamp",2,2, {
 		const double d = caller->toDouble();
 		const double min = parameter[0]->toDouble();
 		if(d<=min)
-			return Number::create(min);
+			return min;
 		const double max = parameter[1]->toDouble();
-		return Number::create(d<=max ? d : max );
+		return d<=max ? d : max ;
 	})
 
 	//! [ESMF] String Number.degToRad()
-	ESF_DECLARE(typeObject,"degToRad",0,0,Number::create(caller->toFloat()*M_PI/180.0))
+	ESF_DECLARE(typeObject,"degToRad",0,0,(caller->toFloat()*M_PI/180.0))
 
 	//! [ESMF] Number Number.floor()
-	ESF_DECLARE(typeObject,"floor",0,0,Number::create(floor( caller->toDouble())))
+	ESF_DECLARE(typeObject,"floor",0,0,(std::floor( caller->toDouble())))
 
 	//! [ESMF] String Number.format([Number precision = 3[, Bool scientific = true[, Number width = 0[, String fill='0']]]])
 	ESMF_DECLARE(typeObject,Number,"format",0,4,String::create(self->format(
@@ -210,19 +208,19 @@ void Number::init(EScript::Namespace & globals) {
 			static_cast<std::streamsize >(parameter[2].toInt(0)), parameter[3].toString("0")[0])))
 
 	//! [ESMF] Number Number.ln()
-	ESF_DECLARE(typeObject,"ln",0,0,Number::create(log(caller->toDouble())))
+	ESF_DECLARE(typeObject,"ln",0,0,std::log(caller->toDouble()))
 
 	//! [ESMF] Number Number.log([basis = 10])
-	ESF_DECLARE(typeObject,"log",0,1,Number::create( parameter.count()>0?log(caller->toDouble())/log(parameter[0]->toDouble()) : log10(caller->toDouble())))
+	ESF_DECLARE(typeObject,"log",0,1,( parameter.count()>0?log(caller->toDouble())/log(parameter[0].toDouble()) : log10(caller->toDouble())))
 
 	//! [ESMF] bool Number.matches(other)
-	ESF_DECLARE(typeObject,"matches",1,1,Bool::create( Number::matches(caller->toFloat(), parameter[0]->toFloat())))
+	ESF_DECLARE(typeObject,"matches",1,1, Number::matches(caller->toFloat(), parameter[0].toFloat()))
 
 	//! [ESMF] Number Number.pow(Number)
-	ESF_DECLARE(typeObject,"pow",1,1,Number::create(pow( caller->toDouble(),parameter[0]->toDouble())))
+	ESF_DECLARE(typeObject,"pow",1,1,std::pow( caller->toDouble(),parameter[0].toDouble()))
 
 	//! [ESMF] String Number.radToDeg()
-	ESF_DECLARE(typeObject,"radToDeg",0,0,Number::create( (caller->toFloat()*180.0)/M_PI))
+	ESF_DECLARE(typeObject,"radToDeg",0,0,(caller->toDouble()*180.0)/M_PI)
 
 	/*! [ESMF] Number Number.round( [reference = 1.0] )
 		@param reference Reference value to which should be rounded:  x.round(reference) ^== reference * round(x/reference)
@@ -237,20 +235,20 @@ void Number::init(EScript::Namespace & globals) {
 			runtime.setException("round with zero");
 			return nullptr;
 		}
-		return Number::create(round(caller->toDouble()/reference) * reference);
+		return std::round(caller->toDouble()/reference) * reference;
 	})
 
 	//! [ESMF] +1|-1 Number.sign()
-	ESF_DECLARE(typeObject,"sign",0,0,Number::create( (caller->toFloat()<0)?-1.0:1.0))
+	ESF_DECLARE(typeObject,"sign",0,0,(caller->toFloat()<0)?-1.0:1.0)
 
 	//! [ESMF] Number Number.sin
-	ESF_DECLARE(typeObject,"sin",0,0,Number::create(sin(caller->toDouble())))
+	ESF_DECLARE(typeObject,"sin",0,0,std::sin(caller->toDouble()))
 
 	//! [ESMF] Number Number.sqrt
-	ESF_DECLARE(typeObject,"sqrt",0,0,Number::create(sqrt( caller->toDouble())))
+	ESF_DECLARE(typeObject,"sqrt",0,0,std::sqrt( caller->toDouble()))
 
 	//! [ESMF] Number Number.tan
-	ESF_DECLARE(typeObject,"tan",0,0,Number::create(tan( caller->toDouble())))
+	ESF_DECLARE(typeObject,"tan",0,0,std::tan( caller->toDouble()))
 
 	//! [ESMF] String Number.toHex()
 	ES_FUNCTION_DECLARE(typeObject,"toHex",0,0,{
@@ -271,6 +269,9 @@ void Number::init(EScript::Namespace & globals) {
 
 //! (static)
 Number * Number::create(double value){
+//static int count = 0;
+//std::cout << ++count<<" "; //6987 (5933)
+
 	#ifdef ES_DEBUG_MEMORY
 	return new Number(value);
 	#endif

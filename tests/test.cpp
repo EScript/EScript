@@ -10,7 +10,7 @@
 #include "../EScript/EScript.h"
 
 #ifdef ES_DEBUG_MEMORY
-#include "../EScript/Parser/Tokenizer.h"
+#include "../EScript/Compiler/Tokenizer.h"
 #include "../EScript/Utils/Debug.h"
 #endif
 
@@ -44,7 +44,10 @@ public:
 			m1(new NumberRef(ref().m1),Attribute::REFERENCE_BIT ),
 			m2(new NumberRef(ref().m2),Attribute::REFERENCE_BIT ){
 	}
-	virtual ~E_TestObject(){}
+	virtual ~E_TestObject(){
+//		std::cout << " ~TEST ";
+
+	}
 
 
 	//! ---|> Object
@@ -81,6 +84,7 @@ public:
 // ----------------------------------------------------------------------------
 
 int main(int argc,char * argv[]) {
+
 	EScript::init();
 
 	// --- Init the TestObejct-Type
@@ -100,7 +104,7 @@ int main(int argc,char * argv[]) {
 	std::pair<bool,ObjRef> result = EScript::loadAndExecute(*rt.get(),file);
 
 	// --- output result
-	if(!result.second.isNull()) {
+	if(result.second.isNotNull()) {
 		std::cout << "\n\n --- "<<"\nResult: " << result.second.toString()<<"\n";
 	}
 

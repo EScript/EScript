@@ -77,9 +77,8 @@ void assertType_throwError(Runtime & runtime, const ObjPtr & obj,const char * cl
  */
 template<class T> static T * assertType(Runtime & runtime, const ObjPtr & obj) {
 	T * t = dynamic_cast<T *>(obj.get());
-	if(t == nullptr) {
+	if(t == nullptr) 
 		assertType_throwError(runtime, obj, T::getClassName());
-	}
 	return t;
 }
 
