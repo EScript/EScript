@@ -85,83 +85,71 @@ void FunctionCallContext::stack_clear(){
 		stack_pop();
 	}
 }
-ObjRef FunctionCallContext::stack_popObject(){
-	StackEntry & entry = stack_top();
-	ObjRef obj;
+ObjRef FunctionCallContext::rtValueToObject(RtValue & entry){
 	switch(entry.valueType){
-	case StackEntry::VOID:
-		obj = Void::get();
-		break;
-	case StackEntry::OBJECT_PTR:{ // move object
-		obj._set( entry.value.value_obj );
-		entry.valueType = StackEntry::UNDEFINED;
-		break;
+	case RtValue::VOID:
+		return Void::get();
+	case RtValue::OBJECT_PTR:{
+		ObjRef result(std::move( entry.value.value_obj ));
+		entry.valueType = RtValue::UNDEFINED;
+		return result;
 	}
-	case StackEntry::BOOL:{
-		obj = Bool::create(entry.value.value_bool);
-		break;
+	case RtValue::BOOL:{
+		return Bool::create(entry.value.value_bool);
 	}
-	case StackEntry::UINT32:{
-		obj = Number::create(entry.value.value_uint32);
-		break;
+	case RtValue::UINT32:{
+		return Number::create(entry.value.value_uint32);
 	}
-	case StackEntry::NUMBER:{
-		obj = Number::create(entry.value.value_number);
-		break;
+	case RtValue::NUMBER:{
+		return Number::create(entry.value.value_number);
 	}
-	case StackEntry::IDENTIFIER:{
-		obj = Identifier::create(StringId(entry.value.value_indentifier));
-		break;
+	case RtValue::IDENTIFIER:{
+		return Identifier::create(StringId(entry.value.value_indentifier));
 	}
-	case StackEntry::LOCAL_STRING_IDX:{
-		obj = String::create(getInstructionBlock().getStringConstant(entry.value.value_localStringIndex));
-		break;
+	case RtValue::LOCAL_STRING_IDX:{
+		return String::create(getInstructionBlock().getStringConstant(entry.value.value_localStringIndex));
 	}
-	case StackEntry::UNDEFINED:{
-//		std::cout << "popUndefined";
+	case RtValue::UNDEFINED:
+	default:;
 	}
-	default:
-		obj = Void::get();
-	}
-	valueStack.pop_back();
-	return obj;
+	return Void::get();
 }
 ObjRef FunctionCallContext::stack_popObjectValue(){
-	StackEntry & entry = stack_top();
+	RtValue & entry = stack_top();
 	ObjRef obj;
 	switch(entry.valueType){
-	case StackEntry::VOID:
+	case RtValue::VOID:
 		obj = Void::get();
 		break;
-	case StackEntry::OBJECT_PTR:{
+	case RtValue::OBJECT_PTR:{
 		obj = entry.getObject()->getRefOrCopy();
 		break;
 	}
-	case StackEntry::BOOL:{
+	case RtValue::BOOL:{
 		obj = Bool::create(entry.value.value_bool);
 		break;
 	}
-	case StackEntry::UINT32:{
+	case RtValue::UINT32:{
 		obj = Number::create(entry.value.value_uint32);
 		break;
 	}
-	case StackEntry::NUMBER:{
+	case RtValue::NUMBER:{
 		obj = Number::create(entry.value.value_number);
 		break;
 	}
-	case StackEntry::IDENTIFIER:{
+	case RtValue::IDENTIFIER:{
 		obj = Identifier::create(StringId(entry.value.value_indentifier));
 		break;
 	}
-	case StackEntry::LOCAL_STRING_IDX:{
+	case RtValue::LOCAL_STRING_IDX:{
 		obj = String::create(getInstructionBlock().getStringConstant(entry.value.value_localStringIndex));
 		break;
 	}
-	case StackEntry::UNDEFINED:{
+	case RtValue::UNDEFINED:{
 //		std::cout << "popUndefined";
 	}
-	default:;
-//		obj = Void::get();
+	default:; // Important: obj remains nullptr!
+
 	}
 	valueStack.pop_back();
 	return obj;
@@ -181,56 +169,16 @@ void FunctionCallContext::throwError(FunctionCallContext::error_t error)const{
 	}
 }
 
-//std::string FunctionCallContext::StackEntry::toString()const{
-//	std::ostringstream out;
-//	switch(dataType){
-//	case VOID:{
-//		out << "Void";
-//		break;
-//	}
-//	case OBJECT_PTR:{
-//		out << value.value_ObjPtr;
-//		break;
-//	}
-//	case BOOL:{
-//		out << (value.value_bool ? "true" : "false");
-//		break;
-//	}
-//	case UINT32:{
-//		out << value.value_uint32;
-//		break;
-//	}
-//	case NUMBER:{
-//		out << value.value_number;
-//		break;
-//	}
-//	case IDENTIFIER:{
-//		out << StringId(value.value_indentifier).toString();
-//		break;
-//	}
-//	case STRING_IDX:{
-//		out << "#" << value.value_stringIndex;
-//		break;
-//	}
-//	case UNDEFINED:{
-//		out << "UNDEFINED";
-//		break;
-//	}
-//	default:
-//		out << "???";
-//	}
-//	return out.str();
-//}
 std::string  FunctionCallContext::stack_toDbgString()const{
 	std::ostringstream out;
 	out<<"[";
-	std::vector<StackEntry>::const_iterator it = valueStack.begin();
+	std::vector<RtValue>::const_iterator it = valueStack.begin();
 	if(it!=valueStack.end()){
-		out << (*it).toString();
+		out << (*it).toDbgString();
 		++it;
 	}
 	for(;it!=valueStack.end();++it)
-		out << ", "<<(*it).toString();
+		out << ", "<<(*it).toDbgString();
 	out << "]";
 	return out.str();
 }

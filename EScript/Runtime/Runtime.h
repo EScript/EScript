@@ -95,10 +95,10 @@ class Runtime : public ExtObject {
 		void setException(Exception * e);
 
 		//! (internal) Like 'setException' but does NOT annotate the given exception but just uses it.
-		void _setExceptionState(const RtValue & e);
+		void _setExceptionState(ObjRef e);
 
 		//! (internal)
-		void _setExitState(const RtValue & e);
+		void _setExitState(ObjRef e);
 
 		/**
 		 * Throws a runtime exception (a C++ Exception, not an internal one!).

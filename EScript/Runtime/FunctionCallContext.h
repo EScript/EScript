@@ -115,25 +115,23 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 	//	-----------------------------
 
 	//! @name RtValue Stack operations
-	//!	\todo use StackEntry to manage obj ownership and return References
 	// @{
 	private:
-		typedef RtValue StackEntry;
-		std::vector<StackEntry> valueStack;
+		std::vector<RtValue> valueStack;
 
 	public:
 		void stack_clear();
 		void stack_dup()								{		valueStack.emplace_back(stack_top());	}
 		bool stack_empty()const							{	return valueStack.empty();	}
 		void stack_pushBool(const bool value)			{	valueStack.emplace_back(value); }
-		void stack_pushUndefined()						{	valueStack.emplace_back(StackEntry());	 }
+		void stack_pushUndefined()						{	valueStack.emplace_back(RtValue());	 }
 		void stack_pushFunction(const uint32_t functionIndex){
 			valueStack.emplace_back(userFunction->getInstructionBlock().getUserFunction(functionIndex));
 		}
 		void stack_pushNumber(const double & value)		{	valueStack.emplace_back(value); }
 		void stack_pushUInt32(const uint32_t value)		{	valueStack.emplace_back(value); }
 		void stack_pushIdentifier(const StringId & strId){	valueStack.emplace_back(strId); }
-		void stack_pushStringIndex(const uint32_t value){	valueStack.emplace_back(StackEntry::createLocalStringIndex(value)); }
+		void stack_pushStringIndex(const uint32_t value){	valueStack.emplace_back(RtValue::createLocalStringIndex(value)); }
 		void stack_pushObject(const ObjPtr & obj)		{	valueStack.emplace_back(obj.get());	}
 		void stack_pushValue(RtValue && value)			{	valueStack.emplace_back(std::move(value));	}
 		void stack_pushVoid()							{	valueStack.emplace_back(nullptr);		}
@@ -146,40 +144,54 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 			return b;
 		}
 		StringId stack_popIdentifier(){
-			StackEntry & entry = stack_top();
-			if(entry.valueType != StackEntry::IDENTIFIER)
+			RtValue & entry = stack_top();
+			if(!entry.isIdentifier())
 				throwError(STACK_WRONG_DATA_TYPE);
 			const StringId id( entry.value.value_indentifier );
 			valueStack.pop_back();
 			return id;
 		}
 		uint32_t stack_popUInt32(){
-			StackEntry & entry = stack_top();
-			if(entry.valueType != StackEntry::UINT32)
+			RtValue & entry = stack_top();
+			if(!entry.isUint32())
 				throwError(STACK_WRONG_DATA_TYPE);
 			const uint32_t number( entry.value.value_uint32 );
 			valueStack.pop_back();
 			return number;
 		}
 		double stack_popNumber(){
-			StackEntry & entry = stack_top();
-			if(entry.valueType != StackEntry::NUMBER)
+			RtValue & entry = stack_top();
+			if(!entry.isNumber())
 				throwError(STACK_WRONG_DATA_TYPE);
 			const double number( entry.value.value_number );
 			valueStack.pop_back();
 			return number;
 		}
 		uint32_t stack_popStringIndex(){
-			StackEntry & entry = stack_top();
-			if(entry.valueType != StackEntry::LOCAL_STRING_IDX)
+			RtValue & entry = stack_top();
+			if(!entry.isLocalString())
 				throwError(STACK_WRONG_DATA_TYPE);
 			const uint32_t index( entry.value.value_localStringIndex );
 			valueStack.pop_back();
 			return index;
 		}
-		ObjRef stack_popObject();
+		ObjRef stack_popObject(){
+			ObjRef obj;
+			RtValue & top = stack_top();
+			if(top.isObject()){ // fast path
+				top.valueType = RtValue::UNDEFINED;
+				obj._set( top.value.value_obj );
+			}else{
+				obj =  std::move(rtValueToObject(top));
+			}
+			valueStack.pop_back();
+			return obj;
+		}
+		ObjRef rtValueToObject(RtValue & value);
 
-		//! Works like stack_popObject(), but returns an obj->cloneOrReference() if the contained value is already an Object.
+		/*! Works almost like stack_popObject(), but:
+			- returns an obj->cloneOrReference() if the contained value is already an Object.
+			- returns nullptr (and not Void) iff the value is undefined.	This is necessary to detect undefined parameters. */
 		ObjRef stack_popObjectValue();
 		
 		RtValue stack_popValue(){
@@ -191,7 +203,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		std::string stack_toDbgString()const;
 	private:
 
-		StackEntry & stack_top(){
+		RtValue & stack_top(){
 			if(stack_empty())
 				throwError(STACK_EMPTY_ERROR);
 			return valueStack.back();

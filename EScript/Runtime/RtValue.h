@@ -123,50 +123,30 @@ public:
 		other.valueType = UNDEFINED;
 		return * this;
 	}
-	bool isObject()const					{	return valueType == OBJECT_PTR;	}
 	Object * getObject()const				{	return valueType == OBJECT_PTR ? value.value_obj : nullptr;	}
 
+	bool isObject()const					{	return valueType == OBJECT_PTR;	}
 	bool isUndefined()const					{	return valueType == UNDEFINED;	}
-	
-	inline Object * operator->()const			{	return getObject(); }
-
-
+	bool isVoid()const						{	return valueType == VOID;	}
+	bool isUint32()const					{	return valueType == UINT32;	}
+	bool isNumber()const					{	return valueType == NUMBER;	}
+	bool isIdentifier()const				{	return valueType == IDENTIFIER;	}
+	bool isLocalString()const				{	return valueType == LOCAL_STRING_IDX;	}
 // --------------------------
-	bool toBool(const bool defaultValue = false)const;
-	double toDouble(const double defaultValue = 0.0)const;
-	float toFloat(const float defaultValue = 0.0f)const;
-	int toInt(const int defaultValue = 0)const;
-	unsigned int toUInt(const unsigned int defaultValue = 0)const;
-	std::string toString()const;
-	std::string toString(const char * defaultValue)const;
+	bool toBool()const{
+		return valueType == BOOL ? value.value_bool : toBool2();
+	}
+private:
+	bool toBool2()const; // expensive part of toBool()
+public:
+	std::string toDbgString()const;
+
 	
 // --------------
 
-	template<class objType>	objType * detachObject(){
-		if(isObject()){
-			objType * obj = dynamic_cast<objType*>(value.value_obj);
-			if(obj){
-				Object::decreaseReference(obj);
-				valueType = UNDEFINED;
-				return obj;
-			}
-		}
-		return nullptr;
-	}
-	template<class T> T* toType()const{
-		return dynamic_cast<T*>(getObject());
-	}
-
-	Object * detachObject(){
-		if(isObject()){
-			Object::decreaseReference(value.value_obj);
-			valueType = UNDEFINED;
-			return value.value_obj;
-		}
-		return nullptr;
-	}
-
-	Object * toObject()const;
+	/*! Convert the value to an object; 
+		\note Do not use if the type can be LOCAL_STRING_IDX as this can't be properly converted!*/
+	Object * _toObject()const;
 };
 
 inline RtValue rtValue(const float v)		{	return RtValue(v);	}

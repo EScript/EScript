@@ -41,7 +41,7 @@ class RuntimeInternals  {
 
 		executeFunctionResult_t startInstanceCreation(EPtr<Type> type,ParameterValues & params);
 
-		RtValue executeFunctionCallContext(_Ptr<FunctionCallContext> fcc);
+		ObjRef executeFunctionCallContext(_Ptr<FunctionCallContext> fcc);
 
 		ObjPtr getCallingObject()const							{	return activeFCCs.empty() ? nullptr : activeFCCs.back()->getCaller();	}
 		size_t getStackSize()const								{	return activeFCCs.size();	}
@@ -93,12 +93,17 @@ class RuntimeInternals  {
 	public:
 		enum state_t{	STATE_NORMAL,STATE_EXITING,STATE_EXCEPTION	};
 		bool checkNormalState()const					{	return state==STATE_NORMAL;	}
-		RtValue getResult()const							{	return resultValue;	}
-		state_t getState()const							{	return state;	}
-		void resetState() {
-			state = STATE_NORMAL;
-			resultValue = nullptr;
+		
+		ObjRef fetchAndClearException(){
+			if(state==STATE_EXCEPTION){
+				state = STATE_NORMAL;
+				return std::move(resultValue);
+			}
+			return nullptr;
 		}
+
+		state_t getState()const							{	return state;	}
+
 
 		void setAddStackInfoToExceptions(bool b)		{	addStackIngfoToExceptions = b;	}
 
@@ -118,18 +123,18 @@ class RuntimeInternals  {
 		 */
 		void throwException(const std::string & s,Object * obj = nullptr);
 
-		void setExitState(const RtValue & value) {
-			resultValue = value;
+		void setExitState(ObjRef value) {
+			resultValue = std::move(value);
 			state = STATE_EXITING;
 		}
-		void setExceptionState(const RtValue & exceptionValue) {
-			resultValue = exceptionValue;
+		void setExceptionState(ObjRef value) {
+			resultValue = std::move(value);
 			state = STATE_EXCEPTION;
 		}
 
 	private:
 		state_t state;
-		RtValue resultValue;
+		ObjRef resultValue;
 		bool addStackIngfoToExceptions;
 	// @}
 

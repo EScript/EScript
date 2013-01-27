@@ -12,14 +12,14 @@
 #include "../Objects/Values/Void.h"
 
 namespace EScript{
-std::string RtValue::toString()const{
+std::string RtValue::toDbgString()const{
 	switch(valueType){
 		case VOID:
 			return "void";
 		case BOOL:
 			return value.value_bool ? "true" : "false";
 		case OBJECT_PTR:
-			return value.value_obj->toString();
+			return value.value_obj->toDbgString();
 		case UINT32:{
 			std::ostringstream s;
 			s<<value.value_uint32;
@@ -42,98 +42,18 @@ std::string RtValue::toString()const{
 			return "";
 	}
 }
-std::string RtValue::toString(const char * defaultValue)const{
-	switch(valueType){
-		case VOID:
-			return "void";
-		case BOOL:
-			return value.value_bool ? "true" : "false";
-		case OBJECT_PTR:
-			return value.value_obj->toString();
-		case UINT32:{
-			std::ostringstream s;
-			s<<value.value_uint32;
-			return s.str();
-		}
-		case NUMBER:{
-			std::ostringstream s;
-			s<<value.value_number;
-			return s.str();
-		}
-		case IDENTIFIER:
-			return StringId::toString(value.value_indentifier);
-		case LOCAL_STRING_IDX:
-			return "Local string";
-		case UNDEFINED:
-		default:
-			return defaultValue;
-	}
-}
-bool RtValue::toBool(const bool defaultValue)const{
-	switch(valueType){
-		case VOID:
-			return false;
-		case BOOL:
-			return value.value_bool;
-		case OBJECT_PTR:
-			return value.value_obj->toBool();
-		case UNDEFINED:
-			return defaultValue;
-		case LOCAL_STRING_IDX:
-		case UINT32:
-		case NUMBER:
-		case IDENTIFIER:
-		default:
-			return true;
+
+bool RtValue::toBool2()const{
+	if(isObject()){
+		return value.value_obj->toBool();
+	}else if(isVoid() || isUndefined()){
+		return false;
+	}else{
+		return true;
 	}
 }
 
-double RtValue::toDouble(const double defaultValue)const{
-	if(valueType==NUMBER){
-		return value.value_number;
-	}else if(valueType==OBJECT_PTR){
-		return value.value_obj->toDouble();
-	}else if(valueType==UINT32){
-		return value.value_uint32;
-	}else if(valueType==UNDEFINED){
-		return defaultValue;
-	}else return 0.0;
-}
-float RtValue::toFloat(const float defaultValue)const{
-	if(valueType==NUMBER){
-		return static_cast<float>(value.value_number);
-	}else if(valueType==OBJECT_PTR){
-		return value.value_obj->toFloat();
-	}else if(valueType==UINT32){
-		return static_cast<float>(value.value_uint32);
-	}else if(valueType==UNDEFINED){
-		return defaultValue;
-	}else return 0.0;
-}
-int RtValue::toInt(const int defaultValue)const{
-	if(valueType==NUMBER){
-		return static_cast<int>(value.value_number);
-	}else if(valueType==OBJECT_PTR){
-		return value.value_obj->toInt();
-	}else if(valueType==UINT32){
-		return  static_cast<int>(value.value_uint32);
-	}else if(valueType==UNDEFINED){
-		return defaultValue;
-	}else return 0;
-}
-unsigned int RtValue::toUInt(const unsigned int defaultValue)const{
-	if(valueType==NUMBER){
-		return static_cast<unsigned int>(value.value_number);
-	}else if(valueType==OBJECT_PTR){
-		return value.value_obj->toUInt();
-	}else if(valueType==UINT32){
-		return  static_cast<unsigned int>(value.value_uint32);
-	}else if(valueType==UNDEFINED){
-		return defaultValue;
-	}else return 0;
-}
-
-Object * RtValue::toObject()const{
+Object * RtValue::_toObject()const{
 	switch(valueType){
 		case VOID:
 			return Void::get();

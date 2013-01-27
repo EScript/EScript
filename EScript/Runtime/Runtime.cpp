@@ -165,42 +165,39 @@ ObjRef Runtime::createInstance(const EPtr<Type> & type,const ParameterValues & _
 	if(!internals->checkNormalState())
 		return nullptr;
 	ParameterValues params(_params);
-	RuntimeInternals::executeFunctionResult_t result = internals->startInstanceCreation(type,params);
-	RtValue realResult;
-	if(result.second){
-		_CountedRef<FunctionCallContext> fcc = result.second;
-		realResult = internals->executeFunctionCallContext(fcc);
+	RuntimeInternals::executeFunctionResult_t callResult = internals->startInstanceCreation(type,params);
+	
+	ObjRef resultObj;
+	if(callResult.second){ // user function?
+		_CountedRef<FunctionCallContext> fcc = callResult.second;
+		resultObj = internals->executeFunctionCallContext(fcc);
 	}else{
-		realResult = result.first;
+		resultObj = callResult.first.getObject(); // value should be an Object...
 	}
 	// error occured? throw an exception!
-	if(internals->getState()==RuntimeInternals::STATE_EXCEPTION){
-		realResult = internals->getResult();
-		internals->resetState();
-		throw realResult;
-	}
-	return realResult.getObject(); // \todo RtValue createObject?????; use move????
+	if(internals->getState()==RuntimeInternals::STATE_EXCEPTION)
+		throw internals->fetchAndClearException();
+
+	return resultObj;
 }
 
 ObjRef Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & caller,const ParameterValues & _params){
 	if(!internals->checkNormalState())
 		return nullptr;
 	ParameterValues params(_params);
-	RuntimeInternals::executeFunctionResult_t result = internals->startFunctionExecution(fun,caller,params);
-	RtValue realResult;
-	if(result.second){
-		_CountedRef<FunctionCallContext> fcc = result.second;
-		realResult = internals->executeFunctionCallContext(fcc);
+	RuntimeInternals::executeFunctionResult_t callResult = internals->startFunctionExecution(fun,caller,params);
+	ObjRef resultObj;
+	if(callResult.second){ // user function?
+		_CountedRef<FunctionCallContext> fcc = callResult.second;
+		resultObj = internals->executeFunctionCallContext(fcc);
 	}else{
-		realResult = result.first;
+		resultObj = callResult.first._toObject(); // the value should always be convertible to Object...
 	}
 	// error occured? throw an exception!
 	if(internals->getState()==RuntimeInternals::STATE_EXCEPTION){
-		realResult = internals->getResult();
-		internals->resetState();
-		throw realResult;
+		throw internals->fetchAndClearException();
 	}
-	return realResult.toObject();
+	return resultObj;
 }
 
 ObjPtr Runtime::getCallingObject()const				{	return internals->getCallingObject();	}
@@ -221,13 +218,13 @@ void Runtime::info(const std::string & s)			{	logger->info(s);	}
 
 void Runtime::setAddStackInfoToExceptions(bool b)	{	internals->setAddStackInfoToExceptions(b);	}
 
-void Runtime::_setExceptionState(const RtValue & e)	{	internals->setExceptionState(e);	}
+void Runtime::_setExceptionState(ObjRef e)			{	internals->setExceptionState(std::move(e));	}
 
 void Runtime::setException(const std::string & s)	{	internals->setException(s);	}
 
 void Runtime::setException(Exception * e)			{	internals->setException(e);	}
 
-void Runtime::_setExitState(const RtValue & e)			{	internals->setExitState(e);	}
+void Runtime::_setExitState(ObjRef e)				{	internals->setExitState(e);	}
 
 void Runtime::_setStackSizeLimit(const size_t s)	{	internals->_setStackSizeLimit(s);	}
 
@@ -262,23 +259,21 @@ void Runtime::yieldNext(YieldIterator & yIt){
 		setException("Invalid YieldIterator");
 		return;
 	}
-	RtValue result = internals->executeFunctionCallContext( fcc );
+	ObjRef result( internals->executeFunctionCallContext( fcc ) );
 	// error occured? throw an exception!
 	if(internals->getState()==RuntimeInternals::STATE_EXCEPTION){
-		result = internals->getResult();
-		internals->resetState();
-		throw result;
+		throw internals->fetchAndClearException();
 	}
-	ERef<YieldIterator> newYieldIterator = result.detachObject<YieldIterator>();
+	YieldIterator * newYieldIterator = result.toType<YieldIterator>();
 
 	// function exited with another yield? -> reuse the data for the current iterator
-	if(newYieldIterator.isNotNull()){
+	if(newYieldIterator){
 		yIt.setFCC( newYieldIterator->getFCC() );
 		yIt.setValue( newYieldIterator->value() );
 	} // function returned without yield? -> update and terminate the current iterator
 	else{
 		yIt.setFCC( nullptr );
-		yIt.setValue( result.toObject() );
+		yIt.setValue( result.get() );
 	}
 }
 std::string Runtime::getLocalStackInfo(){

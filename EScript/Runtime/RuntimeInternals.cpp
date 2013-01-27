@@ -38,7 +38,7 @@ RuntimeInternals::~RuntimeInternals(){
 // Function execution
 
 //! (internal)
-RtValue RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> fcc){
+ObjRef RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> fcc){
 
 	fcc->enableStopExecutionAfterEnding();
 	pushActiveFCC(fcc);
@@ -61,14 +61,14 @@ RtValue RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> f
 			}
 			if(fcc->isExecutionStoppedAfterEnding()){
 				popActiveFCC();
-				return rtValue(std::move(result)); 
+				return result; 
 			}
 			popActiveFCC();
 
 			const bool useResultAsCaller = fcc->isProvidingCallerAsResult();// providesCaller
 			fcc = getActiveFCC();
 			if(fcc.isNull()){ //! just to be safe (should never occur)
-				return rtValue(std::move(result));
+				return result;
 			}
 
 			if(useResultAsCaller){
@@ -549,9 +549,8 @@ RtValue RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> f
 
 				// catch-block available?
 				if(fcc->getExceptionHandlerPos()!=Instruction::INVALID_JUMP_ADDRESS){
-					ObjRef except = getResult().toObject();
+					ObjRef except = fetchAndClearException();
 					fcc->assignToLocalVariable(Consts::LOCAL_VAR_INDEX_internalResult,std::move(except)); // ___result = exceptionResult
-					resetState();
 					fcc->setInstructionCursor(fcc->getExceptionHandlerPos());
 					break;
 				} // execution stops here? Keep the exception-state and return;
@@ -937,13 +936,13 @@ void RuntimeInternals::initSystemFunctions(){
 	}
 	{	//! [ESMF] Void SYS_CALL_THROW( [value] )
 		struct _{
-			ESF( sysCall,0,1,(runtime._setExceptionState( rtValue(parameter.count()>0 ? parameter[0] : nullptr )),rtValue(nullptr)))
+			ESF( sysCall,0,1,(runtime._setExceptionState( parameter.count()>0 ? parameter[0] : nullptr ),rtValue(nullptr)))
 		};
 		systemFunctions[Consts::SYS_CALL_THROW] = new Function(_::sysCall);
 	}
 	{	//! [ESMF] Void SYS_CALL_EXIT( [value] )
 		struct _{
-			ESF( sysCall,0,1,(runtime._setExitState( rtValue(parameter.count()>0 ? parameter[0] : nullptr )),rtValue(nullptr)))
+			ESF( sysCall,0,1,(runtime._setExitState( parameter.count()>0 ? parameter[0] : nullptr ),rtValue(nullptr)))
 		};
 		systemFunctions[Consts::SYS_CALL_EXIT] = new Function(_::sysCall);
 	}
