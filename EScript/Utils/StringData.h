@@ -10,7 +10,7 @@
 
 namespace EScript {
 
-/*! [StringData]	*/
+//! [StringData]
 class StringData{
 
 	//! internals

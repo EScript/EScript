@@ -25,7 +25,7 @@ class Delegate : public Object {
 		void setObject(ObjPtr newObject)		{	myObjectRef = newObject;		}
 		void setFunction(ObjPtr newFunction)	{	functionRef = newFunction;	}
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual Delegate * clone() const;
 		virtual bool rt_isEqual(Runtime &rt, const ObjPtr o);
 		virtual std::string toDbgString()const;

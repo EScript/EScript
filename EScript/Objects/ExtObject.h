@@ -15,7 +15,7 @@ class ExtObject : public Object {
 		ES_PROVIDES_TYPE_OBJECT(Object)
 		ES_PROVIDES_TYPE_NAME(ExtObject)
 
-	/*! @name Initialization */
+	//! @name Initialization
 	//	@{
 	public:
 		static void init(EScript::Namespace & globals);
@@ -23,7 +23,7 @@ class ExtObject : public Object {
 
 	// -----
 
-	/*! @name Main */
+	//! @name Main
 	//	@{
 	protected:
 		ExtObject(const ExtObject & other);
@@ -33,29 +33,29 @@ class ExtObject : public Object {
 		ExtObject(Type * type);
 		virtual ~ExtObject()	{ }
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual Object * clone() const;
 	//	@}
 
 	// -----
 
-	/*! @name Attributes */
+	//! @name Attributes
 	//	@{
 	public:
 
 		using Object::_accessAttribute;
 		using Object::setAttribute;
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual Attribute * _accessAttribute(const StringId & id,bool localOnly);
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual void _initAttributes(Runtime & rt);
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual bool setAttribute(const StringId & id,const Attribute & attr);
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual void collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs);
 
 		void cloneAttributesFrom(const ExtObject * obj);

@@ -12,7 +12,7 @@
 namespace EScript {
 namespace AST {
 
-/*! [SetAttributeExpr]  ---|> [ASTNode]  */
+//! [SetAttributeExpr]  ---|> [ASTNode]
 class SetAttributeExpr : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(SetAttributeExpr)
 	public:

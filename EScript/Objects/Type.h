@@ -12,13 +12,13 @@
 
 namespace EScript {
 
-/*! [Type] ---|> [Object]   */
+//! [Type] ---|> [Object]
 class Type : public Object {
 		ES_PROVIDES_TYPE_NAME(Type)
 
 	// -------------------------------------------------------------
 
-	/*! @name Initialization */
+	//! @name Initialization
 	//	@{
 	public:
 		static Type * getTypeObject();
@@ -27,7 +27,7 @@ class Type : public Object {
 
 	// -------------------------------------------------------------
 
-	/*! @name Main */
+	//! @name Main
 	//	@{
 	public:
 		Type();
@@ -35,7 +35,7 @@ class Type : public Object {
 		Type(Type * baseType,Type * typeOfType);
 		virtual ~Type();
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual Object * clone() const;
 		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_TYPE;	}
 	//	@}
@@ -49,26 +49,26 @@ class Type : public Object {
 	// @{
 	public:
 
-		/*! Get only the typeAttributes. */
+		//! Get only the typeAttributes.
 		void collectTypeAttributes(std::unordered_map<StringId,Object *> & attrs)const;
-		/*! Get only the objectAttributes. */
+		//! Get only the objectAttributes.
 		void collectObjAttributes(std::unordered_map<StringId,Object *> & attrs)const;
 
 		void copyObjAttributesTo(Object * instance);
 
-		/*! Used by instances of this type get the value of an inherited typeAttribute. */
+		//! Used by instances of this type get the value of an inherited typeAttribute.
 		Attribute * findTypeAttribute(const StringId & id);
 
 		using Object::_accessAttribute;
 		using Object::setAttribute;
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual Attribute * _accessAttribute(const StringId & id,bool localOnly);
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual bool setAttribute(const StringId & id,const Attribute & attr);
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual void collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs);
 
 	private:
@@ -77,7 +77,7 @@ class Type : public Object {
 
 	// -------------------------------------------------------------
 
-	/*! @name Flags */
+	//! @name Flags
 	// @{
 	public:
 		typedef uint16_t flag_t;
@@ -86,24 +86,24 @@ class Type : public Object {
 		static const flag_t FLAG_CONTAINS_OBJ_ATTRS = 1<<1;
 		static const flag_t FLAG_ALLOWS_USER_INHERITANCE = 1<<2;
 
-		inline bool getFlag(flag_t f)const			{	return (flags&f) >0;	}
-		inline void setFlag(flag_t f,bool b = true)	{	b? flags|=f : flags-=(flags&f);	}
-		inline flag_t getFlags()const				{	return flags;	}
+		bool getFlag(flag_t f)const				{	return (flags&f) >0;	}
+		void setFlag(flag_t f,bool b = true)	{	b? flags|=f : flags-=(flags&f);	}
+		flag_t getFlags()const					{	return flags;	}
 	private:
 		flag_t flags;
 	// @}
 
 	// -------------------------------------------------------------
 
-	/*! @name Inheritance */
+	//! @name Inheritance
 	//	@{
 	public:
 		void allowUserInheritance(bool b)			{	setFlag(FLAG_ALLOWS_USER_INHERITANCE,b);	}
 		bool allowsUserInheritance()const			{	return getFlag(FLAG_ALLOWS_USER_INHERITANCE);	}
 
-		inline Type * getBaseType()const			{	return baseType.get();	}
+		Type * getBaseType()const					{	return baseType.get();	}
 
-		/// ---|> Object
+		//! ---|> Object
 		virtual bool isA(Type * type)const;
 
 	private:

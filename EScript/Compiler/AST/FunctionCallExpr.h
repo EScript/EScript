@@ -11,7 +11,7 @@
 namespace EScript {
 namespace AST {
 
-/*! [FunctionCallExpr]  ---|> [ASTNode]  */
+//! [FunctionCallExpr]  ---|> [ASTNode]
 class FunctionCallExpr : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(FunctionCallExpr)
 	public:

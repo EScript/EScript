@@ -11,7 +11,7 @@
 namespace EScript {
 namespace AST {
 
-/*! [TryCatchStatement]  ---|> [ASTNode] */
+//! [TryCatchStatement]  ---|> [ASTNode]
 class TryCatchStatement : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(TryCatchStatement)
 	public:

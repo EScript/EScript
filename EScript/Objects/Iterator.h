@@ -19,7 +19,7 @@ class Iterator : public Object {
 		Iterator(Type * type=nullptr) : Object(type?type:getTypeObject()) {}
 		virtual ~Iterator()			{	}
 
-		/// ---o
+		//! ---o
 		virtual Object * key()		{	return nullptr;	}
 		virtual Object * value()	{	return nullptr;	}
 		virtual void reset()		{	}

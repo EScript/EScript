@@ -11,7 +11,7 @@
 namespace EScript {
 class Iterator;
 
-/*! (abstract) [Collection] ---|>  Object]  */
+//! (abstract) [Collection] ---|>  Object]
 class Collection : public Object {
 		ES_PROVIDES_TYPE_OBJECT(Object)
 		ES_PROVIDES_TYPE_NAME(Collection)
@@ -21,18 +21,18 @@ class Collection : public Object {
 		Collection(Type * type = nullptr) : Object(type?type:getTypeObject()) { }
 		virtual ~Collection()	{ }
 
-		/// ---o
+		//! ---o
 		virtual Object * getValue(ObjPtr key);
-		/// ---o
+		//! ---o
 		virtual void setValue(ObjPtr key,ObjPtr value);
-		/// ---o
+		//! ---o
 		virtual void clear();
-		/// ---o
+		//! ---o
 		virtual size_t count()const;
-		/// ---o
+		//! ---o
 		virtual Iterator * getIterator();
 
-		/// ---o
+		//! ---o
 		virtual Object * rt_findValue(Runtime & runtime,ObjPtr value);
 		virtual bool rt_contains(Runtime & runtime,ObjPtr value);
 		virtual Object * rt_reduce(Runtime & runtime,ObjPtr function,ObjPtr initialValue, const ParameterValues & additionalValues);
@@ -40,7 +40,7 @@ class Collection : public Object {
 		virtual Object * rt_extract(Runtime & runtime,StringId functionId,bool decision = true);
 
 
-		/// ---|> Object
+		//! ---|> Object
 		virtual bool rt_isEqual(Runtime &runtime,const ObjPtr other);
 };
 }

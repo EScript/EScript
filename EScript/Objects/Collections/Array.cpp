@@ -203,11 +203,11 @@ void Array::init(const ParameterValues & p) {
 //	data.assign(std::begin(p), std::end(p));
 }
 
-/*!	(internal)*/
+//! (internal)
 void Array::init(size_t num, Object* const* objs) {
 	data.assign(objs, objs + num);
 }
-/*!	(internal)*/
+//! (internal)
 void Array::init(size_t num, char ** strings) {
 	data.clear();
 	data.reserve(num);

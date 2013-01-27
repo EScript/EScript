@@ -14,7 +14,7 @@
 namespace EScript {
 namespace AST {
 
-/*! [BlockExpr]  ---|> [Object] */
+//! [BlockExpr]  ---|> [Object]
 class BlockExpr : public Object {
 		ES_PROVIDES_TYPE_NAME(BlockExpr)
 	public:
@@ -31,7 +31,7 @@ class BlockExpr : public Object {
 		int getLine()const								{	return line;	}
 
 
-		/*! returns false if variable was already declared */
+		//! returns false if variable was already declared
 		bool declareVar(StringId id)					{	return vars.insert(id).second;	}
 		const declaredVariableMap_t & getVars()const	{	return vars;	}
 		bool isLocalVar(StringId id)					{	return vars.count(id)>0;	}
@@ -39,7 +39,7 @@ class BlockExpr : public Object {
 		bool hasLocalVars()const						{	return !vars.empty(); }
 		size_t getNumLocalVars()const					{	return vars.size(); }
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual internalTypeId_t _getInternalTypeId()const {	return _TypeIds::TYPE_BLOCK_STATEMENT; }
 	private:
 		declaredVariableMap_t vars;

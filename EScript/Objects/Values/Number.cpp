@@ -186,7 +186,7 @@ void Number::init(EScript::Namespace & globals) {
 	//! [ESMF] Number Number.cos
 	ESF_DECLARE(typeObject,"cos",0,0,std::cos(caller->toDouble()))
 
-	/*!	[ESMF] Number Number.clamp(min,max)	*/
+	//! [ESMF] Number Number.clamp(min,max)
 	ES_FUNCTION_DECLARE(typeObject,"clamp",2,2, {
 		const double d = caller->toDouble();
 		const double min = parameter[0]->toDouble();

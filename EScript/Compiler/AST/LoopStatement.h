@@ -10,7 +10,7 @@
 namespace EScript {
 namespace AST {
 
-/*! [LoopStatement]  ---|> [ASTNode] */
+//! [LoopStatement]  ---|> [ASTNode]
 class LoopStatement : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(LoopStatement)
 	public:

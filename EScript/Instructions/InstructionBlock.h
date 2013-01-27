@@ -15,7 +15,7 @@
 namespace EScript {
 class UserFunction;
 
-/*! Collection of (assembler-)instructions and the corresponding data.	*/
+//! Collection of (assembler-)instructions and the corresponding data.
 class InstructionBlock {
 		std::vector<StringId> localVariables;
 		std::vector<std::string> stringConstants;  //! \todo --> StringData

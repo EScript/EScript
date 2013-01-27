@@ -18,7 +18,7 @@
 
 namespace EScript {
 
-/*! [Tokenizer] */
+//! [Tokenizer]
 class Tokenizer {
 	public:
 		typedef std::unordered_map<StringId, _CountedRef<Token> > tokenMap_t;

@@ -27,7 +27,7 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 
 	// -------------------------------------------------------------
 
-	/*! @name Initialization */
+	//! @name Initialization
 	//	@{
 	public:
 		static Type * getTypeObject();
@@ -36,7 +36,7 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 
 	// -------------------------
 
-	/*! @name Main */
+	//! @name Main
 	//	@{
 	public:
 		//--
@@ -63,7 +63,7 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 				  Otherwise scripted '=='-member functions are not supported. */
 		virtual bool rt_isEqual(Runtime & rt,const ObjPtr other);
 
-		/*! Compare two Objects using the '=='-member function */
+		//! Compare two Objects using the '=='-member function
 		bool isEqual(Runtime & rt,const ObjPtr o);
 
 		/*! If this is an Object which is passed ...
@@ -88,20 +88,20 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 
 	// -------------------------
 
-	/*! @name Type */
+	//! @name Type
 	//	@{
 	protected:
 		ERef<Type> typeRef;
 	public:
 		inline Type * getType() const				{	return typeRef.get();	}
 
-		/// ---o
+		//! ---o
 		virtual bool isA(Type * type)const;
 	//	@}
 
 	// -------------------------
 
-	/*! @name Attributes */
+	//! @name Attributes
 	public:
 		/*! ---o (internal)
 			Get access to an Attribute stored at this Object.
@@ -148,7 +148,7 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 
 	// -------------------------
 
-	/*!	@name Conversion */
+	//! @name Conversion
 	//	@{
 	public:
 		//! ---o

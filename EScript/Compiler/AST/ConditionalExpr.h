@@ -10,7 +10,7 @@
 namespace EScript {
 namespace AST {
 
-/*! [ConditionalExpr]  ---|> [ASTNode] */
+//! [ConditionalExpr]  ---|> [ASTNode]
 class ConditionalExpr : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(ConditionalExpr)
 	public:

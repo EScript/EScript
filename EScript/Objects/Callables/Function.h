@@ -18,7 +18,7 @@ class Function : public Object {
 		ES_PROVIDES_TYPE_NAME(Function)
 	public:
 
-	/*! @name Initialization */
+	//! @name Initialization
 	//	@{
 	public:
 		static void init(EScript::Namespace & globals);
@@ -39,7 +39,7 @@ class Function : public Object {
 		void increaseCallCounter()							{	++callCounter;	}
 		void resetCallCounter()								{	callCounter = 0;	}
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual Object * clone()const						{	return new Function(fnptr);	}
 		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_FUNCTION;	}
 	private:

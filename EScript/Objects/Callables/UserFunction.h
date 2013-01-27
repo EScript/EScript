@@ -19,7 +19,7 @@ class UserFunction : public ExtObject {
 	public:
 	// -------------------------------------------------------------
 
-	/*! @name Initialization */
+	//! @name Initialization
 	//	@{
 	public:
 		static void init(Namespace & globals);
@@ -27,7 +27,7 @@ class UserFunction : public ExtObject {
 
 	// -------------------------------------------------------------
 
-	/*! @name Main */
+	//! @name Main
 	//	@{
 	protected:
 		UserFunction(const UserFunction & other);
@@ -50,7 +50,7 @@ class UserFunction : public ExtObject {
 		int getLine()const									{	return line;	}
 		void setLine(const int l)							{	line = l;	}
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_USER_FUNCTION;	}
 		virtual UserFunction * clone()const					{	return new UserFunction(*this);	}
 		virtual std::string toDbgString()const;

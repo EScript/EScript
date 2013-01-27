@@ -11,7 +11,7 @@
 
 namespace EScript {
 
-/*! Internal representation of an object's attribute */
+//! Internal representation of an object's attribute
 class Attribute{
 	public:
 		typedef uint8_t flag_t;

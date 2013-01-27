@@ -66,13 +66,13 @@ class ExtReferenceObject : public Object, private attributeProvider {
 		virtual ExtReferenceObject_t * clone()const {
 			throw new Exception(std::string("Trying to clone unclonable object '")+this->toString()+"'");
 		}
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual bool rt_isEqual(Runtime &,const ObjPtr o)	{	return comparisonPolicy::isEqual(this,o);	}
 
 
 	// -----
 
-	/*! @name Reference */
+	//! @name Reference
 	//	@{
 	public:
 		inline const _T & ref() const			{	return obj;	}
@@ -86,7 +86,7 @@ class ExtReferenceObject : public Object, private attributeProvider {
 
 	// -----
 
-	/*! @name Attributes */
+	//! @name Attributes
 	//	@{
 	public:
 		using attributeProvider::getAttributeContainer;
@@ -94,14 +94,14 @@ class ExtReferenceObject : public Object, private attributeProvider {
 		using Object::_accessAttribute;
 		using Object::setAttribute;
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual Attribute * _accessAttribute(const StringId & id,bool localOnly){
 			AttributeContainer * attrContainer = getAttributeContainer(this,false);
 			Attribute * attr = attrContainer!=nullptr ? attrContainer->accessAttribute(id) : nullptr;
 			return  ( attr!=nullptr || localOnly || getType()==nullptr) ? attr : getType()->findTypeAttribute(id);
 		}
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual void _initAttributes(Runtime & rt){
 			// if the type contains obj attributes, this object will surely also have some, so it is safe to init the attribute container.
 			if(getType()!=nullptr && getType()->getFlag(Type::FLAG_CONTAINS_OBJ_ATTRS) ){
@@ -109,13 +109,13 @@ class ExtReferenceObject : public Object, private attributeProvider {
 			}
 		}
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual bool setAttribute(const StringId & id,const Attribute & attr){
 			getAttributeContainer(this,true)->setAttribute(id,attr);
 			return true;
 		}
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual void collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs){
 			AttributeContainer * attrContainer = getAttributeContainer(this,false);
 			if(attrContainer!=nullptr)

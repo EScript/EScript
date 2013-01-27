@@ -11,7 +11,7 @@
 namespace EScript {
 
 namespace AST {
-/*! [Statement]  */
+//! [Statement]
 class Statement {
 	public:
 		enum type_t{

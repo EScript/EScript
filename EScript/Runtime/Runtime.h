@@ -33,7 +33,7 @@ class Runtime : public ExtObject {
 
 	// ------------------------------------------------
 
-	/// @name Main
+	//! @name Main
 	//	@{
 	private:
 		std::unique_ptr<RuntimeInternals> internals;
@@ -45,7 +45,7 @@ class Runtime : public ExtObject {
 
 	// ------------------------------------------------
 
-	/// @name Variables
+	//! @name Variables
 	//	@{
 	public:
 		Namespace * getGlobals()const;
@@ -55,7 +55,7 @@ class Runtime : public ExtObject {
 
 	// ------------------------------------------------
 
-	/// @name Execution
+	//! @name Execution
 	//	@{
 	public:
 		ObjPtr getCallingObject()const;
@@ -76,7 +76,7 @@ class Runtime : public ExtObject {
 
 	// ------------------------------------------------
 
-	/// @name Internal state / Exceptions
+	//! @name Internal state / Exceptions
 	//	@{
 	public:
 		bool assertNormalState()const __attribute__((deprecated));
@@ -113,7 +113,7 @@ class Runtime : public ExtObject {
 
 	// ------------------------------------------------
 
-	/// @name Debugging
+	//! @name Debugging
 	//	@{
 	public:
 		void enableLogCounting();

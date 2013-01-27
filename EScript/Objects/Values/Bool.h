@@ -27,7 +27,7 @@ class Bool : public Object {
 
 		void setValue(bool b)								{	value = b;	}
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual Object * clone()const						{	return Bool::create(value);	}
 		virtual std::string toString()const					{	return value?"true":"false";	}
 		virtual bool toBool()const							{	return value;	}

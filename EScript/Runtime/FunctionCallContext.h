@@ -15,7 +15,7 @@
 
 namespace EScript {
 
-/*! [FunctionCallContext]	*/
+//! [FunctionCallContext]
 class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionCallContext> {
 	private:
 		static std::stack<FunctionCallContext *> pool;

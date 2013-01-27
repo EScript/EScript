@@ -61,7 +61,7 @@ class ReferenceObject : public Object {
 			throw new Exception(std::string("Trying to clone unclonable object '")+this->toString()+"'");
 
 		}
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual bool rt_isEqual(Runtime &,const ObjPtr o)	{	return comparisonPolicy::isEqual(this,o);	}
 	private:
 		_T obj;

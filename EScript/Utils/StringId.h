@@ -11,7 +11,7 @@
 
 namespace EScript {
 
-/*! Numerical representation of a string constant. */
+//! Numerical representation of a string constant.
 class StringId{
 	private:
 		uint32_t id;

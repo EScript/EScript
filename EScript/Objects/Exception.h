@@ -9,7 +9,7 @@
 
 namespace EScript {
 
-/*! [Exception] ---|> [ExtObject] ---|> [Object]  */
+//! [Exception] ---|> [ExtObject] ---|> [Object]
 class Exception : public ExtObject {
 		ES_PROVIDES_TYPE_OBJECT(ExtObject)
 		ES_PROVIDES_TYPE_NAME(Exception)
@@ -34,7 +34,7 @@ class Exception : public ExtObject {
 		std::string getFilename()const					{	return filenameId.toString();	}
 		StringId getFilenameId()const					{	return filenameId;	}
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual Object * clone()const;
 		virtual std::string toString()const;
 

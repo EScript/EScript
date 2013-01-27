@@ -11,11 +11,11 @@
 namespace EScript {
 class Function;
 
-/*! [RuntimeInternals] */
+//! [RuntimeInternals]
 class RuntimeInternals  {
 		Runtime &runtime;
 
-	/// @name Main
+	//! @name Main
 	//	@{
 		RuntimeInternals(RuntimeInternals & other); // = delete
 	public:
@@ -28,7 +28,7 @@ class RuntimeInternals  {
 
 	// --------------------
 
-	/// @name Function execution
+	//! @name Function execution
 	//	@{
 	public:
 		typedef std::pair<RtValue,FunctionCallContext* >  executeFunctionResult_t;
@@ -65,7 +65,7 @@ class RuntimeInternals  {
 
 	// --------------------
 
-	/// @name Globals
+	//! @name Globals
 	//	@{
 	public:
 		ObjPtr getGlobalVariable(const StringId & id);
@@ -76,7 +76,7 @@ class RuntimeInternals  {
 
 	// --------------------
 
-	/// @name Information
+	//! @name Information
 	//	@{
 	public:
 		int getCurrentLine()const;
@@ -88,7 +88,7 @@ class RuntimeInternals  {
 
 	// --------------------
 
-	/// @name Internal state / Exceptions
+	//! @name Internal state / Exceptions
 	//	@{
 	public:
 		enum state_t{	STATE_NORMAL,STATE_EXITING,STATE_EXCEPTION	};
@@ -147,7 +147,7 @@ class RuntimeInternals  {
 
 	// --------------------
 
-	/// @name System calls
+	//! @name System calls
 	//	@{
 	//! (interna) Used by the Runtime.
 	private:

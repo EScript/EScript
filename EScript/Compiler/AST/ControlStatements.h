@@ -10,7 +10,7 @@
 namespace EScript {
 namespace AST {
 
-/*! [BreakStatement]  ---|> [ASTNode] */
+//! [BreakStatement]  ---|> [ASTNode]
 class BreakStatement : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(BreakStatement)
 	public:
@@ -18,7 +18,7 @@ class BreakStatement : public ASTNode {
 		virtual ~BreakStatement() {}
 };
 
-/*! [ContinueStatement]  ---|> [ASTNode] */
+//! [ContinueStatement]  ---|> [ASTNode]
 class ContinueStatement : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(ContinueStatement)
 	public:
@@ -26,7 +26,7 @@ class ContinueStatement : public ASTNode {
 		virtual ~ContinueStatement() {}
 };
 
-/*! [ExitStatement]  ---|> [ASTNode] */
+//! [ExitStatement]  ---|> [ASTNode]
 class ExitStatement : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(ExitStatement)
 	public:
@@ -37,7 +37,7 @@ class ExitStatement : public ASTNode {
 		ref_t valueExpr;
 };
 
-/*! [ReturnStatement]  ---|> [ASTNode] */
+//! [ReturnStatement]  ---|> [ASTNode]
 class ReturnStatement : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(ReturnStatement)
 	public:
@@ -47,7 +47,7 @@ class ReturnStatement : public ASTNode {
 	private:
 		ref_t valueExpr;
 };
-/*! [ThrowStatement]  ---|> [ASTNode] */
+//! [ThrowStatement]  ---|> [ASTNode]
 class ThrowStatement : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(ThrowStatement)
 	public:
@@ -58,7 +58,7 @@ class ThrowStatement : public ASTNode {
 		ref_t valueExpr;
 };
 
-/*! [YieldStatement]  ---|> [ASTNode] */
+//! [YieldStatement]  ---|> [ASTNode]
 class YieldStatement : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(YieldStatement)
 	public:

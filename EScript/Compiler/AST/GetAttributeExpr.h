@@ -11,7 +11,7 @@
 namespace EScript {
 namespace AST {
 
-/*! [GetAttributeExpr]  ---|> [ASTNode]  */
+//! [GetAttributeExpr]  ---|> [ASTNode]
 class GetAttributeExpr : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(GetAttributeExpr)
 	public:

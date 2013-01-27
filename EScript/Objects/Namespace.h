@@ -20,7 +20,7 @@ class Namespace : public ExtObject {
 		Namespace(Type * type) : ExtObject(type)	{	}
 		virtual ~Namespace()						{	}
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual Namespace * clone() const;
 };
 

@@ -14,7 +14,7 @@
 namespace EScript {
 namespace AST {
 
-/*! [ASTNode]  ---|> [EReferenceCounter]   */
+//! [ASTNode]  ---|> [EReferenceCounter]
 class ASTNode : public EReferenceCounter<ASTNode> {
 		ES_PROVIDES_TYPE_NAME(ASTNode)
 	public:

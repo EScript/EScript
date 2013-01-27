@@ -59,7 +59,7 @@
  */
 namespace EScript {
 
-/*! @name Initialization */
+//! @name Initialization
 //@{
 
 typedef void ( libInitFunction)(Namespace *);
@@ -72,7 +72,7 @@ void init();
 	\note Can be used manually as an alternative to the automatic registerLibraryForInitialization-way. */
 void initLibrary(libInitFunction * initFunction);
 
-/*! (internal) Get the static super global namespace.*/
+//! (internal) Get the static super global namespace.
 Namespace * getSGlobals();
 //@}
 

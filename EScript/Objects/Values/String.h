@@ -12,7 +12,7 @@
 
 namespace EScript {
 
-/*! [String] ---|> [Object] */
+//! [String] ---|> [Object]
 class String : public Object {
 		ES_PROVIDES_TYPE_OBJECT(Object)
 		ES_PROVIDES_TYPE_NAME(String)
@@ -42,7 +42,7 @@ class String : public Object {
 		void appendString(const std::string & _s)	{	sData.set(sData.str()+_s);	}
 		bool empty()const							{	return sData.empty();	}
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual Object * clone()const;
 		virtual std::string toString()const;
 		virtual double toDouble()const;

@@ -11,7 +11,7 @@
 namespace EScript {
 namespace AST {
 
-/*! [BoolValueExpr]  ---|> [ASTNode]  */
+//! [BoolValueExpr]  ---|> [ASTNode]
 class BoolValueExpr : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(BoolValueExpr)
 	public:
@@ -22,7 +22,7 @@ class BoolValueExpr : public ASTNode {
 	private:
 		bool value;
 };
-/*! [IdentifierValueExpr]  ---|> [ASTNode]  */
+//! [IdentifierValueExpr]  ---|> [ASTNode]
 class IdentifierValueExpr : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(IdentifierValueExpr)
 	public:
@@ -33,7 +33,7 @@ class IdentifierValueExpr : public ASTNode {
 	private:
 		StringId value;
 };
-/*! [NumberValueExpr]  ---|> [ASTNode]  */
+//! [NumberValueExpr]  ---|> [ASTNode]
 class NumberValueExpr : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(NumberValueExpr)
 	public:
@@ -45,7 +45,7 @@ class NumberValueExpr : public ASTNode {
 	private:
 		double value;
 };
-/*! [StringValueExpr]  ---|> [ASTNode]  */
+//! [StringValueExpr]  ---|> [ASTNode]
 class StringValueExpr : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(StringValueExpr)
 	public:
@@ -56,7 +56,7 @@ class StringValueExpr : public ASTNode {
 	private:
 		std::string value;
 };
-/*! [VoidValueExpr]  ---|> [ASTNode]  */
+//! [VoidValueExpr]  ---|> [ASTNode]
 class VoidValueExpr : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(VoidValueExpr)
 	public:

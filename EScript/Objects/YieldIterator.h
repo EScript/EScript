@@ -22,7 +22,7 @@ class YieldIterator : public Object {
 		virtual ~YieldIterator()					{	}
 
 		Object * value()const					{	return currentValue.get();	}
-		Object * key()const	;
+		Object * key()const;
 		void setValue(Object* newResult)		{	currentValue = newResult;	}
 
 		_Ptr<FunctionCallContext> getFCC()const		{	return fcc;	}

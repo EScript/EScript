@@ -13,7 +13,7 @@ namespace EScript {
 
 class Runtime;
 
-/*! [AttributeContainer]   */
+//! [AttributeContainer]
 class AttributeContainer {
 	void operator=(const AttributeContainer & other);
 

@@ -15,7 +15,7 @@ class Identifier:public Object{
 		ES_PROVIDES_TYPE_OBJECT(Object)
 		ES_PROVIDES_TYPE_NAME(Identifier)
 
-	/*! @name Initialization */
+	//! @name Initialization
 	//	@{
 	public:
 		static void init(EScript::Namespace & globals);
@@ -23,10 +23,10 @@ class Identifier:public Object{
 
 	// -----
 
-		/*! (static) Factory */
+		//! (static) Factory
 		static Identifier * create( StringId id);
 
-		/*! (static) Factory */
+		//! (static) Factory
 		static Identifier * create( const std::string & s);
 
 	private:
@@ -39,7 +39,7 @@ class Identifier:public Object{
 	public:
 		StringId getId()const	{	return id;	}
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual Identifier * clone()const;
 		virtual bool rt_isEqual(Runtime & rt,const ObjPtr o);
 		virtual std::string toString()const;

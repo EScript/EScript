@@ -13,7 +13,7 @@
 namespace EScript {
 namespace AST {
 
-/*! [Block]  ---|> [ASTNode] */
+//! [Block]  ---|> [ASTNode]
 class Block : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(Block)
 	public:
@@ -35,7 +35,7 @@ class Block : public ASTNode {
 		const statementList_t & getStatements()const	{	return statements;	}
 
 
-		/*! returns false if variable was already declared */
+		//! returns false if variable was already declared
 		bool declareVar(StringId id)					{	return vars.insert(id).second;	}
 		const declaredVariableMap_t & getVars()const	{	return vars;	}
 		bool isLocalVar(StringId id)					{	return vars.count(id)>0;	}

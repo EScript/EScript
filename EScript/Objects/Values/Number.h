@@ -17,7 +17,7 @@
 
 namespace EScript {
 
-/*! [Number] ---|> [Object] */
+//! [Number] ---|> [Object]
 class Number : public Object {
 		ES_PROVIDES_TYPE_OBJECT(Object)
 		ES_PROVIDES_TYPE_NAME(Number)
@@ -63,11 +63,11 @@ class Number : public Object {
 		//! Floating point symmetric modulo operation
 		double modulo(const double m)const;
 
-		/// ---o
+		//! ---o
 		virtual double getValue()const;
 		virtual void setValue(double _value);
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual Object * clone()const;
 
 		virtual std::string toString()const;

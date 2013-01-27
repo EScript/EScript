@@ -9,13 +9,13 @@
 
 namespace EScript {
 
-/*! [Void] ---|> [Type] ---|> [Object]   */
+//! [Void] ---|> [Type] ---|> [Object]
 class Void : public Type {
 		ES_PROVIDES_TYPE_NAME(Void)
 	public:
 		static Void * get();
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual Object * clone()const;
 		virtual bool toBool()const;
 		virtual bool rt_isEqual(Runtime & rt,const ObjPtr o);

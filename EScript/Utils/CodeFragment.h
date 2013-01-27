@@ -10,7 +10,7 @@
 
 namespace EScript {
 
-/*! Simple container used to store the code of a UserFunction */
+//! Simple container used to store the code of a UserFunction
 class CodeFragment{
 		StringId filename;
 		StringData data;

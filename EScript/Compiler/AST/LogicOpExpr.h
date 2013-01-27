@@ -11,7 +11,7 @@
 namespace EScript {
 namespace AST {
 
-/*! [LogicOpExpr]  ---|> [ASTNode]   */
+//! [LogicOpExpr]  ---|> [ASTNode]
 class LogicOpExpr : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(LogicOpExpr)
 	public:

@@ -9,7 +9,7 @@
 
 namespace EScript{
 
-/*! Common identifiers and other numerical constants*/
+//! Common identifiers and other numerical constants
 //	@{
 struct Consts{
 	static const StringId FILENAME_INLINE;

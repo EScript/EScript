@@ -13,7 +13,7 @@
 
 namespace EScript {
 
-/*! [Array]  ---|> [Collection] ---|> [Object]  */
+//! [Array]  ---|> [Collection] ---|> [Object]
 class Array : public Collection {
 		ES_PROVIDES_TYPE_OBJECT(Collection)
 		ES_PROVIDES_TYPE_NAME(Array)
@@ -103,7 +103,7 @@ class Array : public Collection {
 		void resize(size_t newSize);
 		void reverse();
 		void rt_filter(Runtime & runtime,ObjPtr function, const ParameterValues & additionalValues);
-		/// returns -1 if not found
+		//! returns -1 if not found
 		int rt_indexOf(Runtime & runtime,ObjPtr search,size_t begin = 0);
 		size_t rt_removeValue(Runtime & runtime,const ObjPtr value,const int limit=-1,const size_t begin = 0);
 		void rt_sort(Runtime & runtime,Object * function = nullptr,bool reverseOrder = false);
@@ -125,14 +125,14 @@ class Array : public Collection {
 				ArrayIterator(Array * ar);
 				virtual ~ArrayIterator();
 
-				/// ---|> [Object]
+				//! ---|> [Object]
 				virtual Object * key();
 				virtual Object * value();
 				virtual void reset();
 				virtual void next();
 				virtual bool end();
 
-				/// ---|> [Object]
+				//! ---|> [Object]
 			private:
 				ERef<Array> arrayRef;
 				size_t index;

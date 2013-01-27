@@ -12,7 +12,7 @@
 namespace EScript {
 template<class _T> class _Ptr;
 
-/*! Simple (counted) reference to use with EReferenceCounter */
+//! Simple (counted) reference to use with EReferenceCounter
 template<class _T>
 class _CountedRef  {
 		_T * obj;
@@ -28,7 +28,7 @@ class _CountedRef  {
 		//! Just set; dont touch the counter.
 		void _set(_T * _obj)									{	obj = _obj;	}
 
-		/*! Assignment */
+		//! Assignment
 		_CountedRef& operator=(const _CountedRef& other) {
 			if( other.obj!=obj ){
 				_T::addReference(other.obj);
@@ -38,7 +38,7 @@ class _CountedRef  {
 			return *this;
 		}
 
-		/*! Assignment */
+		//! Assignment
 		_CountedRef& operator=(_T * _obj) {
 			if( _obj!=obj ){
 				_T::addReference(_obj);
@@ -48,7 +48,7 @@ class _CountedRef  {
 			return *this;
 		}
 		
-		/*! Assignment */
+		//! Assignment
 		_CountedRef& operator=(_CountedRef&& other) {
 			swap(other);
 			return *this;
@@ -73,25 +73,25 @@ class _CountedRef  {
 			return o;
 		}
 
-		/*! Swap the referenced pointers without touching the reference counter. */
+		//! Swap the referenced pointers without touching the reference counter.
 		void swap(_CountedRef& other){
 			_T * const tmp = obj;
 			obj = other.obj;
 			other.obj = tmp;
 		}
 
-	/*! @name Information */
+	//! @name Information
 	// @{
-		/*! Returns a pointer to the referenced Object. */
+		//! Returns a pointer to the referenced Object.
 		inline _T * get()const								{	return obj; }
 
-		/*! Direct access to the referenced Object. */
+		//! Direct access to the referenced Object.
 		inline _T * operator->()const					 	{	return obj; }
 
-		/*! Returns true if the referenced object is nullptr.  */
+		//! Returns true if the referenced object is nullptr.
 		inline bool isNull()const						 	{	return obj==nullptr;	}
 
-		/*! Returns true if the referenced object is not nullptr.  */
+		//! Returns true if the referenced object is not nullptr.
 		inline bool isNotNull()const							{	return obj!=nullptr;	}
 
 		inline bool operator==(const _CountedRef & other)const	{	return obj==other.obj;	}
@@ -103,7 +103,7 @@ class _CountedRef  {
 	// @}
 };
 
-/*! Simple wrapper for a pointer to a possibly */
+//! Simple wrapper for a pointer to a possibly
 template<class _T>
 class _Ptr  {
 		_T * obj;
@@ -112,7 +112,7 @@ class _Ptr  {
 		_Ptr(_T * _obj) : obj(_obj)								{	}
 		_Ptr(const _CountedRef<_T> & other):obj(other.get())		{	}
 
-		/*! Swap the referenced pointers without touching the reference counter. */
+		//! Swap the referenced pointers without touching the reference counter.
 		void swap(_Ptr& other){
 			_T * const tmp = obj;
 			obj = other.obj;
@@ -120,21 +120,21 @@ class _Ptr  {
 		}
 
 
-		/*! Tries to convert object to given Type; returns nullptr if object is nullptr or not of given type. */
+		//! Tries to convert object to given Type; returns nullptr if object is nullptr or not of given type.
 		template <class _T2> _T2 * toType()const	{	return isNull()?nullptr:dynamic_cast<_T2*>(obj);	}
 
-	/*! @name Information */
+	//! @name Information
 	// @{
-		/*! Returns a pointer to the referenced Object. */
+		//! Returns a pointer to the referenced Object.
 		inline _T * get()const									{	return obj; }
 
-		/*! Direct access to the referenced Object. */
+		//! Direct access to the referenced Object.
 		inline _T * operator->()const					 		{	return obj; }
 
-		/*! Returns true if the referenced object is nullptr.  */
+		//! Returns true if the referenced object is nullptr.
 		inline bool isNull()const						 		{	return obj==nullptr;	}
 
-		/*! Returns true if the referenced object is not nullptr.  */
+		//! Returns true if the referenced object is not nullptr.
 		inline bool isNotNull()const								{	return obj!=nullptr;	}
 
 		inline bool operator==(const _Ptr & other)const			{	return obj==other.obj;	}
@@ -160,31 +160,31 @@ class ERef : public _CountedRef<_T> {
 		ERef(_T * _obj) : _CountedRef<_T>(_obj)						{	}
 		ERef(const EPtr<_T>& other) : _CountedRef<_T>(other.get())	{	}
 
-	/*! @name Conversion */
+	//! @name Conversion
 	// @{
 
-		/*! Returns object->toBool() if the referenced object is not nullptr, false otherwise.*/
+		//! Returns object->toBool() if the referenced object is not nullptr, false otherwise.
 		bool toBool()const						{	return this->isNull() ? false : this->get()->toBool();	}
 
-		/*! Returns object->toBool() if the referenced object is not nullptr, defaultValue otherwise.  */
+		//! Returns object->toBool() if the referenced object is not nullptr, defaultValue otherwise.
 		bool toBool(bool defaultValue)const	{	return this->isNull() ? defaultValue : this->get()->toBool(); }
 
-		/*! Returns object->toDouble() if the referenced object is not nullptr, 0.0 otherwise.*/
+		//! Returns object->toDouble() if the referenced object is not nullptr, 0.0 otherwise.
 		double toDouble()const				{	return this->isNull() ? 0.0 : this->get()->toDouble();	}
 
-		/*! Returns object->toDouble() if the referenced object is not nullptr, defaultValue otherwise.	*/
+		//! Returns object->toDouble() if the referenced object is not nullptr, defaultValue otherwise.
 		double toDouble(double defaultValue)const { return this->isNull() ? defaultValue : this->get()->toDouble();	}
 
-		/*! Returns object->toFloat() if the referenced object is not nullptr, 0.0f otherwise. */
+		//! Returns object->toFloat() if the referenced object is not nullptr, 0.0f otherwise.
 		float toFloat()const					{	return this->isNull() ? 0.0f : this->get()->toFloat();	}
 
-		/*! Returns object->toFloat() if the referenced object is not nullptr, defaultValue otherwise.*/
+		//! Returns object->toFloat() if the referenced object is not nullptr, defaultValue otherwise.
 		float toFloat(float defaultValue)const  {	return this->isNull() ? defaultValue : this->get()->toFloat();	}
 
-		/*! Returns object->toInt() if the referenced object is not nullptr, 0 otherwise.  */
+		//! Returns object->toInt() if the referenced object is not nullptr, 0 otherwise.
 		int toInt()const						{	return this->isNull() ? 0 : this->get()->toInt(); }
 
-		/*! Returns object->toInt() if the referenced object is not nullptr, defaultValue otherwise.   */
+		//! Returns object->toInt() if the referenced object is not nullptr, defaultValue otherwise.
 		int toInt(int defaultValue)const		{	return this->isNull() ? defaultValue : this->get()->toInt();	}
 
 		//! Return object->toUInt() if the referenced object is not nullptr, 0 otherwise.
@@ -193,15 +193,15 @@ class ERef : public _CountedRef<_T> {
 		//! Return object->toUInt() if the referenced object is not nullptr, defaultValue otherwise.
 		unsigned int toUInt(unsigned int defaultValue) const	{	return this->isNull() ? defaultValue  :  this->get()->toUInt();	}
 
-		/*! Returns object->toString() if the referenced object is not nullptr, "" otherwise.  */
+		//! Returns object->toString() if the referenced object is not nullptr, "" otherwise.
 		std::string toString()const			{	return this->isNull() ? "":this->get()->toString(); }
 
-		/*! Returns object->toString() if the referenced object is not nullptr, defaultValue otherwise.	*/
+		//! Returns object->toString() if the referenced object is not nullptr, defaultValue otherwise.
 		std::string toString(const std::string & defaultValue)const {
 			return this->isNull() ? defaultValue : this->get()->toString();
 		}
 
-		/*! Tries to convert object to given Type; returns nullptr if object is nullptr or not of given type. */
+		//! Tries to convert object to given Type; returns nullptr if object is nullptr or not of given type.
 		template <class _T2> _T2 * toType()const	{	return this->isNull()?nullptr : dynamic_cast<_T2*>(this->get());	}
 };
 
@@ -215,18 +215,18 @@ class EPtr{
 		EPtr(_T * _obj) : obj(_obj)							{	}
 		EPtr(const ERef<_T>& other) : obj(other.get())		{	}
 
-	/*! @name Information */
+	//! @name Information
 	// @{
-		/*! Returns a pointer to the referenced Object. */
+		//! Returns a pointer to the referenced Object.
 		inline _T * get()const								{	return obj; }
 
-		/*! Direct access to the referenced Object. */
+		//! Direct access to the referenced Object.
 		inline _T * operator->()const						{	return obj; }
 
-		/*! Returns true if the referenced object is nullptr.  */
+		//! Returns true if the referenced object is nullptr.
 		inline bool isNull()const							{	return obj==nullptr;	}
 
-		/*! Returns true if the referenced object is not nullptr.  */
+		//! Returns true if the referenced object is not nullptr.
 		inline bool isNotNull()const						{	return obj!=nullptr;	}
 
 		inline bool operator==(const EPtr & other)const		{	return obj==other.obj;	}
@@ -235,31 +235,31 @@ class EPtr{
 		inline bool operator!=(const _T * o2)const			{	return obj!=o2; }
 	// @}
 
-	/*! @name Conversion */
+	//! @name Conversion
 	// @{
 
-		/*! Returns object->toBool() if the referenced object is not nullptr, false otherwise.*/
+		//! Returns object->toBool() if the referenced object is not nullptr, false otherwise.
 		bool toBool()const					{	return isNull()?false:obj->toBool();	}
 
-		/*! Returns object->toBool() if the referenced object is not nullptr, defaultValue otherwise.  */
+		//! Returns object->toBool() if the referenced object is not nullptr, defaultValue otherwise.
 		bool toBool(bool defaultValue)const {	return isNull()?defaultValue:obj->toBool(); }
 
-		/*! Returns object->toDouble() if the referenced object is not nullptr, 0.0 otherwise.*/
+		//! Returns object->toDouble() if the referenced object is not nullptr, 0.0 otherwise.
 		double toDouble()const				{	return isNull()?0.0:obj->toDouble();	}
 
-		/*! Returns object->toDouble() if the referenced object is not nullptr, defaultValue otherwise.	*/
+		//! Returns object->toDouble() if the referenced object is not nullptr, defaultValue otherwise.
 		double toDouble(double defaultValue)const { return isNull()?defaultValue:obj->toDouble();	}
 
-		/*! Returns object->toFloat() if the referenced object is not nullptr, 0.0f otherwise. */
+		//! Returns object->toFloat() if the referenced object is not nullptr, 0.0f otherwise.
 		float toFloat()const				{	return isNull()?0.0f:obj->toFloat();	}
 
-		/*! Returns object->toFloat() if the referenced object is not nullptr, defaultValue otherwise.*/
+		//! Returns object->toFloat() if the referenced object is not nullptr, defaultValue otherwise.
 		float toFloat(float defaultValue)const	{	return isNull()?defaultValue:obj->toFloat();	}
 
-		/*! Returns object->toInt() if the referenced object is not nullptr, 0 otherwise.  */
+		//! Returns object->toInt() if the referenced object is not nullptr, 0 otherwise.
 		int toInt()const					{	return isNull()?0:obj->toInt(); }
 
-		/*! Returns object->toInt() if the referenced object is not nullptr, defaultValue otherwise.   */
+		//! Returns object->toInt() if the referenced object is not nullptr, defaultValue otherwise.
 		int toInt(int defaultValue)const	{	return isNull()?defaultValue:obj->toInt();	}
 
 		//! Return object->toUInt() if the referenced object is not nullptr, 0 otherwise.
@@ -268,15 +268,15 @@ class EPtr{
 		//! Return object->toUInt() if the referenced object is not nullptr, defaultValue otherwise.
 		unsigned int toUInt(unsigned int defaultValue) const	{	return isNull() ? defaultValue : obj->toUInt();	}
 
-		/*! Returns object->toString() if the referenced object is not nullptr, "" otherwise.  */
+		//! Returns object->toString() if the referenced object is not nullptr, "" otherwise.
 		std::string toString()const			{	return isNull()?"":obj->toString(); }
 
-		/*! Returns object->toString() if the referenced object is not nullptr, defaultValue otherwise.	*/
+		//! Returns object->toString() if the referenced object is not nullptr, defaultValue otherwise.
 		std::string toString(const std::string & defaultValue)const {
 			return isNull()?defaultValue:obj->toString();
 		}
 
-		/*! Tries to convert object to given Type; returns nullptr if object is nullptr or not of given type. */
+		//! Tries to convert object to given Type; returns nullptr if object is nullptr or not of given type.
 		template <class _T2> _T2 * toType()const	{	return isNull()?nullptr:dynamic_cast<_T2*>(obj);	}
 
 };

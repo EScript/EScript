@@ -14,16 +14,16 @@ namespace AST{
 class Block;
 
 
-/*! [UserFunctionExpr]  ---|> [ExtObject]	*/
+//! [UserFunctionExpr]  ---|> [ExtObject]
 class UserFunctionExpr : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(UserFunctionExpr)
 	public:
 	// -------------------------------------------------------------
 
-	/*! @name Parameter */
+	//! @name Parameter
 	//	@{
 
-		/*! [Parameter] */
+		//! [Parameter]
 		class Parameter {
 			private:
 				StringId name;
@@ -51,7 +51,7 @@ class UserFunctionExpr : public ASTNode {
 
 	// -------------------------------------------------------------
 
-	/*! @name Main */
+	//! @name Main
 	//	@{
 		UserFunctionExpr(Block * block,const refArray_t & _sConstrExpressions,int line);
 		virtual ~UserFunctionExpr() {}

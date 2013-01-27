@@ -53,7 +53,7 @@ void Map::init(EScript::Namespace & globals) {
 }
 
 //---
-/*! (static) Factory*/
+//! (static) Factory
 Map * Map::create(){
 	return new Map;
 }

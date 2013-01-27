@@ -26,8 +26,21 @@ struct TestObject{
 	explicit TestObject(int _m1,float _m2) : m1(_m1),m2(_m2){}
 	bool operator==(const TestObject&other)const {	return m1==other.m1 && m2==other.m2;}
 };
+class E_TestObject;
+
+namespace EScript{
 
 
+static Array* create(const std::vector<Object*>& v){
+	return Array::create(v.size(),v.data());
+}
+
+static Void* create(std::nullptr_t){
+   return Void::get();
+}
+
+
+}
 
 //! A EScript-container for the simple test class
 struct E_TestObject : public ReferenceObject<TestObject>{
@@ -73,10 +86,10 @@ public:
 		ESF_DECLARE(typeObject,"_constructor",0,2,new E_TestObject(parameter[0].toInt(),parameter[1].toFloat()))
 
 		//! Number getM1()
-		ESMF_DECLARE(typeObject,E_TestObject,"getM1",0,0,Number::create(self->ref().m1))
+		ESMF_DECLARE(typeObject,E_TestObject,"getM1",0,0,self->ref().m1)
 
 		//! Number getM2()
-		ESMF_DECLARE(typeObject,E_TestObject,"getM2",0,0,Number::create(self->ref().m2))
+		ESMF_DECLARE(typeObject,E_TestObject,"getM2",0,0,self->ref().m2)
 
 	}
 };
@@ -103,6 +116,9 @@ int main(int argc,char * argv[]) {
 	std::string file= argc>1 ? argv[1] : "tests/test.escript";
 	std::pair<bool,ObjRef> result = EScript::loadAndExecute(*rt.get(),file);
 
+	std::vector<Object*> objs;
+	Array *arr=EScript::create(objs);
+	
 	// --- output result
 	if(result.second.isNotNull()) {
 		std::cout << "\n\n --- "<<"\nResult: " << result.second.toString()<<"\n";

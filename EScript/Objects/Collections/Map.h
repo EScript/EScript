@@ -11,7 +11,7 @@
 
 namespace EScript {
 
-/*! [Map] ---|> [Collection] ---|> [Object] */
+//! [Map] ---|> [Collection] ---|> [Object]
 class Map : public Collection {
 		ES_PROVIDES_TYPE_OBJECT(Collection)
 		ES_PROVIDES_TYPE_NAME(Map)
@@ -108,7 +108,7 @@ class Map : public Collection {
 				MapIterator(Map * ar);
 				virtual ~MapIterator() { }
 
-				/// ---|> [Iterator]
+				//! ---|> [Iterator]
 				virtual Object * key();
 				virtual Object * value();
 				virtual void reset();

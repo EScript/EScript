@@ -30,7 +30,7 @@ class UserFunction;
 //! @name Declaration
 //@{
 
-/*! Add a type Function attribute to @p type with given name. */
+//! Add a type Function attribute to @p type with given name.
 void declareFunction(Type * type, StringId nameId, Function::functionPtr fn);
 void declareFunction(Type * type, const char * name, Function::functionPtr fn);
 void declareFunction(Type * type, StringId nameId, int minParamCount, int maxParamCount, Function::functionPtr fn);

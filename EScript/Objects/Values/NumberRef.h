@@ -9,7 +9,7 @@
 
 namespace EScript {
 
-/*! [NumberRef] ---|> [Number] ---|> [Object]   */
+//! [NumberRef] ---|> [Number] ---|> [Object]
 class NumberRef : public Number {
 		ES_PROVIDES_TYPE_OBJECT(Number)
 		ES_PROVIDES_TYPE_NAME(NumberRef)
@@ -26,14 +26,14 @@ class NumberRef : public Number {
 		explicit NumberRef(long & valueRef,Type * type = nullptr);
 		virtual ~NumberRef();
 
-		/// ---|> Number
+		//! ---|> Number
 		virtual double  getValue()const;
 		virtual void setValue(double _value);
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual Object * getRefOrCopy();
 
-		/// ---|> [Object]
+		//! ---|> [Object]
 		virtual void _assignValue(ObjPtr value);
 
 	private:
