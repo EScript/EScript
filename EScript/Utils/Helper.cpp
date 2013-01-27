@@ -158,7 +158,8 @@ ObjRef _loadAndExecute(Runtime & runtime, const std::string & filename) {
 std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & filename) {
 	try {
 		ObjRef result = _loadAndExecute(runtime,filename);
-		return std::make_pair(true,result);
+		ObjRef exitResult = runtime.fetchAndClearExitResult();
+		return std::make_pair(true,exitResult.isNotNull() ? exitResult : result);
 	} catch (Object * error) {
 		std::ostringstream os;
 		os << "Error occurred while loading file '" << filename << "':\n" << error->toString() << std::endl;

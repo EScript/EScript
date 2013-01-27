@@ -40,74 +40,74 @@ void Object::init(EScript::Namespace & globals) {
 	ESF_DECLARE(typeObject,"clone",0,0,caller->clone())
 
 	//! [ESMF] Number Object.toNumber()
-	ESF_DECLARE(typeObject,"toNumber",0,0,Number::create(caller->toDouble()))
+	ESF_DECLARE(typeObject,"toNumber",0,0,caller->toDouble())
 
 	//! [ESMF] String Object.toString()
-	ESF_DECLARE(typeObject,"toString",0,0,String::create(caller->toString()))
+	ESF_DECLARE(typeObject,"toString",0,0,caller->toString())
 
 	//! [ESMF] String Object.toDbgString()
-	ESF_DECLARE(typeObject,"toDbgString",0,0,String::create(caller->toDbgString()))
+	ESF_DECLARE(typeObject,"toDbgString",0,0,caller->toDbgString())
 
 //	//! [ESMF] Object Object.execute() @deprecated
 //	ESF_DECLARE(typeObject,"execute",0,0,runtime.executeObj(caller))
 
 	//! [ESMF] Bool Object.isA(Object o)
-	ESF_DECLARE(typeObject,"isA",1,1,Bool::create(caller->isA(parameter[0].toType<Type>())))
+	ESF_DECLARE(typeObject,"isA",1,1,caller->isA(parameter[0].toType<Type>()))
 
 	//! [ESMF] Bool Object ---|> Object
-	ESF_DECLARE(typeObject,"---|>",1,1,Bool::create(caller->isA(parameter[0].toType<Type>())))
+	ESF_DECLARE(typeObject,"---|>",1,1,caller->isA(parameter[0].toType<Type>()))
 
 	/*!	[ESMF] Bool Object.!=(Object o)
 		\note Uses isEqual(...) which calls "=="-Operator
 	*/
-	ESF_DECLARE(typeObject,"!=",1,1,Bool::create(! caller->isEqual(runtime,parameter[0]) ))
+	ESF_DECLARE(typeObject,"!=",1,1,!caller->isEqual(runtime,parameter[0]) )
 
 	/*!	[ESMF] Bool Object.==(Object o)
 		\note this is probably the only place where rt_isEqual(...) is called directly.	*/
-	ESF_DECLARE(typeObject,"==",1,1,Bool::create(caller->rt_isEqual(runtime,parameter[0])))
+	ESF_DECLARE(typeObject,"==",1,1,caller->rt_isEqual(runtime,parameter[0]))
 
 	//! [ESMF] Bool Object.===(Object o)
-	ESF_DECLARE(typeObject,"===",1,1,Bool::create(caller->isIdentical(runtime,parameter[0])))
+	ESF_DECLARE(typeObject,"===",1,1,caller->isIdentical(runtime,parameter[0]))
 
 	//! [ESMF] Bool Object.!==(Object o)
-	ESF_DECLARE(typeObject,"!==",1,1,Bool::create(!caller->isIdentical(runtime,parameter[0])))
+	ESF_DECLARE(typeObject,"!==",1,1,!caller->isIdentical(runtime,parameter[0]))
 
 	//! [ESMF] Bool !Object()
-	ESF_DECLARE(typeObject,"!_pre",0,0,Bool::create(!caller->toBool()))
+	ESF_DECLARE(typeObject,"!_pre",0,0,!caller->toBool())
 
 	//! [ESMF] string Object.getTypeName()
-	ESF_DECLARE(typeObject,"getTypeName",0,0,String::create(caller->getTypeName()))
+	ESF_DECLARE(typeObject,"getTypeName",0,0,caller->getTypeName())
 
 	//! [ESMF] Object Object.getType()
 	ESF_DECLARE(typeObject,"getType",0,0,caller->getType())
 
 	//! [ESMF] int Object.hash()
-	ESF_DECLARE(typeObject,"hash",0,0,Number::create(caller->hash().getValue()))
+	ESF_DECLARE(typeObject,"hash",0,0,caller->hash().getValue())
 
 	//! [ESMF] Object Object.getAttribute(key)
 	ESF_DECLARE(typeObject,"getAttribute",1,1,caller->getAttribute(parameter[0].toString()).getValue())
 
 	//! [ESMF] Object Object.getAttributeProperties(key)
 	ESF_DECLARE(typeObject,"getAttributeProperties",1,1,
-				Number::create(static_cast<unsigned int>(caller->getAttribute(parameter[0].toString()).getProperties())))
+				static_cast<unsigned int>(caller->getAttribute(parameter[0].toString()).getProperties()))
 
 	//! [ESMF] Object Object.getLocalAttribute(key)
 	ESF_DECLARE(typeObject,"getLocalAttribute",1,1,caller->getLocalAttribute(parameter[0].toString()).getValue())
 
 	//! [ESMF] Bool Object.isSet(key)
-	ESF_DECLARE(typeObject,"isSet",1,1,Bool::create(!caller->getAttribute(parameter[0].toString()).isNull()))
+	ESF_DECLARE(typeObject,"isSet",1,1,!caller->getAttribute(parameter[0].toString()).isNull())
 
 	//! [ESMF] Bool Object.isSetLocally(key)
-	ESF_DECLARE(typeObject,"isSetLocally",1,1,Bool::create(!caller->getLocalAttribute(parameter[0].toString()).isNull()))
+	ESF_DECLARE(typeObject,"isSetLocally",1,1,!caller->getLocalAttribute(parameter[0].toString()).isNull())
 
 	//! [ESMF] Bool Object.setAttribute(key,value(,flags = ATTR_NORMAL_ATTRIBUTE))
 	ESF_DECLARE(typeObject,"setAttribute",2,3,
-				Bool::create(caller->setAttribute(parameter[0].toString(),
+				caller->setAttribute(parameter[0].toString(),
 													Attribute(parameter[1],
-													static_cast<Attribute::flag_t>(parameter[2].toInt())))))
+													static_cast<Attribute::flag_t>(parameter[2].toInt()))))
 
 	//! [ESMF] Bool Object.assignAttribute(key,value)
-	ESF_DECLARE(typeObject,"assignAttribute",2,2,Bool::create(runtime.assignToAttribute(caller,parameter[0].toString(),parameter[1])))
+	ESF_DECLARE(typeObject,"assignAttribute",2,2,runtime.assignToAttribute(caller,parameter[0].toString(),parameter[1]))
 
 	typedef std::unordered_map<StringId,Object *> attrMap_t; // has to be defined here, due to compiler (gcc) bug.
 	//! Map Object._getAttributes()

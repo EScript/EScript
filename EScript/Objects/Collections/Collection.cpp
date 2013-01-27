@@ -35,24 +35,19 @@ void Collection::init(EScript::Namespace & globals) {
 				(self->setValue(parameter[0],parameter[1]),caller))
 
 	//! [ESMF] Number Collection.size() \deprecated
-	ESMF_DECLARE(typeObject,Collection, "size",0,0,
-				Number::create( self->count() ))
+	ESMF_DECLARE(typeObject,Collection, "size",0,0,self->count() )
 
 	//! [ESMF] Number Collection.count()
-	ESMF_DECLARE(typeObject,Collection, "count",0,0,
-				Number::create( self->count() ))
+	ESMF_DECLARE(typeObject,Collection, "count",0,0,self->count() )
 
 	//! [ESMF] Bool Collection.empty()
-	ESMF_DECLARE(typeObject,Collection,"empty",0,0,
-				Bool::create( self->count()==0 ))
+	ESMF_DECLARE(typeObject,Collection,"empty",0,0,self->count()==0 )
 
 	//! [ESMF] self Collection.clear()
-	ESMF_DECLARE(typeObject,Collection,"clear",0,0,
-				(self->clear(),caller))
+	ESMF_DECLARE(typeObject,Collection,"clear",0,0,(self->clear(),caller))
 
 	//! [ESMF] Iterator Collection.getIterator()
-	ESMF_DECLARE(typeObject,Collection,"getIterator",0,0,
-				self->getIterator())
+	ESMF_DECLARE(typeObject,Collection,"getIterator",0,0,self->getIterator())
 
 	//! [ESMF] Collection Collection.map(function[, AdditionalValues*])
 	ES_MFUNCTION_DECLARE(typeObject,Collection,"map",1,-1,{
@@ -72,7 +67,7 @@ void Collection::init(EScript::Namespace & globals) {
 
 	//! [ESMF] bool Collection.contains(Object)
 	ESMF_DECLARE(typeObject,Collection,"contains",1,1,
-				Bool::create(self->rt_contains(runtime,parameter[0])))
+				self->rt_contains(runtime,parameter[0]))
 
 	//! [ESMF] KEY Collection.findValue( VALUE )
 	ESMF_DECLARE(typeObject,Collection, "findValue",1,1,

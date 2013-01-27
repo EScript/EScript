@@ -31,7 +31,7 @@ void Number::init(EScript::Namespace & globals) {
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! [ESMF] new Numbern([Number])
-	ESF_DECLARE(typeObject,"_constructor",0,1,Number::create( parameter[0].toDouble(0.0)))
+	ESF_DECLARE(typeObject,"_constructor",0,1,Number::create(parameter[0].toDouble(0.0)))
 
 	//- Operators
 
@@ -168,7 +168,7 @@ void Number::init(EScript::Namespace & globals) {
 	ES_FUNCTION_DECLARE(typeObject,"abs",0,0,{
 		assertParamCount(runtime,parameter.count(),0,0);
 		const double d = caller->toDouble();
-		return  Number::create( d>0?d:-d);
+		return  d>0?d:-d;
 	})
 
 	//! [ESMF] Number Number.acos
@@ -203,9 +203,9 @@ void Number::init(EScript::Namespace & globals) {
 	ESF_DECLARE(typeObject,"floor",0,0,(std::floor( caller->toDouble())))
 
 	//! [ESMF] String Number.format([Number precision = 3[, Bool scientific = true[, Number width = 0[, String fill='0']]]])
-	ESMF_DECLARE(typeObject,Number,"format",0,4,String::create(self->format(
+	ESMF_DECLARE(typeObject,Number,"format",0,4,self->format(
 			static_cast<std::streamsize >(parameter[0].toInt(3)), parameter[1].toBool(true),
-			static_cast<std::streamsize >(parameter[2].toInt(0)), parameter[3].toString("0")[0])))
+			static_cast<std::streamsize >(parameter[2].toInt(0)), parameter[3].toString("0")[0]))
 
 	//! [ESMF] Number Number.ln()
 	ESF_DECLARE(typeObject,"ln",0,0,std::log(caller->toDouble()))
@@ -229,7 +229,7 @@ void Number::init(EScript::Namespace & globals) {
 				(123.456).round(10) == 120 */
 	ES_FUNCTION_DECLARE(typeObject,"round",0,1,{
 		if(parameter.count()==0)
-			return Number::create(round( caller->toDouble()));
+			return round( caller->toDouble());
 		const double reference = parameter[0].toDouble();
 		if(reference==0){
 			runtime.setException("round with zero");
@@ -254,14 +254,14 @@ void Number::init(EScript::Namespace & globals) {
 	ES_FUNCTION_DECLARE(typeObject,"toHex",0,0,{
 		std::ostringstream sprinter;
 		sprinter << std::hex << "0x"<<caller->toInt();
-		return String::create(sprinter.str());
+		return sprinter.str();
 	})
 
 	//! [ESMF] String Number.toIntStr()
 	ES_FUNCTION_DECLARE(typeObject,"toIntStr",0,0,{
 		std::ostringstream sprinter;
 		sprinter <<caller->toInt();
-		return String::create(sprinter.str());
+		return sprinter.str();
 	})
 }
 

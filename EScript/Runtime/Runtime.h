@@ -84,6 +84,8 @@ class Runtime : public ExtObject {
 		void info(const std::string & s);
 		void warn(const std::string & s);
 
+		ObjRef fetchAndClearExitResult();
+		
 		bool checkNormalState()const;
 
 		/*! Creates an exception object including current stack info and

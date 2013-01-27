@@ -20,7 +20,7 @@ void Win32Lib::init(EScript::Namespace * globals) {
 	ESF_DECLARE(lib,"setClipboard",1,1,(Win32Lib::setClipboard(parameter[0].toString()),rtValue(nullptr)))
 
 	//! [ESF]	string getClipboard( )
-	ESF_DECLARE(lib,"getClipboard",0,0,String::create(Win32Lib::getClipboard()))
+	ESF_DECLARE(lib,"getClipboard",0,0,Win32Lib::getClipboard())
 
 	//! [ESF]	bool loadLibrary(string )
 	ES_FUNCTION_DECLARE(lib,"loadLibrary",1,1, {
@@ -29,17 +29,17 @@ void Win32Lib::init(EScript::Namespace * globals) {
 
 		hDLL = LoadLibrary(parameter[0].toString().c_str());
 		if(hDLL == nullptr)
-			return Bool::create(false);
+			return false;
 
 		f = reinterpret_cast<libInitFunction*>(GetProcAddress(hDLL,"init"));
 		if(!f)	{
 			// handle the error
 			FreeLibrary(hDLL);
-			return Bool::create(false);
+			return false;
 		}
 		EScript::initLibrary(f);
 
-		return Bool::create(true);
+		return true;
 	})
 
 }

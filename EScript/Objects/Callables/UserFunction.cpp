@@ -15,23 +15,23 @@ void UserFunction::init(EScript::Namespace & globals) {
 	declareConstant(&globals,getClassName(),t);
 
 	//! [ESMF] String UserFunction.getFilename()
-	ESMF_DECLARE(t,UserFunction,"getFilename",0,0,String::create(self->getCode().getFilename()))
+	ESMF_DECLARE(t,UserFunction,"getFilename",0,0,self->getCode().getFilename())
 
 	//! [ESMF] String UserFunction.getCode()
-	ESMF_DECLARE(t,UserFunction,"getCode",0,0,String::create(self->getCode().getCodeString()))
+	ESMF_DECLARE(t,UserFunction,"getCode",0,0,self->getCode().getCodeString())
 
 	//! [ESMF] Number|false UserFunction.getMaxParamCount()
 	ES_MFUNCTION_DECLARE(t,UserFunction,"getMaxParamCount",0,0,{
 		if(self->getMaxParamCount()<0 )
-			return Bool::create(false);
-		return Number::create(self->getMaxParamCount());
+			return false;
+		return self->getMaxParamCount();
 	})
 
 	//! [ESMF] Number UserFunction.getMinParamCount()
-	ESMF_DECLARE(t,UserFunction,"getMinParamCount",0,0, Number::create(self->getMinParamCount()))
+	ESMF_DECLARE(t,UserFunction,"getMinParamCount",0,0, self->getMinParamCount())
 
 	//! [ESMF] String UserFunction._asm()
-	ESMF_DECLARE(t,UserFunction,"_asm",0,0, String::create(self->getInstructionBlock().toString()))
+	ESMF_DECLARE(t,UserFunction,"_asm",0,0, self->getInstructionBlock().toString())
 
 }
 

@@ -164,7 +164,7 @@ void StdLib::init(EScript::Namespace * globals) {
 			runtime.setAttribute(seachPathsId, Attribute(searchPaths));
 		}
 		searchPaths->pushBack(String::create(parameter[0].toString()));
-		return Void::get();
+		return nullptr;
 	})
 
 	//! [ESF] void assert( expression[,text])
@@ -192,12 +192,12 @@ void StdLib::init(EScript::Namespace * globals) {
 	//! [ESF]  number clock()
 	ES_FUNCTION_DECLARE(globals,"clock",0,0,{
 		LARGE_INTEGER time = _getPerformanceCounter();
-		return Number::create( static_cast<double>(time.QuadPart-_clockStart.QuadPart) / static_cast<double>(frequency.QuadPart) );
+		return static_cast<double>(time.QuadPart-_clockStart.QuadPart) / static_cast<double>(frequency.QuadPart);
 	})
 
 	#else
 	//! [ESF]  number clock()
-	ESF_DECLARE(globals,"clock",0,0,Number::create( static_cast<double>(clock())/CLOCKS_PER_SEC))
+	ESF_DECLARE(globals,"clock",0,0,static_cast<double>(clock())/CLOCKS_PER_SEC)
 	#endif
 	}
 
@@ -227,12 +227,12 @@ void StdLib::init(EScript::Namespace * globals) {
 	ES_FUNCTION_DECLARE(globals,"getEnv",1,1,{
 		const char * value = std::getenv(parameter[0].toString().c_str());
 		if(value==nullptr)
-			return Void::get();
-		return String::create(value);
+			return nullptr;
+		return std::string(value);
 	})
 
 	//! [ESF]  string getOS()
-	ESF_DECLARE(globals,"getOS",0,0,String::create(StdLib::getOS()))
+	ESF_DECLARE(globals,"getOS",0,0,StdLib::getOS())
 
 	//! [ESF] Runtime getRuntime( )
 	ESF_DECLARE(globals,"getRuntime",0,0, &runtime)
@@ -244,7 +244,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	ESF_DECLARE(globals,"loadOnce",1,1,StdLib::loadOnce(runtime,parameter[0].toString()))
 
 	//! [ESF]  Number ord(String)
-	ESF_DECLARE(globals,"ord",1,1,Number::create(parameter[0].toString().c_str()[0] ))
+	ESF_DECLARE(globals,"ord",1,1,static_cast<int>(parameter[0].toString().c_str()[0] ))
 
 	//! [ESF] void out(...)
 	ES_FUNCTION_DECLARE(globals,"out",0,-1, {
@@ -288,7 +288,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	})
 
 	//!	[ESF]  number system(command)
-	ESF_DECLARE(globals,"system",1,1,Number::create(system(parameter[0].toString().c_str())))
+	ESF_DECLARE(globals,"system",1,1,system(parameter[0].toString().c_str()))
 
 	//!	[ESF] Number exec(String path, Array argv)
 	ES_FUNCTION_DECLARE(globals, "exec", 2, 2, {
@@ -315,10 +315,10 @@ void StdLib::init(EScript::Namespace * globals) {
 	})
 
 	//! [ESF]  number time()
-	ESF_DECLARE(globals,"time",0,0,Number::create(static_cast<double>(time(nullptr))))
+	ESF_DECLARE(globals,"time",0,0,static_cast<double>(time(nullptr)))
 
 	//! [ESF]  string toJSON(obj[,formatted = true])
-	ESF_DECLARE(globals,"toJSON",1,2,String::create(JSON::toJSON(parameter[0].get(),parameter[1].toBool(true))))
+	ESF_DECLARE(globals,"toJSON",1,2,JSON::toJSON(parameter[0].get(),parameter[1].toBool(true)))
 
 }
 

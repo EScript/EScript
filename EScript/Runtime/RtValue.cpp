@@ -12,6 +12,13 @@
 #include "../Objects/Values/Void.h"
 
 namespace EScript{
+	
+RtValue::RtValue(const std::string & s) : 
+		valueType(OBJECT_PTR){ 
+	value.value_obj = String::create(s);
+	Object::addReference(value.value_obj);
+}
+
 std::string RtValue::toDbgString()const{
 	switch(valueType){
 		case VOID:
@@ -75,9 +82,4 @@ Object * RtValue::_toObject()const{
 	}
 }
 
-
-RtValue rtValue(const std::string & s){
-	return rtValue(String::create(s));
-
-}
 }

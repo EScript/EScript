@@ -38,8 +38,8 @@ void IOLib::init(EScript::Namespace * o) {
 		}
 		if(parameter.count()>1) {
 			if(parameter[1].toString()=="UTF16LE") {
-				std::string contentS(StringUtils::UCS2LE_to_ANSII(content.str()));
-				return String::create(contentS);
+				const std::string contentS(StringUtils::UCS2LE_to_ANSII(content.str()));
+				return contentS;
 			} else {
 				runtime.setException("Unknown format");
 				return nullptr;
@@ -64,9 +64,8 @@ void IOLib::init(EScript::Namespace * o) {
 		try {
 			const auto files = IO::getFilesInDir(parameter[0].toString(), parameter[1].toInt(E_DIR_FILES));
 			Array * ar = Array::create();
-			for(const auto & file : files) {
+			for(const auto & file : files) 
 				ar->pushBack(String::create(file));
-			}
 			return ar;
 		} catch (const std::string & s) {
 			runtime.setException(s);
@@ -75,22 +74,22 @@ void IOLib::init(EScript::Namespace * o) {
 	})
 
 	//! [ESF] string condensePath(string path)
-	ESF_DECLARE(lib,"condensePath",1,1,String::create(IO::condensePath(parameter[0].toString())))
+	ESF_DECLARE(lib,"condensePath",1,1,IO::condensePath(parameter[0].toString()))
 
 	//! [ESF] bool isDir(string dirname)
-	ESF_DECLARE(lib,"isDir",1,1,Bool::create(IO::getEntryType(parameter[0].toString())==IO::TYPE_DIRECTORY))
+	ESF_DECLARE(lib,"isDir",1,1,IO::getEntryType(parameter[0].toString())==IO::TYPE_DIRECTORY)
 
 	//! [ESF] bool isFile(string filename)
-	ESF_DECLARE(lib,"isFile",1,1,Bool::create(IO::getEntryType(parameter[0].toString())==IO::TYPE_FILE))
+	ESF_DECLARE(lib,"isFile",1,1,IO::getEntryType(parameter[0].toString())==IO::TYPE_FILE)
 
 	//! [ESF] int fileMTime(string filename)
-	ESF_DECLARE(lib,"fileMTime",1,1,Number::create( static_cast<int>(IO::getFileMTime(parameter[0].toString()))))
+	ESF_DECLARE(lib,"fileMTime",1,1,static_cast<int>(IO::getFileMTime(parameter[0].toString())))
 
 	//! [ESF] int fileSize(string filename)
-	ESF_DECLARE(lib,"fileSize",1,1,Number::create(IO::getFileSize(parameter[0].toString())))
+	ESF_DECLARE(lib,"fileSize",1,1,static_cast<double>(IO::getFileSize(parameter[0].toString())))
 
 	//! [ESF] string dirname(string path)
-	ESF_DECLARE(lib,"dirname", 1, 1,String::create(IO::dirname(parameter[0].toString())))
+	ESF_DECLARE(lib,"dirname", 1, 1,IO::dirname(parameter[0].toString()))
 	// rename
 	// copy
 	// delete

@@ -101,6 +101,13 @@ class RuntimeInternals  {
 			}
 			return nullptr;
 		}
+		ObjRef fetchAndClearExitResult(){
+			if(state==STATE_EXITING){
+				state = STATE_NORMAL;
+				return std::move(resultValue);
+			}
+			return nullptr;
+		}
 
 		state_t getState()const							{	return state;	}
 

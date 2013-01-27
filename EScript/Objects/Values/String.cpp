@@ -39,7 +39,7 @@ void String::init(EScript::Namespace & globals) {
 		int pos = parameter[0]->toInt();
 		if(static_cast<unsigned int>(pos)>=self->getString().length())
 			return nullptr;
-		return  String::create(self->getString().substr(pos,1));
+		return self->getString().substr(pos,1);
 	})
 
 
@@ -49,32 +49,32 @@ void String::init(EScript::Namespace & globals) {
 		const string & s(self->getString());
 		string search = parameter[0].toString();
 		if(s.length()<search.length())
-			return Bool::create(false);
-		return Bool::create(s.substr(0,search.length())==search);
+			return false;
+		return s.substr(0,search.length())==search;
 	})
 
 	//! [ESMF] Bool String.contains (String)search [,(Number)startIndex] )
 	ES_MFUNCTION_DECLARE(typeObject,String,"contains",1,2, {
 		const string & s(self->getString());
-		string search = parameter[0].toString();
+		const string search = parameter[0].toString();
 		size_t start = s.length();
 		if(parameter.count()>1) {
 			start = static_cast<size_t>(parameter[1].toInt());
 			if(start>=s.length())
 				start = s.length();
 		}
-		return Bool::create(s.rfind(search,start)!=string::npos);
+		return s.rfind(search,start)!=string::npos;
 	})
 
 	//! [ESMF] Bool String.empty()
-	ESMF_DECLARE(typeObject,String,"empty",0,0,Bool::create( self->getString().empty()))
+	ESMF_DECLARE(typeObject,String,"empty",0,0,self->getString().empty())
 
 	//! [ESMF] Bool String.endsWith( (String)search )
 	ES_MFUNCTION_DECLARE(typeObject,String,"endsWith",1,1, {
 		const string & s(self->getString());
 		string search = parameter[0].toString();
-		if(s.length()<search.length()) return Bool::create(false);
-		return Bool::create(s.substr(s.length()-search.length(),search.length())==search);
+		if(s.length()<search.length()) return false;
+		return s.substr(s.length()-search.length(),search.length())==search;
 	})
 
 	//! [ESMF] String String.fillUp(length[, string fill=" ")
@@ -87,9 +87,8 @@ void String::init(EScript::Namespace & globals) {
 			const int count = (parameter[0].toInt()-s.length())/fill.length();
 			for(int i = 0;i<count;++i)
 				sprinter<<fill;
-			
 		}
-		return String::create(sprinter.str());
+		return sprinter.str();
 	})
 
 	//! [ESMF] Number|false String.find( (String)search [,(Number)startIndex] )
@@ -100,22 +99,24 @@ void String::init(EScript::Namespace & globals) {
 		if(parameter.count()>1) {
 			start = static_cast<size_t>(parameter[1].toInt());
 			if(start>=s.length())
-				return Bool::create(false);
+				return false;
 		}
 		size_t pos = s.find(search,start);
 		if(pos==string::npos ) {
-			return Bool::create(false);
-		} else return Number::create(pos);
+			return false;
+		} else {
+			return pos;
+		}
 	})
 
 	//! [ESMF] Number String.length()
-	ESMF_DECLARE(typeObject,String,"length",0,0,Number::create( self->getString().length()))
+	ESMF_DECLARE(typeObject,String,"length",0,0,self->getString().length())
 
 	//! [ESMF] String String.ltrim()
-	ESMF_DECLARE(typeObject,String,"lTrim",0,0,String::create( StringUtils::lTrim(self->getString())))
+	ESMF_DECLARE(typeObject,String,"lTrim",0,0,StringUtils::lTrim(self->getString()))
 
 	//! [ESMF] String String.rTrim()
-	ESMF_DECLARE(typeObject,String,"rTrim",0,0,String::create( StringUtils::rTrim(self->getString())))
+	ESMF_DECLARE(typeObject,String,"rTrim",0,0,StringUtils::rTrim(self->getString()))
 
 	//! [ESMF] String String.substr( (Number)begin [,(Number)length] )
 	ES_MFUNCTION_DECLARE(typeObject,String,"substr",1,2, {
@@ -135,16 +136,16 @@ void String::init(EScript::Namespace & globals) {
 				}
 			}
 		}
-		return  String::create(self->getString().substr(start,count));
+		return self->getString().substr(start,count);
 	})
 
 	//! [ESMF] String String.trim()
-	ESMF_DECLARE(typeObject,String,"trim",0,0,String::create( StringUtils::trim(self->getString())))
+	ESMF_DECLARE(typeObject,String,"trim",0,0,StringUtils::trim(self->getString()))
 
 
 	//! [ESMF] String String.replace((String)search,(String)replace)
 	ESMF_DECLARE(typeObject,String,"replace",2,2,
-				String::create(StringUtils::replaceAll(self->getString(),parameter[0].toString(),parameter[1]->toString(),1)))
+				StringUtils::replaceAll(self->getString(),parameter[0].toString(),parameter[1]->toString(),1))
 
 	typedef std::pair<std::string,std::string> keyValuePair_t;
 	//! [ESMF] String.replaceAll( (Map | ((String)search,(String)replace)) [,(Number)max])
@@ -162,13 +163,13 @@ void String::init(EScript::Namespace & globals) {
 				rules.push_back(std::make_pair(key.toString(),value.toString()));
 				iRef->next();
 			}
-			return String::create(StringUtils::replaceMultiple(subject,rules,parameter[1].toInt(-1)));
+			return StringUtils::replaceMultiple(subject,rules,parameter[1].toInt(-1));
 		}
 
 		const std::string search(parameter[0].toString());
 		const std::string replace(parameter[1]->toString());
 
-		return String::create(StringUtils::replaceAll(subject,search,replace,parameter[2].toInt(-1)));
+		return StringUtils::replaceAll(subject,search,replace,parameter[2].toInt(-1));
 	})
 
 	//! [ESMF] Number|false String.rFind( (String)search [,(Number)startIndex] )
@@ -184,8 +185,8 @@ void String::init(EScript::Namespace & globals) {
 		}
 		size_t pos = s.rfind(search,start);
 		if(pos==string::npos ) {
-			return Bool::create(false);
-		} else return Number::create(pos);
+			return false;
+		} else return pos;
 	})
 
 
@@ -204,23 +205,23 @@ void String::init(EScript::Namespace & globals) {
 	})
 
 	//! [ESMF] String String.toLower()
-	ESMF_DECLARE(typeObject,String,"toLower",0,0,String::create( StringUtils::toLower(self->getString())))
+	ESMF_DECLARE(typeObject,String,"toLower",0,0,StringUtils::toLower(self->getString()))
 
 	//! [ESMF] String String.toUpper()
-	ESMF_DECLARE(typeObject,String,"toUpper",0,0,String::create( StringUtils::toUpper(self->getString())))
+	ESMF_DECLARE(typeObject,String,"toUpper",0,0,StringUtils::toUpper(self->getString()))
 
 	//- Operators
 
 	//! [ESMF] String String+(String)Obj
-	ESMF_DECLARE(typeObject,String,"+",1,1,String::create( self->getString() + parameter[0].toString()))
+	ESMF_DECLARE(typeObject,String,"+",1,1,self->getString() + parameter[0].toString())
 
 	//! [ESMF] String String*(Number)Obj
 	ES_MFUNCTION_DECLARE(typeObject,String,"*",1,1,{
 		string s;
-		string s2( self->getString() );
+		const string s2( self->getString() );
 		for(int i = parameter[0].toInt();i>0;--i)
 			s+=s2;
-		return  String::create(s);
+		return s;
 	})
 
 	//! [ESMF] self String+=(String)Obj
@@ -237,16 +238,16 @@ void String::init(EScript::Namespace & globals) {
 	})
 
 	//! [ESMF] bool String>(String)Obj
-	ESMF_DECLARE(typeObject,String,">",1,1,Bool::create( self->getString() > parameter[0].toString()))
+	ESMF_DECLARE(typeObject,String,">",1,1,self->getString() > parameter[0].toString())
 
 	//! [ESMF] bool String>=(String)Obj
-	ESMF_DECLARE(typeObject,String,">=",1,1,Bool::create( self->getString() >= parameter[0].toString()))
+	ESMF_DECLARE(typeObject,String,">=",1,1,self->getString() >= parameter[0].toString())
 
 	//! [ESMF] bool String<(String)Obj
-	ESMF_DECLARE(typeObject,String,"<",1,1,Bool::create( self->getString() < parameter[0].toString()))
+	ESMF_DECLARE(typeObject,String,"<",1,1,self->getString() < parameter[0].toString())
 
 	//! [ESMF] bool String<=(String)Obj
-	ESMF_DECLARE(typeObject,String,"<=",1,1,Bool::create( self->getString() <= parameter[0].toString()))
+	ESMF_DECLARE(typeObject,String,"<=",1,1,self->getString() <= parameter[0].toString())
 }
 
 //---

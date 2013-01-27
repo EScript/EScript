@@ -56,10 +56,13 @@ struct RtValue{
 
 	RtValue()						: valueType(UNDEFINED) {}
 	RtValue(const bool b)			: valueType(BOOL) { value.value_bool = b;	}
-	RtValue(const StringId & id)		: valueType(IDENTIFIER) { value.value_indentifier = id.getValue();	}
+	RtValue(const StringId & id)	: valueType(IDENTIFIER) { value.value_indentifier = id.getValue();	}
 	RtValue(const double & v)		: valueType(NUMBER) { value.value_number = v;	}
-	RtValue(const float & v)			: valueType(NUMBER) { value.value_number = v;	}
+	RtValue(const float & v)		: valueType(NUMBER) { value.value_number = v;	}
+	RtValue(const int & v)			: valueType(NUMBER) { value.value_number = v;	}
 	RtValue(const uint32_t & v)		: valueType(UINT32) { value.value_uint32 = v;	}
+	RtValue(const std::string & s);
+	RtValue(std::nullptr_t)			: valueType(VOID) {}
 
 	RtValue(Object * obj) {
 		if(obj==nullptr){
@@ -155,7 +158,7 @@ inline RtValue rtValue(const bool v)		{	return RtValue(v);	}
 inline RtValue rtValue(Object * v)			{	return RtValue(v);	}
 inline RtValue rtValue(const ObjRef & v)	{	return RtValue(v);	}
 inline RtValue rtValue(ObjRef && v)			{	return RtValue(v);	}
-RtValue rtValue(const std::string & s);
+inline RtValue rtValue(const std::string&v)	{	return RtValue(v);	}
 
 }
 #endif // ES_VALUE_H

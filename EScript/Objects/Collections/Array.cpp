@@ -49,15 +49,15 @@ void Array::init(EScript::Namespace & globals) {
 
 	/*! [ESMF] String Array.implode([delimiter])
 			\param delemiter default is ','	*/
-	ESMF_DECLARE(typeObject,Array,"implode",0,1,String::create(self->implode(parameter[0].toString())))
+	ESMF_DECLARE(typeObject,Array,"implode",0,1,self->implode(parameter[0].toString()))
 
 	//! [ESMF] int|false Array.indexOf(Object[,begin])
 	ES_MFUNCTION_DECLARE(typeObject, Array,"indexOf",1,2,{
 		int i = self->rt_indexOf(runtime,parameter[0],parameter[1].toUInt(0));
 		if(i<0)
-			return Bool::create(false);
+			return false;
 		else
-			return Number::create(i);
+			return i;
 	})
 
 	//! [ESMF] Obj Array.popBack();
@@ -65,7 +65,7 @@ void Array::init(EScript::Namespace & globals) {
 		if(self->count()==0) return nullptr;
 		ObjRef oRef = self->back();
 		self->popBack();
-		return oRef.detachAndDecrease();
+		return oRef;
 	})
 
 	//! [ESMF] Obj Array.popFront();
@@ -73,7 +73,7 @@ void Array::init(EScript::Namespace & globals) {
 		if(self->count()==0) return nullptr;
 		ObjRef oRef = self->front();
 		self->popFront();
-		return oRef.detachAndDecrease();
+		return oRef;
 	})
 
 	//! [ESMF] self Array.pushBack(Obj[,Obj...]);
@@ -81,7 +81,7 @@ void Array::init(EScript::Namespace & globals) {
 		for(const auto & param : parameter) {
 			self->pushBack(param);
 		}
-		return  self;
+		return self;
 	})
 
 	//! [ESMF] self Array.pushFront(Obj,[Obj...]);
@@ -159,7 +159,7 @@ Array * Array::create(const ParameterValues & p,Type * type){
 }
 
 //! (static)
-Array * Array::create(size_t num,Object ** objs,Type * type){
+Array * Array::create(size_t num,Object* const* objs,Type * type){
 	Array * a = create(type);
 	a->init(num,objs);
 	return a;
@@ -204,7 +204,7 @@ void Array::init(const ParameterValues & p) {
 }
 
 /*!	(internal)*/
-void Array::init(size_t num, Object ** objs) {
+void Array::init(size_t num, Object* const* objs) {
 	data.assign(objs, objs + num);
 }
 /*!	(internal)*/
@@ -228,7 +228,7 @@ Object * Array::clone()const {
 	return newArray;
 }
 
-/*!	---|> Collection*/
+//! ---|> Collection
 Object * Array::getValue(ObjPtr key) {
 	if(key.isNull()) return nullptr;
 	size_t  index = static_cast<size_t>(key->toInt());
@@ -236,7 +236,7 @@ Object * Array::getValue(ObjPtr key) {
 	return data.at(index).get();
 }
 
-/*!	---|> Collection*/
+//! ---|> Collection
 void Array::setValue(ObjPtr key,ObjPtr value) {
 	if(key.isNull() ) return;
 	size_t index = static_cast<size_t>(key->toInt());
@@ -245,7 +245,7 @@ void Array::setValue(ObjPtr key,ObjPtr value) {
 	data[index]=value;
 }
 
-/*!	---|> Collection*/
+//! ---|> Collection
 size_t Array::count()const {
 	return data.size();
 }

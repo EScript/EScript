@@ -21,16 +21,16 @@ void Exception::init(EScript::Namespace & globals) {
 	ESMF_DECLARE(typeObject,Type,"_constructor",0,1, new Exception(parameter[0].toString(""),0,self))
 
 	//!	[ESMF] String Exception.getFilename()
-	ESMF_DECLARE(typeObject,Exception,"getFilename",0,0, String::create(self->getFilename()))
+	ESMF_DECLARE(typeObject,Exception,"getFilename",0,0, self->getFilename())
 
 	//!	[ESMF] Number Exception.getLine()
-	ESMF_DECLARE(typeObject,Exception,"getLine",0,0, Number::create(self->getLine()))
+	ESMF_DECLARE(typeObject,Exception,"getLine",0,0, self->getLine())
 
 	//!	[ESMF] String Exception.getMessage()
-	ESMF_DECLARE(typeObject,Exception,"getMessage",0,0, String::create(self->getMessage()))
+	ESMF_DECLARE(typeObject,Exception,"getMessage",0,0, self->getMessage())
 
 	//!	[ESMF] String Exception.getStackInfo()
-	ESMF_DECLARE(typeObject,Exception,"getStackInfo",0,0, String::create(self->getStackInfo()))
+	ESMF_DECLARE(typeObject,Exception,"getStackInfo",0,0, self->getStackInfo())
 
 	//!	[ESMF] self Exception.getFilename(String)
 	ESMF_DECLARE(typeObject,Exception,"setFilename",1,1, (self->setFilename(parameter[0].toString()),self))

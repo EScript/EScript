@@ -65,7 +65,7 @@ void init(EScript::Namespace * globals) {
 
 	//! Number Math.atan2(a,b)
 	ESF_DECLARE(lib, "atan2", 2, 2,
-				Number::create(std::atan2(parameter[0].toDouble(), parameter[1].toDouble())))
+				std::atan2(parameter[0].toDouble(), parameter[1].toDouble()))
 
 
 	// init E_RandomNumberGenerator
@@ -91,11 +91,11 @@ void E_RandomNumberGenerator::init(EScript::Namespace & lib) {
 
 	//! [ESMF] [0, 1] RandomNumberGenerator.bernoulli(p)
 	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "bernoulli", 1, 1,
-				 Number::create(std::bernoulli_distribution(parameter[0].toDouble())(**self) ? 1 : 0))
+				 std::bernoulli_distribution(parameter[0].toDouble())(**self) ? 1 : 0)
 
 	//! [ESMF] Number RandomNumberGenerator.binomial(n,p)
 	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "binomial", 2, 2,
-				 Number::create(std::binomial_distribution<int>(parameter[0].toInt(), parameter[1].toDouble())(**self)))
+				 std::binomial_distribution<int>(parameter[0].toInt(), parameter[1].toDouble())(**self))
 
 	//! [ESMF] Number RandomNumberGenerator.categorical(Array weights)
 	ES_MFUNCTION_DECLARE(typeObject, E_RandomNumberGenerator, "categorical", 1, 1, {
@@ -105,40 +105,40 @@ void E_RandomNumberGenerator::init(EScript::Namespace & lib) {
 		for(const auto & element : *array) {
 			weights.push_back(element->toDouble());
 		}
-		return Number::create(std::discrete_distribution<int>(weights.begin(), weights.end())(**self));
+		return std::discrete_distribution<int>(weights.begin(), weights.end())(**self);
 	})
 	
 	//! [ESMF] Number RandomNumberGenerator.chisquare(n)
 	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "chisquare", 1, 1,
-				 Number::create(std::chi_squared_distribution<double>(parameter[0].toDouble())(**self)))
+				 std::chi_squared_distribution<double>(parameter[0].toDouble())(**self))
 
 	//! [ESMF] Number RandomNumberGenerator.equilikely(a,b)
 	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "equilikely", 2, 2,
-				 Number::create(std::uniform_int_distribution<int>(parameter[0].toInt(), parameter[1].toInt())(**self)))
+				 std::uniform_int_distribution<int>(parameter[0].toInt(), parameter[1].toInt())(**self))
 
 	//! [ESMF] Number RandomNumberGenerator.exponential(m)
 	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "exponential", 1, 1,
-				 Number::create(std::exponential_distribution<double>(parameter[0].toDouble())(**self)))
+				 std::exponential_distribution<double>(parameter[0].toDouble())(**self))
 
 	//! [ESMF] Number RandomNumberGenerator.geometric(p)
 	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "geometric", 1, 1,
-				 Number::create(std::geometric_distribution<int>(parameter[0].toDouble())(**self)))
+				 std::geometric_distribution<int>(parameter[0].toDouble())(**self))
 
 	//! [ESMF] Number RandomNumberGenerator.lognormal(a,b)
 	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "lognormal", 2, 2,
-				 Number::create(std::lognormal_distribution<double>(parameter[0].toDouble(), parameter[1].toDouble())(**self)))
+				 std::lognormal_distribution<double>(parameter[0].toDouble(), parameter[1].toDouble())(**self))
 
 	//! [ESMF] Number RandomNumberGenerator.normal(m,s)
 	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "normal", 2, 2,
-				 Number::create(std::normal_distribution<double>(parameter[0].toDouble(), parameter[1].toDouble())(**self)))
+				 std::normal_distribution<double>(parameter[0].toDouble(), parameter[1].toDouble())(**self))
 
 	//! [ESMF] Number RandomNumberGenerator.pascal(n,p)
 	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "pascal", 2, 2,
-				 Number::create(std::negative_binomial_distribution<int>(parameter[0].toInt(), parameter[1].toDouble())(**self)))
+				 std::negative_binomial_distribution<int>(parameter[0].toInt(), parameter[1].toDouble())(**self))
 
 	//! [ESMF] Number RandomNumberGenerator.poisson(m)
 	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "poisson", 1, 1,
-				 Number::create(std::poisson_distribution<int>(parameter[0].toDouble())(**self)))
+				 std::poisson_distribution<int>(parameter[0].toDouble())(**self))
 
 	//! [ESMF] self RandomNumberGenerator.setSeed(Number)
 	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "setSeed", 1, 1,
@@ -146,15 +146,15 @@ void E_RandomNumberGenerator::init(EScript::Namespace & lib) {
 
 	//! [ESMF] Number RandomNumberGenerator.student(n)
 	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "student", 1, 1,
-				 Number::create(std::student_t_distribution<double>(parameter[0].toDouble())(**self)))
+				 std::student_t_distribution<double>(parameter[0].toDouble())(**self))
 
 	//! [ESMF] Number RandomNumberGenerator.uniform(a,b)
 	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "uniform", 2, 2,
-				 Number::create(std::uniform_real_distribution<double>(parameter[0].toDouble(), parameter[1].toDouble())(**self)))
+				 std::uniform_real_distribution<double>(parameter[0].toDouble(), parameter[1].toDouble())(**self))
 
 	//! [ESMF] Number RandomNumberGenerator.weibull(shape, scale)
 	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "weibull", 2, 2,
-				 Number::create(std::weibull_distribution<double>(parameter[0].toDouble(), parameter[1].toDouble())(**self)))
+				 std::weibull_distribution<double>(parameter[0].toDouble(), parameter[1].toDouble())(**self))
 
 }
 

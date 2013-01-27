@@ -49,12 +49,12 @@ class Array : public Collection {
 		Array(Type * type = nullptr) : Collection(type?type:getTypeObject()){}
 
 		void init(const ParameterValues & p);
-		void init(size_t num,Object ** objs);
+		void init(size_t num,Object* const* objs);
 		void init(size_t num,char ** strings);
 	public:
 		static Array * create(Type * type = nullptr);
 		static Array * create(const ParameterValues & p,Type * type = nullptr);
-		static Array * create(size_t num,Object ** objs,Type * type = nullptr);
+		static Array * create(size_t num,Object* const* objs,Type * type = nullptr);
 		static Array * create(size_t num,char ** strings,Type * type = nullptr);
 		static void release(Array * b);
 		virtual ~Array()	{ }

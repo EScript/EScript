@@ -26,7 +26,7 @@ void YieldIterator::init(EScript::Namespace & globals) {
 	ESMF_DECLARE(typeObject,YieldIterator,"next",0,0,(self->next(runtime),self))
 
 	//! bool YieldIterator.end()
-	ESMF_DECLARE(typeObject,YieldIterator,"end",0,0,Bool::create(self->end()))
+	ESMF_DECLARE(typeObject,YieldIterator,"end",0,0,self->end())
 }
 
 //---

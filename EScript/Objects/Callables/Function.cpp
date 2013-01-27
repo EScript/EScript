@@ -18,18 +18,18 @@ void Function::init(EScript::Namespace & globals) {
 	//! [ESMF] Number|false Function.getMaxParamCount()
 	ES_MFUNCTION_DECLARE(typeObject,Function,"getMaxParamCount",0,0,{
 		if(self->getMaxParamCount()<0 )
-			return Bool::create(false);
-		return Number::create(self->getMaxParamCount());
+			return false;
+		return self->getMaxParamCount();
 	})
 
 	//! [ESMF] Number Function.getMinParamCount()
-	ESMF_DECLARE(typeObject,Function,"getMinParamCount",0,0, Number::create(self->getMinParamCount()))
+	ESMF_DECLARE(typeObject,Function,"getMinParamCount",0,0, self->getMinParamCount())
 
 	//! [ESMF] Identifier Function.getOriginalName()
-	ESMF_DECLARE(typeObject,Function,"getOriginalName",0,0, Identifier::create(self->getOriginalName()))
+	ESMF_DECLARE(typeObject,Function,"getOriginalName",0,0, self->getOriginalName())
 
 	//! [ESMF] (experimental) Number Function._getCallCounter()
-	ESMF_DECLARE(typeObject,Function,"_getCallCounter",0,0, Number::create(self->getCallCounter()))
+	ESMF_DECLARE(typeObject,Function,"_getCallCounter",0,0, self->getCallCounter())
 }
 
 //! (ctor)
