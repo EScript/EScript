@@ -105,12 +105,12 @@ void String::init(EScript::Namespace & globals) {
 		if(pos==string::npos ) {
 			return false;
 		} else {
-			return pos;
+			return static_cast<uint32_t>(pos);
 		}
 	})
 
 	//! [ESMF] Number String.length()
-	ESMF_DECLARE(typeObject,String,"length",0,0,self->getString().length())
+	ESMF_DECLARE(typeObject,String,"length",0,0, static_cast<uint32_t>(self->getString().length()))
 
 	//! [ESMF] String String.ltrim()
 	ESMF_DECLARE(typeObject,String,"lTrim",0,0,StringUtils::lTrim(self->getString()))
@@ -186,7 +186,7 @@ void String::init(EScript::Namespace & globals) {
 		size_t pos = s.rfind(search,start);
 		if(pos==string::npos ) {
 			return false;
-		} else return pos;
+		} else return static_cast<uint32_t>(pos);
 	})
 
 

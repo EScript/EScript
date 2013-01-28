@@ -40,10 +40,10 @@ void Runtime::init(EScript::Namespace & globals) {
 	declareConstant(typeObject,"LOG_FATAL",Number::create(static_cast<int>(Logger::LOG_FATAL)));
 
 	//!	[ESMF] Number Runtime._getStackSize();
-	ESF_DECLARE(typeObject,"_getStackSize",0,0, runtime.getStackSize())
+	ESF_DECLARE(typeObject,"_getStackSize",0,0, static_cast<uint32_t>(runtime.getStackSize()))
 
 	//!	[ESMF] Number Runtime._getStackSizeLimit();
-	ESF_DECLARE(typeObject,"_getStackSizeLimit",0,0, runtime._getStackSizeLimit())
+	ESF_DECLARE(typeObject,"_getStackSizeLimit",0,0, static_cast<uint32_t>(runtime._getStackSizeLimit()))
 
 	//!	[ESMF] void Runtime._setStackSizeLimit(number);
 	ESF_DECLARE(typeObject,"_setStackSizeLimit",1,1,

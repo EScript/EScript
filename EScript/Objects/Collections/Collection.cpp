@@ -35,10 +35,10 @@ void Collection::init(EScript::Namespace & globals) {
 				(self->setValue(parameter[0],parameter[1]),caller))
 
 	//! [ESMF] Number Collection.size() \deprecated
-	ESMF_DECLARE(typeObject,Collection, "size",0,0,self->count() )
+	ESMF_DECLARE(typeObject,Collection, "size",0,0, static_cast<uint32_t>(self->count()))
 
 	//! [ESMF] Number Collection.count()
-	ESMF_DECLARE(typeObject,Collection, "count",0,0,self->count() )
+	ESMF_DECLARE(typeObject,Collection, "count",0,0, static_cast<uint32_t>(self->count()))
 
 	//! [ESMF] Bool Collection.empty()
 	ESMF_DECLARE(typeObject,Collection,"empty",0,0,self->count()==0 )
