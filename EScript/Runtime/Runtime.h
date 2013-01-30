@@ -17,7 +17,7 @@
 namespace EScript {
 
 class Exception;
-class RtValue;
+struct RtValue;
 class StringData;
 class YieldIterator;
 
