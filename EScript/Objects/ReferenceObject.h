@@ -7,6 +7,8 @@
 
 #include "Object.h"
 #include "Exception.h"
+#include <type_traits>
+#include <utility>
 
 namespace EScript {
 
@@ -45,8 +47,13 @@ class ReferenceObject : public Object {
 		// ---
 		ReferenceObject(Type * type) :
 				Object(type), obj()							{	}
-		ReferenceObject(const _T & _obj, Type * type=nullptr):
-				Object(type),obj(_obj)						{	}
+
+		template<typename other_type_t,
+				 typename = typename std::enable_if<std::is_convertible<other_type_t, _T>::value>::type>
+		explicit ReferenceObject(other_type_t && otherObject, Type * type = nullptr) :
+			Object(type), obj(std::forward<other_type_t>(otherObject)) {
+		}
+
 		virtual ~ReferenceObject()							{	}
 
 		inline const _T & ref() const 						{	return obj;	}
