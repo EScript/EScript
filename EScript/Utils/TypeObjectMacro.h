@@ -7,8 +7,8 @@
 
 #define ES_PROVIDES_TYPE_OBJECT(_BASE_TYPE) \
 public: \
-	static Type * getTypeObject(){ \
-		static Type * typeObject = new Type(_BASE_TYPE::getTypeObject()); \
+	static EScript::Type * getTypeObject(){ \
+		static EScript::Type * typeObject = new EScript::Type(_BASE_TYPE::getTypeObject()); \
 		return typeObject; \
 	} \
 private:
