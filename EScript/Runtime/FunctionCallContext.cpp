@@ -87,7 +87,7 @@ void FunctionCallContext::stack_clear(){
 }
 ObjRef FunctionCallContext::rtValueToObject(RtValue & entry){
 	switch(entry.valueType){
-	case RtValue::VOID:
+	case RtValue::VOID_VALUE:
 		return Void::get();
 	case RtValue::OBJECT_PTR:{
 		ObjRef result(std::move( entry._detachObject() ));
@@ -118,7 +118,7 @@ ObjRef FunctionCallContext::stack_popObjectValue(){
 	RtValue & entry = stack_top();
 	ObjRef obj;
 	switch(entry.valueType){
-	case RtValue::VOID:
+	case RtValue::VOID_VALUE:
 		obj = Void::get();
 		break;
 	case RtValue::OBJECT_PTR:{

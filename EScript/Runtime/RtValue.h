@@ -20,7 +20,7 @@ class FunctionCallContext;
 class RtValue{
 	public:
 		enum valueType_t{
-			VOID,
+			VOID_VALUE,
 			OBJECT_PTR,
 			BOOL,
 			UINT32,
@@ -75,11 +75,11 @@ class RtValue{
 		RtValue(const int & v)			: valueType(NUMBER) { value.value_number = v;	}
 		RtValue(const uint32_t & v)		: valueType(UINT32) { value.value_uint32 = v;	}
 		RtValue(const std::string & s);
-		RtValue(std::nullptr_t)			: valueType(VOID) {}
+		RtValue(std::nullptr_t)			: valueType(VOID_VALUE) {}
 
 		RtValue(Object * obj) {
 			if(obj==nullptr){
-				valueType = VOID;
+				valueType = VOID_VALUE;
 			}else{
 				valueType = OBJECT_PTR;
 				value.value_obj = obj;
@@ -92,7 +92,7 @@ class RtValue{
 		}
 		RtValue(const ObjRef & obj){
 			if(obj==nullptr){
-				valueType = VOID;
+				valueType = VOID_VALUE;
 			}else{
 				valueType = OBJECT_PTR;
 				value.value_obj = obj.get();
@@ -101,7 +101,7 @@ class RtValue{
 		}
 		RtValue(ObjRef && obj){
 			if(obj==nullptr){
-				valueType = VOID;
+				valueType = VOID_VALUE;
 			}else{
 				valueType = OBJECT_PTR;
 				value.value_obj = obj.detach();
@@ -159,7 +159,7 @@ class RtValue{
 		bool isObject()const					{	return valueType == OBJECT_PTR;	}
 		bool isUint32()const					{	return valueType == UINT32;	}
 		bool isUndefined()const					{	return valueType == UNDEFINED;	}
-		bool isVoid()const						{	return valueType == VOID;	}
+		bool isVoid()const						{	return valueType == VOID_VALUE;	}
 		
 		bool toBool()const						{	return valueType == BOOL ? value.value_bool : toBool2();	}
 		

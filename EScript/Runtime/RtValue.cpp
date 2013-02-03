@@ -21,7 +21,7 @@ RtValue::RtValue(const std::string & s) :
 
 std::string RtValue::toDbgString()const{
 	switch(valueType){
-		case VOID:
+		case VOID_VALUE:
 			return "void";
 		case BOOL:
 			return value.value_bool ? "true" : "false";
@@ -67,7 +67,7 @@ bool RtValue::toBool2()const{
 
 Object * RtValue::_toObject()const{
 	switch(valueType){
-		case VOID:
+		case VOID_VALUE:
 			return Void::get();
 		case BOOL:
 			return Bool::create(value.value_bool);
