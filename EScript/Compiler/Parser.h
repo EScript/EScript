@@ -68,8 +68,9 @@ class Parser {
 		AST::Block * readBlockExpression(ParsingContext & ctxt,int & cursor)const ;
 		EPtr<AST::ASTNode> readMap(ParsingContext & ctxt,int & cursor)const;
 		EPtr<AST::ASTNode> readFunctionDeclaration(ParsingContext & ctxt,int & cursor)const;
-		void readFunctionParameters(AST::UserFunctionExpr::parameterList_t & params,ParsingContext & ctxt,int & cursor)const;
-		void readExpressionsInBrackets(ParsingContext & ctxt,int & cursor,std::vector<ERef<AST::ASTNode>> & expressions)const;
+		AST::UserFunctionExpr::parameterList_t readFunctionParameters(ParsingContext & ctxt,int & cursor)const;
+		std::vector<ERef<AST::ASTNode>> readExpressionsInBrackets(ParsingContext & ctxt,int & cursor)const;
+		std::vector<uint32_t> extractExpandingParameters(std::vector<ERef<AST::ASTNode>> & paramExprs)const;
 
 		typedef std::vector<std::pair<StringId,int> > properties_t; //  (property's id, position of option bracket or -1)*
 		void readProperties(ParsingContext & ctxt,int from,int to,properties_t & properties)const;

@@ -17,7 +17,8 @@ class Delegate : public Object {
 		static void init(EScript::Namespace & globals);
 		// ----
 
-		Delegate(ObjPtr object,ObjPtr function);
+		static Delegate * create(ObjPtr object,ObjPtr function);
+		static void release(Delegate * b);
 		virtual ~Delegate()	{ }
 
 		Object * getObject()const				{	return myObjectRef.get();	}
@@ -31,6 +32,8 @@ class Delegate : public Object {
 		virtual std::string toDbgString()const;
 		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_DELEGATE;	}
 	private:
+		Delegate(ObjPtr object,ObjPtr function);
+
 		ObjRef myObjectRef;
 		ObjRef functionRef;
 };

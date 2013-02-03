@@ -336,12 +336,12 @@ out( f(3,4) );             // Parameter c wird weggelassen und mit dem Standardw
 
 <h4>Variable Parameteranzahl</h4>
 <p>
-Um eine Funktion mit einer variablen Parameterliste zu definieren, muss der letzte Parameter mit einem <code>*</code> versehen werden.
-Dann werden alle Werte, die nicht den normalen Parametern zugewiesen werden, in ein <code>Array</code> gespeichert und dieses <code>Array</code> dann dem letzten (Multi-)Parameter zugewiesen.
+Um eine Funktion mit einer variablen Parameterliste zu definieren, muss der Parameter mit einem <code>...</code> versehen werden.
+Dann werden alle Werte, die nicht den normalen Parametern zugewiesen werden, in ein <code>Array</code> gespeichert und dieses <code>Array</code> dann dem (Multi-)Parameter zugewiesen.
 Werden keine Parameter angegeben, ist dieses Array leer.
 </p>
 <pre class="code">
-var f = fn( x, summands* ){ // in summands wird ein Array mit allen restlichen Parameterwerten geschrieben
+var f = fn( x, summands... ){ // in summands wird ein Array mit allen restlichen Parameterwerten geschrieben
 	var sum=0;
 	foreach(summands as var v)
 		sum += v;
@@ -648,10 +648,10 @@ Wenn kein Basistyp (von dem der neue Typ erbt) angegeben wird, wird <code>ExtObj
 </p>
 
 <pre class="code">
-var Animal=new Type();       // erzeuge einen neuen Typ (erbt von ExtObject)
+var Animal=new Type;         // erzeuge einen neuen Typ (erbt von ExtObject)
 var Rabbit=new Type(Animal); // erzeuge einen neuen Typ (erbt von Animal)
 
-var myRabbit=new Rabbit();   // erzeuge eine Instanz von Rabbit
+var myRabbit=new Rabbit;     // erzeuge eine Instanz von Rabbit
 </pre>
 
 <h3>Objektattribute von Typen</h3>
@@ -660,10 +660,10 @@ var myRabbit=new Rabbit();   // erzeuge eine Instanz von Rabbit
 Sobald eine Instanz eines Typs mit <code>new</code> erzeugt wird, wird für jedes Objektattribut des Typs ein entsprechendes Attribut im neuen Objekt zugewiesen.
 </p>
 <pre class="code">
-var Animal=new Type();         // erzeuge einen neuen Typ (erbt von ExtObject)
+var Animal=new Type;           // erzeuge einen neuen Typ (erbt von ExtObject)
 Animal.name:="genericAnimal";  // Objektattribut "name" als String zu Animal hinzufügen
 
-var a=new Animal(); // erzeuge eine Instanz von Animal
+var a=new Animal;   // erzeuge eine Instanz von Animal
 out(a.name);        // Objektattribut "name" von a ausgeben
 </pre>
 <pre class="output">
@@ -682,7 +682,7 @@ Andernfalls wird bei der Instanziierung versucht, dem Objekt die Attribute zuzuw
 </p>
 
 <pre class="code">
-var Animal=new Type();  // erzeuge einen neuen Typ (erbt von ExtObject)
+var Animal=new Type;    // erzeuge einen neuen Typ (erbt von ExtObject)
 Animal.canFly:=false; 	// Objektattribut "canFly" als Bool hinzufügen
 Animal.friends:=[]; 	// Objektattribut "friends" als Array hinzufügen (vermutlich eine dumme Idee)
 
@@ -692,8 +692,8 @@ Rabbit.name:=void;           // leeres Objektattribut "name" hinzufügen
 Animal.weight:=0;  // Objektattribut "weight" hinzufügen
                    // Achtung: Der Typ Rabbit ist aber schon angelegt, bekommt davon also nichts mit!
 
-var hubert=new Rabbit();   // erzeuge eine Instanz von Rabbit
-var emma=new Rabbit();     // erzeuge eine Instanz von Rabbit
+var hubert=new Rabbit;     // erzeuge eine Instanz von Rabbit
+var emma=new Rabbit;       // erzeuge eine Instanz von Rabbit
 
 hubert.name = "Hubert"; // weise dem Objektattribut "name" von hubert einen Wert zu
 emma.name = "Emma";     // weise dem Objektattribut "name" von emma einen Wert zu
@@ -730,7 +730,7 @@ Um ein Typattribut zu einem Typobjekt hinzuzufügen, wird der <code>::=</code>-O
 </p>
 
 <pre class="code">
-var Animal=new Type();         // erzeuge einen neuen Typ (erbt von ExtObject)
+var Animal=new Type;           // erzeuge einen neuen Typ (erbt von ExtObject)
 Animal.name:="genericAnimal";  // Objektattribut hinzufügen
 Animal.printCounter::=0;       // Typattribut hinzufügen (von allen Instanzen zugreifbar)
 
@@ -739,9 +739,9 @@ Animal.print::=fn(){           // Funktion als Typattribut hinzufügen
 	out(printCounter,".) My name is ",name,"\n"); // Zugriff auf Typattribut "printCounter" und Objektattribut "name"
 };
 
-var a=new Animal(); // erzeuge eine Instanz von Animal
+var a=new Animal;   // erzeuge eine Instanz von Animal
 a.name="Pubert";
-var b=new Animal(); // erzeuge eine Instanz von Animal
+var b=new Animal;   // erzeuge eine Instanz von Animal
 b.name="Moehk";
 a.print();
 b.print();
@@ -758,7 +758,7 @@ Um einen eigenen Konstruktor zu definieren, kann das <code>_constructor</code>-A
 (Sinnvollerweise als Typattribut und nicht als Objektattribut; eine eigene Referenz auf den Konstruktor in jeder Instanz macht in den meisten Fällen keinen Sinn.)
 </p>
 <pre class="code">
-var Animal=new Type();         // erzeuge einen neuen Typ (erbt von ExtObject)
+var Animal=new Type;           // erzeuge einen neuen Typ (erbt von ExtObject)
 Animal.name:=void;             // Leeres Objektattribut hinzufügen
 
 Animal._constructor::=fn(n){   // Konstruktor als Typattribut hinzufügen
@@ -783,7 +783,7 @@ Um an den jeweiligen Superkonstruktor Parameter übergeben zu können, können e
 </p>
 
 <pre class="code">
-var Animal = new Type();         // erzeuge einen neuen Typ (erbt von ExtObject)
+var Animal = new Type;           // erzeuge einen neuen Typ (erbt von ExtObject)
 Animal.name := void;             // Leeres Objektattribut hinzufügen
 Animal.canFly := void;           // Leeres Objektattribut hinzufügen
 Animal._constructor ::= fn(n,f){ // Konstruktor als Typattribut hinzufügen
@@ -828,7 +828,7 @@ Damit entspricht es in C++ einem const-Pointer (und nicht einem const-Wert).
 Beim Versuch einen neues Objekt zuzuweisen, wird eine Ausnahme geworfen.
 </p>
 <pre class="code">
-var a = new ExtObject();
+var a = new ExtObject;
 a.v @(const) := 1; // Konstantes Objektattribut anlegen.
 
 a.v += 1; // Erlaubt, das Objekt bleibt gleich und nur sein Wert ändert sich;
@@ -843,7 +843,7 @@ Dazu ein Beispiel, bei dem jeder Instanz eines Objektes ein Array als Objektattr
 
 <pre class="code">
 // Möglichkeit 1: Im Konstruktor
-var A = new Type();
+var A = new Type;
 A.arr := void; // leeres Objektattribut anlegen
 A._constructor ::= fn(){
 	arr = []; // Array erzeugen und zuweisen
@@ -851,20 +851,20 @@ A._constructor ::= fn(){
 
 
 // Möglichkeit 2: <em>FALSCH!!!!!!!!!!</em>
-var B = new Type();
+var B = new Type;
 B.arr := []; // Einzelnes Array-Objekt als Objektattribut anlegen
 // Dies führt dazu, dass zwar alle Instanzen von B ein eigenes Objektattribut
 // 'arr' besitzen. Alle teilen sich jedoch das selbe Array!!!!!!
 
 
 // Möglichkeit 2: @(init) mit Typ
-var C = new Type();
+var C = new Type;
 C.arr @(init) := Array; // Attribut wird mit einem Type-Objekt initialisiert.
 // Jede Instanz von C bekommt nun eine eigene Instanz von Array als Objektattribut 'arr'
 
 
 // Möglichkeit 2: @(init) mit Funktion
-var D = new Type();
+var D = new Type;
 D.arr @(init) := fn(){ return []; }; // Attribut wird mit einer Funktion initialisiert.
 // Für jede Instanz von D wird die Funktion aufgerufen und ihr Rückgabewert im Objektattribut 
 // 'arr' gespeichert.
@@ -876,7 +876,7 @@ Existiert noch kein Attribut gleichen Namens, wird eine Warnung ausgegeben; die 
 Diese Eigenschaft ist nützlich um auf Tippfehler oder Änderungen in den Methodennamen einer Basisklasse hingewiesen zu werden und sollte daher an entsprechenden Stellen auch eingesetzt werden ;-)
 </p>
 <pre class="code">
-var A = new Type();
+var A = new Type;
 A.m ::= fn(){	out("foo!"); };
 
 var B = new Type(A);
@@ -897,7 +897,7 @@ Ein Zugriff auf private Attribute eines anderen Objektes des exakt gleichen Typs
 </div>
 
 <pre class="code">
-var A = new Type();
+var A = new Type;
 A.v1 @(private) := 1;  // privates Objektattribut anlegen
 A.m1 @(private) ::= fn(){ out("m1:",v1,"\n"); }; // privates Typattribut anlegen
 A.m2 ::= fn(obj){ out("m2:",obj.v1,"\n"); }; 
@@ -922,7 +922,7 @@ Ich habe die <code>@(type)</code>-Eigenschaft an dieser Stelle nur erwähnt, um 
 </p>
 
 <pre class="code">
-var A = new Type();
+var A = new Type;
 A.t1 ::= "dies ist ein Typattribut";
 A.t2 @(type) := "dies ist auch ein Typattribut";
 </pre>
@@ -937,7 +937,7 @@ Einsetzen lassen sich Delegates beispielsweise bei der Implementierung von Liste
 </p>
 
 <pre class="code">
-var a=new ExtObject();        // ExtObject erzeugen
+var a=new ExtObject;          // ExtObject erzeugen
 a.name:="foo";                // Objektattribut hinzufügen
 a.wakeUp:=fn(){               // Funktion hinzufügen
 	out(name," wakes up");

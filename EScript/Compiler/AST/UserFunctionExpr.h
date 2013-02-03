@@ -31,8 +31,7 @@ class UserFunctionExpr : public ASTNode {
 				refArray_t typeExpressions;
 				bool multiParam;
 			public:
-				Parameter(const StringId & name,ptr_t defaultValueExpression,refArray_t & _typeExpressions);
-
+				Parameter(const StringId & name,ptr_t defaultValueExpression,refArray_t && _typeExpressions);
 				StringId getName()const							{	return name;	}
 				const refArray_t  & getTypeExpressions()const	{	return typeExpressions;	}
 
@@ -55,18 +54,17 @@ class UserFunctionExpr : public ASTNode {
 	//	@{
 		UserFunctionExpr(Block * block,const refArray_t & _sConstrExpressions,int line);
 		virtual ~UserFunctionExpr() {}
+		
+		Block * getBlock()const									{	return blockRef.get();	}
+		const CodeFragment & getCode()const						{	return code;	}
 
-		Block * getBlock()const							{	return blockRef.get();	}
-		const CodeFragment & getCode()const					{	return code;	}
-		int getMaxParamCount()const;
-		int getMinParamCount()const;
-		const parameterList_t & getParamList()const			{	return params;	}
-		parameterList_t & getParamList()					{	return params;	}
+		const parameterList_t & getParamList()const				{	return params;	}
+		void emplaceParameterExpressions(parameterList_t && _params){	params = std::move(_params);	}
 
-		refArray_t & getSConstructorExpressions()	{	return sConstrExpressions;	}
+		refArray_t & getSConstructorExpressions()				{	return sConstrExpressions;	}
 		const refArray_t & getSConstructorExpressions()const	{	return sConstrExpressions;	}
 
-		void setCode(const CodeFragment & _code)			{	code = _code;	}
+		void setCode(const CodeFragment & _code)				{	code = _code;	}
 
 	private:
 		ERef<Block> blockRef;

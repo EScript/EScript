@@ -93,7 +93,7 @@ void Array::init(EScript::Namespace & globals) {
 	})
 
 	//! [ESMF] self Array.removeIndex(int index)
-	ESMF_DECLARE(typeObject,Array,"removeIndex",1,1,(self->removeIndex(parameter[0].toUInt()),self))
+	ESMF_DECLARE(typeObject,Array,"removeIndex",1,1,(self->removeIndex(parameter[0].to<size_t>(runtime)),self))
 
 	//! [ESMF] self Array.removeValue(value [,limit [,begin]] )
 	ESMF_DECLARE(typeObject,Array,"removeValue",1,3,(self->rt_removeValue(runtime,parameter[0],parameter[1].toInt(-1),parameter[2].toUInt(0)),self))
@@ -101,7 +101,7 @@ void Array::init(EScript::Namespace & globals) {
 	//! [ESMF] self Array.resize(Number[, Object fillValue] )
 	ES_MFUNCTION_DECLARE(typeObject,Array,"resize",1,2,{
 		const size_t oldSize = self->size();
-		const size_t newSize = static_cast<size_t>(parameter[0].toUInt());
+		const size_t newSize = static_cast<size_t>(parameter[0].to<size_t>(runtime));
 		self->resize(newSize);
 		if(parameter.count()>1){
 			for(size_t i = oldSize;i<newSize;++i){
@@ -122,10 +122,10 @@ void Array::init(EScript::Namespace & globals) {
 	ESMF_DECLARE(typeObject,Array,"sort",0,1,(self->rt_sort(runtime,parameter[0].get(),false),self))
 
 	//! [ESMF] self Array.splice( start,length [,Array replacement] );
-	ESMF_DECLARE(typeObject,Array,"splice",2,3,(self->splice(parameter[0].toInt(),parameter[1].toInt(),parameter.count()>2 ? assertType<Array>(runtime,parameter[2]) : nullptr),self))
+	ESMF_DECLARE(typeObject,Array,"splice",2,3,(self->splice(parameter[0].to<int>(runtime),parameter[1].to<int>(runtime),parameter.count()>2 ? assertType<Array>(runtime,parameter[2]) : nullptr),self))
 
 	//! [ESMF] Array Array.slice( start,length );
-	ESMF_DECLARE(typeObject,Array,"slice",1,2,(self->slice(parameter[0].toInt(),parameter[1].toInt(0))))
+	ESMF_DECLARE(typeObject,Array,"slice",1,2,(self->slice(parameter[0].to<int>(runtime),parameter[1].toInt(0))))
 
 	//! [ESMF] self Array.swap( Array other );
 	ESMF_DECLARE(typeObject,Array,"swap",1,1,(self->swap(assertType<Array>(runtime,parameter[0])),self))
@@ -212,7 +212,7 @@ void Array::init(size_t num, char ** strings) {
 	data.clear();
 	data.reserve(num);
 	for(size_t i = 0; i < num; ++i) {
-		data.emplace_back(String::create(strings[i]));
+		data.emplace_back(EScript::create(std::string(strings[i])));
 	}
 }
 
@@ -519,7 +519,7 @@ Array::ArrayIterator::~ArrayIterator() {
 
 //! ---|> [Iterator]
 Object * Array::ArrayIterator::key() {
-	return end() ? nullptr : Number::create(index);
+	return end() ? nullptr : EScript::create(index);
 }
 
 //! ---|> [Iterator]

@@ -17,7 +17,7 @@
 namespace EScript {
 
 class Exception;
-struct RtValue;
+class RtValue;
 class StringData;
 class YieldIterator;
 
@@ -40,7 +40,6 @@ class Runtime : public ExtObject {
 	public:
 		Runtime();
 		virtual ~Runtime();
-
 	// @}
 
 	// ------------------------------------------------

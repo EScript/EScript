@@ -131,7 +131,7 @@ ObjRef StdLib::loadOnce(Runtime & runtime,const std::string & filename){
 	if(obj.toBool()){ // already loaded?
 		return nullptr;
 	}
-	m->setValue(String::create(condensedFilename),Bool::create(true));
+	m->setValue(create(condensedFilename), create(true));
 	return _loadAndExecute(runtime,condensedFilename);
 }
 
@@ -177,8 +177,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	})
 
 	//! [ESF]  string chr(number)
-	ESF_DECLARE(globals,"chr",1,1,
-		String::create(std::string(1, static_cast<char>(parameter[0].toInt()))))
+	ESF_DECLARE(globals,"chr",1,1,std::string(1, static_cast<char>(parameter[0].to<int>(runtime))))
 
 	// clock
 	{
@@ -208,18 +207,18 @@ void StdLib::init(EScript::Namespace * globals) {
 	/*!	[ESF]  Map getDate([time])
 		like http://de3.php.net/manual/de/function.getdate.php	*/
 	ES_FUNCTION_DECLARE(globals,"getDate",0,1,{
-		time_t t=(parameter.count()==0)?time(nullptr):static_cast<time_t>(parameter[0].toInt());
+		time_t t=(parameter.count()==0)?time(nullptr):static_cast<time_t>(parameter[0].to<int>(runtime));
 		tm *d = localtime (& t );
 		Map * m = Map::create();
-		m->setValue(String::create("seconds"),Number::create(d->tm_sec));
-		m->setValue(String::create("minutes"),Number::create(d->tm_min));
-		m->setValue(String::create("hours"),Number::create(d->tm_hour));
-		m->setValue(String::create("mday"),Number::create(d->tm_mday));
-		m->setValue(String::create("mon"),Number::create(d->tm_mon+1));
-		m->setValue(String::create("year"),Number::create(d->tm_year+1900));
-		m->setValue(String::create("wday"),Number::create(d->tm_wday));
-		m->setValue(String::create("yday"),Number::create(d->tm_yday));
-		m->setValue(String::create("isdst"),Number::create(d->tm_isdst));
+		m->setValue(create("seconds"),	create(d->tm_sec));
+		m->setValue(create("minutes"),	create(d->tm_min));
+		m->setValue(create("hours"),	create(d->tm_hour));
+		m->setValue(create("mday"),		create(d->tm_mday));
+		m->setValue(create("mon"),		create(d->tm_mon+1));
+		m->setValue(create("year"),		create(d->tm_year+1900));
+		m->setValue(create("wday"),		create(d->tm_wday));
+		m->setValue(create("yday"),		create(d->tm_yday));
+		m->setValue(create("isdst"),	create(d->tm_isdst));
 		return m;
 	})
 
@@ -304,7 +303,7 @@ void StdLib::init(EScript::Namespace * globals) {
 		}
 		argv[argc] = nullptr;
 
-		Number * result = Number::create(execv(parameter[0].toString().c_str(), argv));
+		Number * result = create(execv(parameter[0].toString().c_str(), argv));
 
 		for(uint_fast32_t i = 0; i < argc; ++i) {
 			delete [] argv[i];

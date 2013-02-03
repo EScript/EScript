@@ -104,7 +104,7 @@ void Object::init(EScript::Namespace & globals) {
 	ESF_DECLARE(typeObject,"setAttribute",2,3,
 				caller->setAttribute(parameter[0].toString(),
 													Attribute(parameter[1],
-													static_cast<Attribute::flag_t>(parameter[2].toInt()))))
+													static_cast<Attribute::flag_t>(parameter[2].to<int>(runtime)))))
 
 	//! [ESMF] Bool Object.assignAttribute(key,value)
 	ESF_DECLARE(typeObject,"assignAttribute",2,2,runtime.assignToAttribute(caller,parameter[0].toString(),parameter[1]))
@@ -118,17 +118,17 @@ void Object::init(EScript::Namespace & globals) {
 	})
 
 	//! Delegate Object -> function
-	ESF_DECLARE(typeObject,"->",1,1,new Delegate(caller,parameter[0]))
+	ESF_DECLARE(typeObject,"->",1,1,Delegate::create(caller,parameter[0]))
 
 }
 
 
 //! (static)
 void ObjectReleaseHandler::release(Object * o) {
-	if(o->countReferences()!=0) {
-		std::cout << "\n !"<<o<<":"<<o->countReferences();
-		return;
-	}
+//	if(o->countReferences()!=0) {
+//		std::cout << "\n !"<<o<<":"<<o->countReferences();
+//		return;
+//	}
 	switch(o->_getInternalTypeId()){
 		case _TypeIds::TYPE_NUMBER:{
 			// the real c++ type can be somthing else than Number, but the typeId does not lie.
@@ -152,6 +152,10 @@ void ObjectReleaseHandler::release(Object * o) {
 				return;
 			}
 			break;
+		}
+		case _TypeIds::TYPE_DELEGATE:{
+			Delegate::release(static_cast<Delegate*>(o));
+			return;
 		}
 		case _TypeIds::TYPE_ARRAY:{
 			if(o->getType()==Array::getTypeObject()) {

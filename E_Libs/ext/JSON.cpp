@@ -112,19 +112,19 @@ static Object * _parseJSON(Tokenizer::tokenList_t::iterator & cursor,const Token
 		}
 		++cursor;
 
-		return Number::create(-tObj->getValue());
+		return create(-tObj->getValue());
 	}else if(TValueBool * tb = Token::cast<TValueBool>(token)){
 		++cursor;
-		return Bool::create(tb->getValue());
+		return create(tb->getValue());
 	}else if(TValueNumber * tn = Token::cast<TValueNumber>(token)){
 		++cursor;
-		return Number::create(tn->getValue());
+		return create(tn->getValue());
 	}else if(TValueString * ts = Token::cast<TValueString>(token)){
 		++cursor;
-		return String::create(ts->getValue());
+		return create(ts->getValue());
 	}else if(Token::isA<TValueVoid>(token)){
 		++cursor;
-		return Void::get();
+		return create(nullptr);
 	}else if(Token::isA<TStartBlock>(token)){
 		Map *m = Map::create();
 		++cursor;
@@ -231,7 +231,7 @@ Object* JSON::parseJSON(const std::string &s){
 		std::cout << "JSON Syntax Error\n";
 	}
 	if(result==nullptr){
-		result = String::create(s);
+		result = create(s);
 	}
 //	for(it = tokens.begin();it!=tokens.end();++it){
 //		Token::removeReference(*it);

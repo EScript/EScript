@@ -6,7 +6,6 @@
 #define NUMBER_H
 
 #include "../Type.h"
-#include <stack>
 #include <string>
 
 #include <limits>
@@ -26,7 +25,6 @@ class Number : public Object {
 
 		// ---
 		static Number * create(double value);
-		static Number * create(double value,Type * type);
 		static void release(Number * n);
 
 		// ---
@@ -46,8 +44,11 @@ class Number : public Object {
 			return std::abs(v - u) <= std::numeric_limits<float>::epsilon() * std::min(std::abs(u), std::abs(v));
 		}
 
-		explicit Number(double value,Type * type = nullptr,bool isReference = false);
-		virtual ~Number();
+		explicit Number(double value);
+		virtual ~Number()									{}
+
+		double & operator*()								{	return value;	}
+		double operator*()const								{	return value;	}
 
 		/**
 		 * Convert the number to a string configurable string representation.
@@ -63,27 +64,34 @@ class Number : public Object {
 		//! Floating point symmetric modulo operation
 		double modulo(const double m)const;
 
-		//! ---o
-		virtual double getValue()const;
-		virtual void setValue(double _value);
+		double getValue()const								{	return value;	}
+		void setValue(double _value)						{	value = _value;	}
 
 		//! ---|> [Object]
-		virtual Object * clone()const;
+		virtual Object * clone()const						{	return create(value);	}
 
 		virtual std::string toString()const;
-		virtual double toDouble()const;
-		virtual bool toBool()const;
+		virtual double toDouble()const						{	return value;	}
 		virtual bool rt_isEqual(Runtime & rt,const ObjPtr o);
 		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_NUMBER;	}
 
-	protected:
-		union{
-			void * valuePtr;
-			double doubleValue;
-		};
-
-		static std::stack<Number *> numberPool;
+	private:
+		double value;
 };
+
+template<>
+double convertTo<double>(Runtime& rt,ObjPtr src);
+template<>
+inline float convertTo<float>(Runtime& rt,ObjPtr src)		{	return static_cast<float>(convertTo<double>(rt,src));	}
+template<>
+inline int32_t convertTo<int32_t>(Runtime& rt,ObjPtr src)	{	return static_cast<int32_t>(convertTo<double>(rt,src));	}
+template<>
+inline uint32_t convertTo<uint32_t>(Runtime& rt,ObjPtr src)	{	return static_cast<uint32_t>(convertTo<double>(rt,src));	}
+template<>
+inline int16_t convertTo<int16_t>(Runtime& rt,ObjPtr src)	{	return static_cast<int16_t>(convertTo<double>(rt,src));	}
+template<>
+inline uint16_t convertTo<uint16_t>(Runtime& rt,ObjPtr src)	{	return static_cast<uint16_t>(convertTo<double>(rt,src));	}
+
 }
 
 #endif // NUMBER_H

@@ -40,7 +40,7 @@ void Map::init(EScript::Namespace & globals) {
 
 	//! [ESMF] bool Collection.containsKey(Object)
 	ESMF_DECLARE(typeObject,Map,"containsKey",1,1,
-				Bool::create(self->getValue(parameter[0].toString())!=nullptr))
+				self->getValue(parameter[0].toString())!=nullptr)
 
 	//! [ESMF] self Map.merge( Collection [,bool overwrite = true] )
 	ESMF_DECLARE(typeObject,Map,"merge",1,2,

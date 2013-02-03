@@ -36,7 +36,7 @@ void Exception::init(EScript::Namespace & globals) {
 	ESMF_DECLARE(typeObject,Exception,"setFilename",1,1, (self->setFilename(parameter[0].toString()),self))
 
 	//!	[ESMF] self Exception.setLine(Number)
-	ESMF_DECLARE(typeObject,Exception,"setLine",1,1, (self->setLine(parameter[0].toInt()),self))
+	ESMF_DECLARE(typeObject,Exception,"setLine",1,1, (self->setLine(parameter[0].to<int>(runtime)),self))
 
 	//!	[ESMF] self Exception.setMessage(String)
 	ESMF_DECLARE(typeObject,Exception,"setMessage",1,1, (self->setMessage(parameter[0].toString()),self))

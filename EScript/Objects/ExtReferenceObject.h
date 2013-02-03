@@ -50,14 +50,20 @@ class ExtReferenceObject : public Object, private attributeProvider {
 		typedef ExtReferenceObject<_T,comparisonPolicy,attributeProvider> ExtReferenceObject_t;
 
 		// ---
+		//! (ctor)
 		ExtReferenceObject(const _T & _obj, Type * type = nullptr) :
 					Object(type), attributeProvider(), obj(_obj){
-
-			if(type!=nullptr && !attributeProvider::areObjAttributesInitialized(this)){
+			if(type!=nullptr && !attributeProvider::areObjAttributesInitialized(this))
 				type->copyObjAttributesTo(this);
-			}
-
 		}
+		//! (ctor) Passes arbitrary parameters to the object's constructor.
+		template<typename ...args>
+		explicit ExtReferenceObject(Type * type,args&&... params) :
+				Object(type), obj(std::forward<args>(params)...) {
+			if(type!=nullptr && !attributeProvider::areObjAttributesInitialized(this))
+				type->copyObjAttributesTo(this);
+		}
+		
 		virtual ~ExtReferenceObject()						{	}
 
 

@@ -6,8 +6,37 @@
 
 #include "../../EScript.h"
 
-using namespace EScript;
-//---
+namespace EScript{
+
+//----
+static std::stack<Delegate *> pool;
+
+Delegate * Delegate::create(ObjPtr object,ObjPtr function){
+	#ifdef ES_DEBUG_MEMORY
+	return new Delegate(object,function);
+	#endif
+	if(pool.empty()){
+		for(int i = 0;i<32;++i){
+			pool.push(new Delegate(nullptr,nullptr));
+		}
+		return create(object,function);
+	}else{
+		Delegate * o = pool.top();
+		pool.pop();
+		o->myObjectRef = object;
+		o->functionRef = function;
+//        std::cout << ".";
+		return o;
+	}
+
+}
+void Delegate::release(Delegate * o){
+	#ifdef ES_DEBUG_MEMORY
+	delete o;
+	return;
+	#endif
+	pool.push(o);
+}
 
 //! initMembers
 void Delegate::init(EScript::Namespace & globals) {
@@ -49,4 +78,5 @@ bool Delegate::rt_isEqual(Runtime &,const ObjPtr o){
 //! ---|> [Object]
 std::string Delegate::toDbgString()const {
 	return std::string('('+myObjectRef.toString("?")+"->"+(functionRef.isNull() ? "?" : functionRef->toDbgString())+')');
+}
 }

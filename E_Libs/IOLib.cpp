@@ -45,7 +45,7 @@ void IOLib::init(EScript::Namespace * o) {
 				return nullptr;
 			}
 		}
-		return String::create(content);
+		return create(content);
 	})
 
 	//! [ESF] void filePutContents(string filename,string)
@@ -93,9 +93,9 @@ void IOLib::init(EScript::Namespace * o) {
 	// rename
 	// copy
 	// delete
-	declareConstant(lib,"DIR_FILES",Number::create(E_DIR_FILES));
-	declareConstant(lib,"DIR_DIRECTORIES",Number::create(E_DIR_DIRECTORIES));
-	declareConstant(lib,"DIR_BOTH",Number::create(E_DIR_BOTH));
-	declareConstant(lib,"DIR_RECURSIVE",Number::create(E_DIR_RECURSIVE));
+	declareConstant(lib,"DIR_FILES",		create(static_cast<uint32_t>(E_DIR_FILES)));
+	declareConstant(lib,"DIR_DIRECTORIES",	create(static_cast<uint32_t>(E_DIR_DIRECTORIES)));
+	declareConstant(lib,"DIR_BOTH",			create(static_cast<uint32_t>(E_DIR_BOTH)));
+	declareConstant(lib,"DIR_RECURSIVE",	create(static_cast<uint32_t>(E_DIR_RECURSIVE)));
 
 }

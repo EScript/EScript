@@ -7,20 +7,30 @@
 #include "../../Utils/StringUtils.h"
 
 #include <sstream>
+#include <stack>
 
 using namespace EScript;
 //---
-
-using std::string;
-
-std::stack<String *> String::stringPool;
 
 //! static, internal
 StringData String::objToStringData(Object * obj){
 	String * strObj = dynamic_cast<String*>(obj);
 	return strObj==nullptr ? StringData(obj->toString()) : strObj->sData;
 }
+namespace EScript{
 
+/*!
+ * Try to cast the given object to the specified type.
+ * If the object is not of the appropriate type, a runtime error is thrown.
+ */
+template<> String * assertType<String>(Runtime & runtime, const ObjPtr & obj) {
+	
+	if(obj.isNull()||obj->_getInternalTypeId()!=_TypeIds::TYPE_STRING) 
+		assertType_throwError(runtime, obj, String::getClassName());
+	return static_cast<String*>(obj.get());
+}
+
+}
 //---
 
 //! initMembers
@@ -46,8 +56,8 @@ void String::init(EScript::Namespace & globals) {
 	// ---
 	//! [ESMF] Bool String.beginsWith( (String)search )
 	ES_MFUNCTION_DECLARE(typeObject,String,"beginsWith",1,1, {
-		const string & s(self->getString());
-		string search = parameter[0].toString();
+		const std::string & s(self->getString());
+		std::string search = parameter[0].toString();
 		if(s.length()<search.length())
 			return false;
 		return s.substr(0,search.length())==search;
@@ -55,15 +65,15 @@ void String::init(EScript::Namespace & globals) {
 
 	//! [ESMF] Bool String.contains (String)search [,(Number)startIndex] )
 	ES_MFUNCTION_DECLARE(typeObject,String,"contains",1,2, {
-		const string & s(self->getString());
-		const string search = parameter[0].toString();
+		const std::string & s(self->getString());
+		const std::string search = parameter[0].toString();
 		size_t start = s.length();
 		if(parameter.count()>1) {
-			start = static_cast<size_t>(parameter[1].toInt());
+			start = static_cast<size_t>(parameter[1].to<int>(runtime));
 			if(start>=s.length())
 				start = s.length();
 		}
-		return s.rfind(search,start)!=string::npos;
+		return s.rfind(search,start)!=std::string::npos;
 	})
 
 	//! [ESMF] Bool String.empty()
@@ -71,20 +81,20 @@ void String::init(EScript::Namespace & globals) {
 
 	//! [ESMF] Bool String.endsWith( (String)search )
 	ES_MFUNCTION_DECLARE(typeObject,String,"endsWith",1,1, {
-		const string & s(self->getString());
-		string search = parameter[0].toString();
+		const std::string & s(self->getString());
+		std::string search = parameter[0].toString();
 		if(s.length()<search.length()) return false;
 		return s.substr(s.length()-search.length(),search.length())==search;
 	})
 
 	//! [ESMF] String String.fillUp(length[, string fill=" ")
 	ES_MFUNCTION_DECLARE(typeObject,String,"fillUp",1,2,{
-		const string & s(self->getString());
+		const std::string & s(self->getString());
 		std::ostringstream sprinter;
 		sprinter<<s;
 		const std::string fill = parameter[1].toString(" ");
 		if(!fill.empty()){
-			const int count = (parameter[0].toInt()-s.length())/fill.length();
+			const int count = (parameter[0].to<int>(runtime)-s.length())/fill.length();
 			for(int i = 0;i<count;++i)
 				sprinter<<fill;
 		}
@@ -93,16 +103,16 @@ void String::init(EScript::Namespace & globals) {
 
 	//! [ESMF] Number|false String.find( (String)search [,(Number)startIndex] )
 	ES_MFUNCTION_DECLARE(typeObject,String,"find",1,2, {
-		const string & s(self->getString());
-		string search = parameter[0].toString();
+		const std::string & s(self->getString());
+		std::string search = parameter[0].toString();
 		size_t start = 0;
 		if(parameter.count()>1) {
-			start = static_cast<size_t>(parameter[1].toInt());
+			start = static_cast<size_t>(parameter[1].to<int>(runtime));
 			if(start>=s.length())
 				return false;
 		}
 		size_t pos = s.find(search,start);
-		if(pos==string::npos ) {
+		if(pos==std::string::npos ) {
 			return false;
 		} else {
 			return static_cast<uint32_t>(pos);
@@ -120,14 +130,14 @@ void String::init(EScript::Namespace & globals) {
 
 	//! [ESMF] String String.substr( (Number)begin [,(Number)length] )
 	ES_MFUNCTION_DECLARE(typeObject,String,"substr",1,2, {
-		int start = parameter[0].toInt();
+		int start = parameter[0].to<int>(runtime);
 		int length = self->getString().length();
-		if(start>=length) return String::create("");
+		if(start>=length) return create("");
 		if(start<0) start = length+start;
 		if(start<0) start = 0;
 		int count = length-start;
 		if(parameter.count()>1) {
-			int i = parameter[1].toInt();
+			int i = parameter[1].to<int>(runtime);
 			if(i<count) {
 				if(i<0) {
 					count+=i;
@@ -150,7 +160,7 @@ void String::init(EScript::Namespace & globals) {
 	typedef std::pair<std::string,std::string> keyValuePair_t;
 	//! [ESMF] String.replaceAll( (Map | ((String)search,(String)replace)) [,(Number)max])
 	ES_MFUNCTION_DECLARE(typeObject,String,"replaceAll",1,3,{
-		const string & subject(self->getString());
+		const std::string & subject(self->getString());
 
 		//Map * m
 		if( Map * m = parameter[0].toType<Map>()) {
@@ -174,17 +184,17 @@ void String::init(EScript::Namespace & globals) {
 
 	//! [ESMF] Number|false String.rFind( (String)search [,(Number)startIndex] )
 	ES_MFUNCTION_DECLARE(typeObject,String,"rFind",1,2, {
-		const string & s(self->getString());
-		string search = parameter[0].toString();
+		const std::string & s(self->getString());
+		std::string search = parameter[0].toString();
 		size_t start = s.length();
 		if(parameter.count()>1) {
-			start = static_cast<size_t>(parameter[1].toInt());
+			start = static_cast<size_t>(parameter[1].to<int>(runtime));
 			if(start>=s.length())
 				start = s.length();
 			//std::cout << " #"<<start<< " ";
 		}
 		size_t pos = s.rfind(search,start);
-		if(pos==string::npos ) {
+		if(pos==std::string::npos ) {
 			return false;
 		} else return static_cast<uint32_t>(pos);
 	})
@@ -195,12 +205,11 @@ void String::init(EScript::Namespace & globals) {
 	//! [ESMF] Array String.split((String)search[,(Number)max])
 	ES_MFUNCTION_DECLARE(typeObject,String,"split",1,2, {
 		std::vector<std::string> result;
-		StringUtils::split( self->getString(), parameter[0].toString(), result, parameter[1].toInt(-1) );
+		StringUtils::split( self->getString(), parameter[0].toString(), result, parameter[1].to<int>(runtime,-1) );
 
 		Array * a = Array::create();
-		for(const auto & str : result) {
+		for(const auto & str : result) 
 			a->pushBack(String::create(str));
-		}
 		return a;
 	})
 
@@ -217,9 +226,9 @@ void String::init(EScript::Namespace & globals) {
 
 	//! [ESMF] String String*(Number)Obj
 	ES_MFUNCTION_DECLARE(typeObject,String,"*",1,1,{
-		string s;
-		const string s2( self->getString() );
-		for(int i = parameter[0].toInt();i>0;--i)
+		std::string s;
+		const std::string s2( self->getString() );
+		for(int i = parameter[0].to<int>(runtime);i>0;--i)
 			s+=s2;
 		return s;
 	})
@@ -229,9 +238,9 @@ void String::init(EScript::Namespace & globals) {
 
 	//! [ESMF] self String*=(Number)Obj
 	ES_MFUNCTION_DECLARE(typeObject,String,"*=",1,1,{
-		string s;
-		string s2( self->getString() );
-		for(int i = parameter[0]->toInt();i>0;--i)
+		std::string s;
+		std::string s2( self->getString() );
+		for(int i = parameter[0].to<int>(runtime);i>0;--i)
 			s+=s2;
 		self->setString(s);
 		return  caller;
@@ -251,29 +260,19 @@ void String::init(EScript::Namespace & globals) {
 }
 
 //---
-
+static std::stack<String *> pool;
 
 String * String::create(const StringData & sData){
 	#ifdef ES_DEBUG_MEMORY
 	return new String(sData);
 	#endif
-	if(stringPool.empty()){
+	if(pool.empty()){
 		return new String (sData);
 	}else{
-		String * o = stringPool.top();
-		stringPool.pop();
+		String * o = pool.top();
+		pool.pop();
 		o->setString(sData);
 		return o;
-	}
-}
-String * String::create(const StringData & sData,Type * type){
-	#ifdef ES_DEBUG_MEMORY
-	return new String(sData,type);
-	#endif
-	if(type==getTypeObject()){
-		return create(sData);
-	}else{
-		return new String(sData,type);
 	}
 }
 void String::release(String * o){
@@ -285,31 +284,11 @@ void String::release(String * o){
 		delete o;
 		std::cout << "Found diff StringType\n";
 	}else{
-	   stringPool.push(o);
+	   pool.push(o);
 	}
 }
 //---
 
-//! (ctor)
-String::String(const StringData & _sData,Type * type):
-		Object(type?type:getTypeObject()),sData(_sData) {
-	//ctor
-}
-
-//! (dtor)
-String::~String() {
-	//dtor
-}
-
-//! ---|> [Object]
-Object * String::clone() const {
-	return String::create(sData,getType());
-}
-
-//! ---|> [Object]
-std::string String::toString()const {
-	return sData.str();
-}
 
 //! ---|> [Object]
 std::string String::toDbgString()const{
@@ -326,11 +305,6 @@ double String::toDouble()const {
 int String::toInt()const {
 	int to = 0;
 	return static_cast<int>(StringUtils::getNumber(sData.str().c_str(),to,  true));
-}
-
-//! ---|> [Object]
-bool String::toBool()const {
-	return true;//s.length()>0;
 }
 
 //! ---|> [Object]

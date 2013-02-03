@@ -47,7 +47,7 @@ class Instruction {
 			I_RESET_LOCAL_VARIABLE,			// -x
 			I_SET_ATTRIBUTE,				// -3
 			I_SET_EXCEPTION_HANDLER,		// +-0
-			I_SYS_CALL,						// -1+x +1 \todo use a parameter pair????
+			I_SYS_CALL,						// +-?
 			I_YIELD,						// -1
 			I_UNDEFINED,
 			I_SET_MARKER					// +-0
@@ -59,17 +59,20 @@ class Instruction {
 
 		type_t getType()const						{	return type;	}
 
-		uint32_t getValue_uint32()const				{	return value_uint32;	}
-		void setValue_uint32(const uint32_t v)		{	value_uint32 = v;	}
+		uint32_t getValue_uint32()const				{	return data.value_uint32;	}
+		void setValue_uint32(const uint32_t v)		{	data.value_uint32 = v;	}
 
-		double getValue_Number()const				{	return value_number;	}
-		void setValue_Number(double v)				{	value_number = v;	}
+		double getValue_Number()const				{	return data.value_number;	}
+		void setValue_Number(double v)				{	data.value_number = v;	}
 
-		StringId getValue_Identifier()const			{	return StringId(value_identifier);	}
-		void setValue_Identifier(StringId v)		{	value_identifier = v.getValue();	}
+		StringId getValue_Identifier()const			{	return StringId(data.value_identifier);	}
+		void setValue_Identifier(StringId v)		{	data.value_identifier = v.getValue();	}
 
-		bool getValue_Bool()const					{	return value_bool;	}
-		void setValue_Bool(bool v)					{	value_bool = v;	}
+		bool getValue_Bool()const					{	return data.value_bool;	}
+		void setValue_Bool(bool v)					{	data.value_bool = v;	}
+		
+		std::pair<uint32_t,uint32_t> getValue_uint32Pair()const	{	return data.value_uint32Pair;	}
+		void setValue_uint32Pair(uint32_t v1,uint32_t v2)	{	data.value_uint32Pair = std::make_pair(v1,v2);	}
 
 		static Instruction createAssignAttribute(const StringId & varName);
 		static Instruction createAssignLocal(const uint32_t localVarIdx);
@@ -101,7 +104,7 @@ class Instruction {
 		static Instruction createSetAttribute(const StringId & id);
 		static Instruction createSetExceptionHandler(const uint32_t markerId);
 		static Instruction createSetMarker(const uint32_t markerId);
-		static Instruction createSysCall(const uint32_t numParams);
+		static Instruction createSysCall(const uint32_t fnIdx, const uint32_t numParams);
 		static Instruction createYield()			{	return Instruction(I_YIELD);	}
 
 		int getLine()const			{	return line;	}
@@ -109,16 +112,18 @@ class Instruction {
 
 	private:
 		Instruction( type_t _type) : type(_type),line(-1){}
-
-
 		type_t type;
-		union{
+		union value_t{
 			double value_number;
 			size_t value_numParams;
 			uint32_t value_identifier;
 			uint32_t value_uint32;
 			bool value_bool;
-		};
+			std::pair<uint32_t,uint32_t> value_uint32Pair;
+			uint64_t raw;
+			value_t():raw(0){static_assert(sizeof(raw)==sizeof(value_t),"'raw' must cover the whole union.");}
+
+		}data;
 		int line;
 };
 }

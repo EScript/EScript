@@ -79,6 +79,9 @@ struct Consts{
 	static const size_t SYS_CALL_EXIT = 4;
 	static const size_t SYS_CALL_GET_ITERATOR = 5;
 	static const size_t SYS_CALL_TEST_ARRAY_PARAMETER_CONSTRAINTS = 6;
+	static const size_t SYS_CALL_EXPAND_PARAMS_ON_STACK = 7;
+	
+	static const uint32_t DYNAMIC_PARAMETER_COUNT = ~0;
 };
 //	@}
 

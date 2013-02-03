@@ -35,20 +35,11 @@ Identifier::Identifier(const StringId &_id):
 	//ctor
 }
 
-//! ---|> [Object]
-std::string Identifier::toString()const {
-	return getId().toString();
-}
 
 //! ---|> [Object]
 bool Identifier::rt_isEqual(Runtime &,const ObjPtr o){
 	Identifier * other = o.toType<Identifier>();
 	return other == nullptr ? false : other->getId() == this->getId();
-}
-
-//! ---|> [Object]
-Identifier * Identifier::clone()const{
-	return Identifier::create(this->getId());
 }
 
 }

@@ -17,7 +17,7 @@
 using namespace EScript;
 
 // ---------------------------------------------------------
-// test case for direct member access
+// test case for wrapped class
 
 //! A simple test class with some data members
 struct TestObject{
@@ -26,56 +26,20 @@ struct TestObject{
 	explicit TestObject(int _m1,float _m2) : m1(_m1),m2(_m2){}
 	bool operator==(const TestObject&other)const {	return m1==other.m1 && m2==other.m2;}
 };
-class E_TestObject;
-
-namespace EScript{
-
-
-static Array* create(const std::vector<Object*>& v){
-	return Array::create(v.size(),v.data());
-}
-
-static Void* create(std::nullptr_t){
-   return Void::get();
-}
-
-
-}
 
 //! A EScript-container for the simple test class
 struct E_TestObject : public ReferenceObject<TestObject>{
 	ES_PROVIDES_TYPE_NAME(TestObject)
+	ES_PROVIDES_TYPE_OBJECT(Object)
 public:
-	static Type * getTypeObject() {
-		static Type * type(new Type(Object::getTypeObject()));
-		return type;
-	}
-	Attribute m1,m2;
 
 	E_TestObject(int i=0,float f=0) :
-			ReferenceObject<TestObject>(TestObject(i,f),getTypeObject()),
-			m1(new NumberRef(ref().m1),Attribute::REFERENCE_BIT ),
-			m2(new NumberRef(ref().m2),Attribute::REFERENCE_BIT ){
-	}
+			ReferenceObject<TestObject>(getTypeObject(),i,f){}
 	virtual ~E_TestObject(){
 //		std::cout << " ~TEST ";
-
 	}
-
-
-	//! ---|> Object
-	virtual Attribute * _accessAttribute(const StringId & id,bool localOnly){
-		static const StringId ID_m1("m1");
-		static const StringId ID_m2("m2");
-
-		if(id==ID_m1){
-			return &m1;
-		}else if(id==ID_m2){
-			return &m2;
-		}else{
-			return Object::_accessAttribute(id,localOnly);
-		}
-	}
+	TestObject & operator*(){				return ref();	}
+	const TestObject & operator*()const{	return ref();	}
 
 	//! (static)
 	static void init(Namespace & ns){
@@ -83,13 +47,19 @@ public:
 		declareConstant(&ns,getClassName(),typeObject);
 
 		//! TestObject new TestObject([i [,j]])
-		ESF_DECLARE(typeObject,"_constructor",0,2,new E_TestObject(parameter[0].toInt(),parameter[1].toFloat()))
+		ESF_DECLARE(typeObject,"_constructor",0,2,new E_TestObject(parameter[0].to<int>(runtime),parameter[1].to<float>(runtime)))
 
 		//! Number getM1()
-		ESMF_DECLARE(typeObject,E_TestObject,"getM1",0,0,self->ref().m1)
+		ESMF_DECLARE(typeObject,E_TestObject,"getM1",0,0,(**self).m1)
 
 		//! Number getM2()
-		ESMF_DECLARE(typeObject,E_TestObject,"getM2",0,0,self->ref().m2)
+		ESMF_DECLARE(typeObject,E_TestObject,"getM2",0,0,(**self).m2)
+		
+		//! self setM1(Number)
+		ESMF_DECLARE(typeObject,E_TestObject,"setM1",1,1,((**self).m1=parameter[0].to<int>(runtime),self))
+
+		//! self setM2(Number)
+		ESMF_DECLARE(typeObject,E_TestObject,"setM2",1,1,((**self).m2=parameter[0].to<float>(runtime),self))
 
 	}
 };
@@ -116,9 +86,6 @@ int main(int argc,char * argv[]) {
 	std::string file= argc>1 ? argv[1] : "tests/test.escript";
 	std::pair<bool,ObjRef> result = EScript::loadAndExecute(*rt.get(),file);
 
-	std::vector<Object*> objs;
-	Array *arr=EScript::create(objs);
-	
 	// --- output result
 	if(result.second.isNotNull()) {
 		std::cout << "\n\n --- "<<"\nResult: " << result.second.toString()<<"\n";

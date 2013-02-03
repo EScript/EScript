@@ -107,7 +107,7 @@ void assertParamCount_2(Runtime & runtime, int paramCount, int min, int max) {
 
 //! (static, internal) Non-inline part of assertType(...)
 void assertType_throwError(Runtime & runtime, const ObjPtr & obj,const char * className) {
-	runtime.throwException("Wrong object type: "+ (obj.isNull() ? std::string("nullptr") : obj->toDbgString() )+ " is not of type "+className+'.');
+	runtime.throwException("Wrong object type: "+ obj.toDbgString() + " is not of type "+className+'.');
 }
 
 //! (static)
@@ -116,7 +116,7 @@ ObjRef callMemberFunction(Runtime & runtime, ObjPtr obj, StringId fnNameId, cons
 		runtime.throwException("Can not call member '"+fnNameId.toString()+"' function without object.");
 	const Attribute & fun = obj->getAttribute(fnNameId).getValue();
 	if(fun.isNull())
-		runtime.throwException("No member to call "+obj->toDbgString()+".'"+fnNameId.toString()+"'(...).");
+		runtime.throwException("No member to call "+obj.toDbgString()+".'"+fnNameId.toString()+"'(...).");
 	return runtime.executeFunction(fun.getValue(), obj.get(), params);
 }
 

@@ -183,9 +183,9 @@ Instruction Instruction::createSetMarker(const uint32_t markerId){
 }
 
 //! (static)
-Instruction Instruction::createSysCall(const uint32_t numParams){
+Instruction Instruction::createSysCall(const uint32_t fnIdx, const uint32_t numParams){
 	Instruction i(I_SYS_CALL);
-	i.setValue_uint32(numParams);
+	i.setValue_uint32Pair(fnIdx,numParams);
 	return i;
 }
 

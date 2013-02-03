@@ -38,13 +38,18 @@ std::string RtValue::toDbgString()const{
 			return s.str();
 		}
 		case IDENTIFIER:
-			return StringId::toString(value.value_indentifier);
+			return value.value_indentifier.toString();
 		case LOCAL_STRING_IDX:{
 			std::ostringstream s;
 			s<<"[Local string #"<< value.value_localStringIndex <<"]";
 			return s.str();
 		}
-		case UNDEFINED:
+		case UNDEFINED:{
+			return "[UndefinedRTValue]";
+		}
+		case FUNCTION_CALL_CONTEXT:{
+			return "[FCC]";
+		}
 		default:
 			return "";
 	}
@@ -77,6 +82,7 @@ Object * RtValue::_toObject()const{
 		case LOCAL_STRING_IDX:
 			return String::create("[Local string]");
 		case UNDEFINED:
+		case FUNCTION_CALL_CONTEXT:
 		default:
 			return nullptr;
 	}

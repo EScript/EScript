@@ -291,11 +291,10 @@ bool initHandler(handlerRegistry_t & m){
 	})
 	// ExitStatement
 	ADD_HANDLER( ASTNode::TYPE_EXIT_STATEMENT, ExitStatement, {
-		if(self->getValueExpression().isNotNull()){
+		if(self->getValueExpression().isNotNull())
 			ctxt.addExpression(self->getValueExpression());
-		}
-		ctxt.addInstruction(Instruction::createPushUInt(Consts::SYS_CALL_EXIT));
-		ctxt.addInstruction(Instruction::createSysCall(self->getValueExpression().isNotNull() ? 1 : 0));
+		ctxt.addInstruction(Instruction::createSysCall(Consts::SYS_CALL_EXIT,
+														self->getValueExpression().isNotNull() ? 1 : 0));
 	})
 	// FunctionCallExpr
 	ADD_HANDLER( ASTNode::TYPE_FUNCTION_CALL_EXPRESSION, FunctionCallExpr, {
@@ -362,13 +361,27 @@ bool initHandler(handlerRegistry_t & m){
 				ctxt.addExpression(param);
 			}
 		}
+		uint32_t paramCount = self->getParams().size();
+		if(self->hasExpandingParameters()){
+			// store param count on stack
+			ctxt.addInstruction(Instruction::createPushUInt(static_cast<uint32_t>(paramCount)));
+			// call EXPAND_PARAMETERS before calling the function
+			for(auto it=self->getExpandingParameters().begin();it!=self->getExpandingParameters().end();++it){
+				// number of stack entries have to be stored to get to the next expanding parameter
+				const uint32_t next = (it+1 == self->getExpandingParameters().end()) ? paramCount : *(it+1);
+				ctxt.addInstruction(Instruction::createPushUInt(next - *it -1));
+			}
+			ctxt.addInstruction(Instruction::createSysCall(Consts::SYS_CALL_EXPAND_PARAMS_ON_STACK,
+															static_cast<uint32_t>(self->getExpandingParameters().size()+1))); 
+			paramCount = Consts::DYNAMIC_PARAMETER_COUNT;
+		}
+		
 		if( self->isSysCall()){
-			ctxt.addInstruction(Instruction::createPushUInt(self->getSysCallId()));
-			ctxt.addInstruction(Instruction::createSysCall(self->getParams().size()));
+			ctxt.addInstruction(Instruction::createSysCall(self->getSysCallId(),paramCount));
 		}else if( self->isConstructorCall()){
-			ctxt.addInstruction(Instruction::createCreateInstance(self->getParams().size()));
+			ctxt.addInstruction(Instruction::createCreateInstance(paramCount));
 		}else{
-			ctxt.addInstruction(Instruction::createCall(self->getParams().size()));
+			ctxt.addInstruction(Instruction::createCall(paramCount));
 		}
 	})
 
@@ -533,11 +546,10 @@ bool initHandler(handlerRegistry_t & m){
 
 	// ReturnStatement
 	ADD_HANDLER( ASTNode::TYPE_THROW_STATEMENT, ThrowStatement, {
-		if(self->getValueExpression().isNotNull()){
+		if(self->getValueExpression().isNotNull())
 			ctxt.addExpression(self->getValueExpression());
-		}
-		ctxt.addInstruction(Instruction::createPushUInt(Consts::SYS_CALL_THROW));
-		ctxt.addInstruction(Instruction::createSysCall(self->getValueExpression().isNotNull() ? 1 : 0));
+		ctxt.addInstruction(Instruction::createSysCall(Consts::SYS_CALL_THROW,
+								self->getValueExpression().isNotNull() ? 1 : 0));
 	})
 
 	// TryCatchStatement
@@ -603,18 +615,39 @@ bool initHandler(handlerRegistry_t & m){
 	ADD_HANDLER( ASTNode::TYPE_USER_FUNCTION_EXPRESSION, UserFunctionExpr, {
 
 		ERef<UserFunction> fun = new UserFunction;
-		fun->setParameterCounts(self->getParamList().size(),self->getMinParamCount(),self->getMaxParamCount());
 		fun->setCode(self->getCode());
 		fun->setLine(self->getLine());
 
 		CompilerContext ctxt2(ctxt.getCompiler(),fun->getInstructionBlock(),self->getCode());
 		ctxt2.setLine(self->getLine()); // set the line of all initializations to the line of the function declaration
 
-		// declare a local variables for each parameter expression
-		for(const auto & param : self->getParamList()) {
-			fun->getInstructionBlock().declareLocalVariable(param.getName());
+		{	// init parameter counts
+			int minParamValueCount = 0;
+			for(const auto & param : self->getParamList()) {
+				if(param.isMultiParam() || param.getDefaultValueExpression() != nullptr)
+					break;
+				++minParamValueCount;
+			}
+			
+			int maxParamValueCount = 0;
+			size_t i = 0;
+			for(const auto & param : self->getParamList()) {
+				if(param.isMultiParam()){
+					fun->setMultiParam(i);
+					maxParamValueCount = -1;
+					break;
+				}else{
+					++maxParamValueCount;
+				}
+				++i;
+			}
+			fun->setParameterCounts(self->getParamList().size(),minParamValueCount,maxParamValueCount);
 		}
-
+		
+		// declare local variables
+		for(const auto & param : self->getParamList()) 
+			fun->getInstructionBlock().declareLocalVariable(param.getName());
+		
 		ctxt2.pushSetting_basicLocalVars(); // make 'this' and parameters available
 
 		// default parameters
@@ -642,9 +675,6 @@ bool initHandler(handlerRegistry_t & m){
 			if(typeExpressions.empty())
 				continue;
 			const int varIdx = ctxt2.getCurrentVarIndex(param.getName());	// \todo assert(varIdx>=0)
-
-
-
 			// if the parameter has value constrains AND is a multi parameter, use a special system-call for this (instead of manually creating a foreach-loop here)
 			// e.g. fn([Bool,Number] p*){...}
 			if(param.isMultiParam()){
@@ -652,8 +682,7 @@ bool initHandler(handlerRegistry_t & m){
 					ctxt2.addExpression(typeExpr);
 				}
 				ctxt2.addInstruction(Instruction::createGetLocalVariable(varIdx));
-				ctxt2.addInstruction(Instruction::createPushUInt(Consts::SYS_CALL_TEST_ARRAY_PARAMETER_CONSTRAINTS));
-				ctxt2.addInstruction(Instruction::createSysCall( typeExpressions.size()+1 ));
+				ctxt2.addInstruction(Instruction::createSysCall(Consts::SYS_CALL_TEST_ARRAY_PARAMETER_CONSTRAINTS,typeExpressions.size()+1 ));
 				ctxt2.addInstruction(Instruction::createPop());
 
 			}else{
@@ -670,8 +699,7 @@ bool initHandler(handlerRegistry_t & m){
 
 				// all constraint-checks failed! -> stack contains all failed constraints
 				ctxt2.addInstruction(Instruction::createGetLocalVariable(varIdx));
-				ctxt2.addInstruction(Instruction::createPushUInt(Consts::SYS_CALL_THROW_TYPE_EXCEPTION));
-				ctxt2.addInstruction(Instruction::createSysCall( constrainOkMarkers.size()+1 ));
+				ctxt2.addInstruction(Instruction::createSysCall(Consts::SYS_CALL_THROW_TYPE_EXCEPTION,constrainOkMarkers.size()+1 ));
 				ctxt2.addInstruction(Instruction::createJmp( Instruction::INVALID_JUMP_ADDRESS ));
 
 				// depending on which constraint-check succeeded, pop the constraint-values from the stack

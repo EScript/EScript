@@ -37,5 +37,5 @@ void YieldIterator::next(Runtime & rt){
 }
 
 Object * YieldIterator::key()const{
-	return Number::create(getCounter());
+	return create(getCounter());
 }

@@ -43,6 +43,10 @@ class FunctionCallExpr : public ASTNode {
 		size_t getNumParams()const						{	return parameters.size(); }
 		ptr_t getParamExpression(size_t i)const			{	return parameters[i].get();	}
 
+		const std::vector<uint32_t>& getExpandingParameters()const	{	return expandingParameters;	}
+		bool hasExpandingParameters()const							{	return !expandingParameters.empty();	}
+		void emplaceExpandingParameters(std::vector<uint32_t>&&v)	{	expandingParameters = v;	}
+
 	protected:
 
 		FunctionCallExpr(ptr_t exp,const refArray_t & _parameters,bool _isConstructorCall, int _line) :
@@ -60,6 +64,7 @@ class FunctionCallExpr : public ASTNode {
 		bool constructorCall;
 		bool sysCall;
 		uint32_t sysCallId;
+		std::vector<uint32_t> expandingParameters;
 };
 }
 }

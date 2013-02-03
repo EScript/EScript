@@ -50,6 +50,10 @@ class UserFunction : public ExtObject {
 		int getLine()const									{	return line;	}
 		void setLine(const int l)							{	line = l;	}
 
+		//! if multiParam >= paramCount, the additional parameter values are to be ignored. e.g. fn(a,...)
+		int getMultiParam()const							{	return multiParam;	}
+		void setMultiParam(int i)							{	multiParam = i;	}
+
 		//! ---|> [Object]
 		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_USER_FUNCTION;	}
 		virtual UserFunction * clone()const					{	return new UserFunction(*this);	}
@@ -60,8 +64,10 @@ class UserFunction : public ExtObject {
 		size_t paramCount;
 		int minParamValueCount;
 		int maxParamValueCount;
+		int multiParam;
 
 		InstructionBlock instructions;
+
 	//	@}
 };
 }

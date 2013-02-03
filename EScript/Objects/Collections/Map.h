@@ -78,6 +78,9 @@ class Map : public Collection {
 	private:
 		container_t data;
 	public:
+		container_t & operator*()				{	return data;	}
+		const container_t & operator*()const	{	return data;	}
+
 		iterator begin()						{	return data.begin(); }
 		const_iterator begin()const				{	return data.begin(); }
 		iterator end()							{	return data.end(); }

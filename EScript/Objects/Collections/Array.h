@@ -84,6 +84,9 @@ class Array : public Collection {
 		reverse_iterator rend()					{	return data.rend(); }
 		const_reverse_iterator rend()const		{	return data.rend(); }
 
+		container_t & operator*()				{	return data;	}
+		const container_t & operator*()const	{	return data;	}
+
 		ObjRef & at(size_t idx)					{	return data.at(idx);	}
 		const ObjRef & at(size_t idx)const		{	return data.at(idx);	}
 		void append(Collection * c);

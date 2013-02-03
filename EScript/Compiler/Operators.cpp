@@ -71,6 +71,7 @@ const Operator * Operator::getOperator(StringId id) {
 		declareOperator(p   ,"&=",R);
 		declareOperator(p   ,"^=",R);
 		declareOperator(p   ,"|=",R);
+		declareOperator(++p ,"...");
 		declareOperator(++p ,",");
 	}
 	operatorMap_t::const_iterator it = ops.find(id);

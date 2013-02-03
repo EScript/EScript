@@ -14,8 +14,11 @@
 #include "../Utils/StringId.h"
 
 namespace EScript {
+class FunctionCallContext;
 
-struct RtValue{
+//! Runtime value. Used for function return values and stack values.
+class RtValue{
+	public:
 		enum valueType_t{
 			VOID,
 			OBJECT_PTR,
@@ -24,39 +27,49 @@ struct RtValue{
 			NUMBER,
 			IDENTIFIER,
 			LOCAL_STRING_IDX,
+			FUNCTION_CALL_CONTEXT,
 			UNDEFINED
-	//				UINT32_PAIR // \todo coming with c++11
 		}valueType;
-
+	private:
 		union value_t{
-			Object * value_obj;
+			Object* value_obj;
 			bool value_bool;
 			uint32_t value_uint32;
 			double value_number;
-			uint32_t value_indentifier; // \todo c++0x unrestricted union allows StringId
+			StringId value_indentifier; 
 			uint32_t value_localStringIndex;
+			FunctionCallContext* value_fcc;
 			uint64_t raw;
 
 			value_t():raw(0){}
 			value_t(const value_t &other) {raw = other.raw;}
-			value_t & operator=(const value_t &other) { // dangeraous!
-				raw = other.raw; // static assert max size
+			value_t & operator=(const value_t &other) {
+				static_assert(sizeof(raw)==sizeof(value_t),"'raw' must cover the whole union.");
+				raw = other.raw;
 				return *this;
 			}
 			~value_t(){}
 			void reset(){	raw = 0;	}
 		}value;
-
+		RtValue(const valueType_t type)	: valueType(type) {	}
+	public:
+		
 		//! (factory)
 		static RtValue createLocalStringIndex(const uint32_t idx){
 			RtValue v(LOCAL_STRING_IDX);
 			v.value.value_localStringIndex = idx;
 			return v;
 		}
+		//! (factory)
+		static RtValue createFunctionCallContext(FunctionCallContext* fcc){
+			RtValue v(FUNCTION_CALL_CONTEXT);
+			v.value.value_fcc = fcc;
+			return v;
+		}
 
 		RtValue()						: valueType(UNDEFINED) {}
 		RtValue(const bool b)			: valueType(BOOL) { value.value_bool = b;	}
-		RtValue(const StringId & id)	: valueType(IDENTIFIER) { value.value_indentifier = id.getValue();	}
+		RtValue(const StringId & id)	: valueType(IDENTIFIER) { value.value_indentifier = id;	}
 		RtValue(const double & v)		: valueType(NUMBER) { value.value_number = v;	}
 		RtValue(const float & v)		: valueType(NUMBER) { value.value_number = v;	}
 		RtValue(const int & v)			: valueType(NUMBER) { value.value_number = v;	}
@@ -98,8 +111,6 @@ struct RtValue{
 		RtValue(RtValue && other) : valueType(other.valueType),value(other.value){
 			other.valueType = UNDEFINED;
 		}
-	private:
-		RtValue(const valueType_t type)	: valueType(type) {	}
 	public:
 
 		~RtValue(){
@@ -120,35 +131,45 @@ struct RtValue{
 		RtValue & operator=(RtValue && other){
 			if(valueType==OBJECT_PTR)
 				Object::removeReference(value.value_obj);
-
 			valueType = other.valueType;
 			value = other.value;
 			other.valueType = UNDEFINED;
 			return * this;
 		}
+		//! Detach the object without checking the type or changing the object's reference counter.
+		Object * _detachObject(){
+			valueType = RtValue::UNDEFINED;
+			return value.value_obj;
+		}
 		Object * getObject()const				{	return valueType == OBJECT_PTR ? value.value_obj : nullptr;	}
 
-		bool isObject()const					{	return valueType == OBJECT_PTR;	}
-		bool isUndefined()const					{	return valueType == UNDEFINED;	}
-		bool isVoid()const						{	return valueType == VOID;	}
-		bool isUint32()const					{	return valueType == UINT32;	}
-		bool isNumber()const					{	return valueType == NUMBER;	}
+		//! Access the value of a specific type without checking if the type is correct.
+		bool _getBool()const					{	return value.value_bool;	}
+		FunctionCallContext * _getFCC()const	{	return value.value_fcc;	}
+		StringId _getIdentifier()const			{	return value.value_indentifier;	}
+		Object * _getObject()const				{	return value.value_obj;	}
+		uint32_t _getLocalStringIndex()const	{	return value.value_localStringIndex;	}
+		double _getNumber()const				{	return value.value_number;	}
+		uint32_t _getUInt32()const				{	return value.value_uint32;	}
+
+		bool isFunctionCallContext()const		{	return valueType == FUNCTION_CALL_CONTEXT;	}
 		bool isIdentifier()const				{	return valueType == IDENTIFIER;	}
 		bool isLocalString()const				{	return valueType == LOCAL_STRING_IDX;	}
-	// --------------------------
-		bool toBool()const{
-			return valueType == BOOL ? value.value_bool : toBool2();
-		}
+		bool isNumber()const					{	return valueType == NUMBER;	}
+		bool isObject()const					{	return valueType == OBJECT_PTR;	}
+		bool isUint32()const					{	return valueType == UINT32;	}
+		bool isUndefined()const					{	return valueType == UNDEFINED;	}
+		bool isVoid()const						{	return valueType == VOID;	}
+		
+		bool toBool()const						{	return valueType == BOOL ? value.value_bool : toBool2();	}
+		
 	private:
 		bool toBool2()const; // expensive part of toBool()
 	public:
 		std::string toDbgString()const;
-
-		
-	// --------------
-
+	
 		/*! Convert the value to an object; 
-			\note Do not use if the type can be LOCAL_STRING_IDX as this can't be properly converted!*/
+			\note Do not use if the type can be LOCAL_STRING_IDX or FUNCTION_CALL_CONTEXT as this can't be properly converted!*/
 		Object * _toObject()const;
 };
 

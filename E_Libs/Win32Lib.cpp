@@ -17,7 +17,7 @@ void Win32Lib::init(EScript::Namespace * globals) {
 	declareConstant(globals,"Win32",lib);
 
 	//! [ESF]	void setClipboard( string )
-	ESF_DECLARE(lib,"setClipboard",1,1,(Win32Lib::setClipboard(parameter[0].toString()),rtValue(nullptr)))
+	ESF_DECLARE(lib,"setClipboard",1,1,(Win32Lib::setClipboard(parameter[0].toString()),RtValue(nullptr)))
 
 	//! [ESF]	string getClipboard( )
 	ESF_DECLARE(lib,"getClipboard",0,0,Win32Lib::getClipboard())

@@ -8,6 +8,7 @@
 #include <cstddef>
 #include <string>
 #include <iostream>
+#include "ConversionBasics.h"
 
 namespace EScript {
 template<class _T> class _Ptr;
@@ -162,12 +163,23 @@ class ERef : public _CountedRef<_T> {
 
 	//! @name Conversion
 	// @{
+		//! Returns a value of the type target_t if possible or throws an exception.
+		template<typename target_t>
+		target_t to(Runtime &runtime){	return EScript::convertTo<target_t>(runtime,*this); }
+
+		/*! If the reference is null, the default value is returend; 
+			otherwise a value of the type target_t is returned if possible or an exception is thrown.*/
+		template<typename target_t>
+		target_t to(Runtime &runtime,const target_t & defaultValue){	return this->isNull() ? defaultValue : EScript::convertTo<target_t>(runtime,*this); }
 
 		//! Returns object->toBool() if the referenced object is not nullptr, false otherwise.
 		bool toBool()const						{	return this->isNull() ? false : this->get()->toBool();	}
 
 		//! Returns object->toBool() if the referenced object is not nullptr, defaultValue otherwise.
 		bool toBool(bool defaultValue)const	{	return this->isNull() ? defaultValue : this->get()->toBool(); }
+
+		//! Returns object->toDbgString() if the referenced object is not nullptr, "[nullptr]" otherwise.
+		std::string toDbgString()const			{	return this->isNull() ? "[nullptr]":this->get()->toDbgString(); }
 
 		//! Returns object->toDouble() if the referenced object is not nullptr, 0.0 otherwise.
 		double toDouble()const				{	return this->isNull() ? 0.0 : this->get()->toDouble();	}
@@ -237,12 +249,23 @@ class EPtr{
 
 	//! @name Conversion
 	// @{
+		//! Returns a value of the type target_t if possible or throws an exception.
+		template<typename target_t>
+		target_t to(Runtime &runtime){	return EScript::convertTo<target_t>(runtime,*this); }
+
+		/*! If the reference is null, the default value is returend; 
+			otherwise a value of the type target_t is returned if possible or an exception is thrown.*/
+		template<typename target_t>
+		target_t to(Runtime &runtime,const target_t & defaultValue){	return isNull() ? defaultValue : EScript::convertTo<target_t>(runtime,*this); }
 
 		//! Returns object->toBool() if the referenced object is not nullptr, false otherwise.
 		bool toBool()const					{	return isNull()?false:obj->toBool();	}
 
 		//! Returns object->toBool() if the referenced object is not nullptr, defaultValue otherwise.
 		bool toBool(bool defaultValue)const {	return isNull()?defaultValue:obj->toBool(); }
+
+		//! Returns object->toDbgString() if the referenced object is not nullptr, "[nullptr]" otherwise.
+		std::string toDbgString()const			{	return this->isNull() ? "[nullptr]":this->get()->toDbgString(); }
 
 		//! Returns object->toDouble() if the referenced object is not nullptr, 0.0 otherwise.
 		double toDouble()const				{	return isNull()?0.0:obj->toDouble();	}
@@ -275,7 +298,7 @@ class EPtr{
 		std::string toString(const std::string & defaultValue)const {
 			return isNull()?defaultValue:obj->toString();
 		}
-
+	
 		//! Tries to convert object to given Type; returns nullptr if object is nullptr or not of given type.
 		template <class _T2> _T2 * toType()const	{	return isNull()?nullptr:dynamic_cast<_T2*>(obj);	}
 

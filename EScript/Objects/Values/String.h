@@ -7,7 +7,6 @@
 
 #include "../Type.h"
 #include "../../Utils/StringData.h"
-#include <stack>
 #include <string>
 
 namespace EScript {
@@ -17,9 +16,7 @@ class String : public Object {
 		ES_PROVIDES_TYPE_OBJECT(Object)
 		ES_PROVIDES_TYPE_NAME(String)
 	private:
-		static std::stack<String *> stringPool;
-
-		explicit String(const StringData & sData,Type * type = nullptr);
+		explicit String(const StringData & _sData) : Object(getTypeObject()),sData(_sData) {}
 
 		//! internal helper
 		static StringData objToStringData(Object * obj);
@@ -27,14 +24,15 @@ class String : public Object {
 	public:
 		static void init(EScript::Namespace & globals);
 
-		static String * create(const std::string & s)				{	return create(StringData(s));	}
-		static String * create(const std::string & s,Type*type)		{	return create(StringData(s),type);	}
+		static String * create(const std::string & s)		{	return create(StringData(s));	}
 		static String * create(const StringData & sData);
-		static String * create(const StringData & sData,Type * type);
 		static void release(String * b);
 
 		// ---
-		virtual ~String();
+		virtual ~String()							{}
+
+		StringData & operator*()					{	return sData;	}
+		const std::string & operator*()const		{	return sData.str();	}
 
 		const std::string & getString()const		{	return sData.str();	}
 		void setString(const std::string & _s)		{	sData.set(_s);	}
@@ -43,11 +41,10 @@ class String : public Object {
 		bool empty()const							{	return sData.empty();	}
 
 		//! ---|> [Object]
-		virtual Object * clone()const;
-		virtual std::string toString()const;
+		virtual Object * clone()const				{	return create(sData);	}
+		virtual std::string toString()const			{	return getString();	}
 		virtual double toDouble()const;
 		virtual int toInt()const;
-		virtual bool toBool()const;
 		virtual bool rt_isEqual(Runtime &rt,const ObjPtr o);
 		virtual std::string toDbgString()const;
 		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_STRING;	}
@@ -55,6 +52,8 @@ class String : public Object {
 	private:
 		StringData sData;
 };
+template<>
+inline std::string convertTo<std::string>(Runtime &,ObjPtr src){	return src.toString();	}
 }
 
 #endif // STRING_H

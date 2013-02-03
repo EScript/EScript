@@ -342,8 +342,15 @@ void Parser::pass_2(ParsingContext & ctxt,
 						functionBracketDepth.pop();
 						Token * t = new TEndBracket;
 						t->setLine(token->getLine());
+						enrichedTokens.push_back(t);
 
-//						Token::addReference(t);
+						// add shortcut to the closing bracket
+						currentBracket.top()->endBracketIndex = enrichedTokens.size()-1;
+						currentBracket.pop();
+						
+						// second closing bracket
+						t = new TEndBracket;
+						t->setLine(token->getLine());
 						enrichedTokens.push_back(t);
 
 						// add shortcut to the closing bracket
@@ -394,16 +401,26 @@ void Parser::pass_2(ParsingContext & ctxt,
 				Token::cast<TValueString>(token)->setString(os.str());
 				continue;
 			}
-			/// fn(foo,bar){...}  ---> fn( (foo,bar){} )
+			/// fn(foo,bar){...}  ---> (fn( (foo,bar){} ))
 			case TOperator::TYPE_ID:{
-				enrichedTokens.push_back(token);
-				if( token->toString() == "fn"  ) {//|| token->toString() == "lambda") {
+				if( token->toString() == "fn"  ) {
 					functionBracketDepth.push(0);
+					
+					// bracket before 'fn'
 					TStartBracket * t = new TStartBracket;
 					t->setLine(token->getLine());
 					currentBracket.push(t);
-//					Token::addReference(t);
 					enrichedTokens.push_back(t);
+
+					enrichedTokens.push_back(token);
+
+					// bracket after 'fn'
+					t = new TStartBracket;
+					t->setLine(token->getLine());
+					currentBracket.push(t);
+					enrichedTokens.push_back(t);
+				}else{
+					enrichedTokens.push_back(token);
 				}
 				continue;
 			}
@@ -415,7 +432,6 @@ void Parser::pass_2(ParsingContext & ctxt,
 
 				Token * t = new TEndBlock;
 				t->setLine(token->getLine());
-//				Token::addReference(t);
 				enrichedTokens.push_back(t);
 				enrichedTokens.push_back(token);
 				return;
@@ -875,10 +891,14 @@ EPtr<AST::ASTNode> Parser::readBinaryExpression(ParsingContext & ctxt,int & curs
 	/// "a(b)"  "a(1,2,3)"
 	else if(op->getString()=="(") {
 		cursor = rightExprFrom-1;
-		ASTNode::refArray_t paramExp;
-		readExpressionsInBrackets(ctxt,cursor,paramExp);
+		ASTNode::refArray_t paramExps = readExpressionsInBrackets(ctxt,cursor);
 
-		FunctionCallExpr * funcCall = FunctionCallExpr::createFunctionCall(leftExpression,paramExp,currentLine);
+		/// search for expanding parameters f(0,arr...,2,3)
+		std::vector<uint32_t> expandingParams = extractExpandingParameters(paramExps);
+		
+		FunctionCallExpr * funcCall = FunctionCallExpr::createFunctionCall(leftExpression,paramExps,currentLine);
+		funcCall->emplaceExpandingParameters(std::move(expandingParams));
+		
 		return funcCall;
 	}
 	///  Index Exression | Array
@@ -899,7 +919,12 @@ EPtr<AST::ASTNode> Parser::readBinaryExpression(ParsingContext & ctxt,int & curs
 					throwError(ctxt,"Expected ]",tokens[opPosition]);
 				}
 			}
-			return FunctionCallExpr::createSysCall( Consts::SYS_CALL_CREATE_ARRAY,paramExps,currentLine);
+			/// search for expanding parameters f(0,arr...,2,3)
+			auto expandingParams = extractExpandingParameters(paramExps);
+		
+			FunctionCallExpr * funcCall = FunctionCallExpr::createSysCall( Consts::SYS_CALL_CREATE_ARRAY,paramExps,currentLine);
+			funcCall->emplaceExpandingParameters(std::move(expandingParams));
+			return funcCall;
 		}
 		/// Left expression present? -> Index Expression
 		/// "a[1]"
@@ -938,10 +963,11 @@ EPtr<AST::ASTNode> Parser::readBinaryExpression(ParsingContext & ctxt,int & curs
 		}
 		/// read parameters
 		ASTNode::refArray_t paramExp;
+		std::vector<uint32_t> expandingParams;
 		if(objExprTo<to) {
 			int cursor2 = objExprTo;
-			readExpressionsInBrackets(ctxt,cursor2,paramExp);
-
+			paramExp = readExpressionsInBrackets(ctxt,cursor2);
+			expandingParams = std::move(extractExpandingParameters(paramExp));
 			objExprTo--; /// step over '('
 		}
 		/// read Object-expression
@@ -949,7 +975,9 @@ EPtr<AST::ASTNode> Parser::readBinaryExpression(ParsingContext & ctxt,int & curs
 		if(obj.isNull())
 			throwError(ctxt,"[new] Syntax error.",tokens.at(cursor));
 		cursor = to; // set cursor at end of parameter list
-		return FunctionCallExpr::createConstructorCall(obj,paramExp,currentLine);
+		FunctionCallExpr * funcCall = FunctionCallExpr::createConstructorCall(obj,paramExp,currentLine);
+		funcCall->emplaceExpandingParameters(std::move(expandingParams));
+		return funcCall;
 	}
 	/// Function "fn(a,b){return a+b;}"
 	else if(op->getString()=="fn" ){//|| op->getString()=="lambda") {
@@ -1050,15 +1078,14 @@ EPtr<AST::ASTNode> Parser::readFunctionDeclaration(ParsingContext & ctxt,int & c
 	/// step over '(' inserted at pass_2(...)
 	++cursor;
 
-	UserFunctionExpr::parameterList_t params;
-	readFunctionParameters(params,ctxt,cursor);
+	UserFunctionExpr::parameterList_t params = readFunctionParameters(ctxt,cursor);
 	TOperator * superOp = Token::cast<TOperator>(tokens.at(cursor));
 
 	/// fn(a).(a+1,2){} \deprecated
 	ASTNode::refArray_t superConCallExpressions;
 	if(superOp!=nullptr && superOp->toString()=="."){
 		++cursor;
-		readExpressionsInBrackets(ctxt,cursor,superConCallExpressions);
+		superConCallExpressions = readExpressionsInBrackets(ctxt,cursor);
 		++cursor; // step over ')'
 
 	} /// fn(a)@(super(a+1,2)) {}
@@ -1079,7 +1106,7 @@ EPtr<AST::ASTNode> Parser::readFunctionDeclaration(ParsingContext & ctxt,int & c
 				if(parameterPos<0){
 					throwError(ctxt,"Super attribute needs parameter list.",superOp);
 				}
-				readExpressionsInBrackets(ctxt,parameterPos,superConCallExpressions);
+				superConCallExpressions = readExpressionsInBrackets(ctxt,parameterPos);
 			}else{
 				log(ctxt,Logger::LOG_WARNING,"Anntoation is invalid for functions: '"+name.toString()+"'",superOp);
 			}
@@ -1101,7 +1128,7 @@ EPtr<AST::ASTNode> Parser::readFunctionDeclaration(ParsingContext & ctxt,int & c
 
 	{	// create function expression
 		UserFunctionExpr * uFunExpr = new UserFunctionExpr(block,superConCallExpressions,line);
-		uFunExpr->getParamList().swap(params);	// set parameter expressions
+		uFunExpr->emplaceParameterExpressions(std::move(params));	// set parameter expressions
 
 		// store code segment in userFunction
 		if(codeStartPos!=std::string::npos && codeEndPos!=std::string::npos && !ctxt.code.empty()){
@@ -1620,16 +1647,16 @@ int Parser::findExpression(ParsingContext & ctxt,int cursor)const {
  * e.g. (a, Number b, c = 2+3)
  * Cursor is moved after the Parameter-List.
  */
-void Parser::readFunctionParameters(UserFunctionExpr::parameterList_t & params,ParsingContext & ctxt,int & cursor)const  {
-	params.clear();
+UserFunctionExpr::parameterList_t Parser::readFunctionParameters(ParsingContext & ctxt,int & cursor)const  {
+	UserFunctionExpr::parameterList_t params;
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	if(!Token::isA<TStartBracket>(tokens.at(cursor))) {
-		return;
+		return params;
 	}
 	++cursor;
 	// fn (bla,blub,)
 	bool first = true;
-
+	uint8_t multiParamState = 0; // 0...no multi param found, 1...current param is multi param, 2...multiParam already set
 	while(true) { // foreach parameter
 		if(first&&Token::isA<TEndBracket>(tokens.at(cursor))) {
 			++cursor;
@@ -1637,14 +1664,26 @@ void Parser::readFunctionParameters(UserFunctionExpr::parameterList_t & params,P
 		}
 		first = false;
 
-		/// Parameter::= Expression? Identifier ( ('=' Expression)? ',') | ('*'? ('=' Expression)? ')')
+//		{ // ignore additional parameters: ...)
+//			Token * t = tokens.at(cursor).get();
+//			if(Token::isA<TOperator>(t) && (t->toString()=="...") && Token::isA<TEndBracket>(tokens.at(cursor+1).get()) ){
+//				params.emplace_back(StringId()); // add empty parameter
+//				params.back().setMultiParam(true);
+//				if(multiParamState!=0)
+//					throwError(ctxt,"[fn] Only one multi parameter (...) allowed.",tokens.at(cursor));
+//				cursor+=2;
+//				break;
+//			}
+//		}
+
+		/// Parameter::= Expression? Identifier ( ('=' Expression)? ',') | ('*'|'...'? ('=' Expression)? ')')
 		int c = cursor;
 
 		// find identifierName, its position, the default expression and identify a multiParam
 		int idPos=-1;
 		StringId name;
 		EPtr<AST::ASTNode> defaultExpression = nullptr;
-		bool multiParam = false;
+		
 		while(true){
 			Token * t = tokens.at(c).get();
 			if(Token::isA<TIdentifier>(t)) {
@@ -1653,20 +1692,18 @@ void Parser::readFunctionParameters(UserFunctionExpr::parameterList_t & params,P
 				idPos = c;
 
 				Token * tNext = tokens.at(c+1).get();
-				// '*'?
-				if(  Token::isA<TOperator>(tNext) && tNext->toString()=="*" ){
-					multiParam = true;
+				// '*'|'...' ? 
+				if(  Token::isA<TOperator>(tNext) && (tNext->toString()=="..." || tNext->toString()=="*" )){
+					if(multiParamState!=0)
+						throwError(ctxt,"[fn] Only one multi parameter (...) allowed.",tokens.at(cursor));
+					multiParamState = 1;
 					++c;
 					tNext = tokens.at(c+1).get();
-				}else{
-					multiParam = false;
 				}
 				// ',' | ')'
 				if( Token::isA<TEndBracket>(tNext)){
 					break;
 				}else if( Token::isA<TDelimiter>(tNext) ) {
-					if(multiParam)
-						throwError(ctxt,"[fn] Only the last parameter may be a multiparameter.",tokens[c]);
 					break;
 				}else if(  Token::isA<TOperator>(tNext) && tNext->toString()=="=" ){
 					int defaultExpStart = c+2;
@@ -1684,6 +1721,13 @@ void Parser::readFunctionParameters(UserFunctionExpr::parameterList_t & params,P
 				c = findCorrespondingBracket<TStartIndex,TEndIndex>(ctxt,c);
 			}else if(Token::isA<TStartMap>(t)){
 				c = findCorrespondingBracket<TStartMap,TEndMap>(ctxt,c);
+			}else if(Token::isA<TOperator>(t) && t->toString()=="..." && 
+						(Token::isA<TEndBracket>(tokens.at(c+1))||Token::isA<TDelimiter>(tokens.at(c+1)))){
+				// empty multi-parameter fn(a,...,b)
+				if(multiParamState!=0)
+					throwError(ctxt,"[fn] Only one multi parameter (...) allowed.",tokens.at(cursor));
+				multiParamState = 1;
+				break;
 			}else if(Token::isA<TEndScript>(t) || Token::isA<TEndBracket>(t)){
 				throwError(ctxt,"[fn] Error in parameter definition.",t);
 			}
@@ -1721,7 +1765,7 @@ void Parser::readFunctionParameters(UserFunctionExpr::parameterList_t & params,P
 		// test if this is the last parameter
 		bool lastParam = false;
 		if(Token::isA<TEndBracket>(tokens[c+1])){
-		lastParam = true;
+			lastParam = true;
 		}else if( ! Token::isA<TDelimiter>(tokens[c+1])){
 			throwError(ctxt,"[fn] SyntaxError.",tokens[c+1]);
 		}
@@ -1730,9 +1774,11 @@ void Parser::readFunctionParameters(UserFunctionExpr::parameterList_t & params,P
 		cursor = c+2;
 
 		// create parameter
-		params.push_back(UserFunctionExpr::Parameter(name,nullptr,typeExpressions));
-		if(multiParam)
+		params.emplace_back(name,nullptr,std::move(typeExpressions));
+		if(multiParamState==1){
 			params.back().setMultiParam(true);
+			multiParamState = 2;
+		}
 		if(defaultExpression!=nullptr)
 			params.back().setDefaultValueExpression(defaultExpression);
 
@@ -1740,12 +1786,14 @@ void Parser::readFunctionParameters(UserFunctionExpr::parameterList_t & params,P
 			break;
 		}
 	}
+	return params;
 }
 
 /*!	1,bla+2,(3*3)
 	Cursor is moved at closing bracket ')'
 */
-void Parser::readExpressionsInBrackets(ParsingContext & ctxt,int & cursor,ASTNode::refArray_t & expressions)const{
+ASTNode::refArray_t Parser::readExpressionsInBrackets(ParsingContext & ctxt,int & cursor)const{
+	ASTNode::refArray_t expressions;
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	Token * t = tokens.at(cursor).get();
 	if(t->toString()!="(") {
@@ -1759,7 +1807,7 @@ void Parser::readExpressionsInBrackets(ParsingContext & ctxt,int & cursor,ASTNod
 			++cursor;
 			continue;
 		}
-		expressions.push_back(readExpression(ctxt,cursor));
+		expressions.emplace_back(readExpression(ctxt,cursor));
 		++cursor;
 		if(Token::isA<TDelimiter>(tokens.at(cursor))){
 			++cursor;
@@ -1767,8 +1815,32 @@ void Parser::readExpressionsInBrackets(ParsingContext & ctxt,int & cursor,ASTNod
 			throwError(ctxt,"Expected )",tokens.at(cursor));
 		}
 	}
+	return expressions;
 }
 
+/*! search for expanding parameters f(0,arr...,2,3)
+	If found, the "..." is removed and its index is stored.	*/
+std::vector<uint32_t> Parser::extractExpandingParameters(std::vector<ERef<AST::ASTNode>> & paramExps)const{
+	static const StringId multiParamOp("..._post");
+
+	std::vector<uint32_t> expandingParameters;
+	int i=0;
+	for(auto & pExp : paramExps){
+		++i;
+		if(pExp.isNull() || pExp->getNodeType() != ASTNode::TYPE_FUNCTION_CALL_EXPRESSION)
+			continue;
+		ASTNode::ptr_t gfe = static_cast<FunctionCallExpr*>(pExp.get())->getGetFunctionExpression();
+		if(gfe.isNull() || gfe->getNodeType() != ASTNode::TYPE_GET_ATTRIBUTE_EXPRESSION)
+			continue;
+		GetAttributeExpr * gae = static_cast<GetAttributeExpr*>(gfe.get());
+		if( gae->getAttrId()!=multiParamOp )
+			continue;
+		pExp = gae->getObjectExpression();
+		expandingParameters.push_back(i-1);
+	}
+	return expandingParameters;
+}
+		
 /**
  * A.m @(const,private,somthingWithOptions("foo")) := ...
  *       ^from                            ^p    ^to

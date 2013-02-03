@@ -26,9 +26,18 @@ void UserFunction::init(EScript::Namespace & globals) {
 			return false;
 		return self->getMaxParamCount();
 	})
+	//! [ESMF] Number|false UserFunction.getMultiParam()
+	ES_MFUNCTION_DECLARE(t,UserFunction,"getMultiParam",0,0,{
+		if(self->getMultiParam()<0 )
+			return false;
+		return self->getMultiParam();
+	})
 
 	//! [ESMF] Number UserFunction.getMinParamCount()
 	ESMF_DECLARE(t,UserFunction,"getMinParamCount",0,0, self->getMinParamCount())
+
+	//! [ESMF] Number UserFunction.getParamCount()
+	ESMF_DECLARE(t,UserFunction,"getParamCount",0,0, self->getParamCount())
 
 	//! [ESMF] String UserFunction._asm()
 	ESMF_DECLARE(t,UserFunction,"_asm",0,0, self->getInstructionBlock().toString())
@@ -39,12 +48,12 @@ void UserFunction::init(EScript::Namespace & globals) {
 UserFunction::UserFunction(const UserFunction & other) :
 		ExtObject(other),codeFragment(other.codeFragment),line(other.line),
 		paramCount(other.paramCount),minParamValueCount(other.minParamValueCount),maxParamValueCount(other.maxParamValueCount),
-		instructions(other.instructions){
+		multiParam(other.multiParam),instructions(other.instructions){
 }
 
 //! (ctor)
 UserFunction::UserFunction() :
-		ExtObject(getTypeObject()),line(-1),paramCount(0),minParamValueCount(0),maxParamValueCount(0) {
+		ExtObject(getTypeObject()),line(-1),paramCount(0),minParamValueCount(0),maxParamValueCount(0),multiParam(-1) {
 	//ctor
 }
 

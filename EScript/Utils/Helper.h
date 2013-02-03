@@ -63,9 +63,13 @@ void assertParamCount_2(Runtime & runtime, int paramCount, int min, int max);
  */
 inline void assertParamCount(Runtime & runtime, const ParameterValues & params, int min=-1, int max=-1) {
 	const int paramCount = static_cast<int>(params.count());
-	if((paramCount < min && min >= 0) || ((paramCount > max) && max >= 0)) {
+	if((paramCount < min && min >= 0) || ((paramCount > max) && max >= 0))
 		assertParamCount_2(runtime, paramCount, min, max);
-	}
+}
+inline void assertParamCount(Runtime & runtime, const size_t paramCount, int min=-1, int max=-1) {
+	const int paramCountI = static_cast<int>(paramCount);
+	if((paramCountI < min && min >= 0) || ((paramCountI > max) && max >= 0))
+		assertParamCount_2(runtime, paramCountI, min, max);
 }
 
 //! (internal) Non-inline part of @a assertType.

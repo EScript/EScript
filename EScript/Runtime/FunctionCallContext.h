@@ -110,6 +110,9 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 				throwError(UNKNOWN_LOCAL_VARIABLE);
 			localVariables[index] = nullptr;
 		}
+		StringId getLocalVariableName(const uint32_t index)const{
+			return getInstructionBlock().getLocalVariables().at(index);
+		}
 	// @}
 
 	//	-----------------------------
@@ -147,7 +150,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 			RtValue & entry = stack_top();
 			if(!entry.isIdentifier())
 				throwError(STACK_WRONG_DATA_TYPE);
-			const StringId id( entry.value.value_indentifier );
+			const StringId id( entry._getIdentifier() );
 			valueStack.pop_back();
 			return id;
 		}
@@ -155,7 +158,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 			RtValue & entry = stack_top();
 			if(!entry.isUint32())
 				throwError(STACK_WRONG_DATA_TYPE);
-			const uint32_t number( entry.value.value_uint32 );
+			const uint32_t number( entry._getUInt32() );
 			valueStack.pop_back();
 			return number;
 		}
@@ -163,7 +166,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 			RtValue & entry = stack_top();
 			if(!entry.isNumber())
 				throwError(STACK_WRONG_DATA_TYPE);
-			const double number( entry.value.value_number );
+			const double number( entry._getNumber() );
 			valueStack.pop_back();
 			return number;
 		}
@@ -171,7 +174,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 			RtValue & entry = stack_top();
 			if(!entry.isLocalString())
 				throwError(STACK_WRONG_DATA_TYPE);
-			const uint32_t index( entry.value.value_localStringIndex );
+			const uint32_t index( entry._getLocalStringIndex() );
 			valueStack.pop_back();
 			return index;
 		}
@@ -179,8 +182,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 			ObjRef obj;
 			RtValue & top = stack_top();
 			if(top.isObject()){ // fast path
-				top.valueType = RtValue::UNDEFINED;
-				obj._set( top.value.value_obj );
+				obj._set( top._detachObject() );
 			}else{
 				obj =  std::move(rtValueToObject(top));
 			}

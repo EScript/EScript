@@ -90,25 +90,25 @@ ObjRef FunctionCallContext::rtValueToObject(RtValue & entry){
 	case RtValue::VOID:
 		return Void::get();
 	case RtValue::OBJECT_PTR:{
-		ObjRef result(std::move( entry.value.value_obj ));
-		entry.valueType = RtValue::UNDEFINED;
+		ObjRef result(std::move( entry._detachObject() ));
 		return result;
 	}
 	case RtValue::BOOL:{
-		return Bool::create(entry.value.value_bool);
+		return Bool::create(entry._getBool());
 	}
 	case RtValue::UINT32:{
-		return Number::create(entry.value.value_uint32);
+		return Number::create(entry._getUInt32());
 	}
 	case RtValue::NUMBER:{
-		return Number::create(entry.value.value_number);
+		return Number::create(entry._getNumber());
 	}
 	case RtValue::IDENTIFIER:{
-		return Identifier::create(StringId(entry.value.value_indentifier));
+		return Identifier::create(StringId(entry._getIdentifier()));
 	}
 	case RtValue::LOCAL_STRING_IDX:{
-		return String::create(getInstructionBlock().getStringConstant(entry.value.value_localStringIndex));
+		return String::create(getInstructionBlock().getStringConstant(entry._getLocalStringIndex()));
 	}
+	case RtValue::FUNCTION_CALL_CONTEXT:
 	case RtValue::UNDEFINED:
 	default:;
 	}
@@ -126,25 +126,26 @@ ObjRef FunctionCallContext::stack_popObjectValue(){
 		break;
 	}
 	case RtValue::BOOL:{
-		obj = Bool::create(entry.value.value_bool);
+		obj = Bool::create(entry._getBool());
 		break;
 	}
 	case RtValue::UINT32:{
-		obj = Number::create(entry.value.value_uint32);
+		obj = Number::create(entry._getUInt32());
 		break;
 	}
 	case RtValue::NUMBER:{
-		obj = Number::create(entry.value.value_number);
+		obj = Number::create(entry._getNumber());
 		break;
 	}
 	case RtValue::IDENTIFIER:{
-		obj = Identifier::create(StringId(entry.value.value_indentifier));
+		obj = Identifier::create(StringId(entry._getIdentifier()));
 		break;
 	}
 	case RtValue::LOCAL_STRING_IDX:{
-		obj = String::create(getInstructionBlock().getStringConstant(entry.value.value_localStringIndex));
+		obj = String::create(getInstructionBlock().getStringConstant(entry._getLocalStringIndex()));
 		break;
 	}
+	case RtValue::FUNCTION_CALL_CONTEXT:
 	case RtValue::UNDEFINED:{
 //		std::cout << "popUndefined";
 	}

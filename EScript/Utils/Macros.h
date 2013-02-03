@@ -15,7 +15,7 @@
 	\example
 		ES_FUNCTION(esmf_Collection_equal) {
 			assertParamCount(runtime, parameter.count(), 1, 1); // at least and at most one parameter
-			return Bool::create(assertType<Collection>(runtime, caller)->rt_isEqual(runtime, parameter[0]));
+			return assertType<Collection>(runtime, caller)->rt_isEqual(runtime, parameter[0]);
 		}
 */
 #define ES_FUNCTION(_name) \
@@ -26,7 +26,7 @@
 
 /*! Macro for defining a (simple) EScript function in short form.
 	\example
-		ESF(esmf_Collection_equal, 1, 1, Bool::create(assertType<Collection>(runtime,caller)->rt_isEqual(runtime, parameter[0])))
+		ESF(esmf_Collection_equal, 1, 1, assertType<Collection>(runtime,caller)->rt_isEqual(runtime, parameter[0]))
 */
 #define ESF(_fnName, _min, _max, _returnExpr) \
 	ES_FUNCTION(_fnName) { \
@@ -38,7 +38,7 @@
 /*! Macro for defining a (simple) EScript member function in short form.
 	\note The variable \a self contains the caller with the type \a _objType (otherwise an exception is thrown).
 	\example
-		ESMF(Collection, esmf_Collection_equal, 1, 1, Bool::create(self->rt_isEqual(runtime, parameter[0])))
+		ESMF(Collection, esmf_Collection_equal, 1, 1, self->rt_isEqual(runtime, parameter[0]))
 */
 #define ESMF(_objType, _fnName, _min, _max, _returnExpr) \
 	ES_FUNCTION(_fnName) { \
@@ -53,7 +53,7 @@
 /*! Macro for defining and declaring a (simple) EScript function in short form.
 	\example
 		// Within the Collection::init(...) function:
-		ESF_DECLARE(typeObj, "==", 1, 1, Bool::create(assertType<Collection>(runtime,caller)->rt_isEqual(runtime, parameter[0])))
+		ESF_DECLARE(typeObj, "==", 1, 1, assertType<Collection>(runtime,caller)->rt_isEqual(runtime, parameter[0]))
 */
 #define ESF_DECLARE(_obj, _fnNameStr, _min, _max, _returnExpr) \
 	{ \
@@ -70,7 +70,7 @@
 	\note The variable \a self contains the caller with the type \a _objType (otherwise an exception is thrown).
 	\example
 		// Within the Collection::init(...) function:
-		ESMF_DECLARE(typeObj, Collection, "==", 1, 1, Bool::create(self->rt_isEqual(runtime, parameter[0])))
+		ESMF_DECLARE(typeObj, Collection, "==", 1, 1, self->rt_isEqual(runtime, parameter[0]))
 */
 #define ESMF_DECLARE(_obj, _objType, _fnNameStr, _min, _max, _returnExpr) \
 	{ \
@@ -88,7 +88,7 @@
 	\example
 		// Within the Collection::init(...) function:
 		ES_FUNCTION_DECLARE(typeObj, "==", 1, 1, {
-				return Bool::create(assertType<Collection>(runtime, caller)->rt_isEqual(runtime, parameter[0]));
+				return assertType<Collection>(runtime, caller)->rt_isEqual(runtime, parameter[0]);
 		})
 */
 #define ES_FUNCTION_DECLARE(_obj, _fnNameStr, _min, _max, _block) \
@@ -106,7 +106,7 @@
 	\example
 		// Within the Collection::init(...) function:
 		ES_MFUNCTION_DECLARE(typeObj, Collection, "==", 1, 1, {
-				return Bool::create(self->rt_isEqual(runtime, parameter[0]));
+				return self->rt_isEqual(runtime, parameter[0]);
 		})
 */
 #define ES_MFUNCTION_DECLARE(_obj, _objType, _fnNameStr, _min, _max, _block) \

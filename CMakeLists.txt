@@ -39,7 +39,6 @@ set(ESCRIPT_SOURCES
 	EScript/Objects/Type.cpp
 	EScript/Objects/Values/Bool.cpp
 	EScript/Objects/Values/Number.cpp
-	EScript/Objects/Values/NumberRef.cpp
 	EScript/Objects/Values/String.cpp
 	EScript/Objects/Values/Void.cpp
 	EScript/Objects/YieldIterator.cpp
@@ -47,7 +46,9 @@ set(ESCRIPT_SOURCES
 	EScript/Runtime/RtValue.cpp
 	EScript/Runtime/Runtime.cpp
 	EScript/Runtime/RuntimeInternals.cpp
+	EScript/StdFactories.cpp
 	EScript/Utils/AttributeContainer.cpp
+	EScript/Utils/ConversionBasics.cpp
 	EScript/Utils/Debug.cpp
 	EScript/Utils/Hashing.cpp
 	EScript/Utils/Helper.cpp

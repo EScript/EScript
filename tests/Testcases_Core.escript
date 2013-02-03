@@ -30,7 +30,7 @@ var FAILED="\t failed\n";
 //---
 {
 	var b = false;
-	(fn(value){value|=true;})(b); // test call by value
+	fn(value){value|=true;}(b); // test call by value
 
 	var b2 = true;
 	var b2a = (b2&=true);
@@ -51,7 +51,7 @@ var FAILED="\t failed\n";
 // ---
 {	// Number
 	var n = 1;
-	(fn(value){value++;})(n); // test call by value
+	fn(value){value++;}(n); // test call by value
 	var i=(9).sqrt();
 
 	var n2 = 7;
@@ -74,7 +74,7 @@ var FAILED="\t failed\n";
 	var n6b = n6++;
 
 	test("Number:", true
-			&& (2|3|255&1040) ^ 33 == 50
+			&& ((2|3|255&1040) ^ 33) == 50
 			&& ((1.0+2)*3/(20-(1+(1)))+0.5+-1+1) == 1
 			&&	n==1 && i==3
 			&& (0x01+255).toHex()=="0x100" && "-1.7".toNumber()==-1.7 && 1.getType()==Number
@@ -109,7 +109,7 @@ var FAILED="\t failed\n";
 //---
 {
 	var mystring="bl\"#"+2;
-	(fn(value){value+="should do nothing";})(mystring); // test call by value
+	fn(value){value+="should do nothing";}(mystring); // test call by value
 
 	var s="foobar";
 	var spacy = "\t   bla  \n\r  ";
@@ -242,7 +242,7 @@ var FAILED="\t failed\n";
 	}
 
 	// multiParam
-	var mulSum = fn(factor,Number values*){
+	var mulSum = fn(factor,Number values...){
 		var a = 0;
 		foreach(values as var v) a+=v;
 		return factor * a;
@@ -255,7 +255,7 @@ var FAILED="\t failed\n";
 	}
 
 	// multi possibilities
-	var f = fn( [Number,"bla"] p1,[Number] p2 = 7,[1,2,3] p3* = 3){
+	var f = fn( [Number,"bla"] p1,[Number] p2 = 7,[1,2,3] p3... = 3){
 
 	};
 
@@ -292,34 +292,38 @@ var FAILED="\t failed\n";
 	f4b(19); // 8+19 ==27
 
 	// Binding parameters with function wrappers
-	UserFunction.bindLastParams ::= fn(params*){
+	UserFunction.bindLastParams ::= fn(params...){
 		var myWrapper = thisFn.wrapperFn.clone();
 		myWrapper.wrappedFun := this;
 		myWrapper.boundParams := params;
 		return myWrapper;
 	};
-	UserFunction.bindLastParams.wrapperFn := fn(params*){
-		params.append(thisFn.boundParams);
+	UserFunction.bindLastParams.wrapperFn := fn(params...){
 		// _getCurrentCaller() is used instead of "this", as "this" may not be defined if this function
-		// is called without aa caller. This then results in a warning due to an undefined variable "this".
-		return Runtime._callFunction(thisFn.wrappedFun, Runtime._getCurrentCaller(),params);
+		// is called without a caller. This then results in a warning due to an undefined variable "this".
+		return (Runtime._getCurrentCaller()->thisFn.wrappedFun)(params...,thisFn.boundParams...);
 	};
 	test("UserFunction:", true
-		&& plusRec(a,7)==17 && plusRec2(a,7)==17 && minusOne(a)==9 && (fn(a){return a*a;})(2)==4
+		&& plusRec(a,7)==17 && plusRec2(a,7)==17 && minusOne(a)==9 && fn(a){return a*a;}(2)==4
 		&& increase(3)==4 && increase(3,2)==5 && typeException==true && repeat(3,".")=="..."
 		&& mulSum(2,1,2,3)==12 && typeException2 && typeException3
 		&& f2(,,10)==13
 		&& f3()==1 && f3()==2 // a static counter is increased each time f3 is called
 		&& f3 ---|> UserFunction
-		&& (fn(){/*bla*/}).getCode() == "fn(){/*bla*/}"
+		&& fn(){/*bla*/}.getCode() == "fn(){/*bla*/}"
 		&& f4(0) == 17 && f4b(0) ==27
-		&& (1->(fn(a){return this+a; }).bindLastParams(27)) () == 28 // 1+27
+		&& (1->fn(a){return this+a; }.bindLastParams(27)) () == 28 // 1+27
 
-		&& [1,2,3].map( (fn(key,value,sumA,sumB){return value+sumA+sumB;}).bindLastParams(90,10) )  == [101,102,103]
+		&& [1,2,3].map( fn(key,value,sumA,sumB){return value+sumA+sumB;}.bindLastParams(90,10) )  == [101,102,103]
 		&& plusRec.getFilename() == __FILE__
-		&& (fn(a){}).getMinParamCount() == 1 && (fn(a*){}).getMinParamCount() == 0 && (fn(a,b,c = 2){}).getMinParamCount() == 2
-		&& (fn(a){}).getMaxParamCount() == 1 && !(fn(a*){}).getMaxParamCount() && (fn(a,b,c = 2){}).getMaxParamCount() == 3
-
+		&& fn(a){}.getMinParamCount() == 1 && fn(a...){}.getMinParamCount() == 0 && fn(a,b,c = 2){}.getMinParamCount() == 2 // user function info
+		&& fn(a){}.getMaxParamCount() == 1 && !fn(a...){}.getMaxParamCount() && fn(a,b,c = 2){}.getMaxParamCount() == 3 // user function info
+		&& mulSum.getMultiParam() == 1 && !minusOne.getMultiParam() && minusOne.getParamCount() == 1 // user function info
+		&& fn(...,a){return a;}(1,2,3) == 3 // ignored parameter
+		&& fn(a,b...,c){return b;}(1,2,3,4) == [2,3] // multi parameter
+		&& fn(a,b...,c){return b;}(1,4) == [] // multi parameter
+		&& ({var T=new Type; T._constructor::=fn(p...){this.m:=p;}; new T(1,2,3);}).m == [1,2,3] // multi parameter in constructor call
+		&& [0,1,[2,3,[4,5]...,[]...]...,6] == [0,1,2,3,4,5,6] // parameter expansion
 		,UserFunction
 	 );
 	 f3.staticVar = 0; // reset staticVar for next testing loop.
@@ -331,13 +335,13 @@ var FAILED="\t failed\n";
 	// simple example
 	var userDefinedFunction = new ExtObject( {
 		$m1 : 17,
-		$_call : fn(obj,params*){
+		$_call : fn(obj,params...){
 			return m1+params[0];
 		}
 	});
 
 	// more complex example: Bind parameter by user defined function
-	UserFunction.bindLastParams2 ::= fn(params*){
+	UserFunction.bindLastParams2 ::= fn(params...){
 		return new thisFn.Wrapper( this, params );
 	};
 	{	// (internals)
@@ -351,17 +355,18 @@ var FAILED="\t failed\n";
 			this.fun = _fun;
 			this.additionalParamValues = _additionalParamValues;
 		};
-		Wrapper._call ::= fn(obj,params*){
-			params.append(additionalParamValues);
-			return Runtime._callFunction(fun,obj,params);
+		Wrapper._call ::= fn(obj,params...){
+//			params.append(additionalParamValues);
+//			return Runtime._callFunction(fun,obj,params);
+			return (obj->fun)(params...,additionalParamValues...);
 		};
 	}
 
 
 	test("User def function(EXP!):", true
 		&& userDefinedFunction(10) == 27 // 17+10
-		&& (1->(fn(a){return this+a; }).bindLastParams2(27)) () == 28 // 1+27
-		&& [1,2,3].map( (fn(key,value,sumA,sumB){return value+sumA+sumB;}).bindLastParams2(90,10) )  == [101,102,103]
+		&& (1->fn(a){return this+a; }.bindLastParams2(27)) () == 28 // 1+27
+		&& [1,2,3].map( fn(key,value,sumA,sumB){return value+sumA+sumB;}.bindLastParams2(90,10) )  == [101,102,103]
 	);
 	UserFunction.bindLastParams2 = void; // need to remove the UserFunction extension for memory debug mode
 }
@@ -589,16 +594,12 @@ if(!benchmark)
 //---
 if(GLOBALS.isSet($TestObject)){  // TestObject is defined in test.cpp
 	var t = new TestObject(1,1);
-	t.m1 = 9; // int
-	t.m2 = 9; // float
-	t.m1+=1.7; // (int) (9 + 1.7) == 10
-	t.m2+=1.7; // 9+1.7 == 10.7
-	t.m1++;
-	t.m2++;
+	t.setM1(9); // int
+	t.setM2(9); // float
+	t.setM1( t.getM1()+=1.7); // (int) (9 + 1.7) == 10
+	t.setM2( t.getM2()+=1.7); // 9+1.7 == 10.7
 
-	var m2 = t.getM2();
-
-	test("NumberRef", t.getM1()== 11 && t.getM2().matches(11.7) );
+	test("NumberRef", t.getM1()== 10 && t.getM2()~=10.7 );
 }
 //---
 if(!benchmark)
@@ -714,7 +715,7 @@ if(!benchmark)
 	};
 	var A2 = new Type(A); // useless in-between type whithout constructor
 	var B = new Type(A2);
-	B._constructor::=fn(v,x,y).(v*2,x,y){
+	B._constructor::=fn(v,x,y)@(super(v*2,x,y)){
 		m1=-m1;
 	};
 	var C = new Type(B);
@@ -923,9 +924,7 @@ if(!benchmark)
 	);
 }
 
-// -----------------------------------------------
-// >=0.5.9 features
-{
+{ // Inheritance restrictions
 	var exceptionCaught = false;
 	try{
 		var Number2 = new Type(Number);
@@ -934,7 +933,6 @@ if(!benchmark)
 		exceptionCaught = true;
 	}
 	test("Inheritance restrictions:",exceptionCaught);
-
 }
 
 {

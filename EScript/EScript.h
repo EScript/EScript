@@ -1,5 +1,5 @@
 /*
-**  Copyright (c) Claudius Jaehn, 2007-2012
+**  Copyright (c) Claudius Jaehn (claudiusj@users.berlios.de), 2007-2013
 **
 **  Permission is hereby granted, free of charge, to any person obtaining a copy of this
 **  software and associated documentation files (the "Software"), to deal in the Software
@@ -29,7 +29,6 @@
 #include "Objects/Callables/Delegate.h"
 #include "Objects/Callables/Function.h"
 #include "Objects/Values/Number.h"
-#include "Objects/Values/NumberRef.h"
 #include "Objects/Values/Bool.h"
 #include "Objects/Values/Void.h"
 #include "Objects/Values/String.h"
@@ -43,6 +42,7 @@
 #include "Utils/Helper.h"
 #include "Utils/Macros.h"
 #include "Consts.h"
+#include "StdFactories.h"
 
 #ifdef ES_DEBUG_MEMORY
 #include "Utils/Debug.h"

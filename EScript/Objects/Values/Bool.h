@@ -21,11 +21,14 @@ class Bool : public Object {
 
 		// ---
 
-		explicit Bool(bool _value,Type * type = nullptr) : 
-				Object(type?type:getTypeObject()),value(_value) {}
+		explicit Bool(bool _value) : 
+				Object(getTypeObject()),value(_value) {}
 		virtual ~Bool(){}
 
 		void setValue(bool b)								{	value = b;	}
+		
+		bool & operator*()									{	return value;	}
+		bool operator*()const								{	return value;	}
 
 		//! ---|> [Object]
 		virtual Object * clone()const						{	return Bool::create(value);	}
@@ -38,6 +41,9 @@ class Bool : public Object {
 	private:
 		bool value;
 };
+
+template<>
+inline bool convertTo<bool>(Runtime &,ObjPtr src)		{	return src.toBool();	}
 }
 
 #endif // BOOL_H

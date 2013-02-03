@@ -31,15 +31,13 @@ class RuntimeInternals  {
 	//! @name Function execution
 	//	@{
 	public:
-		typedef std::pair<RtValue,FunctionCallContext* >  executeFunctionResult_t;
-
 		/*! (internal)
 			Start the execution of a function. A c++ function is executed immediatly and the result is <result,nullptr>.
-			A UserFunction produces a FunctionCallContext which still has to be executed. The result is then <UNDEFINED,fcc>
+			A UserFunction produces a FunctionCallContext which still has to be executed. The result is then result.isFunctionCallContext() == true
 			\note the @p params value may be altered by this function and should not be used afterwards!	*/
-		executeFunctionResult_t startFunctionExecution(const ObjPtr & fun,const ObjPtr & callingObject,ParameterValues & params);
+		RtValue startFunctionExecution(const ObjPtr & fun,const ObjPtr & callingObject,ParameterValues & params);
 
-		executeFunctionResult_t startInstanceCreation(EPtr<Type> type,ParameterValues & params);
+		RtValue startInstanceCreation(EPtr<Type> type,ParameterValues & params);
 
 		ObjRef executeFunctionCallContext(_Ptr<FunctionCallContext> fcc);
 
@@ -151,7 +149,8 @@ class RuntimeInternals  {
 	//	@{
 	//! (interna) Used by the Runtime.
 	private:
-		std::vector<ERef<Function> > systemFunctions;
+		typedef RtValue ( * sysFunctionPtr)(RuntimeInternals &,const ParameterValues &);
+		std::vector<sysFunctionPtr > systemFunctions;
 		void initSystemFunctions();
 	public:
 		RtValue sysCall(uint32_t sysFnId,ParameterValues & params);

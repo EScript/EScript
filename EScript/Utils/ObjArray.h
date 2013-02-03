@@ -48,9 +48,9 @@ public:
 	_ObjArray(ObjPtr p1,ObjPtr p2,ObjPtr p3,ObjPtr p4) : paramCount(4),params(new _T[4]){
 		params[0]=p1,	params[1]=p2,	params[2]=p3,	params[3]=p4;
 	}
-	_ObjArray(size_type _paramCount) : paramCount(_paramCount),params(paramCount>2 ? new _T[paramCount] : internalParams){
+	explicit _ObjArray(size_type _paramCount) : paramCount(_paramCount),params(paramCount>2 ? new _T[paramCount] : internalParams){
 	}
-	_ObjArray(const _ObjArray & other) : paramCount(other.paramCount),params(paramCount>2 ? new _T[paramCount] : internalParams){
+	explicit _ObjArray(const _ObjArray & other) : paramCount(other.paramCount),params(paramCount>2 ? new _T[paramCount] : internalParams){
 		if(paramCount>0)
 			std::copy(other.begin(),other.end(),begin());
 	}

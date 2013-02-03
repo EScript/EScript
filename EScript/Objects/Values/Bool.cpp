@@ -11,6 +11,14 @@
 
 namespace EScript{
 
+
+template<> Bool * assertType<Bool>(Runtime & runtime, const ObjPtr & obj) {
+	if(obj.isNull()||obj->_getInternalTypeId()!=_TypeIds::TYPE_BOOL) 
+		assertType_throwError(runtime, obj, Bool::getClassName());
+	return static_cast<Bool*>(obj.get());
+}
+
+
 //! initMembers
 void Bool::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();
@@ -61,7 +69,7 @@ void Bool::init(EScript::Namespace & globals) {
 
 }
 //----
-static std::stack<Bool *> boolPool;
+static std::stack<Bool *> pool;
 
 Bool * Bool::create(bool value){
 //static int count = 0;
@@ -69,14 +77,14 @@ Bool * Bool::create(bool value){
 	#ifdef ES_DEBUG_MEMORY
 	return new Bool(value);
 	#endif
-	if(boolPool.empty()){
+	if(pool.empty()){
 		for(int i = 0;i<32;++i){
-			boolPool.push(new Bool(false));
+			pool.push(new Bool(false));
 		}
 		return create(value);
 	}else{
-		Bool * o = boolPool.top();
-		boolPool.pop();
+		Bool * o = pool.top();
+		pool.pop();
 		o->value = value;
 //        std::cout << ".";
 		return o;
@@ -92,7 +100,7 @@ void Bool::release(Bool * o){
 		delete o;
 		std::cout << "Found diff BoolType\n";
 	}else{
-		boolPool.push(o);
+		pool.push(o);
 	}
 }
 
