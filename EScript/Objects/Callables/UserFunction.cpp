@@ -37,7 +37,7 @@ void UserFunction::init(EScript::Namespace & globals) {
 	ESMF_DECLARE(t,UserFunction,"getMinParamCount",0,0, self->getMinParamCount())
 
 	//! [ESMF] Number UserFunction.getParamCount()
-	ESMF_DECLARE(t,UserFunction,"getParamCount",0,0, self->getParamCount())
+	ESMF_DECLARE(t,UserFunction,"getParamCount",0,0, static_cast<uint32_t>(self->getParamCount()))
 
 	//! [ESMF] String UserFunction._asm()
 	ESMF_DECLARE(t,UserFunction,"_asm",0,0, self->getInstructionBlock().toString())
