@@ -519,7 +519,7 @@ Array::ArrayIterator::~ArrayIterator() {
 
 //! ---|> [Iterator]
 Object * Array::ArrayIterator::key() {
-	return end() ? nullptr : EScript::create(index);
+	return end() ? nullptr : EScript::create(static_cast<uint32_t>(index));
 }
 
 //! ---|> [Iterator]
