@@ -1,0 +1,107 @@
+--------------------------------------------
+EScript 0.6.5 Emilia (Development version)
+Development: 2012-11 -- 2013-02
+Developers: Claudius Jähn, Benjamin Eikel
+
+General:
+ - New naming scheme: Each new version gets the name of a famous rabbit. Beginning 
+    with the glorious Emilia.
+ - Changelog introduced: All relevant changes should from now on be documented in 
+    this document.
+ - Faster: Approx 5% speedup in the default benchmark.
+
+Language:
+ - Automatic number conversion limited: All built-in functions that use a number 
+    as parameter expect a Number or a String now. Other types result in a 
+    warning message.
+ - Multi parameter improvements: 
+    - The marker for a multi parameter is now '...' instead of '*' (inspired by 
+       the syntax of c++'s variadic templates). The use of the old marker 
+       is deprecated.
+    - Any parameter can now be the multi parameter (and not only the last one):
+       e.g. fn(a,arr...,c){}
+    - If the multi parameter's name is omitted, all parameters are silently 
+       ignored. E.g.: fn(a,...){} takes at least one parameter, but all but
+       the first are ignored.
+ - Parameter expansion: When appending '...' to an array parameter value in a 
+    function call, it is expanded and each entry results in a separate parameter
+    value. This allows calling functions with a dynamic parameter count.
+    E.g. myFunc(0,[1,2,3]...,4); is equivalent to myFunc(0,1,2,3,4);
+    This also works for array constructors:
+    E.g. [0,[1,2]...,3] is equivalent to [0,1,2,3] 
+ - Need for additional brackets around functions removed: Before, if a newly 
+    declared function was to be called directly, it had to be enclosed 
+    in brackets:   (fn(){out("foo");})();  
+    These brackets can now be left out:  fn(){out("foo");}();
+
+C++-Api:
+ - NumberRef removed: It introduced too complex internal contraints.
+ - RtValue introduced: It wrapps objets as well as several primitive and 
+    internal types.
+ - Function's use RtValue as result: When returning a simple data type 
+    (bool,uint32_t,int32_t,float,double,string), these can be directly returned
+    without creating an object.
+ - New Conversion functions: To convert an ObjPtr to a specific type (not
+    an EScript-type), one can call parameter[?].to<desiredType>(runtime).
+    E.g.: Convert parameter 0 to an unint32_t value and throw an error if this 
+    is not possible (or in this case just issue a warning):
+       parameter[0].to<uint32_t>(runtime)
+    Optionally, a default value may be given that is returned if the ObjPtr is 
+    undefined. E.g.: parameter[0].to<uint32_t>(runtime,42)
+    To allow user defined conversions, add a template specialization of
+    userType EScript::convertTo<userType>(Runtime,objPtr)
+ - Universal factory functions: A set of overloaded EScript::create(...) functions
+    has been introduced to create Objects of the desired type.
+    E.g.: EScript::create(false) --> Bool,  EScript::create(42) --> Number
+    It is encouraged to add an appropriate factory function for all user 
+    defined types that wrap a specific c++-type:
+      E_MyType EScript::create(MyType &){...}
+ - All standard types provide a *-operator to access the contained value.
+ - New (Ext)ReferenceObject constructor allows forwarding arguments to the 
+    referenced object's constructor.
+
+Internals:
+ - Cleanups, minor bugfixes and tweaks.
+   - Delegates use a memory pool resulting in a more efficient creation and 
+      destruction.
+   - Try to use std::move where possible. (speedup)
+   - ...
+
+--------------------------------------------
+EScript 0.6.4 (Stable version)
+Release: 2012-10-11
+Devopers: Claudius Jähn, Benjamin Eikel
+
+Changes:
+- Bugfixes
+--------------------------------------------
+EScript 0.6.3 (Development version)
+Development: 2012-05 -- 2012-10
+Devopers: Claudius Jähn, Benjamin Eikel
+
+Changes:
+- Use new C++11 compiler.
+- Redesign of the internal AST-classes.
+--------------------------------------------
+2012-04 ... Release: EScript 0.6.2 Compiler and Bytecode-based runtime added,
+--------------------------------------------
+2012-02 ... Release: EScript 0.6.0 (GubbelGubbel) Property support added; private, const, init, ...
+--------------------------------------------
+2011-07 ... Release: EScript 0.5.6
+--------------------------------------------
+2011-04 ... Release: EScript 0.5.4 (Stöpselhase)
+--------------------------------------------
+2011-02 ... Publication at berlios.de with MIT/X Consortium License
+--------------------------------------------
+2011-01 ... Release: EScript 0.5.2 (Stöpselhase)
+--------------------------------------------
+2010-06 ... Release: EScript 0.5 (Stöpselhase)
+--------------------------------------------
+2008-04 ... Release: EScript 0.4 (Kamuffel)
+--------------------------------------------
+2007 ... Release: EScript 0.3 (Schmörf)
+--------------------------------------------
+2007 ... SimpleScript 0.1 -> EScript 0.2
+--------------------------------------------
+2006 ... SimpleScript 0.1 
+--------------------------------------------
