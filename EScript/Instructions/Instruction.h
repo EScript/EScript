@@ -122,7 +122,8 @@ class Instruction {
 			std::pair<uint32_t,uint32_t> value_uint32Pair;
 			uint64_t raw;
 			value_t():raw(0){static_assert(sizeof(raw)==sizeof(value_t),"'raw' must cover the whole union.");}
-
+			value_t(value_t && other) : raw(other.raw) {}
+			value_t(const value_t & other) : raw(other.raw) {}
 		}data;
 		int line;
 };
