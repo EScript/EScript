@@ -84,6 +84,10 @@ double convertTo<double>(Runtime& rt,ObjPtr src);
 template<>
 inline float convertTo<float>(Runtime& rt,ObjPtr src)		{	return static_cast<float>(convertTo<double>(rt,src));	}
 template<>
+inline int64_t convertTo<int64_t>(Runtime& rt,ObjPtr src)	{	return static_cast<int64_t>(convertTo<double>(rt,src));	}
+template<>
+inline uint64_t convertTo<uint64_t>(Runtime& rt,ObjPtr src)	{	return static_cast<uint64_t>(convertTo<double>(rt,src));	}
+template<>
 inline int32_t convertTo<int32_t>(Runtime& rt,ObjPtr src)	{	return static_cast<int32_t>(convertTo<double>(rt,src));	}
 template<>
 inline uint32_t convertTo<uint32_t>(Runtime& rt,ObjPtr src)	{	return static_cast<uint32_t>(convertTo<double>(rt,src));	}
