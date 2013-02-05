@@ -98,7 +98,7 @@ class CompilerContext {
 		void pushSetting_localVars(const std::set<StringId> & variableNames);
 		void popSetting()												{	settingsStack.pop_back();	}
 
-		uint32_t registerInternalFunction(const ObjPtr userFunction)	{	return instructions.registerInternalFunction(userFunction);	}
+		uint32_t registerInternalFunction(const ObjPtr & userFunction)	{	return instructions.registerInternalFunction(userFunction);	}
 		void setLine(int l)												{	currentLine = l;	}
 
 		//! All newly defined variables are also added to the topmost collection.

@@ -16,14 +16,14 @@ namespace EScript {
 namespace Policies{ //! \todo --> Policies_RefObjEqComparators
 	struct EqualContent_ComparePolicy{
 		template <typename ReferenceObject_t>
-		static inline bool isEqual(ReferenceObject_t * a,const ObjPtr b)	{
+		static inline bool isEqual(ReferenceObject_t * a,const ObjPtr & b)	{
 			ReferenceObject_t * other = b.toType<ReferenceObject_t >();
 			return other && a->ref() == other->ref();
 		}
 	};
 
 	struct SameEObjects_ComparePolicy{
-		static inline bool isEqual( Object * a,const ObjPtr b)	{	return a==b.get();	}
+		static inline bool isEqual(Object * a,const ObjPtr & b)	{	return a==b.get();	}
 	};
 }
 
@@ -78,7 +78,7 @@ class ReferenceObject : public Object {
 
 		}
 		//! ---|> [Object]
-		virtual bool rt_isEqual(Runtime &,const ObjPtr o)	{	return comparisonPolicy::isEqual(this,o);	}
+		virtual bool rt_isEqual(Runtime &,const ObjPtr & o)	{	return comparisonPolicy::isEqual(this,o);	}
 	private:
 		_T obj;
 };

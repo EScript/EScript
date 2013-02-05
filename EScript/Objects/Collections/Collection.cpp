@@ -161,7 +161,7 @@ Object * Collection::rt_reduce(Runtime & runtime,ObjPtr function,ObjPtr initialV
 }
 
 //! ---|> Object
-bool Collection::rt_isEqual(Runtime &runtime,const ObjPtr other){
+bool Collection::rt_isEqual(Runtime &runtime,const ObjPtr & other){
 	Collection * c = other.toType<Collection>();
 	if(c==nullptr || count()!=c->count() ) return false;
 

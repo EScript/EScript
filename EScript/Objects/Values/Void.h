@@ -18,7 +18,7 @@ class Void : public Type {
 		//! ---|> [Object]
 		virtual Object * clone()const;
 		virtual bool toBool()const;
-		virtual bool rt_isEqual(Runtime & rt,const ObjPtr o);
+		virtual bool rt_isEqual(Runtime & rt,const ObjPtr & o);
 		virtual std::string toString()const;
 		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_VOID;	}
 

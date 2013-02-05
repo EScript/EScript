@@ -72,7 +72,7 @@ class Number : public Object {
 
 		virtual std::string toString()const;
 		virtual double toDouble()const						{	return value;	}
-		virtual bool rt_isEqual(Runtime & rt,const ObjPtr o);
+		virtual bool rt_isEqual(Runtime & rt,const ObjPtr & o);
 		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_NUMBER;	}
 
 	private:

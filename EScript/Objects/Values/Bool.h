@@ -31,11 +31,11 @@ class Bool : public Object {
 		bool operator*()const								{	return value;	}
 
 		//! ---|> [Object]
-		virtual Object * clone()const						{	return Bool::create(value);	}
+		virtual Object * clone()const						{	return create(value);	}
 		virtual std::string toString()const					{	return value?"true":"false";	}
 		virtual bool toBool()const							{	return value;	}
 		virtual double toDouble()const						{	return value?1:0;	}
-		virtual bool rt_isEqual(Runtime &,const ObjPtr o)	{	return value==o.toBool(false);	}
+		virtual bool rt_isEqual(Runtime &,const ObjPtr & o)	{	return value==o.toBool(false);	}
 		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_BOOL;	}
 
 	private:

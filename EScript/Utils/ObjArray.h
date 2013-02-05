@@ -34,7 +34,7 @@ private:
 public:
 	typedef _ObjArray<_T> self_t;
 
-	_ObjArray() : paramCount(0){
+	_ObjArray() : paramCount(0),params(nullptr){
 	}
 	_ObjArray(ObjPtr p1) : paramCount(1),params(internalParams){
 		params[0]=p1;

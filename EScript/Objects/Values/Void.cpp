@@ -25,7 +25,7 @@ Void::~Void() {
 }
 
 //! ---|> [Object]
-bool Void::rt_isEqual(Runtime &,const ObjPtr o){
+bool Void::rt_isEqual(Runtime &,const ObjPtr & o){
 	return o.toType<Void>() != nullptr;
 }
 

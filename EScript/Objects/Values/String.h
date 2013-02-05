@@ -45,7 +45,7 @@ class String : public Object {
 		virtual std::string toString()const			{	return getString();	}
 		virtual double toDouble()const;
 		virtual int toInt()const;
-		virtual bool rt_isEqual(Runtime &rt,const ObjPtr o);
+		virtual bool rt_isEqual(Runtime &rt,const ObjPtr & o);
 		virtual std::string toDbgString()const;
 		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_STRING;	}
 

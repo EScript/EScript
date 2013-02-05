@@ -37,7 +37,7 @@ Identifier::Identifier(const StringId &_id):
 
 
 //! ---|> [Object]
-bool Identifier::rt_isEqual(Runtime &,const ObjPtr o){
+bool Identifier::rt_isEqual(Runtime &,const ObjPtr & o){
 	Identifier * other = o.toType<Identifier>();
 	return other == nullptr ? false : other->getId() == this->getId();
 }

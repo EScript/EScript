@@ -73,7 +73,7 @@ class ExtReferenceObject : public Object, private attributeProvider {
 			throw new Exception(std::string("Trying to clone unclonable object '")+this->toString()+"'");
 		}
 		//! ---|> [Object]
-		virtual bool rt_isEqual(Runtime &,const ObjPtr o)	{	return comparisonPolicy::isEqual(this,o);	}
+		virtual bool rt_isEqual(Runtime &,const ObjPtr & o)	{	return comparisonPolicy::isEqual(this,o);	}
 
 
 	// -----

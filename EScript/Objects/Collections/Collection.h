@@ -41,7 +41,7 @@ class Collection : public Object {
 
 
 		//! ---|> Object
-		virtual bool rt_isEqual(Runtime &runtime,const ObjPtr other);
+		virtual bool rt_isEqual(Runtime &runtime,const ObjPtr & other);
 };
 }
 

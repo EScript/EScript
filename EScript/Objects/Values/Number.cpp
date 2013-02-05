@@ -6,17 +6,13 @@
 #include "../../EScript.h"
 #include "Bool.h"
 
+#include <cmath>
 #include <sstream>
 #include <stack>
 
 #ifndef M_PI
 #define M_PI		3.14159265358979323846
 #define M_PI_2		1.57079632679489661923
-#endif
-
-#if defined(_MSC_VER)
-static inline double round(const double & x) { return floor(x + 0.5); }
-static inline float roundf(const float & x) { return floorf(x + 0.5f); }
 #endif
 
 namespace EScript{
@@ -246,7 +242,7 @@ void Number::init(EScript::Namespace & globals) {
 				(123.456).round(10) == 120 */
 	ES_FUNCTION_DECLARE(typeObject,"round",0,1,{
 		if(parameter.count()==0)
-			return round( caller->toDouble());
+			return std::round( caller->toDouble());
 		const double reference = parameter[0].to<double>(runtime);
 		if(reference==0){
 			runtime.setException("round with zero");
@@ -352,7 +348,7 @@ std::string Number::toString()const {
 }
 
 //! ---|> [Object]
-bool Number::rt_isEqual(Runtime & ,const ObjPtr o){
+bool Number::rt_isEqual(Runtime & ,const ObjPtr & o){
 	return getValue()==o.toDouble();
 }
 }

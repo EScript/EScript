@@ -61,16 +61,16 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 		/*! ---o
 			\note For camparing objects, never use this function directly but use isEqual(...) instead.
 				  Otherwise scripted '=='-member functions are not supported. */
-		virtual bool rt_isEqual(Runtime & rt,const ObjPtr other);
+		virtual bool rt_isEqual(Runtime & rt,const ObjPtr & other);
 
 		//! Compare two Objects using the '=='-member function
-		bool isEqual(Runtime & rt,const ObjPtr o);
+		bool isEqual(Runtime & rt,const ObjPtr & o);
 
 		/*! If this is an Object which is passed ...
 			 -  call-by-value, this functions returns true if the given object's Type is the same as this' type
 				and isEqual returns true.
 			 - 	call-by-reference, this function returns true if the given object and this are the same Object. */
-		bool isIdentical(Runtime & rt,const ObjPtr other);
+		bool isIdentical(Runtime & rt,const ObjPtr & other);
 
 
 		//! ---o

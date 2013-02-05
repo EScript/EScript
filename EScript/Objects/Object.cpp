@@ -274,11 +274,11 @@ StringId Object::hash()const {
 }
 
 //! ---o
-bool Object::rt_isEqual(Runtime &,const ObjPtr other){
+bool Object::rt_isEqual(Runtime &,const ObjPtr & other){
 	return other == this ;
 }
 
-bool Object::isEqual(Runtime &runtime,const ObjPtr other) {
+bool Object::isEqual(Runtime &runtime,const ObjPtr & other) {
 	return callMemberFunction(runtime,this,Consts::IDENTIFIER_fn_equal,ParameterValues(other.get())).toBool();
 }
 
@@ -286,7 +286,7 @@ Object * Object::getRefOrCopy() {
 	return (!typeRef.isNull() && getType()->getFlag(Type::FLAG_CALL_BY_VALUE)) ? clone() : this;
 }
 
-bool Object::isIdentical(Runtime & rt,const ObjPtr o) {
+bool Object::isIdentical(Runtime & rt,const ObjPtr & o) {
 	if( (typeRef.isNotNull() && getType()->getFlag(Type::FLAG_CALL_BY_VALUE))){
 		return o.isNotNull() && getType() == o->getType() && isEqual(rt,o);
 	}else{

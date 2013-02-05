@@ -308,6 +308,6 @@ int String::toInt()const {
 }
 
 //! ---|> [Object]
-bool String::rt_isEqual(Runtime &, const ObjPtr o){
+bool String::rt_isEqual(Runtime &, const ObjPtr & o){
 	return o.isNull()?false:sData==objToStringData(o.get());
 }
