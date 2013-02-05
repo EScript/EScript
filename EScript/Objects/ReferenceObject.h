@@ -45,13 +45,22 @@ class ReferenceObject : public Object {
 		typedef ReferenceObject<_T,comparisonPolicy> ReferenceObject_t;
 
 		// ---
+		
+		//! (ctor) Uses referenced object's default constructor.
 		ReferenceObject(Type * type) :
 				Object(type), obj()							{	}
 
+		//! (ctor) Passes a reference or rvalue reference to the object's constructor (if possible)
 		template<typename other_type_t,
 				 typename = typename std::enable_if<std::is_convertible<other_type_t, _T>::value>::type>
 		explicit ReferenceObject(other_type_t && otherObject, Type * type = nullptr) :
 			Object(type), obj(std::forward<other_type_t>(otherObject)) {
+		}
+		
+		//! (ctor) Passes arbitrary parameters to the object's constructor.
+		template<typename ...args>
+		explicit ReferenceObject(Type * type,args&&... params) :
+			Object(type), obj(std::forward<args>(params)...) {
 		}
 
 		virtual ~ReferenceObject()							{	}
