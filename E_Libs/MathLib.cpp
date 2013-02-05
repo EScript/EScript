@@ -59,8 +59,8 @@ void init(EScript::Namespace * globals) {
 	Namespace * lib = new Namespace;
 	declareConstant(globals,"Math",lib);
 
-	declareConstant(lib,"PI",	create(M_PI));
-	declareConstant(lib,"PI_2",	create(M_PI_2));
+	declareConstant(lib,"PI",	M_PI);
+	declareConstant(lib,"PI_2",	M_PI_2);
 
 
 	//! Number Math.atan2(a,b)

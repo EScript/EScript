@@ -33,12 +33,12 @@ void Runtime::init(EScript::Namespace & globals) {
 	declareConstant(&globals,getClassName(),typeObject);
 
 	using EScript::create;
-	declareConstant(typeObject,"LOG_DEBUG",create(static_cast<int>(Logger::LOG_DEBUG)));
-	declareConstant(typeObject,"LOG_INFO",create(static_cast<int>(Logger::LOG_INFO)));
-	declareConstant(typeObject,"LOG_PEDANTIC_WARNING",create(static_cast<int>(Logger::LOG_PEDANTIC_WARNING)));
-	declareConstant(typeObject,"LOG_WARNING",create(static_cast<int>(Logger::LOG_WARNING)));
-	declareConstant(typeObject,"LOG_ERROR",create(static_cast<int>(Logger::LOG_ERROR)));
-	declareConstant(typeObject,"LOG_FATAL",create(static_cast<int>(Logger::LOG_FATAL)));
+	declareConstant(typeObject,"LOG_DEBUG",				static_cast<int>(Logger::LOG_DEBUG));
+	declareConstant(typeObject,"LOG_INFO",				static_cast<int>(Logger::LOG_INFO));
+	declareConstant(typeObject,"LOG_PEDANTIC_WARNING",	static_cast<int>(Logger::LOG_PEDANTIC_WARNING));
+	declareConstant(typeObject,"LOG_WARNING",			static_cast<int>(Logger::LOG_WARNING));
+	declareConstant(typeObject,"LOG_ERROR",				static_cast<int>(Logger::LOG_ERROR));
+	declareConstant(typeObject,"LOG_FATAL",				static_cast<int>(Logger::LOG_FATAL));
 
 	//!	[ESMF] Number Runtime._getStackSize();
 	ESF_DECLARE(typeObject,"_getStackSize",0,0, static_cast<uint32_t>(runtime.getStackSize()))

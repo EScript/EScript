@@ -7,7 +7,6 @@
 
 #include "Hashing.h"
 #include "ObjArray.h"
-#include "ObjRef.h"
 #include "../Objects/Callables/Function.h"
 #include <cstddef>
 #include <iosfwd>
@@ -35,15 +34,15 @@ void declareFunction(Type * type, StringId nameId, Function::functionPtr fn);
 void declareFunction(Type * type, const char * name, Function::functionPtr fn);
 void declareFunction(Type * type, StringId nameId, int minParamCount, int maxParamCount, Function::functionPtr fn);
 void declareFunction(Type * type, const char * name, int minParamCount, int maxParamCount, Function::functionPtr fn);
-void declareConstant(Type * type, StringId nameId, Object * value);
-void declareConstant(Type * type, const char * name, Object * value);
+void declareConstant(Type * type, StringId nameId, const RtValue& value);
+void declareConstant(Type * type, const char * name, const RtValue& value);
 
 void declareFunction(Namespace * nameSpace, StringId nameId, Function::functionPtr fn);
 void declareFunction(Namespace * nameSpace, const char * name, Function::functionPtr fn);
 void declareFunction(Namespace * nameSpace, StringId nameId, int minParamCount, int maxParamCount, Function::functionPtr fn);
 void declareFunction(Namespace * nameSpace, const char * name, int minParamCount, int maxParamCount, Function::functionPtr fn);
-void declareConstant(Namespace * nameSpace, StringId nameId, Object * value);
-void declareConstant(Namespace * nameSpace, const char * name, Object * value);
+void declareConstant(Namespace * nameSpace, StringId nameId, const RtValue& value);
+void declareConstant(Namespace * nameSpace, const char * name, const RtValue& value);
 
 void initPrintableName(Type * type, const std::string & printableName);
 //@}

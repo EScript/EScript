@@ -39,13 +39,13 @@ void declareFunction(Type * type, const char * name, int minParamCount, int maxP
 }
 
 //! (static)
-void declareConstant(Type * type, const char * name, Object * value) {
+void declareConstant(Type * type, const char * name, const RtValue& value) {
 	declareConstant(type, StringId(name), value);
 }
 
 //! (static)
-void declareConstant(Type * type, StringId nameId, Object * value) {
-	type->setAttribute(nameId, Attribute(value,Attribute::TYPE_ATTR_BIT|Attribute::CONST_BIT));
+void declareConstant(Type * type, StringId nameId, const RtValue& value) {
+	type->setAttribute(nameId, Attribute(value._toObject(),Attribute::TYPE_ATTR_BIT|Attribute::CONST_BIT));
 }
 
 //! (static)
@@ -69,13 +69,13 @@ void declareFunction(Namespace * nameSpace, const char * name, int minParamCount
 }
 
 //! (static)
-void declareConstant(Namespace * nameSpace, const char * name, Object * value) {
+void declareConstant(Namespace * nameSpace, const char * name, const RtValue& value) {
 	declareConstant(nameSpace, StringId(name), value);
 }
 
 //! (static)
-void declareConstant(Namespace * nameSpace, StringId nameId, Object * value) {
-	nameSpace->setAttribute(nameId, Attribute(value,Attribute::CONST_BIT));
+void declareConstant(Namespace * nameSpace, StringId nameId, const RtValue& value) {
+	nameSpace->setAttribute(nameId, Attribute(value._toObject(),Attribute::CONST_BIT));
 }
 
 //! (static)

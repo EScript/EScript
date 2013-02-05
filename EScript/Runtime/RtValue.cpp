@@ -10,6 +10,7 @@
 #include "../Objects/Values/Number.h"
 #include "../Objects/Values/String.h"
 #include "../Objects/Values/Void.h"
+#include <stdexcept>
 
 namespace EScript{
 	
@@ -80,10 +81,10 @@ Object * RtValue::_toObject()const{
 		case IDENTIFIER:
 			return Identifier::create(StringId( value.value_indentifier));
 		case LOCAL_STRING_IDX:
-			return String::create("[Local string]");
 		case UNDEFINED:
 		case FUNCTION_CALL_CONTEXT:
 		default:
+			throw std::logic_error("Value can't converted to an object:"+toDbgString());
 			return nullptr;
 	}
 }

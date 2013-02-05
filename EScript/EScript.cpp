@@ -47,17 +47,17 @@ void init() {
 	Namespace * escript = new Namespace;
 	declareConstant(SGLOBALS,"EScript",escript);
 
-	declareConstant(escript,"VERSION",create(ES_VERSION));
-	declareConstant(escript,"VERSION_STRING",create(ES_VERSION_STRING));
+	declareConstant(escript,"VERSION",			ES_VERSION);
+	declareConstant(escript,"VERSION_STRING",	ES_VERSION_STRING);
 
 	// define attribute constants
-	declareConstant(escript,"ATTR_NORMAL_ATTRIBUTE",create(static_cast<uint32_t>(Attribute::NORMAL_ATTRIBUTE)));
-	declareConstant(escript,"ATTR_CONST_BIT",create(static_cast<uint32_t>(Attribute::CONST_BIT)));
-	declareConstant(escript,"ATTR_PRIVATE_BIT",create(static_cast<uint32_t>(Attribute::PRIVATE_BIT)));
-	declareConstant(escript,"ATTR_TYPE_ATTR_BIT",create(static_cast<uint32_t>(Attribute::TYPE_ATTR_BIT)));
-	declareConstant(escript,"ATTR_INIT_BIT",create(static_cast<uint32_t>(Attribute::INIT_BIT)));
-	declareConstant(escript,"ATTR_REFERENCE_BIT",create(static_cast<uint32_t>(Attribute::REFERENCE_BIT)));
-	declareConstant(escript,"ATTR_OVERRIDE_BIT",create(static_cast<uint32_t>(Attribute::OVERRIDE_BIT)));
+	declareConstant(escript,"ATTR_NORMAL_ATTRIBUTE",	static_cast<uint32_t>(Attribute::NORMAL_ATTRIBUTE));
+	declareConstant(escript,"ATTR_CONST_BIT",			static_cast<uint32_t>(Attribute::CONST_BIT));
+	declareConstant(escript,"ATTR_PRIVATE_BIT",			static_cast<uint32_t>(Attribute::PRIVATE_BIT));
+	declareConstant(escript,"ATTR_TYPE_ATTR_BIT",		static_cast<uint32_t>(Attribute::TYPE_ATTR_BIT));
+	declareConstant(escript,"ATTR_INIT_BIT",			static_cast<uint32_t>(Attribute::INIT_BIT));
+	declareConstant(escript,"ATTR_REFERENCE_BIT",		static_cast<uint32_t>(Attribute::REFERENCE_BIT));
+	declareConstant(escript,"ATTR_OVERRIDE_BIT",		static_cast<uint32_t>(Attribute::OVERRIDE_BIT));
 	// -------------
 
 	initLibrary(StdLib::init);
