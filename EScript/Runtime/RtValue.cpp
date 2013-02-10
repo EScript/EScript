@@ -19,6 +19,11 @@ RtValue::RtValue(const std::string & s) :
 	value.value_obj = String::create(s);
 	Object::addReference(value.value_obj);
 }
+RtValue::RtValue(const char * s) : 
+		valueType(OBJECT_PTR){ 
+	value.value_obj = String::create(s);
+	Object::addReference(value.value_obj);
+}
 
 std::string RtValue::toDbgString()const{
 	switch(valueType){

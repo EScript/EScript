@@ -1,4 +1,14 @@
 --------------------------------------------
+EScript 0.6.5 Eduard (Stable version)
+Release: 2013-02-10
+
+General:
+ - Named after Eduard the Great Rabbit
+
+Internals:
+ - (bugfix) Missing conversion from "const char *" to RtValue added.
+ 
+--------------------------------------------
 EScript 0.6.5 Emilia (Development version)
 Development: 2012-11 -- 2013-02
 Developers: Claudius Jähn, Benjamin Eikel

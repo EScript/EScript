@@ -75,6 +75,7 @@ class RtValue{
 		RtValue(const int & v)			: valueType(NUMBER) { value.value_number = v;	}
 		RtValue(const uint32_t & v)		: valueType(UINT32) { value.value_uint32 = v;	}
 		RtValue(const std::string & s);
+		RtValue(const char * s);
 		RtValue(std::nullptr_t)			: valueType(VOID_VALUE) {}
 
 		RtValue(Object * obj) {
