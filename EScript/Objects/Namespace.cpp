@@ -6,8 +6,13 @@
 
 #include "../EScript.h"
 
-using namespace EScript;
-//---
+namespace EScript{
+	
+//! (static)
+Type * Namespace::getTypeObject(){
+	static Type * typeObject = new Type(ExtObject::getTypeObject()); // ---|> ExtObject
+	return typeObject;
+}
 
 //! initMembers
 void Namespace::init(EScript::Namespace & globals) {
@@ -28,4 +33,5 @@ Namespace * Namespace::clone() const{
 	Namespace * c = new Namespace(getType());
 	c->cloneAttributesFrom(this);
 	return c;
+}
 }

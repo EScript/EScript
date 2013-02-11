@@ -6,7 +6,13 @@
 
 #include "../EScript.h"
 
-using namespace EScript;
+namespace EScript{
+
+//! (static)
+Type * ExtObject::getTypeObject(){
+	static Type * typeObject = new Type(Object::getTypeObject()); // ---|> Object
+	return typeObject;
+}
 
 //! (static) initMembers
 void ExtObject::init(EScript::Namespace & globals) {
@@ -96,4 +102,5 @@ void ExtObject::cloneAttributesFrom(const ExtObject * obj) {
 //! ---|> Object
 void ExtObject::collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs){
 	objAttributes.collectAttributes(attrs);
+}
 }

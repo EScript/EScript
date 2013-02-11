@@ -12,12 +12,12 @@ namespace EScript {
 
 //! [ExtObject] ---|> [Object]
 class ExtObject : public Object {
-		ES_PROVIDES_TYPE_OBJECT(Object)
 		ES_PROVIDES_TYPE_NAME(ExtObject)
 
 	//! @name Initialization
 	//	@{
 	public:
+		static Type* getTypeObject();
 		static void init(EScript::Namespace & globals);
 	//	@}
 

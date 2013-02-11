@@ -8,6 +8,12 @@
 
 namespace EScript{
 
+//! (static)
+Type * Delegate::getTypeObject(){
+	static Type * typeObject = new Type(Object::getTypeObject()); // ---|> Object
+	return typeObject;
+}
+
 //----
 static std::stack<Delegate *> pool;
 

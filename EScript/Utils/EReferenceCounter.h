@@ -25,6 +25,8 @@ class EReferenceCounter {
 	public:
 		//! Default constructor
 		EReferenceCounter():refCounter(0){}
+		EReferenceCounter(const EReferenceCounter & ) = delete;
+		EReferenceCounter(EReferenceCounter && ) = delete;
 
 		//! Default destructor
 		~EReferenceCounter(){}
@@ -48,6 +50,8 @@ class EReferenceCounter {
 			if(o!=nullptr)
 				--o->refCounter;
 		}
+		EReferenceCounter & operator=(const EReferenceCounter &) = delete;
+		EReferenceCounter & operator=(EReferenceCounter &&) = delete;
 };
 
 }

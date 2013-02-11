@@ -6,8 +6,13 @@
 
 #include "../EScript.h"
 
-using namespace EScript;
+namespace EScript{
 
+//! (static)
+Type * YieldIterator::getTypeObject(){
+	static Type * typeObject = new Type(Object::getTypeObject()); // ---|> Object
+	return typeObject;
+}
 
 //! initMembers
 void YieldIterator::init(EScript::Namespace & globals) {
@@ -38,4 +43,5 @@ void YieldIterator::next(Runtime & rt){
 
 Object * YieldIterator::key()const{
 	return create(getCounter());
+}
 }

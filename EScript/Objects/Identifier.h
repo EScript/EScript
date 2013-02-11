@@ -12,12 +12,12 @@ namespace EScript{
 /*! Wrapper object for an StringId
 	[Identifier]  ---|> [Object]  */
 class Identifier:public Object{
-		ES_PROVIDES_TYPE_OBJECT(Object)
 		ES_PROVIDES_TYPE_NAME(Identifier)
 
 	//! @name Initialization
 	//	@{
 	public:
+		static Type* getTypeObject();
 		static void init(EScript::Namespace & globals);
 	//	@}
 

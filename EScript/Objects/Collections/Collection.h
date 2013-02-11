@@ -13,10 +13,10 @@ class Iterator;
 
 //! (abstract) [Collection] ---|>  Object]
 class Collection : public Object {
-		ES_PROVIDES_TYPE_OBJECT(Object)
 		ES_PROVIDES_TYPE_NAME(Collection)
 	public:
-		static void init(EScript::Namespace & globals);
+		static Type* getTypeObject();
+		static void init(Namespace & globals);
 		// ---
 		Collection(Type * type = nullptr) : Object(type?type:getTypeObject()) { }
 		virtual ~Collection()	{ }

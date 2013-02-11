@@ -6,7 +6,13 @@
 #include "../../EScript.h"
 #include <sstream>
 
-using namespace EScript;
+namespace EScript{
+
+//! (static)
+Type * UserFunction::getTypeObject(){
+	static Type * typeObject = new Type(ExtObject::getTypeObject()); // ---|> ExtObject
+	return typeObject;
+}
 
 //! (static) initMembers
 void UserFunction::init(EScript::Namespace & globals) {
@@ -71,3 +77,5 @@ std::string UserFunction::toDbgString()const{
 
 	return os.str();
 }
+}
+

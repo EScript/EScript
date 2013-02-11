@@ -6,7 +6,13 @@
 #include "../Identifier.h"
 #include "../../EScript.h"
 
-using namespace EScript;
+namespace EScript{
+
+//! (static)
+Type * Function::getTypeObject(){
+	static Type * typeObject = new Type(Object::getTypeObject()); // ---|> Object
+	return typeObject;
+}
 
 //! (static) initMembers
 void Function::init(EScript::Namespace & globals) {
@@ -42,4 +48,4 @@ Function::Function(StringId _originalName, int _minParamCount, int _maxParamCoun
 Function::Function(functionPtr _fnptr) :
 		Object(getTypeObject()),fnptr(_fnptr),minParamCount(0),maxParamCount(-1),originalName(0),callCounter(0) {
 }
-
+}

@@ -20,15 +20,13 @@ class Exception;
 class RtValue;
 class StringData;
 class YieldIterator;
-
 class RuntimeInternals;
-
 
 //! [Runtime] ---|> [ExtObject]
 class Runtime : public ExtObject {
-		ES_PROVIDES_TYPE_OBJECT(ExtObject)
 		ES_PROVIDES_TYPE_NAME(Runtime)
 	public:
+		static Type* getTypeObject();
 		static void init(EScript::Namespace & globals);
 
 	// ------------------------------------------------

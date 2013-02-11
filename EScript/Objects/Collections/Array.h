@@ -15,7 +15,6 @@ namespace EScript {
 
 //! [Array]  ---|> [Collection] ---|> [Object]
 class Array : public Collection {
-		ES_PROVIDES_TYPE_OBJECT(Collection)
 		ES_PROVIDES_TYPE_NAME(Array)
 
 	//---------------------
@@ -65,6 +64,7 @@ class Array : public Collection {
 	//! @name TypeObject
 	// @{
 	public:
+		static Type* getTypeObject();
 		static void init(EScript::Namespace & globals);
 	//	@}
 

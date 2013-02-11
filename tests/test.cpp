@@ -30,7 +30,6 @@ struct TestObject{
 //! A EScript-container for the simple test class
 struct E_TestObject : public ReferenceObject<TestObject>{
 	ES_PROVIDES_TYPE_NAME(TestObject)
-	ES_PROVIDES_TYPE_OBJECT(Object)
 public:
 
 	E_TestObject(int i=0,float f=0) :
@@ -41,6 +40,10 @@ public:
 	TestObject & operator*(){				return ref();	}
 	const TestObject & operator*()const{	return ref();	}
 
+	static Type* getTypeObject(){
+		static Type * typeObject = new Type(Object::getTypeObject()); // ---|> Object
+		return typeObject;
+	}
 	//! (static)
 	static void init(Namespace & ns){
 		Type * typeObject = getTypeObject();

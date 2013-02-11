@@ -6,7 +6,13 @@
 #include "../EScript.h"
 #include "Values/Bool.h"
 
-using namespace EScript;
+namespace EScript{
+
+//! (static)
+Type * Iterator::getTypeObject(){
+	static Type * typeObject = new Type(Object::getTypeObject()); // ---|> Object
+	return typeObject;
+}
 
 //! initMembers
 void Iterator::init(EScript::Namespace & globals) {
@@ -32,4 +38,4 @@ void Iterator::init(EScript::Namespace & globals) {
 	ESMF_DECLARE(typeObject,Iterator,"value",0,0,self->value())
 }
 
-//---
+}

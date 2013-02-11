@@ -11,9 +11,9 @@ namespace EScript {
 
 //! [Exception] ---|> [ExtObject] ---|> [Object]
 class Exception : public ExtObject {
-		ES_PROVIDES_TYPE_OBJECT(ExtObject)
 		ES_PROVIDES_TYPE_NAME(Exception)
 	public:
+		static Type* getTypeObject();
 		static void init(EScript::Namespace & globals);
 		// ----
 

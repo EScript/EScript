@@ -7,7 +7,13 @@
 
 #include <string>
 
-using namespace EScript;
+namespace EScript{
+
+//! (static)
+Type * Map::getTypeObject(){
+	static Type * typeObject = new Type(Collection::getTypeObject()); // ---|> Map
+	return typeObject;
+}
 
 //! initMembers
 void Map::init(EScript::Namespace & globals) {
@@ -205,4 +211,5 @@ void Map::MapIterator::reset() {
 //! ---|> [Iterator]
 bool Map::MapIterator::end() {
 	return it==mapRef->data.end();
+}
 }

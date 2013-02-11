@@ -7,7 +7,13 @@
 #include "../EScript.h"
 
 #include <sstream>
-using namespace EScript;
+namespace EScript{
+
+//! (static)
+Type * Exception::getTypeObject(){
+	static Type * typeObject = new Type(ExtObject::getTypeObject()); // ---|> ExtObject
+	return typeObject;
+}
 
 //! initMembers
 void Exception::init(EScript::Namespace & globals) {
@@ -79,4 +85,5 @@ std::string Exception::toString()const {
 		sprinter << "\n"<<stackInfo;
 	sprinter << "]";
 	return sprinter.str();
+}
 }

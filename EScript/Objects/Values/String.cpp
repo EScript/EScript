@@ -9,15 +9,13 @@
 #include <sstream>
 #include <stack>
 
-using namespace EScript;
-//---
+namespace EScript{
 
 //! static, internal
 StringData String::objToStringData(Object * obj){
 	String * strObj = dynamic_cast<String*>(obj);
 	return strObj==nullptr ? StringData(obj->toString()) : strObj->sData;
 }
-namespace EScript{
 
 /*!
  * Try to cast the given object to the specified type.
@@ -30,8 +28,13 @@ template<> String * assertType<String>(Runtime & runtime, const ObjPtr & obj) {
 	return static_cast<String*>(obj.get());
 }
 
-}
 //---
+
+//! (static)
+Type * String::getTypeObject(){
+	static Type * typeObject = new Type(Object::getTypeObject()); // ---|> Object
+	return typeObject;
+}
 
 //! initMembers
 void String::init(EScript::Namespace & globals) {
@@ -311,3 +314,5 @@ int String::toInt()const {
 bool String::rt_isEqual(Runtime &, const ObjPtr & o){
 	return o.isNull()?false:sData==objToStringData(o.get());
 }
+}
+

@@ -11,13 +11,17 @@
 
 namespace EScript{
 
-
 template<> Bool * assertType<Bool>(Runtime & runtime, const ObjPtr & obj) {
 	if(obj.isNull()||obj->_getInternalTypeId()!=_TypeIds::TYPE_BOOL) 
 		assertType_throwError(runtime, obj, Bool::getClassName());
 	return static_cast<Bool*>(obj.get());
 }
 
+//! (static)
+Type * Bool::getTypeObject(){
+	static Type * typeObject = new Type(Object::getTypeObject()); // ---|> Object
+	return typeObject;
+}
 
 //! initMembers
 void Bool::init(EScript::Namespace & globals) {

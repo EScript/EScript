@@ -13,7 +13,6 @@ namespace EScript {
 
 //! [String] ---|> [Object]
 class String : public Object {
-		ES_PROVIDES_TYPE_OBJECT(Object)
 		ES_PROVIDES_TYPE_NAME(String)
 	private:
 		explicit String(const StringData & _sData) : Object(getTypeObject()),sData(_sData) {}
@@ -22,6 +21,7 @@ class String : public Object {
 		static StringData objToStringData(Object * obj);
 
 	public:
+		static Type* getTypeObject();
 		static void init(EScript::Namespace & globals);
 
 		static String * create(const std::string & s)		{	return create(StringData(s));	}

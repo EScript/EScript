@@ -14,13 +14,13 @@ class Runtime;
 
 //! [Function] ---|> [Object]
 class Function : public Object {
-		ES_PROVIDES_TYPE_OBJECT(Object)
 		ES_PROVIDES_TYPE_NAME(Function)
 	public:
 
 	//! @name Initialization
 	//	@{
 	public:
+		static Type* getTypeObject();
 		static void init(EScript::Namespace & globals);
 	//	@}
 

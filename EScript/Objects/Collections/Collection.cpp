@@ -9,6 +9,12 @@
 
 namespace EScript{
 
+//! (static)
+Type * Collection::getTypeObject(){
+	static Type * typeObject = new Type(Object::getTypeObject()); // ---|> Object
+	return typeObject;
+}
+
 //! initMembers
 void Collection::init(EScript::Namespace & globals) {
 

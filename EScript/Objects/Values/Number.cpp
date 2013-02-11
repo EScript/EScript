@@ -34,6 +34,11 @@ double convertTo<double>(Runtime &runtime,ObjPtr src){
 //	return src.toDouble();
 }
 
+//! (static)
+Type * Number::getTypeObject(){
+	static Type * typeObject = new Type(Object::getTypeObject()); // ---|> Object
+	return typeObject;
+}
 
 //! initMembers
 void Number::init(EScript::Namespace & globals) {

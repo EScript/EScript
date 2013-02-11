@@ -13,6 +13,12 @@
 #include <iostream>
 #include <random>
 namespace EScript{
+	
+//! (static)
+Type * Array::getTypeObject(){
+	static Type * typeObject = new Type(Collection::getTypeObject()); // ---|> Collection
+	return typeObject;
+}
 
 //! initMembers
 void Array::init(EScript::Namespace & globals) {

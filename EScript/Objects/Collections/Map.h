@@ -13,7 +13,6 @@ namespace EScript {
 
 //! [Map] ---|> [Collection] ---|> [Object]
 class Map : public Collection {
-		ES_PROVIDES_TYPE_OBJECT(Collection)
 		ES_PROVIDES_TYPE_NAME(Map)
 
 	//---------------------
@@ -68,6 +67,7 @@ class Map : public Collection {
 	//! @name TypeObject
 	// @{
 	public:
+		static Type* getTypeObject();
 		static void init(EScript::Namespace & globals);
 	//	@}
 

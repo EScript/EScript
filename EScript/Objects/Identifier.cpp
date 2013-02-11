@@ -7,6 +7,12 @@
 
 namespace EScript{
 
+//! (static)
+Type * Identifier::getTypeObject(){
+	static Type * typeObject = new Type(Object::getTypeObject()); // ---|> Object
+	return typeObject;
+}
+
 //! (static) initMembers
 void Identifier::init(EScript::Namespace & globals) {
 	Type * typeObject = getTypeObject();

@@ -14,7 +14,6 @@ namespace EScript {
 
 //! [UserFunction]  ---|> [ExtObject]
 class UserFunction : public ExtObject {
-		ES_PROVIDES_TYPE_OBJECT(ExtObject)
 		ES_PROVIDES_TYPE_NAME(UserFunction)
 	public:
 	// -------------------------------------------------------------
@@ -22,6 +21,7 @@ class UserFunction : public ExtObject {
 	//! @name Initialization
 	//	@{
 	public:
+		static Type* getTypeObject();
 		static void init(Namespace & globals);
 	//	@}
 

@@ -7,7 +7,6 @@
 
 #include "Object.h"
 #include "../Utils/AttributeContainer.h"
-#include "../Utils/TypeObjectMacro.h"
 #include <cstdint>
 
 namespace EScript {
