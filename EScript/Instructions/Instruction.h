@@ -124,6 +124,14 @@ class Instruction {
 			value_t():raw(0){static_assert(sizeof(raw)==sizeof(value_t),"'raw' must cover the whole union.");}
 			value_t(value_t && other) : raw(other.raw) {}
 			value_t(const value_t & other) : raw(other.raw) {}
+			value_t & operator=(value_t && other) {
+				raw = other.raw;
+				return *this;
+			}
+			value_t & operator=(const value_t & other) {
+				raw = other.raw;
+				return *this;
+			}
 		}data;
 		int line;
 };
