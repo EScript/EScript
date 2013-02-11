@@ -1,5 +1,5 @@
 --------------------------------------------
-EScript 0.6.5 Eduard (Stable version)
+EScript 0.6.6 Eduard (Stable version)
 Release: 2013-02-10
 
 General:
