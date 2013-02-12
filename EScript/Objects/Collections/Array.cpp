@@ -99,7 +99,7 @@ void Array::init(EScript::Namespace & globals) {
 	})
 
 	//! [ESMF] self Array.removeIndex(int index)
-	ESMF_DECLARE(typeObject,Array,"removeIndex",1,1,(self->removeIndex(parameter[0].to<size_t>(runtime)),self))
+	ESMF_DECLARE(typeObject,Array,"removeIndex",1,1,(self->removeIndex(parameter[0].to<uint32_t>(runtime)),self)) // \todo set uint32_t to size_t when it compiles on a mac
 
 	//! [ESMF] self Array.removeValue(value [,limit [,begin]] )
 	ESMF_DECLARE(typeObject,Array,"removeValue",1,3,(self->rt_removeValue(runtime,parameter[0],parameter[1].toInt(-1),parameter[2].toUInt(0)),self))
@@ -107,7 +107,7 @@ void Array::init(EScript::Namespace & globals) {
 	//! [ESMF] self Array.resize(Number[, Object fillValue] )
 	ES_MFUNCTION_DECLARE(typeObject,Array,"resize",1,2,{
 		const size_t oldSize = self->size();
-		const size_t newSize = static_cast<size_t>(parameter[0].to<size_t>(runtime));
+		const size_t newSize = static_cast<size_t>(parameter[0].to<uint32_t>(runtime)); // \todo set uint32_t to size_t when it compiles on a mac
 		self->resize(newSize);
 		if(parameter.count()>1){
 			for(size_t i = oldSize;i<newSize;++i){
