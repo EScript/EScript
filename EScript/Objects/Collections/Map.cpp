@@ -212,4 +212,6 @@ void Map::MapIterator::reset() {
 bool Map::MapIterator::end() {
 	return it==mapRef->data.end();
 }
+
+template<> Map* convertTo<Map*>(Runtime& runtime,ObjPtr src)		{	return assertType<Map>(runtime,src);	}
 }

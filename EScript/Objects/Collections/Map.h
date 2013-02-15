@@ -138,7 +138,7 @@ class Map : public Collection {
 
 	//---------------------
 };
-
+template<> Map* convertTo<Map*>(Runtime& rt,ObjPtr src);
 }
 
 #endif // MAP_H

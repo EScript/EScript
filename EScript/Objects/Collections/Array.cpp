@@ -547,4 +547,9 @@ void Array::ArrayIterator::reset() {
 bool Array::ArrayIterator::end() {
 	return index>=arrayRef->data.size();
 }
+
+template<>
+Array* convertTo<Array*>(Runtime& runtime,ObjPtr src)		{	return assertType<Array>(runtime,src);	}
+
+
 }//namespace EScript
