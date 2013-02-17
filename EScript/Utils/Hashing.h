@@ -11,7 +11,6 @@ namespace EScript {
 typedef unsigned int hashvalue;
 typedef hashvalue identifierId;
 
-extern const identifierId IDENTIFIER_emptyStr;
 extern const std::string ES_UNKNOWN_IDENTIFIER;
 
 identifierId stringToIdentifierId(const std::string & s);
