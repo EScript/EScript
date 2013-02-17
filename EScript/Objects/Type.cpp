@@ -4,7 +4,9 @@
 // ------------------------------------------------------
 #include "Type.h"
 
-#include "../EScript.h"
+#include "../Basics.h"
+#include "../StdObjects.h"
+#include "Exception.h"
 
 namespace EScript{
 

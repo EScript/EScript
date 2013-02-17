@@ -4,7 +4,9 @@
 // ------------------------------------------------------
 #include "Array.h"
 
-#include "../../EScript.h"
+#include "../../Basics.h"
+#include "../../StdObjects.h"
+#include "../../Consts.h"
 
 #include <iterator>
 #include <sstream>

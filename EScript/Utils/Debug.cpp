@@ -11,7 +11,7 @@
 #include <string>
 #include <utility>
 
-using namespace EScript;
+namespace EScript{
 
 std::map<void *,Object *> debug_objects = std::map<void *,Object *>();
 int debug_objects_counter = 0;
@@ -45,4 +45,5 @@ void Debug::showObjects() {
 void Debug::clearObjects() {
 	debug_objects.clear();
 	debug_objects_counter = 0;
+}
 }

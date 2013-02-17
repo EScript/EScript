@@ -8,6 +8,7 @@
 #include <string>
 
 #include "../EScript/EScript.h"
+#include "../EScript/Objects/ReferenceObject.h"
 
 #ifdef ES_DEBUG_MEMORY
 #include "../EScript/Compiler/Tokenizer.h"

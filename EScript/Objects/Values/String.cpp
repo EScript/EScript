@@ -3,7 +3,8 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "String.h"
-#include "../../EScript.h"
+#include "../../Basics.h"
+#include "../../StdObjects.h"
 #include "../../Utils/StringUtils.h"
 
 #include <sstream>

@@ -4,7 +4,8 @@
 // ------------------------------------------------------
 #include "JSON.h"
 
-#include "../../EScript/EScript.h"
+#include "../../EScript/Basics.h"
+#include "../../EScript/StdObjects.h"
 #include "../../EScript/Utils/StringUtils.h"
 #include "../../EScript/Compiler/Tokenizer.h"
 

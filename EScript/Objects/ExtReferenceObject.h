@@ -70,7 +70,8 @@ class ExtReferenceObject : public Object, private attributeProvider {
 		/*! ---|> [Object]
 			Direct cloning of a ExtReferenceObject is forbidden; but you may override the clone function in the specific implementation */
 		virtual ExtReferenceObject_t * clone()const {
-			throw new Exception(std::string("Trying to clone unclonable object '")+this->toString()+"'");
+			throwRuntimeException("Trying to clone unclonable object '"+this->toString()+"'");
+			return nullptr;
 		}
 		//! ---|> [Object]
 		virtual bool rt_isEqual(Runtime &,const ObjPtr & o)	{	return comparisonPolicy::isEqual(this,o);	}

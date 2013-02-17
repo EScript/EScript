@@ -23,26 +23,8 @@
 
 #include "Version.h"
 
-#include "Objects/Object.h"
-#include "Objects/Type.h"
-#include "Objects/ExtObject.h"
-#include "Objects/Callables/Delegate.h"
-#include "Objects/Callables/Function.h"
-#include "Objects/Values/Number.h"
-#include "Objects/Values/Bool.h"
-#include "Objects/Values/Void.h"
-#include "Objects/Values/String.h"
-#include "Objects/Collections/Array.h"
-#include "Objects/Collections/Map.h"
-#include "Objects/Exception.h"
-#include "Objects/ReferenceObject.h"
-#include "Objects/Namespace.h"
-#include "Runtime/Runtime.h"
-#include "Utils/Hashing.h"
-#include "Utils/Helper.h"
-#include "Utils/Macros.h"
-#include "Consts.h"
-#include "StdFactories.h"
+#include "Basics.h"
+#include "StdObjects.h"
 
 #ifdef ES_DEBUG_MEMORY
 #include "Utils/Debug.h"

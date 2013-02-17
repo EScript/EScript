@@ -42,8 +42,6 @@ class Bool : public Object {
 		bool value;
 };
 
-template<>
-inline bool convertTo<bool>(Runtime &,ObjPtr src)		{	return src.toBool();	}
 }
 
 #endif // BOOL_H

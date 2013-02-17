@@ -3,7 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "UserFunction.h"
-#include "../../EScript.h"
+#include "../../Basics.h"
 #include <sstream>
 
 namespace EScript{

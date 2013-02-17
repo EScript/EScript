@@ -4,11 +4,8 @@
 // ------------------------------------------------------
 #include "StdFactories.h"
 
-#include "Objects/Collections/Array.h"
-#include "Objects/Values/Bool.h"
-#include "Objects/Values/Number.h"
-#include "Objects/Values/String.h"
-#include "Objects/Values/Void.h"
+#include "../Basics.h"
+#include "../StdObjects.h"
 
 namespace EScript {
 

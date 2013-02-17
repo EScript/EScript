@@ -7,7 +7,16 @@ General:
 
 Internals:
  - (bugfix) Missing conversion from "const char *" to RtValue added.
- 
+
+C++-Api:
+ - Number of necessary headers reduced: Normally, a binding's header needs only to 
+    include the header of the (ext)reference object (<EScript/Objects/ReferenceObject.h>).
+	Everything needed for a basic implementation in the binding's .cpp file is included in
+	<EScript/Basics.h>. If additional standard types are needed (Number,Bool,String,Array, or Map)
+	the additional header <EScript/StdObjects.h> can be included.
+ - Helper: 	 
+    - declareObjectFunction(...) added.
+
 --------------------------------------------
 EScript 0.6.5 Emilia (Development version)
 Development: 2012-11 -- 2013-02

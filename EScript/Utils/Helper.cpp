@@ -4,6 +4,7 @@
 // ------------------------------------------------------
 #include "Helper.h"
 #include "Hashing.h"
+#include "../Objects/Callables/Function.h"
 #include "../Objects/Callables/UserFunction.h"
 #include "../Objects/Exception.h"
 #include "../Objects/Namespace.h"
@@ -79,10 +80,20 @@ void declareConstant(Namespace * nameSpace, StringId nameId, const RtValue& valu
 }
 
 //! (static)
-void initPrintableName(Type * type, const std::string & printableName){
-	declareConstant(type, Consts::IDENTIFIER_attr_printableName,String::create(printableName));
+void declareObjectFunction(Type * type, const char * name, _functionPtr fn){
+	const auto nameId = StringId(name);
+	type->setAttribute(nameId, Attribute(new Function(nameId, 0, -1, fn)));
 }
 
+//! (static)
+void initPrintableName(Type * type, const std::string & printableName){
+	declareConstant(type, Consts::IDENTIFIER_attr_printableName, String::create(printableName));
+}
+
+//! (static)
+void initPrintableName(ExtObject * obj, const std::string & printableName){
+	obj->setAttribute(Consts::IDENTIFIER_attr_printableName, Attribute(String::create(printableName),Attribute::CONST_BIT));
+}
 
 //! (static, internal)
 void assertParamCount_2(Runtime & runtime, int paramCount, int min, int max) {
@@ -195,6 +206,11 @@ std::pair<bool, ObjRef> executeStream(Runtime & runtime, std::istream & stream) 
 	}
 	static const StringId stdinId("stdin");
 	return eval(runtime,StringData(streamData),stdinId);
+}
+
+//! (static)
+void throwRuntimeException(const std::string & what){
+	throw new Exception(what);
 }
 
 }

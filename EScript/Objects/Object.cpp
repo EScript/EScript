@@ -3,8 +3,11 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Object.h"
-#include "../EScript.h"
+#include "../Basics.h"
+#include "../StdObjects.h"
 #include "../Consts.h"
+#include "../Objects/Callables/Delegate.h"
+#include "../Objects/Exception.h"
 #include <sstream>
 
 #ifdef ES_DEBUG_MEMORY

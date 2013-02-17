@@ -3,7 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Identifier.h"
-#include "../EScript.h"
+#include "../Basics.h"
 
 namespace EScript{
 

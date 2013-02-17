@@ -5,9 +5,9 @@
 #ifndef ES_HELPER_H_INCLUDED
 #define ES_HELPER_H_INCLUDED
 
-#include "Hashing.h"
+#include "StringId.h"
 #include "ObjArray.h"
-#include "../Objects/Callables/Function.h"
+//#include "../Objects/Callables/Function.h"
 #include <cstddef>
 #include <iosfwd>
 #include <string>
@@ -16,6 +16,7 @@
 namespace EScript {
 // Forward declarations.
 class CodeFragment;
+class ExtObject;
 class Namespace;
 class Object;
 class Runtime;
@@ -23,6 +24,9 @@ class Type;
 class Logger;
 class StringData;
 class UserFunction;
+class RtValue;
+
+typedef RtValue ( * _functionPtr)(Runtime & runtime,Object * caller, const ParameterValues & parameter);
 
 // ---------------------------------------------------
 
@@ -30,21 +34,25 @@ class UserFunction;
 //@{
 
 //! Add a type Function attribute to @p type with given name.
-void declareFunction(Type * type, StringId nameId, Function::functionPtr fn);
-void declareFunction(Type * type, const char * name, Function::functionPtr fn);
-void declareFunction(Type * type, StringId nameId, int minParamCount, int maxParamCount, Function::functionPtr fn);
-void declareFunction(Type * type, const char * name, int minParamCount, int maxParamCount, Function::functionPtr fn);
+void declareFunction(Type * type, StringId nameId, _functionPtr fn);
+void declareFunction(Type * type, const char * name, _functionPtr fn);
+void declareFunction(Type * type, StringId nameId, int minParamCount, int maxParamCount, _functionPtr fn);
+void declareFunction(Type * type, const char * name, int minParamCount, int maxParamCount, _functionPtr fn);
 void declareConstant(Type * type, StringId nameId, const RtValue& value);
 void declareConstant(Type * type, const char * name, const RtValue& value);
 
-void declareFunction(Namespace * nameSpace, StringId nameId, Function::functionPtr fn);
-void declareFunction(Namespace * nameSpace, const char * name, Function::functionPtr fn);
-void declareFunction(Namespace * nameSpace, StringId nameId, int minParamCount, int maxParamCount, Function::functionPtr fn);
-void declareFunction(Namespace * nameSpace, const char * name, int minParamCount, int maxParamCount, Function::functionPtr fn);
+void declareFunction(Namespace * nameSpace, StringId nameId, _functionPtr fn);
+void declareFunction(Namespace * nameSpace, const char * name, _functionPtr fn);
+void declareFunction(Namespace * nameSpace, StringId nameId, int minParamCount, int maxParamCount, _functionPtr fn);
+void declareFunction(Namespace * nameSpace, const char * name, int minParamCount, int maxParamCount, _functionPtr fn);
 void declareConstant(Namespace * nameSpace, StringId nameId, const RtValue& value);
 void declareConstant(Namespace * nameSpace, const char * name, const RtValue& value);
 
+//! Adds a function as object attribute (it is copied to each instance)
+void declareObjectFunction(Type * type, const char * name, _functionPtr fn);
+
 void initPrintableName(Type * type, const std::string & printableName);
+void initPrintableName(ExtObject * type, const std::string & printableName);
 //@}
 
 // ---------------------------------------------------
@@ -108,8 +116,8 @@ ObjRef _loadAndExecute(Runtime & runtime, const std::string & filename);
 //! @return (success, result)
 std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & filename);
 
-//void out(Object * obj);
-
+//! creates and throws an Exception objects.
+void throwRuntimeException(const std::string & what);
 
 //@}
 

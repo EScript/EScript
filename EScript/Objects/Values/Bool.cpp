@@ -4,7 +4,7 @@
 // ------------------------------------------------------
 #include "Bool.h"
 
-#include "../../EScript.h"
+#include "../../Basics.h"
 
 #include <iostream>
 #include <stack>

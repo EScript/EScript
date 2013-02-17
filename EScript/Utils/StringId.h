@@ -19,12 +19,16 @@ class StringId{
 		static const std::string & toString(const uint32_t value)	{ return identifierIdToString(value);	}
 		
 		StringId() : id(0) {}
-		explicit StringId( uint32_t _id) : id(_id) {}
-		/*implicit*/ StringId( const std::string & str) : id(stringToIdentifierId(str)) {}
+		explicit StringId(uint32_t _id) : id(_id) {}
+		/*implicit*/ StringId(const std::string & str) : id(stringToIdentifierId(str)) {}
+		StringId(const StringId &) = default;
+		StringId(StringId &&) = default;
 
 		uint32_t getValue()const			{	return id;	}
 		const std::string & toString()const	{	return identifierIdToString(id);	}
 
+		StringId & operator=(const StringId &) = default;
+		StringId & operator=(StringId &&) = default;
 		StringId & operator=(const std::string & str){
 			id = stringToIdentifierId(str);
 			return *this;

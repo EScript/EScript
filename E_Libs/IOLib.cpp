@@ -3,21 +3,22 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "IOLib.h"
-#include "../EScript/EScript.h"
+#include "../EScript/Basics.h"
+#include "../EScript/StdObjects.h"
 #include "../EScript/Utils/IO/IO.h"
 #include "../EScript/Utils/StringUtils.h"
 
-using namespace EScript;
+namespace EScript{
 
 static const int E_UNDEFINED_FILE=-1;
 static const int E_FILE_DOES_NOT_EXIST = 0;
 static const int E_FILE = 1;
 static const int E_DIRECTORY = 2;
 
-static const int E_DIR_FILES = 1;
-static const int E_DIR_DIRECTORIES = 2;
-static const int E_DIR_BOTH = 3;
-static const int E_DIR_RECURSIVE = 4;
+static const uint32_t E_DIR_FILES = 1;
+static const uint32_t E_DIR_DIRECTORIES = 2;
+static const uint32_t E_DIR_BOTH = 3;
+static const uint32_t E_DIR_RECURSIVE = 4;
 
 // ---------------------------------------------------
 
@@ -56,7 +57,7 @@ void IOLib::init(EScript::Namespace * o) {
 			runtime.setException(e.what());
 			return nullptr;
 		}
-		return Void::get();
+		return nullptr;
 	})
 
 	//! [ESF] array dir(string dirname[,int flags])
@@ -65,7 +66,7 @@ void IOLib::init(EScript::Namespace * o) {
 			const auto files = IO::getFilesInDir(parameter[0].toString(), parameter[1].toInt(E_DIR_FILES));
 			Array * ar = Array::create();
 			for(const auto & file : files) 
-				ar->pushBack(String::create(file));
+				ar->pushBack(create(file));
 			return ar;
 		} catch (const std::string & s) {
 			runtime.setException(s);
@@ -98,4 +99,5 @@ void IOLib::init(EScript::Namespace * o) {
 	declareConstant(lib,"DIR_BOTH",			static_cast<uint32_t>(E_DIR_BOTH));
 	declareConstant(lib,"DIR_RECURSIVE",	static_cast<uint32_t>(E_DIR_RECURSIVE));
 
+}
 }

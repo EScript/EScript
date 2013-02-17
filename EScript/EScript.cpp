@@ -5,6 +5,9 @@
 #include "EScript.h"
 #include "Objects/Identifier.h"
 #include "Objects/YieldIterator.h"
+#include "Objects/Callables/Delegate.h"
+#include "Objects/Callables/Function.h"
+#include "Objects/Exception.h"
 
 #include "../E_Libs/StdLib.h"
 #ifdef _WIN32

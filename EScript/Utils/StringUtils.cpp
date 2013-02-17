@@ -10,13 +10,11 @@
 #include <sstream>
 #include <cstdint>
 
-using namespace EScript;
-using std::string;
-
+namespace EScript{
 
 double StringUtils::getNumber(const char * s,int &cursor,bool checkSign) {
 	char c = s[cursor];
-	string accum="";
+	std::string accum="";
 	bool sign = true;
 
 	if( checkSign && c=='-' && s[cursor+1]>='0' &&  s[cursor+1]<='9' ) {
@@ -77,7 +75,7 @@ double StringUtils::getNumber(const char * s,int &cursor,bool checkSign) {
 	return 0;
 }
 
-string StringUtils::trim(const string & s) {
+std::string StringUtils::trim(const std::string & s) {
 	if(s.empty())
 		return std::string();
 	unsigned int start,end;
@@ -96,7 +94,7 @@ string StringUtils::trim(const string & s) {
 	const int count = end-start+1;
 	return count>0 ? s.substr(start,count) : std::string();
 }
-string StringUtils::rTrim(const string & s){
+std::string StringUtils::rTrim(const std::string & s){
 	for(int right = s.length()-1 ; right >= 0 ; --right){
 		char c = s[right];
 		if( !(c==' '||c=='\t'||c=='\n'||c=='\r'||c=='\0'||c==11))
@@ -104,7 +102,7 @@ string StringUtils::rTrim(const string & s){
 	}
 	return std::string();
 }
-string StringUtils::lTrim(const string & s){
+std::string StringUtils::lTrim(const std::string & s){
 	for(size_t left = 0 ; left<s.length() ; ++left){
 		char c = s[left];
 		if( !(c==' '||c=='\t'||c=='\n'||c=='\r'||c=='\0'||c==11))
@@ -113,7 +111,7 @@ string StringUtils::lTrim(const string & s){
 	return std::string();
 }
 
-string StringUtils::replaceAll(const string &subject,const string &find,const string &replace,int count) {
+std::string StringUtils::replaceAll(const std::string &subject,const std::string &find,const std::string &replace,int count) {
 	std::ostringstream s;
 
 	unsigned int cursor = 0;
@@ -125,7 +123,7 @@ string StringUtils::replaceAll(const string &subject,const string &find,const st
 		size_t pos = subject.find(find,cursor);
 
 		//std::cout << " found "<<search<<" at "<< pos<<"\n";
-		if(pos==string::npos) {
+		if(pos==std::string::npos) {
 			break;
 		}
 
@@ -145,7 +143,7 @@ string StringUtils::replaceAll(const string &subject,const string &find,const st
 	return s.str();
 }
 
-string StringUtils::replaceMultiple(const string &subject,const std::vector<std::pair<std::string,std::string> > & rules,int max){
+std::string StringUtils::replaceMultiple(const std::string &subject,const std::vector<std::pair<std::string,std::string> > & rules,int max){
 	typedef std::pair<std::string,std::string> keyValuePair_t;
 	const size_t ruleCount = rules.size();
 	std::vector<size_t> findLen(ruleCount);
@@ -165,7 +163,7 @@ string StringUtils::replaceMultiple(const string &subject,const std::vector<std:
 	const size_t len = subject.length();
 	while(cursor<len&& nr!=max) {
 		// select next match
-		size_t nextPos = string::npos;
+		size_t nextPos = std::string::npos;
 		size_t nextFindLength = 0;
 
 		std::vector<keyValuePair_t>::const_iterator nextReplace = rules.begin();
@@ -174,7 +172,7 @@ string StringUtils::replaceMultiple(const string &subject,const std::vector<std:
 		for(i = 0;i<ruleCount;++i,++ruleIt) {
 
 			// search not found -> continue
-			if(pos[i]==string::npos) {
+			if(pos[i]==std::string::npos) {
 				continue;
 			}
 			// stepped over position (overlapping foundings) -> search again
@@ -190,7 +188,7 @@ string StringUtils::replaceMultiple(const string &subject,const std::vector<std:
 
 		}
 		// found nothing? -> finished
-		if(nextPos==string::npos)
+		if(nextPos==std::string::npos)
 			break;
 
 		// append string
@@ -209,7 +207,7 @@ string StringUtils::replaceMultiple(const string &subject,const std::vector<std:
 /**
  * TODO: 4byte encoding!
  */
-string StringUtils::UCS2LE_to_ANSII(const std::string & source)   {
+std::string StringUtils::UCS2LE_to_ANSII(const std::string & source)   {
 	std::ostringstream s;
 	size_t length = source.length();
 	if(length%2==1)
@@ -275,18 +273,18 @@ bool StringUtils::stepText(const char * subject,int & cursor,const char * search
 	}
 }
 
-void StringUtils::split(const string & subject,const string & delimiter, std::vector<std::string> & result, int max){
+void StringUtils::split(const std::string & subject,const std::string & delimiter, std::vector<std::string> & result, int max){
 	const size_t len = subject.length();
 	const size_t delimiterLen = delimiter.length();
 	if(len==0){
 		return;
 	}else if(delimiterLen>len || delimiterLen==0){
-		result.push_back(subject);
+		result.emplace_back(subject);
 	}else{
 		size_t cursor = 0;
 		for( int i = 1 ; i!=max&&cursor<=len-delimiterLen ; ++i){
 			size_t pos = subject.find(delimiter,cursor);
-			if( pos==string::npos ) // no delimiter found? -> to the end
+			if( pos==std::string::npos ) // no delimiter found? -> to the end
 				pos = len;
 			result.push_back( subject.substr(cursor,pos-cursor) );
 			cursor = pos+delimiterLen;
@@ -303,14 +301,14 @@ void StringUtils::split(const string & subject,const string & delimiter, std::ve
 std::string StringUtils::escape(const std::string & s){
 	typedef std::pair<std::string,std::string> keyValuePair_t;
 	std::vector<keyValuePair_t> replace;
-	replace.push_back(keyValuePair_t("\"","\\\""));
-	replace.push_back(keyValuePair_t("\b","\\b"));
-	replace.push_back(keyValuePair_t("\f","\\f"));
-	replace.push_back(keyValuePair_t("\n","\\n"));
-	replace.push_back(keyValuePair_t("\r","\\r"));
-	replace.push_back(keyValuePair_t("\t","\\t"));
-	replace.push_back(keyValuePair_t(std::string("\0",1),"\\0"));
-	replace.push_back(keyValuePair_t("\\","\\\\"));
+	replace.emplace_back("\"","\\\"");
+	replace.emplace_back("\b","\\b");
+	replace.emplace_back("\f","\\f");
+	replace.emplace_back("\n","\\n");
+	replace.emplace_back("\r","\\r");
+	replace.emplace_back("\t","\\t");
+	replace.emplace_back(std::string("\0",1),"\\0");
+	replace.emplace_back("\\","\\\\");
 	return replaceMultiple(s,replace);
 }
 
@@ -350,4 +348,5 @@ std::string StringUtils::getLine(const std::string &s,const int lineIndex){
 		++cursor;
 	}
 	return s.substr(cursor, s.find('\n',cursor)-cursor );
+}
 }

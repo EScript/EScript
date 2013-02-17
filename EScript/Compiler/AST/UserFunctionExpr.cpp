@@ -3,12 +3,12 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "UserFunctionExpr.h"
+#include "../../Basics.h"
 #include "Block.h"
-#include "../../EScript.h"
 #include <sstream>
 
-using namespace EScript;
-using namespace EScript::AST;
+namespace EScript{
+namespace AST{
 
 //! (ctor) UserFunctionExpr::Parameter
 UserFunctionExpr::Parameter::Parameter(const StringId & _name,ptr_t defaultValueExpression,refArray_t && _typeExpressions):
@@ -24,3 +24,5 @@ UserFunctionExpr::UserFunctionExpr(AST::Block * block,const refArray_t & _sConst
 	//ctor
 }
 
+}
+}

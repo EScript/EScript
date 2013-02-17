@@ -3,7 +3,9 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Collection.h"
-#include "../../EScript.h"
+#include "../../Basics.h"
+#include "../../StdObjects.h"
+#include "../../Consts.h"
 
 #include <algorithm>
 

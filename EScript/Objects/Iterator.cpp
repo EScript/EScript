@@ -3,8 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Iterator.h"
-#include "../EScript.h"
-#include "Values/Bool.h"
+#include "../Basics.h"
 
 namespace EScript{
 
@@ -23,7 +22,7 @@ void Iterator::init(EScript::Namespace & globals) {
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! Bool Iterator.end()
-	ESMF_DECLARE(typeObject,Iterator,"end",0,0,Bool::create(self->end()))
+	ESMF_DECLARE(typeObject,Iterator,"end",0,0,self->end())
 
 	//! Object Iterator.key()
 	ESMF_DECLARE(typeObject,Iterator,"key",0,0,self->key())

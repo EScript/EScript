@@ -44,10 +44,10 @@ set(ESCRIPT_SOURCES
 	EScript/Runtime/RtValue.cpp
 	EScript/Runtime/Runtime.cpp
 	EScript/Runtime/RuntimeInternals.cpp
-	EScript/StdFactories.cpp
 	EScript/Utils/AttributeContainer.cpp
-	EScript/Utils/ConversionBasics.cpp
 	EScript/Utils/Debug.cpp
+	EScript/Utils/StdConversions.cpp
+	EScript/Utils/StdFactories.cpp
 	EScript/Utils/Hashing.cpp
 	EScript/Utils/Helper.cpp
 	EScript/Utils/IO/DefaultFileSystemHandler.cpp

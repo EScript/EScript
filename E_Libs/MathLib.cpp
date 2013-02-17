@@ -11,7 +11,9 @@
 #define M_PI_2		1.57079632679489661923
 #endif
 
-#include "../EScript/EScript.h"
+#include "../EScript/Basics.h"
+#include "../EScript/StdObjects.h"
+#include "../EScript/Objects/ReferenceObject.h"
 #include <ctime>
 #include <random>
 

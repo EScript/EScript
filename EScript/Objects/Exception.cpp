@@ -4,7 +4,7 @@
 // ------------------------------------------------------
 #include "Exception.h"
 
-#include "../EScript.h"
+#include "../Basics.h"
 
 #include <sstream>
 namespace EScript{

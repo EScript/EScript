@@ -9,7 +9,7 @@
 #include <map>
 #include <utility>
 
-using namespace EScript;
+namespace EScript{
 
 typedef std::map<identifierId,std::string> identifierDB;
 
@@ -23,18 +23,17 @@ static identifierDB & getIdentifierDB(){
 	static identifierDB _identifier;
 	return _identifier;
 }
-const identifierId EScript::IDENTIFIER_emptyStr = stringToIdentifierId("");
-const std::string EScript::ES_UNKNOWN_IDENTIFIER="[?]";
+const std::string ES_UNKNOWN_IDENTIFIER="[?]";
 
 //! (internal)
-hashvalue EScript::_hash( const std::string &  s) {
+hashvalue _hash( const std::string &  s) {
 	hashvalue h = 0;
 	for(size_t i = 0;i<s.length();++i)
 		h^=(((s.at(i)+h)*1234393)% 0xffffff);
 	return h;
 }
 
-identifierId EScript::stringToIdentifierId(const std::string & s){
+identifierId stringToIdentifierId(const std::string & s){
 	identifierDB & db = getIdentifierDB();
 	identifierId id = _hash(s);
 	while(true){
@@ -54,11 +53,12 @@ identifierId EScript::stringToIdentifierId(const std::string & s){
 	return id;
 }
 
-const std::string & EScript::identifierIdToString(identifierId id){
+const std::string & identifierIdToString(identifierId id){
 	 identifierDB & db = getIdentifierDB();
 
 	identifierDB::const_iterator it = db.find(id);
 	if(it == db.end() )
 		return ES_UNKNOWN_IDENTIFIER;
 	else return (*it).second;
+}
 }

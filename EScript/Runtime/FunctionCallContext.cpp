@@ -13,7 +13,7 @@
 #include <stdexcept>
 #include <sstream>
 
-using namespace EScript;
+namespace EScript{
 
 std::stack<FunctionCallContext *> FunctionCallContext::pool;
 
@@ -182,4 +182,5 @@ std::string  FunctionCallContext::stack_toDbgString()const{
 		out << ", "<<(*it).toDbgString();
 	out << "]";
 	return out.str();
+}
 }

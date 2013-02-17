@@ -4,12 +4,12 @@
 // ------------------------------------------------------
 #ifdef _WIN32
 
-#include "Win32Lib.h"
 #include "../EScript/EScript.h"
+#include "Win32Lib.h"
 
 #include <windows.h>
 
-using namespace EScript;
+namespace EScript{
 
 //! (static)
 void Win32Lib::init(EScript::Namespace * globals) {
@@ -83,4 +83,5 @@ std::string Win32Lib::getClipboard(){
 	return s;
 }
 
+}
 #endif

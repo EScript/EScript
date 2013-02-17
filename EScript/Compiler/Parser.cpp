@@ -25,7 +25,7 @@
 
 namespace EScript {
 using namespace AST;
-using std::string;
+
 // -------------------------------------------------------------------------------------------------------------------
 // helper
 
@@ -1021,7 +1021,7 @@ EPtr<AST::ASTNode> Parser::readBinaryExpression(ParsingContext & ctxt,int & curs
 		//if(GetAttributeExpr * ga = dynamic_cast<GetAttributeExpr *>(rightExpression)) {
 		FunctionCallExpr * fc = FunctionCallExpr::createFunctionCall(
 			new GetAttributeExpr(rightExpression,
-							 string(op->getString())+"_pre"),ASTNode::refArray_t(),currentLine);
+							 std::string(op->getString())+"_pre"),ASTNode::refArray_t(),currentLine);
 		return  fc;
 
 	} else
@@ -1032,7 +1032,7 @@ EPtr<AST::ASTNode> Parser::readBinaryExpression(ParsingContext & ctxt,int & curs
 			//  if(GetAttributeExpr * ga = dynamic_cast<GetAttributeExpr *>(leftExpression)) {
 			FunctionCallExpr * fc = FunctionCallExpr::createFunctionCall(
 				new GetAttributeExpr(leftExpression,
-								 string(op->getString())+"_post"),ASTNode::refArray_t(),currentLine);
+								 std::string(op->getString())+"_post"),ASTNode::refArray_t(),currentLine);
 			cursor--;
 
 			return  fc;
@@ -1470,7 +1470,7 @@ EPtr<AST::ASTNode> Parser::readControl(ParsingContext & ctxt,int & cursor)const 
 		return new YieldStatement(readExpression(ctxt,cursor));
 	}
 	else{
-		throwError(ctxt,string("Parsing Unimplemented Control:")+tc->toString(),tokens.at(cursor));
+		throwError(ctxt,std::string("Parsing Unimplemented Control:")+tc->toString(),tokens.at(cursor));
 		return nullptr;
 	}
 }

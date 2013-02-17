@@ -3,8 +3,7 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Number.h"
-#include "../../EScript.h"
-#include "Bool.h"
+#include "../../Basics.h"
 
 #include <cmath>
 #include <sstream>
@@ -16,23 +15,6 @@
 #endif
 
 namespace EScript{
-
-template<>
-double convertTo<double>(Runtime &runtime,ObjPtr src){
-	if(src.isNotNull()){
-		if(src->_getInternalTypeId()==_TypeIds::TYPE_NUMBER){
-			return **static_cast<Number*>(src.get());
-		}else if(src->_getInternalTypeId()==_TypeIds::TYPE_STRING){
-			return src->toDouble();
-		}else{
-			runtime.warn("Converting "+  src.toDbgString() +" to Number.");
-//			assertType_throwError(runtime,src,Number::getClassName());
-			return src->toDouble();
-		}
-	}
-	return 0.0;
-//	return src.toDouble();
-}
 
 //! (static)
 Type * Number::getTypeObject(){

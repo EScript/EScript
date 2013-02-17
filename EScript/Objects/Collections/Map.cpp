@@ -3,7 +3,8 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Map.h"
-#include "../../EScript.h"
+#include "../../Basics.h"
+#include "../../StdObjects.h"
 
 #include <string>
 

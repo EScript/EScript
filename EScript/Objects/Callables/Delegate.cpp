@@ -4,7 +4,7 @@
 // ------------------------------------------------------
 #include "Delegate.h"
 
-#include "../../EScript.h"
+#include "../../Basics.h"
 
 namespace EScript{
 

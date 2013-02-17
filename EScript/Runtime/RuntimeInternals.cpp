@@ -5,15 +5,10 @@
 #include "RuntimeInternals.h"
 #include "FunctionCallContext.h"
 #include "../EScript.h"
-#include "../Utils/Macros.h"
-#include "../Utils/Helper.h"
 #include "../Utils/StringUtils.h"
 #include "../Objects/Callables/Delegate.h"
-#include "../Objects/Collections/Array.h"
-#include "../Objects/Collections/Map.h"
+#include "../Objects/Callables/Function.h"
 #include "../Objects/Exception.h"
-#include "../Objects/Namespace.h"
-#include "../Objects/Values/Void.h"
 #include "../Objects/YieldIterator.h"
 
 #include <sstream>

@@ -4,7 +4,7 @@
 // ------------------------------------------------------
 #include "Void.h"
 
-using namespace EScript;
+namespace EScript{
 
 //! (static)
 Void * Void::get() {
@@ -42,4 +42,5 @@ bool Void::toBool()const{
 //! ---|> [Object]
 std::string Void::toString()const{
 	return "void";
+}
 }

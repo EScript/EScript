@@ -4,7 +4,8 @@
 // ------------------------------------------------------
 #include "ExtObject.h"
 
-#include "../EScript.h"
+#include "../Basics.h"
+#include "../StdObjects.h"
 
 namespace EScript{
 

@@ -3,8 +3,8 @@
 // See copyright notice in EScript.h
 // ------------------------------------------------------
 #include "Function.h"
+#include "../../Basics.h"
 #include "../Identifier.h"
-#include "../../EScript.h"
 
 namespace EScript{
 

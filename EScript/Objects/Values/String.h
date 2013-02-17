@@ -52,8 +52,7 @@ class String : public Object {
 	private:
 		StringData sData;
 };
-template<>
-inline std::string convertTo<std::string>(Runtime &,ObjPtr src){	return src.toString();	}
+
 }
 
 #endif // STRING_H

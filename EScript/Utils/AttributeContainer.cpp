@@ -4,10 +4,9 @@
 // ------------------------------------------------------
 #include "AttributeContainer.h"
 
-#include "../EScript.h"
+#include "../Basics.h"
 
-using namespace EScript;
-
+namespace EScript{
 
 //! (ctor)
 AttributeContainer::AttributeContainer(const AttributeContainer & other){
@@ -42,3 +41,5 @@ void AttributeContainer::collectAttributes(std::unordered_map<StringId,Object *>
 		attrs[keyValuePair.first] = keyValuePair.second.getValue();
 	}
 }
+}
+

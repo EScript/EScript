@@ -15,8 +15,9 @@
 #endif
 
 
-using namespace EScript;
-using namespace EScript::IO;
+namespace EScript{
+
+namespace IO{
 
 std::vector<std::string> DefaultFileSystemHandler::dir(const std::string & dirname, uint8_t flags) {
 
@@ -102,4 +103,6 @@ EntryInfo DefaultFileSystemHandler::getEntryInfo(const std::string &filename){
 		info.type = TYPE_NOT_FOUND;
 	}
 	return info;
+}
+}
 }

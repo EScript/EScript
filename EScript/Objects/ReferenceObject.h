@@ -6,7 +6,7 @@
 #define REFERENCE_OBJECT_H
 
 #include "Object.h"
-#include "Exception.h"
+#include "../Utils/Helper.h"
 #include <type_traits>
 #include <utility>
 
@@ -74,8 +74,8 @@ class ReferenceObject : public Object {
 		/*! ---|> [Object]
 			Direct cloning of a ReferenceObject is forbidden; but you may override the clone function in the specific implementation */
 		virtual ReferenceObject_t * clone()const {
-			throw new Exception(std::string("Trying to clone unclonable object '")+this->toString()+"'");
-
+			throwRuntimeException("Trying to clone unclonable object '"+this->toString()+"'");
+			return nullptr;
 		}
 		//! ---|> [Object]
 		virtual bool rt_isEqual(Runtime &,const ObjPtr & o)	{	return comparisonPolicy::isEqual(this,o);	}
