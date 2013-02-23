@@ -87,6 +87,15 @@ class RtValue{
 				Object::addReference(value.value_obj);
 			}
 		}
+		RtValue(const ObjPtr & obj) {
+			if(obj==nullptr){
+				valueType = VOID_VALUE;
+			}else{
+				valueType = OBJECT_PTR;
+				value.value_obj = obj.get();
+				Object::addReference(value.value_obj);
+			}
+		}
 		RtValue(const RtValue & other) : valueType(other.valueType),value(other.value){
 			if(valueType == OBJECT_PTR)
 				Object::addReference(value.value_obj);
