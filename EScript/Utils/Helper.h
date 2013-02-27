@@ -53,6 +53,11 @@ void declareObjectFunction(Type * type, const char * name, _functionPtr fn);
 
 void initPrintableName(Type * type, const std::string & printableName);
 void initPrintableName(ExtObject * type, const std::string & printableName);
+
+void markAttributeAsObjectAttribute(Type * type, StringId nameId);
+void markAttributeAsObjectAttribute(Type * type, const char * name);
+
+void copyAttributeAsAlias(Type * type, const char * originalName, const char * aliasName);
 //@}
 
 // ---------------------------------------------------

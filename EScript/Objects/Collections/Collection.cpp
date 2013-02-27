@@ -30,7 +30,7 @@ void Collection::init(EScript::Namespace & globals) {
 
 	//! [ESMF] self Collection[key] = value
 	ESMF_DECLARE(typeObject,Collection,"_set",2,2,
-				(self->setValue(parameter[0],parameter[1]),caller))
+				(self->setValue(parameter[0],parameter[1]),self))
 
 	//! [ESMF] Object Collection.get(key [,default value] )
 	ES_MFUNCTION_DECLARE(typeObject,Collection,"get",1,2,{
@@ -40,7 +40,7 @@ void Collection::init(EScript::Namespace & globals) {
 
 	//! [ESMF] self Collection.set(key,value)
 	ESMF_DECLARE(typeObject,Collection,"set",2,2,
-				(self->setValue(parameter[0],parameter[1]),caller))
+				(self->setValue(parameter[0],parameter[1]),self))
 
 	//! [ESMF] Number Collection.size() \deprecated
 	ESMF_DECLARE(typeObject,Collection, "size",0,0, static_cast<uint32_t>(self->count()))
@@ -52,7 +52,7 @@ void Collection::init(EScript::Namespace & globals) {
 	ESMF_DECLARE(typeObject,Collection,"empty",0,0,self->count()==0 )
 
 	//! [ESMF] self Collection.clear()
-	ESMF_DECLARE(typeObject,Collection,"clear",0,0,(self->clear(),caller))
+	ESMF_DECLARE(typeObject,Collection,"clear",0,0,(self->clear(),self))
 
 	//! [ESMF] Iterator Collection.getIterator()
 	ESMF_DECLARE(typeObject,Collection,"getIterator",0,0,self->getIterator())

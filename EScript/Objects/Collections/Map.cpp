@@ -43,7 +43,7 @@ void Map::init(EScript::Namespace & globals) {
 
 	//! [ESMF] self Map.unset( key )
 	ESMF_DECLARE(typeObject,Map,"unset",1,1,
-				(self->unset(parameter[0]),caller))
+				(self->unset(parameter[0]),self))
 
 	//! [ESMF] bool Collection.containsKey(Object)
 	ESMF_DECLARE(typeObject,Map,"containsKey",1,1,
@@ -51,11 +51,11 @@ void Map::init(EScript::Namespace & globals) {
 
 	//! [ESMF] self Map.merge( Collection [,bool overwrite = true] )
 	ESMF_DECLARE(typeObject,Map,"merge",1,2,
-				(self->merge(assertType<Collection>(runtime,parameter[0]),parameter[1].toBool(true)),caller))
+				(self->merge(assertType<Collection>(runtime,parameter[0]),parameter[1].toBool(true)),self))
 
 	//! [ESMF] self swap.swap( Map other )
 	ESMF_DECLARE(typeObject,Map,"swap",1,1,
-				(self->swap(assertType<Map>(runtime,parameter[0])),caller))
+				(self->swap(assertType<Map>(runtime,parameter[0])),self))
 
 }
 
@@ -214,5 +214,5 @@ bool Map::MapIterator::end() {
 	return it==mapRef->data.end();
 }
 
-template<> Map* convertTo<Map*>(Runtime& runtime,ObjPtr src)		{	return assertType<Map>(runtime,src);	}
+//template<> Map* convertTo<Map*>(Runtime& runtime,ObjPtr src)		{	return assertType<Map>(runtime,src);	}
 }

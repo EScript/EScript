@@ -28,10 +28,10 @@ void Iterator::init(EScript::Namespace & globals) {
 	ESMF_DECLARE(typeObject,Iterator,"key",0,0,self->key())
 
 	//! self Iterator.next()
-	ESMF_DECLARE(typeObject,Iterator,"next",0,0,(self->next(),caller))
+	ESMF_DECLARE(typeObject,Iterator,"next",0,0,(self->next(),self))
 
 	//! self Iterator.reset()
-	ESMF_DECLARE(typeObject,Iterator,"reset",0,0,(self->reset(),caller))
+	ESMF_DECLARE(typeObject,Iterator,"reset",0,0,(self->reset(),self))
 
 	//! Object Iterator.value()
 	ESMF_DECLARE(typeObject,Iterator,"value",0,0,self->value())

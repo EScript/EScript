@@ -165,7 +165,7 @@ class ERef : public _CountedRef<_T> {
 	// @{
 		//! Returns a value of the type target_t if possible or throws an exception.
 		template<typename target_t>
-		target_t to(Runtime &runtime){	return EScript::convertTo<target_t>(runtime,*this); }
+		target_t to(Runtime &runtime){	return _Internals::doConvertTo<target_t>(runtime,*this); }
 
 		/*! If the reference is null, the default value is returend; 
 			otherwise a value of the type target_t is returned if possible or an exception is thrown.*/
@@ -251,7 +251,7 @@ class EPtr{
 	// @{
 		//! Returns a value of the type target_t if possible or throws an exception.
 		template<typename target_t>
-		target_t to(Runtime &runtime){	return EScript::convertTo<target_t>(runtime,*this); }
+		target_t to(Runtime &runtime){	return _Internals::doConvertTo<target_t>(runtime,*this); }
 
 		/*! If the reference is null, the default value is returend; 
 			otherwise a value of the type target_t is returned if possible or an exception is thrown.*/

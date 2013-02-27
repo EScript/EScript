@@ -11,25 +11,29 @@
 #define UNUSED_ATTRIBUTE
 #endif
 
+//! (internal)
+#define ES_FUNCTION_DEF_(_name) \
+	static EScript::RtValue _name(	EScript::Runtime & runtime UNUSED_ATTRIBUTE, \
+									EScript::Object * caller UNUSED_ATTRIBUTE, \
+									const EScript::ParameterValues & parameter UNUSED_ATTRIBUTE)
+
 /*! Macro for defining an EScript function.
 	\example
 		ES_FUNCTION(esmf_Collection_equal) {
 			assertParamCount(runtime, parameter.count(), 1, 1); // at least and at most one parameter
 			return assertType<Collection>(runtime, caller)->rt_isEqual(runtime, parameter[0]);
 		}
+	\deprecated
 */
-#define ES_FUNCTION(_name) \
-	static EScript::RtValue _name(	EScript::Runtime & runtime UNUSED_ATTRIBUTE, \
-									EScript::Object * caller UNUSED_ATTRIBUTE, \
-									const EScript::ParameterValues & parameter UNUSED_ATTRIBUTE)
-
+#define ES_FUNCTION(_name) ES_FUNCTION_DEF_(_name)
 
 /*! Macro for defining a (simple) EScript function in short form.
 	\example
 		ESF(esmf_Collection_equal, 1, 1, assertType<Collection>(runtime,caller)->rt_isEqual(runtime, parameter[0]))
+	\deprecated		
 */
 #define ESF(_fnName, _min, _max, _returnExpr) \
-	ES_FUNCTION(_fnName) { \
+	ES_FUNCTION_DEF_(_fnName) { \
 		EScript::assertParamCount(runtime, parameter.count(), _min, _max); \
 		return (_returnExpr); \
 	}
@@ -39,11 +43,13 @@
 	\note The variable \a self contains the caller with the type \a _objType (otherwise an exception is thrown).
 	\example
 		ESMF(Collection, esmf_Collection_equal, 1, 1, self->rt_isEqual(runtime, parameter[0]))
+	\deprecated
 */
 #define ESMF(_objType, _fnName, _min, _max, _returnExpr) \
-	ES_FUNCTION(_fnName) { \
+	ES_FUNCTION_DEF_(_fnName) { \
 		EScript::assertParamCount(runtime, parameter.count(), _min, _max); \
-		_objType * self = EScript::assertType<_objType>(runtime, caller); \
+		EScript::ObjPtr thisEObj(caller); \
+		_objType * self = thisEObj.to<_objType*>(runtime); \
 		return (_returnExpr); \
 	}
 
@@ -58,7 +64,7 @@
 #define ESF_DECLARE(_obj, _fnNameStr, _min, _max, _returnExpr) \
 	{ \
 		struct _fnWrapper { \
-			ES_FUNCTION(function) {\
+			ES_FUNCTION_DEF_(function) {\
 				return (_returnExpr); \
 			} \
 		}; \
@@ -75,8 +81,9 @@
 #define ESMF_DECLARE(_obj, _objType, _fnNameStr, _min, _max, _returnExpr) \
 	{ \
 		struct _fnWrapper { \
-			ES_FUNCTION(function) {\
-				_objType * self = EScript::assertType<_objType>(runtime, caller); \
+			ES_FUNCTION_DEF_(function) {\
+				EScript::ObjPtr thisEObj(caller); \
+				_objType * self = thisEObj.to<_objType*>(runtime); \
 				return (_returnExpr); \
 			} \
 		}; \
@@ -94,7 +101,7 @@
 #define ES_FUNCTION_DECLARE(_obj, _fnNameStr, _min, _max, _block) \
 	{ \
 		struct _fnWrapper { \
-			ES_FUNCTION(function){ \
+			ES_FUNCTION_DEF_(function){ \
 				do _block while(false); \
 			} \
 		}; \
@@ -112,8 +119,9 @@
 #define ES_MFUNCTION_DECLARE(_obj, _objType, _fnNameStr, _min, _max, _block) \
 	{ \
 		struct _fnWrapper { \
-			ES_FUNCTION(function){ \
-				_objType * self = EScript::assertType<_objType>(runtime, caller); \
+			ES_FUNCTION_DEF_(function){ \
+				EScript::ObjPtr thisEObj(caller); \
+				_objType * self = thisEObj.to<_objType*>(runtime); \
 				do _block while(false); \
 			} \
 		}; \

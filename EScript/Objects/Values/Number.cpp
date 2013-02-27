@@ -96,19 +96,19 @@ void Number::init(EScript::Namespace & globals) {
 	})
 
 	//! [ESMF] caller ++Number
-	ESMF_DECLARE(typeObject,Number,"++_pre",0,0,((self->setValue(caller->toDouble()+1.0)),caller))
+	ESMF_DECLARE(typeObject,Number,"++_pre",0,0,((self->setValue(caller->toDouble()+1.0)),self))
 
 	//! [ESMF] --Number
-	ESMF_DECLARE(typeObject,Number,"--_pre",0,0,(self->setValue(caller->toDouble()-1.0),caller))
+	ESMF_DECLARE(typeObject,Number,"--_pre",0,0,(self->setValue(caller->toDouble()-1.0),self))
 
 	//! [ESMF] Number += Number2
-	ESMF_DECLARE(typeObject,Number,"+=",1,1,(self->setValue(caller->toDouble()+parameter[0].to<double>(runtime)),caller))
+	ESMF_DECLARE(typeObject,Number,"+=",1,1,(self->setValue(caller->toDouble()+parameter[0].to<double>(runtime)),self))
 
 	//! [ESMF] Numbern -= Number2
-	ESMF_DECLARE(typeObject,Number,"-=",1,1,(self->setValue(caller->toDouble()-parameter[0].to<double>(runtime)),caller))
+	ESMF_DECLARE(typeObject,Number,"-=",1,1,(self->setValue(caller->toDouble()-parameter[0].to<double>(runtime)),self))
 
 	//! [ESMF] Numbern *= Number2
-	ESMF_DECLARE(typeObject,Number,"*=",1,1,(self->setValue(caller->toDouble()*parameter[0].to<double>(runtime)),caller))
+	ESMF_DECLARE(typeObject,Number,"*=",1,1,(self->setValue(caller->toDouble()*parameter[0].to<double>(runtime)),self))
 
 	//! [ESMF] Numbern /= Number2
 	ES_MFUNCTION_DECLARE(typeObject,Number,"/=",1,1,{
@@ -131,16 +131,16 @@ void Number::init(EScript::Namespace & globals) {
 		self->setValue(self->modulo(d));
 		return self;
 	})
-	ESMF_DECLARE(typeObject,Number,"%=",1,1,(self->setValue(caller->toInt() % parameter[0].to<int>(runtime)) ,caller))
+	ESMF_DECLARE(typeObject,Number,"%=",1,1,(self->setValue(caller->toInt() % parameter[0].to<int>(runtime)) ,self))
 
 	//! [ESMF] Numbern |= Number2
-	ESMF_DECLARE(typeObject,Number,"|=",1,1,(self->setValue(caller->toInt() | parameter[0].to<int>(runtime)) ,caller))
+	ESMF_DECLARE(typeObject,Number,"|=",1,1,(self->setValue(caller->toInt() | parameter[0].to<int>(runtime)) ,self))
 
 	//! [ESMF] Numbern &= Number2
-	ESMF_DECLARE(typeObject,Number,"&=",1,1,(self->setValue(caller->toInt() & parameter[0].to<int>(runtime)) ,caller))
+	ESMF_DECLARE(typeObject,Number,"&=",1,1,(self->setValue(caller->toInt() & parameter[0].to<int>(runtime)) ,self))
 
 	//! [ESMF] Numbern ^= Number2
-	ESMF_DECLARE(typeObject,Number,"^=",1,1,(self->setValue(caller->toInt() ^ parameter[0].to<int>(runtime)) ,caller))
+	ESMF_DECLARE(typeObject,Number,"^=",1,1,(self->setValue(caller->toInt() ^ parameter[0].to<int>(runtime)) ,self))
 
 
 // ~=

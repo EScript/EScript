@@ -6,6 +6,7 @@
 
 #include "../../Basics.h"
 #include "../../StdObjects.h"
+#include "../../Utils/StdConversions.h"
 #include "../../Consts.h"
 
 #include <iterator>
@@ -38,7 +39,7 @@ void Array::init(EScript::Namespace & globals) {
 
 	//!	[ESMF] self Array.append(Collection);
 	ESMF_DECLARE(typeObject,Array,"append",1,1,
-			(self->append(assertType<Collection>(runtime,parameter[0])),self))
+			(self->append( parameter[0].to<Collection*>(runtime) ),self))
 
 	//! [ESMF] Object Array.back();
 	ESMF_DECLARE(typeObject,Array,"back",0,0,self->back())
@@ -550,8 +551,8 @@ bool Array::ArrayIterator::end() {
 	return index>=arrayRef->data.size();
 }
 
-template<>
-Array* convertTo<Array*>(Runtime& runtime,ObjPtr src)		{	return assertType<Array>(runtime,src);	}
+//template<>
+//Array* convertTo<Array*>(Runtime& runtime,ObjPtr src)		{	return assertType<Array>(runtime,src);	}
 
 
 }//namespace EScript

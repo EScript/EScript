@@ -238,7 +238,7 @@ void String::init(EScript::Namespace & globals) {
 	})
 
 	//! [ESMF] self String+=(String)Obj
-	ESMF_DECLARE(typeObject,String,"+=",1,1,(self->appendString(parameter[0].toString()),caller))
+	ESMF_DECLARE(typeObject,String,"+=",1,1,(self->appendString(parameter[0].toString()),self))
 
 	//! [ESMF] self String*=(Number)Obj
 	ES_MFUNCTION_DECLARE(typeObject,String,"*=",1,1,{

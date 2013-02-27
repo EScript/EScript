@@ -95,6 +95,21 @@ void initPrintableName(ExtObject * obj, const std::string & printableName){
 	obj->setAttribute(Consts::IDENTIFIER_attr_printableName, Attribute(String::create(printableName),Attribute::CONST_BIT));
 }
 
+//! (static)
+void markAttributeAsObjectAttribute(Type * type, StringId nameId){
+	type->setAttribute(nameId, Attribute(type->getAttribute(nameId).getValue(),Attribute::NORMAL_ATTRIBUTE));
+}
+
+//! (static)
+void markAttributeAsObjectAttribute(Type * type, const char * name){
+	markAttributeAsObjectAttribute(type,StringId(name));
+}
+
+//! (static)
+void copyAttributeAsAlias(Type * type, const char * originalName, const char * aliasName){
+	type->setAttribute(StringId(aliasName), type->getAttribute(StringId(originalName)));
+}
+
 //! (static, internal)
 void assertParamCount_2(Runtime & runtime, int paramCount, int min, int max) {
 	if(min >= 0 && paramCount < min) {

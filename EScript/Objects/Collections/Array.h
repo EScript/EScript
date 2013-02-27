@@ -158,7 +158,6 @@ class Array : public Collection {
 
 	//---------------------
 };
-template<> Array* convertTo<Array*>(Runtime& rt,ObjPtr src);
 }
 
 #endif // COLLECTION_H

@@ -53,11 +53,11 @@ void Bool::init(EScript::Namespace & globals) {
 
 	//! [ESMF] Bool |= Bool
 	ESMF_DECLARE(typeObject,Bool,"|=",1,1,
-				(self->setValue(caller->toBool() | parameter[0].toBool()) ,caller))
+				(self->setValue(caller->toBool() | parameter[0].toBool()) ,self))
 
 	//! [ESMF] Bool &= Bool
 	ESMF_DECLARE(typeObject,Bool,"&=",1,1,
-				(self->setValue(caller->toBool() & parameter[0].toBool()) ,caller))
+				(self->setValue(caller->toBool() & parameter[0].toBool()) ,self))
 
 
 	//- Comparisons
