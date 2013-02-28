@@ -23,13 +23,13 @@ template<class T> static T * assertType(Runtime &, const ObjPtr &); // forward d
 namespace _Internals{
 template<typename target_t> 
 inline target_t doConvertTo(Runtime &runtime,const ObjPtr &src,
-							typename std::enable_if<!std::is_convertible<target_t,const Object*>::value>::type* = 0){	
+							typename std::enable_if<!std::is_convertible<target_t, const Object *>::value>::type * = nullptr) {
 	return EScript::convertTo<target_t>(runtime,src); 
 }
 
 template<typename target_t> 
 inline target_t doConvertTo(Runtime &runtime,const ObjPtr &src,
-							typename std::enable_if<std::is_convertible<target_t,const Object*>::value>::type* = 0){	
+							typename std::enable_if<std::is_convertible<target_t, const Object *>::value>::type * = nullptr) {
 	return EScript::assertType<typename std::remove_pointer<target_t>::type>(runtime,src);
 }
 }
