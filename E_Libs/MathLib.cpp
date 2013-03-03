@@ -66,8 +66,8 @@ void init(EScript::Namespace * globals) {
 
 
 	//! Number Math.atan2(a,b)
-	ESF_DECLARE(lib, "atan2", 2, 2,
-				std::atan2(parameter[0].to<double>(runtime), parameter[1].to<double>(runtime)))
+	ES_FUN(lib, "atan2", 2, 2,
+				std::atan2(parameter[0].to<double>(rt), parameter[1].to<double>(rt)))
 
 
 	// init E_RandomNumberGenerator
@@ -88,75 +88,74 @@ void E_RandomNumberGenerator::init(EScript::Namespace & lib) {
 	declareConstant(&lib, getClassName(), typeObject);
 
 	//! [ESF] new RandomNumberGenerator( [seed] )
-	ESF_DECLARE(typeObject, "_constructor", 0, 1, 
-				new E_RandomNumberGenerator(parameter[0].toInt(0)))
+	ES_CTOR(typeObject,0,1,new E_RandomNumberGenerator(parameter[0].toInt(0)))
 
 	//! [ESMF] [0, 1] RandomNumberGenerator.bernoulli(p)
-	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "bernoulli", 1, 1,
-				 std::bernoulli_distribution(parameter[0].to<double>(runtime))(**self) ? 1 : 0)
+	ES_MFUN(typeObject, E_RandomNumberGenerator, "bernoulli", 1, 1,
+				 std::bernoulli_distribution(parameter[0].to<double>(rt))(**thisObj) ? 1 : 0)
 
 	//! [ESMF] Number RandomNumberGenerator.binomial(n,p)
-	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "binomial", 2, 2,
-				 std::binomial_distribution<int>(parameter[0].to<int>(runtime), parameter[1].to<double>(runtime))(**self))
+	ES_MFUN(typeObject, E_RandomNumberGenerator, "binomial", 2, 2,
+				 std::binomial_distribution<int>(parameter[0].to<int>(rt), parameter[1].to<double>(rt))(**thisObj))
 
 	//! [ESMF] Number RandomNumberGenerator.categorical(Array weights)
-	ES_MFUNCTION_DECLARE(typeObject, E_RandomNumberGenerator, "categorical", 1, 1, {
-		Array * array = assertType<EScript::Array>(runtime, parameter[0]);
+	ES_MFUNCTION(typeObject, E_RandomNumberGenerator, "categorical", 1, 1, {
+		Array * array = assertType<EScript::Array>(rt, parameter[0]);
 		std::vector<double> weights;
 		weights.reserve(array->size());
 		for(const auto & element : *array) {
 			weights.push_back(element->toDouble());
 		}
-		return std::discrete_distribution<int>(weights.begin(), weights.end())(**self);
+		return std::discrete_distribution<int>(weights.begin(), weights.end())(**thisObj);
 	})
 	
 	//! [ESMF] Number RandomNumberGenerator.chisquare(n)
-	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "chisquare", 1, 1,
-				 std::chi_squared_distribution<double>(parameter[0].to<double>(runtime))(**self))
+	ES_MFUN(typeObject, E_RandomNumberGenerator, "chisquare", 1, 1,
+				 std::chi_squared_distribution<double>(parameter[0].to<double>(rt))(**thisObj))
 
 	//! [ESMF] Number RandomNumberGenerator.equilikely(a,b)
-	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "equilikely", 2, 2,
-				 std::uniform_int_distribution<int>(parameter[0].to<int>(runtime), parameter[1].to<int>(runtime))(**self))
+	ES_MFUN(typeObject, E_RandomNumberGenerator, "equilikely", 2, 2,
+				 std::uniform_int_distribution<int>(parameter[0].to<int>(rt), parameter[1].to<int>(rt))(**thisObj))
 
 	//! [ESMF] Number RandomNumberGenerator.exponential(m)
-	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "exponential", 1, 1,
-				 std::exponential_distribution<double>(parameter[0].to<double>(runtime))(**self))
+	ES_MFUN(typeObject, E_RandomNumberGenerator, "exponential", 1, 1,
+				 std::exponential_distribution<double>(parameter[0].to<double>(rt))(**thisObj))
 
 	//! [ESMF] Number RandomNumberGenerator.geometric(p)
-	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "geometric", 1, 1,
-				 std::geometric_distribution<int>(parameter[0].to<double>(runtime))(**self))
+	ES_MFUN(typeObject, E_RandomNumberGenerator, "geometric", 1, 1,
+				 std::geometric_distribution<int>(parameter[0].to<double>(rt))(**thisObj))
 
 	//! [ESMF] Number RandomNumberGenerator.lognormal(a,b)
-	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "lognormal", 2, 2,
-				 std::lognormal_distribution<double>(parameter[0].to<double>(runtime), parameter[1].to<double>(runtime))(**self))
+	ES_MFUN(typeObject, E_RandomNumberGenerator, "lognormal", 2, 2,
+				 std::lognormal_distribution<double>(parameter[0].to<double>(rt), parameter[1].to<double>(rt))(**thisObj))
 
 	//! [ESMF] Number RandomNumberGenerator.normal(m,s)
-	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "normal", 2, 2,
-				 std::normal_distribution<double>(parameter[0].to<double>(runtime), parameter[1].to<double>(runtime))(**self))
+	ES_MFUN(typeObject, E_RandomNumberGenerator, "normal", 2, 2,
+				 std::normal_distribution<double>(parameter[0].to<double>(rt), parameter[1].to<double>(rt))(**thisObj))
 
 	//! [ESMF] Number RandomNumberGenerator.pascal(n,p)
-	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "pascal", 2, 2,
-				 std::negative_binomial_distribution<int>(parameter[0].to<int>(runtime), parameter[1].to<double>(runtime))(**self))
+	ES_MFUN(typeObject, E_RandomNumberGenerator, "pascal", 2, 2,
+				 std::negative_binomial_distribution<int>(parameter[0].to<int>(rt), parameter[1].to<double>(rt))(**thisObj))
 
 	//! [ESMF] Number RandomNumberGenerator.poisson(m)
-	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "poisson", 1, 1,
-				 std::poisson_distribution<int>(parameter[0].to<double>(runtime))(**self))
+	ES_MFUN(typeObject, E_RandomNumberGenerator, "poisson", 1, 1,
+				 std::poisson_distribution<int>(parameter[0].to<double>(rt))(**thisObj))
 
-	//! [ESMF] self RandomNumberGenerator.setSeed(Number)
-	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "setSeed", 1, 1,
-				 ((**self).seed(parameter[0].to<int>(runtime)), self))
+	//! [ESMF] thisObj RandomNumberGenerator.setSeed(Number)
+	ES_MFUN(typeObject, E_RandomNumberGenerator, "setSeed", 1, 1,
+				 ((**thisObj).seed(parameter[0].to<int>(rt)), thisEObj))
 
 	//! [ESMF] Number RandomNumberGenerator.student(n)
-	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "student", 1, 1,
-				 std::student_t_distribution<double>(parameter[0].to<double>(runtime))(**self))
+	ES_MFUN(typeObject, E_RandomNumberGenerator, "student", 1, 1,
+				 std::student_t_distribution<double>(parameter[0].to<double>(rt))(**thisObj))
 
 	//! [ESMF] Number RandomNumberGenerator.uniform(a,b)
-	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "uniform", 2, 2,
-				 std::uniform_real_distribution<double>(parameter[0].to<double>(runtime), parameter[1].to<double>(runtime))(**self))
+	ES_MFUN(typeObject, E_RandomNumberGenerator, "uniform", 2, 2,
+				 std::uniform_real_distribution<double>(parameter[0].to<double>(rt), parameter[1].to<double>(rt))(**thisObj))
 
 	//! [ESMF] Number RandomNumberGenerator.weibull(shape, scale)
-	ESMF_DECLARE(typeObject, E_RandomNumberGenerator, "weibull", 2, 2,
-				 std::weibull_distribution<double>(parameter[0].to<double>(runtime), parameter[1].to<double>(runtime))(**self))
+	ES_MFUN(typeObject, E_RandomNumberGenerator, "weibull", 2, 2,
+				 std::weibull_distribution<double>(parameter[0].to<double>(rt), parameter[1].to<double>(rt))(**thisObj))
 
 }
 

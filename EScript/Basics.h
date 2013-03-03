@@ -9,7 +9,8 @@
 #include "Objects/Namespace.h"
 #include "Runtime/Runtime.h"
 #include "Runtime/RtValue.h"
-#include "Utils/Helper.h"
+#include "Utils/DeclarationHelper.h"
+#include "Utils/RuntimeHelper.h"
 #include "Utils/Macros.h"
 #include "Utils/DeprecatedMacros.h" // only temporary!
 #include "Utils/StdConversions.h"

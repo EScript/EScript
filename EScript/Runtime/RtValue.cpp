@@ -89,7 +89,7 @@ Object * RtValue::_toObject()const{
 		case UNDEFINED:
 		case FUNCTION_CALL_CONTEXT:
 		default:
-			throw std::logic_error("Value can't converted to an object:"+toDbgString());
+			throw std::logic_error("RtValue can't be converted to into an object:"+toDbgString());
 			return nullptr;
 	}
 }

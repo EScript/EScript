@@ -32,7 +32,7 @@ private:
 
 	_ObjArray & operator=(const _ObjArray & other); //unimplemented
 public:
-	typedef _ObjArray<_T> self_t;
+	typedef _ObjArray<_T> thisObj_t;
 
 	_ObjArray() : paramCount(0),params(nullptr){
 	}

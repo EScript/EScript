@@ -1028,19 +1028,19 @@ void RuntimeInternals::initSystemFunctions(){
 		struct _{
 			ES_SYS_FUNCTION( sysCall) {
 				// parameters[i>0] contain number of stack entries that have to be stored to get to the next expanding parameter
-				auto & runtime = rtIt.runtime;
+				auto & rt = rtIt.runtime;
 				auto fcc = rtIt.getActiveFCC();
-				uint32_t numParams = parameter[0].to<uint32_t>(runtime); // original number of parameters
+				uint32_t numParams = parameter[0].to<uint32_t>(rt); // original number of parameters
 				std::vector<RtValue> tmpStackStorage;
 				// foreach expanding parameter
 				for(size_t i=parameter.count()-1;i>0;--i){
 					// pop and store non expanding parameters
-					for(uint32_t j = parameter[i].to<uint32_t>(runtime); j>0; --j)
+					for(uint32_t j = parameter[i].to<uint32_t>(rt); j>0; --j)
 						tmpStackStorage.emplace_back(fcc->stack_popValue());
 					
 					// pop expanding array parameter
 					ObjRef expandingParam( std::move(fcc->stack_popObject()));
-					Array * arr = assertType<Array>(runtime,expandingParam);
+					Array * arr = assertType<Array>(rt,expandingParam);
 					numParams += arr->size()-1;
 
 					// store array values

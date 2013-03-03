@@ -23,7 +23,7 @@ void Namespace::init(EScript::Namespace & globals) {
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! [ESMF] Namespace new Namespace
-	ESF_DECLARE(typeObject,"_constructor",0,0, new Namespace)
+	ES_CTOR(typeObject,0,0, new Namespace)
 }
 
 //---

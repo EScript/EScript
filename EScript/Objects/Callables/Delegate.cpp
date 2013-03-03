@@ -52,13 +52,13 @@ void Delegate::init(EScript::Namespace & globals) {
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//!	[ESMF] Delegate new Delegate(object,function)
-	ESF_DECLARE(typeObject,"_constructor",2,2,	new Delegate(parameter[0],parameter[1]))
+	ES_CTOR(typeObject,2,2,	new Delegate(parameter[0],parameter[1]))
 
 	//!	[ESMF] Object Delegate.getObject()
-	ESMF_DECLARE(typeObject,Delegate,"getObject",0,0,self->getObject())
+	ES_MFUN(typeObject,Delegate,"getObject",0,0,thisObj->getObject())
 
 	//!	[ESMF] Object Delegate.getFunction()
-	ESMF_DECLARE(typeObject,Delegate,"getFunction",0,0,self->getFunction())
+	ES_MFUN(typeObject,Delegate,"getFunction",0,0,thisObj->getFunction())
 }
 
 //---

@@ -24,31 +24,31 @@ void Exception::init(EScript::Namespace & globals) {
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//!	[ESMF] new Exception([String message])
-	ESMF_DECLARE(typeObject,Type,"_constructor",0,1, new Exception(parameter[0].toString(""),0,self))
+	ES_CTOR(typeObject,0,1, new Exception(parameter[0].toString(""),0,thisType))
 
 	//!	[ESMF] String Exception.getFilename()
-	ESMF_DECLARE(typeObject,Exception,"getFilename",0,0, self->getFilename())
+	ES_MFUN(typeObject,Exception,"getFilename",0,0, thisObj->getFilename())
 
 	//!	[ESMF] Number Exception.getLine()
-	ESMF_DECLARE(typeObject,Exception,"getLine",0,0, self->getLine())
+	ES_MFUN(typeObject,Exception,"getLine",0,0, thisObj->getLine())
 
 	//!	[ESMF] String Exception.getMessage()
-	ESMF_DECLARE(typeObject,Exception,"getMessage",0,0, self->getMessage())
+	ES_MFUN(typeObject,Exception,"getMessage",0,0, thisObj->getMessage())
 
 	//!	[ESMF] String Exception.getStackInfo()
-	ESMF_DECLARE(typeObject,Exception,"getStackInfo",0,0, self->getStackInfo())
+	ES_MFUN(typeObject,Exception,"getStackInfo",0,0, thisObj->getStackInfo())
 
-	//!	[ESMF] self Exception.getFilename(String)
-	ESMF_DECLARE(typeObject,Exception,"setFilename",1,1, (self->setFilename(parameter[0].toString()),self))
+	//!	[ESMF] thisObj Exception.getFilename(String)
+	ES_MFUN(typeObject,Exception,"setFilename",1,1, (thisObj->setFilename(parameter[0].toString()),thisEObj))
 
-	//!	[ESMF] self Exception.setLine(Number)
-	ESMF_DECLARE(typeObject,Exception,"setLine",1,1, (self->setLine(parameter[0].to<int>(runtime)),self))
+	//!	[ESMF] thisObj Exception.setLine(Number)
+	ES_MFUN(typeObject,Exception,"setLine",1,1, (thisObj->setLine(parameter[0].to<int>(rt)),thisEObj))
 
-	//!	[ESMF] self Exception.setMessage(String)
-	ESMF_DECLARE(typeObject,Exception,"setMessage",1,1, (self->setMessage(parameter[0].toString()),self))
+	//!	[ESMF] thisObj Exception.setMessage(String)
+	ES_MFUN(typeObject,Exception,"setMessage",1,1, (thisObj->setMessage(parameter[0].toString()),thisEObj))
 
-	//!	[ESMF] self Exception.setStackInfo(String)
-	ESMF_DECLARE(typeObject,Exception,"setStackInfo",1,1, (self->setStackInfo(parameter[0].toString()),self))
+	//!	[ESMF] thisObj Exception.setStackInfo(String)
+	ES_MFUN(typeObject,Exception,"setStackInfo",1,1, (thisObj->setStackInfo(parameter[0].toString()),thisEObj))
 
 }
 

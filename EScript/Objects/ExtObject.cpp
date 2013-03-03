@@ -24,10 +24,10 @@ void ExtObject::init(EScript::Namespace & globals) {
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//!	[ESF] ExtObject new ExtObject( [Map objAttributes] )
-	ES_MFUNCTION_DECLARE(typeObject,Type,"_constructor",0,1,{
-		ERef<ExtObject> result(new ExtObject(self));
+	ES_CONSTRUCTOR(typeObject,0,1,{
+		ERef<ExtObject> result(new ExtObject(thisType));
 		if(parameter.count()>0){
-			Map * m = assertType<Map>(runtime,parameter[0]);
+			Map * m = assertType<Map>(rt,parameter[0]);
 			for(const auto & keyValuePair : *m) {
 				result->setAttribute(keyValuePair.first, Attribute(keyValuePair.second.value));
 			}

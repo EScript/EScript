@@ -31,116 +31,115 @@ void Number::init(EScript::Namespace & globals) {
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! [ESMF] new Numbern([Number])
-	ESF_DECLARE(typeObject,"_constructor",0,1,Number::create(parameter[0].toDouble(0.0)))
+	ES_CTOR(typeObject,0,1,Number::create(parameter[0].toDouble(0.0)))
 
 	//- Operators
 
 	//! [ESMF] + Number
-	ESF_DECLARE(typeObject,"+_pre",0,0,caller)
+	ES_FUN(typeObject,"+_pre",0,0,thisEObj)
 
 	//! [ESMF] - Number
-	ESF_DECLARE(typeObject,"_-_pre",0,0,-caller->toDouble())
+	ES_FUN(typeObject,"_-_pre",0,0,-thisEObj->toDouble())
 
 	//! [ESMF] Number + Number2
-	ESF_DECLARE(typeObject,"+",1,1, caller->toDouble() + parameter[0].to<double>(runtime))
+	ES_FUN(typeObject,"+",1,1, thisEObj->toDouble() + parameter[0].to<double>(rt))
 
 	//! [ESMF] Number - Number2
-	ESF_DECLARE(typeObject,"-",1,1,caller->toDouble()-parameter[0].to<double>(runtime))
+	ES_FUN(typeObject,"-",1,1,thisEObj->toDouble()-parameter[0].to<double>(rt))
 
 	//! [ESMF] Number * Number2
-	ESF_DECLARE(typeObject,"*",1,1,caller->toDouble()*parameter[0].to<double>(runtime))
+	ES_FUN(typeObject,"*",1,1,thisEObj->toDouble()*parameter[0].to<double>(rt))
 
 	//! [ESMF] Number / Number2
-	ES_FUNCTION_DECLARE(typeObject,"/",1,1,{
-		const double d = parameter[0].to<double>(runtime);
+	ES_FUNCTION2(typeObject,"/",1,1,{
+		const double d = parameter[0].to<double>(rt);
 		if(d==0){
-			runtime.setException("Division by zero");
+			rt.setException("Division by zero");
 			return nullptr;
 		}
-		return caller->toDouble()/d;
+		return thisEObj->toDouble()/d;
 	})
 
 	//! [ESMF] Number & Number2
-	ESF_DECLARE(typeObject,"&",1,1, caller->toInt()&parameter[0].to<int>(runtime))
+	ES_FUN(typeObject,"&",1,1, thisEObj->toInt()&parameter[0].to<int>(rt))
 
 	//! [ESMF] Number | Number2
-	ESF_DECLARE(typeObject,"|",1,1, caller->toInt()|parameter[0].to<int>(runtime))
+	ES_FUN(typeObject,"|",1,1, thisEObj->toInt()|parameter[0].to<int>(rt))
 
 	//! [ESMF] Number ^ Number2
-	ESF_DECLARE(typeObject,"^",1,1, caller->toInt()^parameter[0].to<int>(runtime))
+	ES_FUN(typeObject,"^",1,1, thisEObj->toInt()^parameter[0].to<int>(rt))
 
 	//! [ESMF] Number % Number2
-	ES_MFUNCTION_DECLARE(typeObject,Number,"%",1,1,{
-		const double d = parameter[0].to<double>(runtime);
+	ES_MFUNCTION(typeObject,Number,"%",1,1,{
+		const double d = parameter[0].to<double>(rt);
 		if(d==0){
-			runtime.setException("Modulo with zero");
+			rt.setException("Modulo with zero");
 			return nullptr;
 		}
-		return self->modulo(d);
+		return thisObj->modulo(d);
 	})
 
 	//- Modificators
 
 	//! [ESMF] Number++
-	ES_MFUNCTION_DECLARE(typeObject,Number,"++_post",0,0,{
-		const double val = self->getValue();
-		self->setValue(val+1.0);
+	ES_MFUNCTION(typeObject,Number,"++_post",0,0,{
+		const double val = thisObj->getValue();
+		thisObj->setValue(val+1.0);
 		return val;
 	})
 
 	//! [ESMF] Number--
-	ES_MFUNCTION_DECLARE(typeObject,Number,"--_post",0,0,{
-		const double val = self->getValue();
-		self->setValue(val-1.0);
+	ES_MFUNCTION(typeObject,Number,"--_post",0,0,{
+		const double val = thisObj->getValue();
+		thisObj->setValue(val-1.0);
 		return val;
 	})
 
 	//! [ESMF] caller ++Number
-	ESMF_DECLARE(typeObject,Number,"++_pre",0,0,((self->setValue(caller->toDouble()+1.0)),self))
+	ES_MFUN(typeObject,Number,"++_pre",0,0,((thisObj->setValue(thisEObj->toDouble()+1.0)),thisEObj))
 
 	//! [ESMF] --Number
-	ESMF_DECLARE(typeObject,Number,"--_pre",0,0,(self->setValue(caller->toDouble()-1.0),self))
+	ES_MFUN(typeObject,Number,"--_pre",0,0,(thisObj->setValue(thisEObj->toDouble()-1.0),thisEObj))
 
 	//! [ESMF] Number += Number2
-	ESMF_DECLARE(typeObject,Number,"+=",1,1,(self->setValue(caller->toDouble()+parameter[0].to<double>(runtime)),self))
+	ES_MFUN(typeObject,Number,"+=",1,1,(thisObj->setValue(thisEObj->toDouble()+parameter[0].to<double>(rt)),thisEObj))
 
 	//! [ESMF] Numbern -= Number2
-	ESMF_DECLARE(typeObject,Number,"-=",1,1,(self->setValue(caller->toDouble()-parameter[0].to<double>(runtime)),self))
+	ES_MFUN(typeObject,Number,"-=",1,1,(thisObj->setValue(thisEObj->toDouble()-parameter[0].to<double>(rt)),thisEObj))
 
 	//! [ESMF] Numbern *= Number2
-	ESMF_DECLARE(typeObject,Number,"*=",1,1,(self->setValue(caller->toDouble()*parameter[0].to<double>(runtime)),self))
+	ES_MFUN(typeObject,Number,"*=",1,1,(thisObj->setValue(thisEObj->toDouble()*parameter[0].to<double>(rt)),thisEObj))
 
 	//! [ESMF] Numbern /= Number2
-	ES_MFUNCTION_DECLARE(typeObject,Number,"/=",1,1,{
-		const double d = parameter[0].to<double>(runtime);
+	ES_MFUNCTION(typeObject,Number,"/=",1,1,{
+		const double d = parameter[0].to<double>(rt);
 		if(d==0){
-			runtime.setException("Division by zero");
+			rt.setException("Division by zero");
 			return nullptr;
 		}
-		self->setValue(self->getValue()/d);
-		return self;
+		thisObj->setValue(thisObj->getValue()/d);
+		return thisObj;
 	})
 
 	//! [ESMF] Numbern %= Number2
-	ES_MFUNCTION_DECLARE(typeObject,Number,"%=",1,1,{
-		const double d = parameter[0].to<double>(runtime);
+	ES_MFUNCTION(typeObject,Number,"%=",1,1,{
+		const double d = parameter[0].to<double>(rt);
 		if(d==0){
-			runtime.setException("Modulo with zero");
+			rt.setException("Modulo with zero");
 			return nullptr;
 		}
-		self->setValue(self->modulo(d));
-		return self;
+		thisObj->setValue(thisObj->modulo(d));
+		return thisObj;
 	})
-	ESMF_DECLARE(typeObject,Number,"%=",1,1,(self->setValue(caller->toInt() % parameter[0].to<int>(runtime)) ,self))
 
 	//! [ESMF] Numbern |= Number2
-	ESMF_DECLARE(typeObject,Number,"|=",1,1,(self->setValue(caller->toInt() | parameter[0].to<int>(runtime)) ,self))
+	ES_MFUN(typeObject,Number,"|=",1,1,(thisObj->setValue(thisEObj->toInt() | parameter[0].to<int>(rt)) ,thisEObj))
 
 	//! [ESMF] Numbern &= Number2
-	ESMF_DECLARE(typeObject,Number,"&=",1,1,(self->setValue(caller->toInt() & parameter[0].to<int>(runtime)) ,self))
+	ES_MFUN(typeObject,Number,"&=",1,1,(thisObj->setValue(thisEObj->toInt() & parameter[0].to<int>(rt)) ,thisEObj))
 
 	//! [ESMF] Numbern ^= Number2
-	ESMF_DECLARE(typeObject,Number,"^=",1,1,(self->setValue(caller->toInt() ^ parameter[0].to<int>(runtime)) ,self))
+	ES_MFUN(typeObject,Number,"^=",1,1,(thisObj->setValue(thisEObj->toInt() ^ parameter[0].to<int>(rt)) ,thisEObj))
 
 
 // ~=
@@ -148,119 +147,118 @@ void Number::init(EScript::Namespace & globals) {
 	//- Comparisons
 
 	//! [ESMF] Numbern > Number2
-	ESF_DECLARE(typeObject,">",1,1,caller->toDouble()>parameter[0].to<double>(runtime))
+	ES_FUN(typeObject,">",1,1,thisEObj->toDouble()>parameter[0].to<double>(rt))
 
 	//! [ESMF] Numbern >= Number2
-	ESF_DECLARE(typeObject,">=",1,1,caller->toDouble()>=parameter[0].to<double>(runtime))
+	ES_FUN(typeObject,">=",1,1,thisEObj->toDouble()>=parameter[0].to<double>(rt))
 
 	//! [ESMF] Numbern < Number2
-	ESF_DECLARE(typeObject,"<",1,1,caller->toDouble()<parameter[0].to<double>(runtime))
+	ES_FUN(typeObject,"<",1,1,thisEObj->toDouble()<parameter[0].to<double>(rt))
 
 	//! [ESMF] Numbern <= Number2
-	ESF_DECLARE(typeObject,"<=",1,1,caller->toDouble()<=parameter[0].to<double>(runtime))
+	ES_FUN(typeObject,"<=",1,1,thisEObj->toDouble()<=parameter[0].to<double>(rt))
 
 	//! [ESMF] Bool (Numbern ~= Number2)
-	ESF_DECLARE(typeObject,"~=",1,1, Number::matches(caller->toFloat(), parameter[0].to<float>(runtime)))
+	ES_FUN(typeObject,"~=",1,1, Number::matches(thisEObj->toFloat(), parameter[0].to<float>(rt)))
 
 	// - Misc
 
 	//! [ESMF] Number Number.abs()
-	ES_FUNCTION_DECLARE(typeObject,"abs",0,0,{
-		assertParamCount(runtime,parameter.count(),0,0);
-		const double d = caller->toDouble();
+	ES_FUNCTION2(typeObject,"abs",0,0,{
+		const double d = thisEObj->toDouble();
 		return  d>0?d:-d;
 	})
 
 	//! [ESMF] Number Number.acos
-	ESF_DECLARE(typeObject,"acos",0,0,std::acos(caller->toDouble()))
+	ES_FUN(typeObject,"acos",0,0,std::acos(thisEObj->toDouble()))
 
 	//! [ESMF] Number Number.asin
-	ESF_DECLARE(typeObject,"asin",0,0,std::asin(caller->toDouble()))
+	ES_FUN(typeObject,"asin",0,0,std::asin(thisEObj->toDouble()))
 
 	//! [ESMF] Number Number.atan
-	ESF_DECLARE(typeObject,"atan",0,0,std::atan(caller->toDouble()))
+	ES_FUN(typeObject,"atan",0,0,std::atan(thisEObj->toDouble()))
 
 	//! [ESMF] Number Number.ceil()
-	ESF_DECLARE(typeObject,"ceil",0,0,std::ceil( caller->toDouble()))
+	ES_FUN(typeObject,"ceil",0,0,std::ceil( thisEObj->toDouble()))
 
 	//! [ESMF] Number Number.cos
-	ESF_DECLARE(typeObject,"cos",0,0,std::cos(caller->toDouble()))
+	ES_FUN(typeObject,"cos",0,0,std::cos(thisEObj->toDouble()))
 
 	//! [ESMF] Number Number.clamp(min,max)
-	ES_FUNCTION_DECLARE(typeObject,"clamp",2,2, {
-		const double d = caller->toDouble();
-		const double min = parameter[0].to<double>(runtime);
+	ES_FUNCTION2(typeObject,"clamp",2,2, {
+		const double d = thisEObj->toDouble();
+		const double min = parameter[0].to<double>(rt);
 		if(d<=min)
 			return min;
-		const double max = parameter[1].to<double>(runtime);
+		const double max = parameter[1].to<double>(rt);
 		return d<=max ? d : max ;
 	})
 
 	//! [ESMF] String Number.degToRad()
-	ESF_DECLARE(typeObject,"degToRad",0,0,(caller->toFloat()*M_PI/180.0))
+	ES_FUN(typeObject,"degToRad",0,0,(thisEObj->toFloat()*M_PI/180.0))
 
 	//! [ESMF] Number Number.floor()
-	ESF_DECLARE(typeObject,"floor",0,0,(std::floor( caller->toDouble())))
+	ES_FUN(typeObject,"floor",0,0,(std::floor( thisEObj->toDouble())))
 
 	//! [ESMF] String Number.format([Number precision = 3[, Bool scientific = true[, Number width = 0[, String fill='0']]]])
-	ESMF_DECLARE(typeObject,Number,"format",0,4,self->format(
-			static_cast<std::streamsize >(parameter[0].to<int>(runtime,3)), parameter[1].toBool(true),
-			static_cast<std::streamsize >(parameter[2].to<int>(runtime,0)), parameter[3].toString("0")[0]))
+	ES_MFUN(typeObject,Number,"format",0,4,thisObj->format(
+			static_cast<std::streamsize >(parameter[0].to<int>(rt,3)), parameter[1].toBool(true),
+			static_cast<std::streamsize >(parameter[2].to<int>(rt,0)), parameter[3].toString("0")[0]))
 
 	//! [ESMF] Number Number.ln()
-	ESF_DECLARE(typeObject,"ln",0,0,std::log(caller->toDouble()))
+	ES_FUN(typeObject,"ln",0,0,std::log(thisEObj->toDouble()))
 
 	//! [ESMF] Number Number.log([basis = 10])
-	ESF_DECLARE(typeObject,"log",0,1,( parameter.count()>0?log(caller->toDouble())/log(parameter[0].to<double>(runtime)) : log10(caller->toDouble())))
+	ES_FUN(typeObject,"log",0,1,( parameter.count()>0?log(thisEObj->toDouble())/log(parameter[0].to<double>(rt)) : log10(thisEObj->toDouble())))
 
 	//! [ESMF] bool Number.matches(other)
-	ESF_DECLARE(typeObject,"matches",1,1, Number::matches(caller->toFloat(), parameter[0].to<float>(runtime)))
+	ES_FUN(typeObject,"matches",1,1, Number::matches(thisEObj->toFloat(), parameter[0].to<float>(rt)))
 
 	//! [ESMF] Number Number.pow(Number)
-	ESF_DECLARE(typeObject,"pow",1,1,std::pow( caller->toDouble(),parameter[0].to<double>(runtime)))
+	ES_FUN(typeObject,"pow",1,1,std::pow( thisEObj->toDouble(),parameter[0].to<double>(rt)))
 
 	//! [ESMF] String Number.radToDeg()
-	ESF_DECLARE(typeObject,"radToDeg",0,0,(caller->toDouble()*180.0)/M_PI)
+	ES_FUN(typeObject,"radToDeg",0,0,(thisEObj->toDouble()*180.0)/M_PI)
 
 	/*! [ESMF] Number Number.round( [reference = 1.0] )
 		@param reference Reference value to which should be rounded:  x.round(reference) ^== reference * round(x/reference)
 		@example (123.456).round(0.1) == 123.5
 				(123.456).round(5) == 125
 				(123.456).round(10) == 120 */
-	ES_FUNCTION_DECLARE(typeObject,"round",0,1,{
+	ES_FUNCTION2(typeObject,"round",0,1,{
 		if(parameter.count()==0)
-			return std::round( caller->toDouble());
-		const double reference = parameter[0].to<double>(runtime);
+			return std::round( thisEObj->toDouble());
+		const double reference = parameter[0].to<double>(rt);
 		if(reference==0){
-			runtime.setException("round with zero");
+			rt.setException("round with zero");
 			return nullptr;
 		}
-		return std::round(caller->toDouble()/reference) * reference;
+		return std::round(thisEObj->toDouble()/reference) * reference;
 	})
 
 	//! [ESMF] +1|-1 Number.sign()
-	ESF_DECLARE(typeObject,"sign",0,0,(caller->toFloat()<0)?-1.0:1.0)
+	ES_FUN(typeObject,"sign",0,0,(thisEObj->toFloat()<0)?-1.0:1.0)
 
 	//! [ESMF] Number Number.sin
-	ESF_DECLARE(typeObject,"sin",0,0,std::sin(caller->toDouble()))
+	ES_FUN(typeObject,"sin",0,0,std::sin(thisEObj->toDouble()))
 
 	//! [ESMF] Number Number.sqrt
-	ESF_DECLARE(typeObject,"sqrt",0,0,std::sqrt( caller->toDouble()))
+	ES_FUN(typeObject,"sqrt",0,0,std::sqrt( thisEObj->toDouble()))
 
 	//! [ESMF] Number Number.tan
-	ESF_DECLARE(typeObject,"tan",0,0,std::tan( caller->toDouble()))
+	ES_FUN(typeObject,"tan",0,0,std::tan( thisEObj->toDouble()))
 
 	//! [ESMF] String Number.toHex()
-	ES_FUNCTION_DECLARE(typeObject,"toHex",0,0,{
+	ES_FUNCTION2(typeObject,"toHex",0,0,{
 		std::ostringstream sprinter;
-		sprinter << std::hex << "0x"<<caller->toInt();
+		sprinter << std::hex << "0x"<<thisEObj->toInt();
 		return sprinter.str();
 	})
 
 	//! [ESMF] String Number.toIntStr()
-	ES_FUNCTION_DECLARE(typeObject,"toIntStr",0,0,{
+	ES_FUNCTION2(typeObject,"toIntStr",0,0,{
 		std::ostringstream sprinter;
-		sprinter <<caller->toInt();
+		sprinter <<thisEObj->toInt();
 		return sprinter.str();
 	})
 }

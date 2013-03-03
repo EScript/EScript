@@ -50,7 +50,7 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 			return o==nullptr ? s<<"nullptr" :
 					s<< "[" << o->getTypeName() << ":" <<static_cast<void*>(o)<< ":"<<o->countReferences()<< "]";
 		}
-		//! Return a clone of the object if the type is call-by-value and the object itself otherwise.
+		//! Return a clone of the object if the type is call-by-value and the object itthisObj otherwise.
 		Object * getRefOrCopy();
 
 		//! ---o
@@ -113,7 +113,7 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 
 		/*! ---o (internal)
 		This function is called by the runtime after a new Object has been created in the script using "new". The
-			execution takes place after the Object itself has been created, but before the first scripted constructor is executed.
+			execution takes place after the Object itthisObj has been created, but before the first scripted constructor is executed.
 			Extended attribute initializations can be performed here.
 			\note Has to be overridden if an Object type should support user defined attributes. */
 		virtual void _initAttributes(Runtime & rt);

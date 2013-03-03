@@ -170,7 +170,7 @@ class ERef : public _CountedRef<_T> {
 		/*! If the reference is null, the default value is returend; 
 			otherwise a value of the type target_t is returned if possible or an exception is thrown.*/
 		template<typename target_t>
-		target_t to(Runtime &runtime,const target_t & defaultValue){	return this->isNull() ? defaultValue : EScript::convertTo<target_t>(runtime,*this); }
+		target_t to(Runtime &runtime,const target_t & defaultValue){	return this->isNull() ? defaultValue : _Internals::doConvertTo<target_t>(runtime,*this); }
 
 		//! Returns object->toBool() if the referenced object is not nullptr, false otherwise.
 		bool toBool()const						{	return this->isNull() ? false : this->get()->toBool();	}
@@ -256,7 +256,7 @@ class EPtr{
 		/*! If the reference is null, the default value is returend; 
 			otherwise a value of the type target_t is returned if possible or an exception is thrown.*/
 		template<typename target_t>
-		target_t to(Runtime &runtime,const target_t & defaultValue){	return isNull() ? defaultValue : EScript::convertTo<target_t>(runtime,*this); }
+		target_t to(Runtime &runtime,const target_t & defaultValue){	return isNull() ? defaultValue : _Internals::doConvertTo<target_t>(runtime,*this); }
 
 		//! Returns object->toBool() if the referenced object is not nullptr, false otherwise.
 		bool toBool()const					{	return isNull()?false:obj->toBool();	}

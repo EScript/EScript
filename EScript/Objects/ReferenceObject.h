@@ -6,7 +6,8 @@
 #define REFERENCE_OBJECT_H
 
 #include "Object.h"
-#include "../Utils/Helper.h"
+#include "../Utils/ObjArray.h"
+#include "../Utils/RuntimeHelper.h"
 #include <type_traits>
 #include <utility>
 

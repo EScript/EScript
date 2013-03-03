@@ -17,13 +17,13 @@ void Win32Lib::init(EScript::Namespace * globals) {
 	declareConstant(globals,"Win32",lib);
 
 	//! [ESF]	void setClipboard( string )
-	ESF_DECLARE(lib,"setClipboard",1,1,(Win32Lib::setClipboard(parameter[0].toString()),RtValue(nullptr)))
+	ES_FUN(lib,"setClipboard",1,1,(Win32Lib::setClipboard(parameter[0].toString()),RtValue(nullptr)))
 
 	//! [ESF]	string getClipboard( )
-	ESF_DECLARE(lib,"getClipboard",0,0,Win32Lib::getClipboard())
+	ES_FUN(lib,"getClipboard",0,0,Win32Lib::getClipboard())
 
 	//! [ESF]	bool loadLibrary(string )
-	ES_FUNCTION_DECLARE(lib,"loadLibrary",1,1, {
+	ES_FUNCTION2(lib,"loadLibrary",1,1, {
 		HINSTANCE hDLL;
 		libInitFunction *  f;	// Function pointer
 

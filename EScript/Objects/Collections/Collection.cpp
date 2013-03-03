@@ -26,67 +26,67 @@ void Collection::init(EScript::Namespace & globals) {
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! [ESMF] Object Collection[key]
-	ESMF_DECLARE(typeObject,Collection,"_get",1,1,self->getValue(parameter[0]))
+	ES_MFUN(typeObject,Collection,"_get",1,1,thisObj->getValue(parameter[0]))
 
-	//! [ESMF] self Collection[key] = value
-	ESMF_DECLARE(typeObject,Collection,"_set",2,2,
-				(self->setValue(parameter[0],parameter[1]),self))
+	//! [ESMF] thisObj Collection[key] = value
+	ES_MFUN(typeObject,Collection,"_set",2,2,
+				(thisObj->setValue(parameter[0],parameter[1]),thisEObj))
 
 	//! [ESMF] Object Collection.get(key [,default value] )
-	ES_MFUNCTION_DECLARE(typeObject,Collection,"get",1,2,{
-		ObjPtr result = self->getValue(parameter[0].get());
+	ES_MFUNCTION(typeObject,Collection,"get",1,2,{
+		ObjPtr result = thisObj->getValue(parameter[0].get());
 		return (parameter.count()>1 && result.isNull())?parameter[1].get():result.get();
 	})
 
-	//! [ESMF] self Collection.set(key,value)
-	ESMF_DECLARE(typeObject,Collection,"set",2,2,
-				(self->setValue(parameter[0],parameter[1]),self))
+	//! [ESMF] thisObj Collection.set(key,value)
+	ES_MFUN(typeObject,Collection,"set",2,2,
+				(thisObj->setValue(parameter[0],parameter[1]),thisEObj))
 
 	//! [ESMF] Number Collection.size() \deprecated
-	ESMF_DECLARE(typeObject,Collection, "size",0,0, static_cast<uint32_t>(self->count()))
+	ES_MFUN(typeObject,Collection, "size",0,0, static_cast<uint32_t>(thisObj->count()))
 
 	//! [ESMF] Number Collection.count()
-	ESMF_DECLARE(typeObject,Collection, "count",0,0, static_cast<uint32_t>(self->count()))
+	ES_MFUN(typeObject,Collection, "count",0,0, static_cast<uint32_t>(thisObj->count()))
 
 	//! [ESMF] Bool Collection.empty()
-	ESMF_DECLARE(typeObject,Collection,"empty",0,0,self->count()==0 )
+	ES_MFUN(typeObject,Collection,"empty",0,0,thisObj->count()==0 )
 
-	//! [ESMF] self Collection.clear()
-	ESMF_DECLARE(typeObject,Collection,"clear",0,0,(self->clear(),self))
+	//! [ESMF] thisObj Collection.clear()
+	ES_MFUN(typeObject,Collection,"clear",0,0,(thisObj->clear(),thisEObj))
 
 	//! [ESMF] Iterator Collection.getIterator()
-	ESMF_DECLARE(typeObject,Collection,"getIterator",0,0,self->getIterator())
+	ES_MFUN(typeObject,Collection,"getIterator",0,0,thisObj->getIterator())
 
 	//! [ESMF] Collection Collection.map(function[, AdditionalValues*])
-	ES_MFUNCTION_DECLARE(typeObject,Collection,"map",1,-1,{
+	ES_MFUNCTION(typeObject,Collection,"map",1,-1,{
 		ParameterValues additionalValues(parameter.count()-1);
 		if(!additionalValues.empty())
 			std::copy(parameter.begin()+1,parameter.end(),additionalValues.begin());
-		return self->rt_map(runtime,parameter[0],additionalValues);
+		return thisObj->rt_map(rt,parameter[0],additionalValues);
 	})
 
 	//! [ESMF] Object Collection.max()
-	ESMF_DECLARE(typeObject,Collection,"max",0,0,
-				self->rt_extract(runtime,Consts::IDENTIFIER_fn_greater,true))
+	ES_MFUN(typeObject,Collection,"max",0,0,
+				thisObj->rt_extract(rt,Consts::IDENTIFIER_fn_greater,true))
 
 	//! [ESMF] Object Collection.min()
-	ESMF_DECLARE(typeObject,Collection, "min",0,0,
-				self->rt_extract(runtime,Consts::IDENTIFIER_fn_greater,false))
+	ES_MFUN(typeObject,Collection, "min",0,0,
+				thisObj->rt_extract(rt,Consts::IDENTIFIER_fn_greater,false))
 
 	//! [ESMF] bool Collection.contains(Object)
-	ESMF_DECLARE(typeObject,Collection,"contains",1,1,
-				self->rt_contains(runtime,parameter[0]))
+	ES_MFUN(typeObject,Collection,"contains",1,1,
+				thisObj->rt_contains(rt,parameter[0]))
 
 	//! [ESMF] KEY Collection.findValue( VALUE )
-	ESMF_DECLARE(typeObject,Collection, "findValue",1,1,
-				self->rt_findValue(runtime,parameter[0]))
+	ES_MFUN(typeObject,Collection, "findValue",1,1,
+				thisObj->rt_findValue(rt,parameter[0]))
 
 	//! [ESMF] KEY Collection.reduce(fn(runningVar,key,value){ return ...}[,initialValue = void,[,additionalParameters]])
-	ES_MFUNCTION_DECLARE(typeObject,Collection,"reduce",1,-1,{
+	ES_MFUNCTION(typeObject,Collection,"reduce",1,-1,{
 		ParameterValues additionalValues(parameter.count()>2 ? parameter.count()-2 : 0);
 		if(!additionalValues.empty())
 			std::copy(parameter.begin()+2,parameter.end(),additionalValues.begin());
-		return self->rt_reduce(runtime,parameter[0],parameter[1],additionalValues);
+		return thisObj->rt_reduce(rt,parameter[0],parameter[1],additionalValues);
 	})
 }
 
@@ -194,7 +194,7 @@ bool Collection::rt_isEqual(Runtime &runtime,const ObjPtr & other){
  */
 Object * Collection::rt_map(Runtime & runtime,ObjPtr function, const ParameterValues & additionalValues){
 	// Create new, empty Collection
-	ObjRef obj = callMemberFunction(runtime,this,Consts::IDENTIFIER_fn_constructor,ParameterValues());
+	ObjRef obj = callMemberFunction(runtime,getType(),Consts::IDENTIFIER_fn_constructor,ParameterValues());
 	ERef<Collection> newCollectionRef = obj.toType<Collection>();
 	if(newCollectionRef.isNull()){
 		runtime.setException("Collection.map(..) No Contructor found!");

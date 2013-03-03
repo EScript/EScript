@@ -15,7 +15,7 @@ Type * Type::getTypeObject(){
 	struct factory{ // use factory for static one time initialization
 		Type * operator()(){
 			// This object defines the type of all 'Type' objects.
-			// It inherits from Object and the type of the object is defined by itself.
+			// It inherits from Object and the type of the object is defined by itthisObj.
 			Type * typeObject = new Type(Object::getTypeObject(),nullptr);
 			typeObject->typeRef = typeObject;
 			return typeObject;
@@ -35,10 +35,10 @@ void Type::init(EScript::Namespace & globals) {
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! [ESMF] Type new Type( [BaseType = ExtObject] )
-	ES_FUNCTION_DECLARE(typeObject,"_constructor",0,1,{
-		Type * baseType = parameter.count() == 0 ? ExtObject::getTypeObject() : assertType<Type>(runtime,parameter[0]);
+	ES_CONSTRUCTOR(typeObject,0,1,{
+		Type * baseType = parameter.count() == 0 ? ExtObject::getTypeObject() : assertType<Type>(rt,parameter[0]);
 		if(!baseType->allowsUserInheritance()){
-			runtime.setException("Basetype '"+baseType->toString()+"' does not allow user inheritance.");
+			rt.setException("Basetype '"+baseType->toString()+"' does not allow user inheritance.");
 			return nullptr;
 		}
 		Type * newType = new Type(baseType);
@@ -48,7 +48,7 @@ void Type::init(EScript::Namespace & globals) {
 
 
 	//! [ESMF] Type Type.getBaseType()
-	ESMF_DECLARE(typeObject,const Type,"getBaseType",0,0, self->getBaseType())
+	ES_MFUN(typeObject,const Type,"getBaseType",0,0, thisObj->getBaseType())
 
 
 	// attrMap_t is declared outside of the getObjAttributes declaration as it otherwise leads to a strange
@@ -56,16 +56,16 @@ void Type::init(EScript::Namespace & globals) {
 	typedef std::unordered_map<StringId, Object *> attrMap_t;
 
 	//! [ESMF] Map Type.getObjAttributes()
-	ES_MFUNCTION_DECLARE(typeObject,const Type,"getObjAttributes",0,0,{
+	ES_MFUNCTION(typeObject,const Type,"getObjAttributes",0,0,{
 		attrMap_t attrs;
-		self->collectObjAttributes(attrs);
+		thisObj->collectObjAttributes(attrs);
 		return Map::create(attrs);
 	})
 
 	//! [ESMF] Map Type.getTypeAttributes()
-	ES_MFUNCTION_DECLARE(typeObject,const Type,"getTypeAttributes",0,0,{
+	ES_MFUNCTION(typeObject,const Type,"getTypeAttributes",0,0,{
 		attrMap_t attrs;
-		self->collectTypeAttributes(attrs);
+		thisObj->collectTypeAttributes(attrs);
 		return Map::create(attrs);
 	})
 }

@@ -31,38 +31,37 @@ void Array::init(EScript::Namespace & globals) {
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! [ESMF] Array new Array([Obj*]);*/
-	ESF_DECLARE(typeObject, "_constructor", 0,-1,
-		Array::create(parameter))
+	ES_CTOR(typeObject,0,-1,Array::create(parameter))
 
 	//! [ESMF] Array+=Obj;
-	ESMF_DECLARE(typeObject,Array,"+=",1,1,(self->pushBack(parameter[0]),self))
+	ES_MFUN(typeObject,Array,"+=",1,1,(thisObj->pushBack(parameter[0]),thisEObj))
 
-	//!	[ESMF] self Array.append(Collection);
-	ESMF_DECLARE(typeObject,Array,"append",1,1,
-			(self->append( parameter[0].to<Collection*>(runtime) ),self))
+	//!	[ESMF] thisObj Array.append(Collection);
+	ES_MFUN(typeObject,Array,"append",1,1,
+			(thisObj->append( parameter[0].to<Collection*>(rt) ),thisEObj))
 
 	//! [ESMF] Object Array.back();
-	ESMF_DECLARE(typeObject,Array,"back",0,0,self->back())
+	ES_MFUN(typeObject,Array,"back",0,0,thisObj->back())
 
-	//! [ESMF] self Array.filter(function [,additionalParameters*])
-	ES_MFUNCTION_DECLARE(typeObject,Array,"filter",1,-1,{
+	//! [ESMF] thisObj Array.filter(function [,additionalParameters*])
+	ES_MFUNCTION(typeObject,Array,"filter",1,-1,{
 		ParameterValues additionalValues(parameter.count()-1);
 		if(!additionalValues.empty())
 			std::copy(parameter.begin()+1,parameter.end(),additionalValues.begin());
-		self->rt_filter(runtime,parameter[0],additionalValues);
-		return self;
+		thisObj->rt_filter(rt,parameter[0],additionalValues);
+		return thisObj;
 	})
 
 	//! [ESMF] Object Array.front();
-	ESMF_DECLARE(typeObject,Array,"front",0,0,self->front())
+	ES_MFUN(typeObject,Array,"front",0,0,thisObj->front())
 
 	/*! [ESMF] String Array.implode([delimiter])
 			\param delemiter default is ','	*/
-	ESMF_DECLARE(typeObject,Array,"implode",0,1,self->implode(parameter[0].toString()))
+	ES_MFUN(typeObject,Array,"implode",0,1,thisObj->implode(parameter[0].toString()))
 
 	//! [ESMF] int|false Array.indexOf(Object[,begin])
-	ES_MFUNCTION_DECLARE(typeObject, Array,"indexOf",1,2,{
-		int i = self->rt_indexOf(runtime,parameter[0],parameter[1].toUInt(0));
+	ES_MFUNCTION(typeObject, Array,"indexOf",1,2,{
+		int i = thisObj->rt_indexOf(rt,parameter[0],parameter[1].toUInt(0));
 		if(i<0)
 			return false;
 		else
@@ -70,74 +69,74 @@ void Array::init(EScript::Namespace & globals) {
 	})
 
 	//! [ESMF] Obj Array.popBack();
-	ES_MFUNCTION_DECLARE(typeObject,Array,"popBack",0,0,{
-		if(self->count()==0) return nullptr;
-		ObjRef oRef = self->back();
-		self->popBack();
+	ES_MFUNCTION(typeObject,Array,"popBack",0,0,{
+		if(thisObj->count()==0) return nullptr;
+		ObjRef oRef = thisObj->back();
+		thisObj->popBack();
 		return oRef;
 	})
 
 	//! [ESMF] Obj Array.popFront();
-	ES_MFUNCTION_DECLARE(typeObject, Array, "popFront", 0,0, {
-		if(self->count()==0) return nullptr;
-		ObjRef oRef = self->front();
-		self->popFront();
+	ES_MFUNCTION(typeObject, Array, "popFront", 0,0, {
+		if(thisObj->count()==0) return nullptr;
+		ObjRef oRef = thisObj->front();
+		thisObj->popFront();
 		return oRef;
 	})
 
-	//! [ESMF] self Array.pushBack(Obj[,Obj...]);
-	ES_MFUNCTION_DECLARE(typeObject,Array,"pushBack",1,-1,{
+	//! [ESMF] thisObj Array.pushBack(Obj[,Obj...]);
+	ES_MFUNCTION(typeObject,Array,"pushBack",1,-1,{
 		for(const auto & param : parameter) {
-			self->pushBack(param);
+			thisObj->pushBack(param);
 		}
-		return self;
+		return thisObj;
 	})
 
-	//! [ESMF] self Array.pushFront(Obj,[Obj...]);
-	ES_MFUNCTION_DECLARE(typeObject,Array,"pushFront",1,-1,{
+	//! [ESMF] thisObj Array.pushFront(Obj,[Obj...]);
+	ES_MFUNCTION(typeObject,Array,"pushFront",1,-1,{
 		for(const auto & param : parameter) {
-			self->pushFront(param);
+			thisObj->pushFront(param);
 		}
-		return  self;
+		return  thisObj;
 	})
 
-	//! [ESMF] self Array.removeIndex(int index)
-	ESMF_DECLARE(typeObject,Array,"removeIndex",1,1,(self->removeIndex(parameter[0].to<uint32_t>(runtime)),self)) // \todo set uint32_t to size_t when it compiles on a mac
+	//! [ESMF] thisObj Array.removeIndex(int index)
+	ES_MFUN(typeObject,Array,"removeIndex",1,1,(thisObj->removeIndex(parameter[0].to<uint32_t>(rt)),thisEObj)) // \todo set uint32_t to size_t when it compiles on a mac
 
-	//! [ESMF] self Array.removeValue(value [,limit [,begin]] )
-	ESMF_DECLARE(typeObject,Array,"removeValue",1,3,(self->rt_removeValue(runtime,parameter[0],parameter[1].toInt(-1),parameter[2].toUInt(0)),self))
+	//! [ESMF] thisObj Array.removeValue(value [,limit [,begin]] )
+	ES_MFUN(typeObject,Array,"removeValue",1,3,(thisObj->rt_removeValue(rt,parameter[0],parameter[1].toInt(-1),parameter[2].toUInt(0)),thisEObj))
 
-	//! [ESMF] self Array.resize(Number[, Object fillValue] )
-	ES_MFUNCTION_DECLARE(typeObject,Array,"resize",1,2,{
-		const size_t oldSize = self->size();
-		const size_t newSize = static_cast<size_t>(parameter[0].to<uint32_t>(runtime)); // \todo set uint32_t to size_t when it compiles on a mac
-		self->resize(newSize);
+	//! [ESMF] thisObj Array.resize(Number[, Object fillValue] )
+	ES_MFUNCTION(typeObject,Array,"resize",1,2,{
+		const size_t oldSize = thisObj->size();
+		const size_t newSize = static_cast<size_t>(parameter[0].to<uint32_t>(rt)); // \todo set uint32_t to size_t when it compiles on a mac
+		thisObj->resize(newSize);
 		if(parameter.count()>1){
 			for(size_t i = oldSize;i<newSize;++i){
-				self->at(i) = parameter[1]->getRefOrCopy();
+				thisObj->at(i) = parameter[1]->getRefOrCopy();
 			}
 		}
-		return self;
+		return thisEObj;
 	})
 
-	//! [ESMF] self Array.reverse()
-	ESMF_DECLARE(typeObject,Array,"reverse",0,0,(self->reverse(),self))
+	//! [ESMF] thisObj Array.reverse()
+	ES_MFUN(typeObject,Array,"reverse",0,0,(thisObj->reverse(),thisEObj))
 
-	/*! [ESMF] self Array.rSort( [comparementFunction]);
+	/*! [ESMF] thisObj Array.rSort( [comparementFunction]);
 		Like Array.sort, but the array is sorted in reverse order. */
-	ESMF_DECLARE(typeObject,Array,"rSort",0,1,(self->rt_sort(runtime,parameter[0].get(),true),self))
+	ES_MFUN(typeObject,Array,"rSort",0,1,(thisObj->rt_sort(rt,parameter[0].get(),true),thisEObj))
 
-	//! [ESMF] self Array.sort( [comparementFunction]);
-	ESMF_DECLARE(typeObject,Array,"sort",0,1,(self->rt_sort(runtime,parameter[0].get(),false),self))
+	//! [ESMF] thisObj Array.sort( [comparementFunction]);
+	ES_MFUN(typeObject,Array,"sort",0,1,(thisObj->rt_sort(rt,parameter[0].get(),false),thisEObj))
 
-	//! [ESMF] self Array.splice( start,length [,Array replacement] );
-	ESMF_DECLARE(typeObject,Array,"splice",2,3,(self->splice(parameter[0].to<int>(runtime),parameter[1].to<int>(runtime),parameter.count()>2 ? assertType<Array>(runtime,parameter[2]) : nullptr),self))
+	//! [ESMF] thisObj Array.splice( start,length [,Array replacement] );
+	ES_MFUN(typeObject,Array,"splice",2,3,(thisObj->splice(parameter[0].to<int>(rt),parameter[1].to<int>(rt),parameter.count()>2 ? assertType<Array>(rt,parameter[2]) : nullptr),thisEObj))
 
 	//! [ESMF] Array Array.slice( start,length );
-	ESMF_DECLARE(typeObject,Array,"slice",1,2,(self->slice(parameter[0].to<int>(runtime),parameter[1].toInt(0))))
+	ES_MFUN(typeObject,Array,"slice",1,2,(thisObj->slice(parameter[0].to<int>(rt),parameter[1].toInt(0))))
 
-	//! [ESMF] self Array.swap( Array other );
-	ESMF_DECLARE(typeObject,Array,"swap",1,1,(self->swap(assertType<Array>(runtime,parameter[0])),self))
+	//! [ESMF] thisObj Array.swap( Array other );
+	ES_MFUN(typeObject,Array,"swap",1,1,(thisObj->swap(assertType<Array>(rt,parameter[0])),thisEObj))
 
 
 	// todo: removeOnce removeAll -=
@@ -552,7 +551,7 @@ bool Array::ArrayIterator::end() {
 }
 
 //template<>
-//Array* convertTo<Array*>(Runtime& runtime,ObjPtr src)		{	return assertType<Array>(runtime,src);	}
+//Array* convertTo<Array*>(Runtime& runtime,ObjPtr src)		{	return assertType<Array>(rt,src);	}
 
 
 }//namespace EScript

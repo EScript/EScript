@@ -24,38 +24,38 @@ void Map::init(EScript::Namespace & globals) {
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! [ESMF] Map new Map( [key,value]* )
-	ES_FUNCTION_DECLARE(typeObject,"_constructor",0,-1, {
-		if( (parameter.count()%2)==1 ) runtime.warn("Map: Last parameter ignored!");
+	ES_CONSTRUCTOR(typeObject,0,-1, {
+		if( (parameter.count()%2)==1 ) rt.warn("Map: Last parameter ignored!");
 		Map * a = new Map;
 		for(ParameterValues::size_type i = 0;i<parameter.count();i+=2)
 			a->setValue(parameter[i],parameter[i+1]);
 		return a;
 	})
 
-	//! [ESMF] self Map.filter( fn(key,value){return false|true;} [,additionalParameter*] )
-	ES_MFUNCTION_DECLARE(typeObject,Map,"filter",1,-1,{
+	//! [ESMF] thisObj Map.filter( fn(key,value){return false|true;} [,additionalParameter*] )
+	ES_MFUNCTION(typeObject,Map,"filter",1,-1,{
 		ParameterValues additionalValues(parameter.count()-1);
 		if(!additionalValues.empty())
 			std::copy(parameter.begin()+1,parameter.end(),additionalValues.begin());
-		self->rt_filter(runtime,parameter[0],additionalValues);
-		return self;
+		thisObj->rt_filter(rt,parameter[0],additionalValues);
+		return thisObj;
 	})
 
-	//! [ESMF] self Map.unset( key )
-	ESMF_DECLARE(typeObject,Map,"unset",1,1,
-				(self->unset(parameter[0]),self))
+	//! [ESMF] thisObj Map.unset( key )
+	ES_MFUN(typeObject,Map,"unset",1,1,
+				(thisObj->unset(parameter[0]),thisEObj))
 
 	//! [ESMF] bool Collection.containsKey(Object)
-	ESMF_DECLARE(typeObject,Map,"containsKey",1,1,
-				self->getValue(parameter[0].toString())!=nullptr)
+	ES_MFUN(typeObject,Map,"containsKey",1,1,
+				thisObj->getValue(parameter[0].toString())!=nullptr)
 
-	//! [ESMF] self Map.merge( Collection [,bool overwrite = true] )
-	ESMF_DECLARE(typeObject,Map,"merge",1,2,
-				(self->merge(assertType<Collection>(runtime,parameter[0]),parameter[1].toBool(true)),self))
+	//! [ESMF] thisObj Map.merge( Collection [,bool overwrite = true] )
+	ES_MFUN(typeObject,Map,"merge",1,2,
+				(thisObj->merge(assertType<Collection>(rt,parameter[0]),parameter[1].toBool(true)),thisEObj))
 
-	//! [ESMF] self swap.swap( Map other )
-	ESMF_DECLARE(typeObject,Map,"swap",1,1,
-				(self->swap(assertType<Map>(runtime,parameter[0])),self))
+	//! [ESMF] thisObj swap.swap( Map other )
+	ES_MFUN(typeObject,Map,"swap",1,1,
+				(thisObj->swap(assertType<Map>(rt,parameter[0])),thisEObj))
 
 }
 

@@ -23,16 +23,16 @@ void YieldIterator::init(EScript::Namespace & globals) {
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! Object YieldIterator.key()
-	ESMF_DECLARE(typeObject,YieldIterator,"key",0,0,self->key())
+	ES_MFUN(typeObject,YieldIterator,"key",0,0,thisObj->key())
 
 	//! Object YieldIterator.value()
-	ESMF_DECLARE(typeObject,YieldIterator,"value",0,0,self->value())
+	ES_MFUN(typeObject,YieldIterator,"value",0,0,thisObj->value())
 
-	//! self YieldIterator.next()
-	ESMF_DECLARE(typeObject,YieldIterator,"next",0,0,(self->next(runtime),self))
+	//! thisObj YieldIterator.next()
+	ES_MFUN(typeObject,YieldIterator,"next",0,0,(thisObj->next(rt),thisEObj))
 
 	//! bool YieldIterator.end()
-	ESMF_DECLARE(typeObject,YieldIterator,"end",0,0,self->end())
+	ES_MFUN(typeObject,YieldIterator,"end",0,0,thisObj->end())
 }
 
 //---

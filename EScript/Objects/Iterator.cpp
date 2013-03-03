@@ -22,19 +22,19 @@ void Iterator::init(EScript::Namespace & globals) {
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! Bool Iterator.end()
-	ESMF_DECLARE(typeObject,Iterator,"end",0,0,self->end())
+	ES_MFUN(typeObject,Iterator,"end",0,0,thisObj->end())
 
 	//! Object Iterator.key()
-	ESMF_DECLARE(typeObject,Iterator,"key",0,0,self->key())
+	ES_MFUN(typeObject,Iterator,"key",0,0,thisObj->key())
 
-	//! self Iterator.next()
-	ESMF_DECLARE(typeObject,Iterator,"next",0,0,(self->next(),self))
+	//! thisObj Iterator.next()
+	ES_MFUN(typeObject,Iterator,"next",0,0,(thisObj->next(),thisEObj))
 
-	//! self Iterator.reset()
-	ESMF_DECLARE(typeObject,Iterator,"reset",0,0,(self->reset(),self))
+	//! thisObj Iterator.reset()
+	ES_MFUN(typeObject,Iterator,"reset",0,0,(thisObj->reset(),thisEObj))
 
 	//! Object Iterator.value()
-	ESMF_DECLARE(typeObject,Iterator,"value",0,0,self->value())
+	ES_MFUN(typeObject,Iterator,"value",0,0,thisObj->value())
 }
 
 }

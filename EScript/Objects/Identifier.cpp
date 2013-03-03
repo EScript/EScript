@@ -21,7 +21,7 @@ void Identifier::init(EScript::Namespace & globals) {
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//!	[ESMF] Identifier new Identifier( string )
-	ESF_DECLARE(typeObject,"_constructor",1,1,Identifier::create(parameter[0].toString()))
+	ES_CTOR(typeObject,1,1,Identifier::create(parameter[0].toString()))
 
 }
 

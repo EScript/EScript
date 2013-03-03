@@ -46,13 +46,14 @@ set(ESCRIPT_SOURCES
 	EScript/Runtime/RuntimeInternals.cpp
 	EScript/Utils/AttributeContainer.cpp
 	EScript/Utils/Debug.cpp
-	EScript/Utils/StdConversions.cpp
-	EScript/Utils/StdFactories.cpp
+	EScript/Utils/DeclarationsHelper.cpp
 	EScript/Utils/Hashing.cpp
-	EScript/Utils/Helper.cpp
+	EScript/Utils/RuntimeHelper.cpp
 	EScript/Utils/IO/DefaultFileSystemHandler.cpp
 	EScript/Utils/IO/IO.cpp
 	EScript/Utils/Logger.cpp
+	EScript/Utils/StdConversions.cpp
+	EScript/Utils/StdFactories.cpp
 	EScript/Utils/StringData.cpp
 	EScript/Utils/StringUtils.cpp
 	E_Libs/ext/JSON.cpp

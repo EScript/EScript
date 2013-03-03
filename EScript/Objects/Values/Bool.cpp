@@ -13,7 +13,7 @@ namespace EScript{
 
 template<> Bool * assertType<Bool>(Runtime & runtime, const ObjPtr & obj) {
 	if(obj.isNull()||obj->_getInternalTypeId()!=_TypeIds::TYPE_BOOL) 
-		assertType_throwError(runtime, obj, Bool::getClassName());
+		_Internals::assertType_throwError(runtime, obj, Bool::getClassName());
 	return static_cast<Bool*>(obj.get());
 }
 
@@ -34,41 +34,41 @@ void Bool::init(EScript::Namespace & globals) {
 	//- Operators
 
 	//! Bool Bool & ((Bool)obj)
-	ESF_DECLARE(typeObject,"&",1,1,
-				( caller->toBool() & parameter[0].toBool())>0 )
+	ES_FUN(typeObject,"&",1,1,
+				( thisEObj->toBool() & parameter[0].toBool())>0 )
 
 	//! [ESMF] Bool Bool | ((Bool)obj)
-	ESF_DECLARE(typeObject,"|",1,1,
-				( caller->toBool() | parameter[0].toBool())>0 )
+	ES_FUN(typeObject,"|",1,1,
+				( thisEObj->toBool() | parameter[0].toBool())>0 )
 
 	//! [ESMF] Bool Bool ^ ((Bool)obj)
-	ESF_DECLARE(typeObject,"^",1,1,
-				( caller->toBool() ^ parameter[0].toBool())>0 )
+	ES_FUN(typeObject,"^",1,1,
+				( thisEObj->toBool() ^ parameter[0].toBool())>0 )
 
 //	//! [ESMF] Bool !Bool
-//	ES_FUNCTION_DECLARE(typeObject,"!_pre",0,0,{
+//	ES_FUNCTION2(typeObject,"!_pre",0,0,{
 //						std::cout << " ????? ";
-//						return Bool::create(! caller->toBool());
+//						return Bool::create(! thisEObj->toBool());
 //						})
 
 	//! [ESMF] Bool |= Bool
-	ESMF_DECLARE(typeObject,Bool,"|=",1,1,
-				(self->setValue(caller->toBool() | parameter[0].toBool()) ,self))
+	ES_MFUN(typeObject,Bool,"|=",1,1,
+				(thisObj->setValue(thisEObj->toBool() | parameter[0].toBool()) ,thisEObj))
 
 	//! [ESMF] Bool &= Bool
-	ESMF_DECLARE(typeObject,Bool,"&=",1,1,
-				(self->setValue(caller->toBool() & parameter[0].toBool()) ,self))
+	ES_MFUN(typeObject,Bool,"&=",1,1,
+				(thisObj->setValue(thisEObj->toBool() & parameter[0].toBool()) ,thisEObj))
 
 
 	//- Comparisons
 
 	//! [ESMF] Bool Bool > ((Bool)obj)
-	ESF_DECLARE(typeObject,">",1,1,
-				( caller->toBool() > parameter[0].toBool()))
+	ES_FUN(typeObject,">",1,1,
+				( thisEObj->toBool() > parameter[0].toBool()))
 
 	//! [ESMF] Bool Bool < ((Bool)obj)
-	ESF_DECLARE(typeObject,"<",1,1,
-				( caller->toBool() < parameter[0].toBool()))
+	ES_FUN(typeObject,"<",1,1,
+				( thisEObj->toBool() < parameter[0].toBool()))
 
 
 }

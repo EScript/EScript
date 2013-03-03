@@ -22,20 +22,20 @@ void Function::init(EScript::Namespace & globals) {
 	declareConstant(&globals,getClassName(),typeObject);
 
 	//! [ESMF] Number|false Function.getMaxParamCount()
-	ES_MFUNCTION_DECLARE(typeObject,Function,"getMaxParamCount",0,0,{
-		if(self->getMaxParamCount()<0 )
+	ES_MFUNCTION(typeObject,Function,"getMaxParamCount",0,0,{
+		if(thisObj->getMaxParamCount()<0 )
 			return false;
-		return self->getMaxParamCount();
+		return thisObj->getMaxParamCount();
 	})
 
 	//! [ESMF] Number Function.getMinParamCount()
-	ESMF_DECLARE(typeObject,Function,"getMinParamCount",0,0, self->getMinParamCount())
+	ES_MFUN(typeObject,Function,"getMinParamCount",0,0, thisObj->getMinParamCount())
 
 	//! [ESMF] Identifier Function.getOriginalName()
-	ESMF_DECLARE(typeObject,Function,"getOriginalName",0,0, self->getOriginalName())
+	ES_MFUN(typeObject,Function,"getOriginalName",0,0, thisObj->getOriginalName())
 
 	//! [ESMF] (experimental) Number Function._getCallCounter()
-	ESMF_DECLARE(typeObject,Function,"_getCallCounter",0,0, self->getCallCounter())
+	ES_MFUN(typeObject,Function,"_getCallCounter",0,0, thisObj->getCallCounter())
 }
 
 //! (ctor)

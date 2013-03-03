@@ -46,65 +46,65 @@ void Runtime::init(EScript::Namespace & globals) {
 	declareConstant(typeObject,"LOG_FATAL",				static_cast<int>(Logger::LOG_FATAL));
 
 	//!	[ESMF] Number Runtime._getStackSize();
-	ESF_DECLARE(typeObject,"_getStackSize",0,0, static_cast<uint32_t>(runtime.getStackSize()))
+	ES_FUN(typeObject,"_getStackSize",0,0, static_cast<uint32_t>(rt.getStackSize()))
 
 	//!	[ESMF] Number Runtime._getStackSizeLimit();
-	ESF_DECLARE(typeObject,"_getStackSizeLimit",0,0, static_cast<uint32_t>(runtime._getStackSizeLimit()))
+	ES_FUN(typeObject,"_getStackSizeLimit",0,0, static_cast<uint32_t>(rt._getStackSizeLimit()))
 
 	//!	[ESMF] void Runtime._setStackSizeLimit(number);
-	ESF_DECLARE(typeObject,"_setStackSizeLimit",1,1,
-				(runtime._setStackSizeLimit(parameter[0].to<uint32_t>(runtime)),RtValue(nullptr)))
+	ES_FUN(typeObject,"_setStackSizeLimit",1,1,
+				(rt._setStackSizeLimit(parameter[0].to<uint32_t>(rt)),RtValue(nullptr)))
 
 	//!	[ESMF] void Runtime.disableLogCounting( );
-	ESF_DECLARE(typeObject,"disableLogCounting",0,1, (runtime.disableLogCounting(),RtValue(nullptr)))
+	ES_FUN(typeObject,"disableLogCounting",0,1, (rt.disableLogCounting(),RtValue(nullptr)))
 
 
 	//!	[ESMF] void Runtime.enableLogCounting( );
-	ESF_DECLARE(typeObject,"enableLogCounting",0,1, (runtime.enableLogCounting(),RtValue(nullptr)))
+	ES_FUN(typeObject,"enableLogCounting",0,1, (rt.enableLogCounting(),RtValue(nullptr)))
 
 	//!	[ESMF] void Runtime.exception( [message] );
-	ESF_DECLARE(typeObject,"exception",0,1, (runtime.setException(parameter[0].toString()),RtValue(nullptr)))
+	ES_FUN(typeObject,"exception",0,1, (rt.setException(parameter[0].toString()),RtValue(nullptr)))
 
 	//!	[ESMF] String Runtime.getLocalStackInfo();
-	ESF_DECLARE(typeObject,"getLocalStackInfo",0,0, runtime.getLocalStackInfo())
+	ES_FUN(typeObject,"getLocalStackInfo",0,0, rt.getLocalStackInfo())
 
 	//!	[ESMF] Number Runtime.getLogCounter(Number);
-	ESF_DECLARE(typeObject,"getLogCounter",1,1, runtime.getLogCounter(static_cast<Logger::level_t>(parameter[0].to<int>(runtime))))
+	ES_FUN(typeObject,"getLogCounter",1,1, rt.getLogCounter(static_cast<Logger::level_t>(parameter[0].to<int>(rt))))
 
 	//!	[ESMF] Number Runtime.getLoggingLevel();
-	ESF_DECLARE(typeObject,"getLoggingLevel",0,0, static_cast<int>(runtime.getLoggingLevel()))
+	ES_FUN(typeObject,"getLoggingLevel",0,0, static_cast<int>(rt.getLoggingLevel()))
 
 	//!	[ESMF] String Runtime.getStackInfo();
-	ESF_DECLARE(typeObject,"getStackInfo",0,0, runtime.getStackInfo())
+	ES_FUN(typeObject,"getStackInfo",0,0, rt.getStackInfo())
 
 	//!	[ESMF] void Runtime.log(Number,String);
-	ESF_DECLARE(typeObject,"log",2,2,
-				(runtime.log(static_cast<Logger::level_t>(parameter[0].to<int>(runtime)),parameter[1].toString()),RtValue(nullptr)))
+	ES_FUN(typeObject,"log",2,2,
+				(rt.log(static_cast<Logger::level_t>(parameter[0].to<int>(rt)),parameter[1].toString()),RtValue(nullptr)))
 
 	//!	[ESMF] void Runtime.resetLogCounter(Number);
-	ESF_DECLARE(typeObject,"resetLogCounter",1,1,
-				(runtime.resetLogCounter(static_cast<Logger::level_t>(parameter[0].to<int>(runtime))),RtValue(nullptr)))
+	ES_FUN(typeObject,"resetLogCounter",1,1,
+				(rt.resetLogCounter(static_cast<Logger::level_t>(parameter[0].to<int>(rt))),RtValue(nullptr)))
 
 	//!	[ESMF] void Runtime._setAddStackInfoToExceptions(bool);
-	ESF_DECLARE(typeObject,"_setAddStackInfoToExceptions",1,1,
-				(runtime.setAddStackInfoToExceptions(parameter[0].toBool()),RtValue(nullptr)))
+	ES_FUN(typeObject,"_setAddStackInfoToExceptions",1,1,
+				(rt.setAddStackInfoToExceptions(parameter[0].toBool()),RtValue(nullptr)))
 
 	//!	[ESMF] void Runtime.setLoggingLevel(Number);
-	ESF_DECLARE(typeObject,"setLoggingLevel",1,1,
-				(runtime.setLoggingLevel(static_cast<Logger::level_t>(parameter[0].to<int>(runtime))),RtValue(nullptr)))
+	ES_FUN(typeObject,"setLoggingLevel",1,1,
+				(rt.setLoggingLevel(static_cast<Logger::level_t>(parameter[0].to<int>(rt))),RtValue(nullptr)))
 
 	//!	[ESMF] void Runtime.setTreatWarningsAsError(bool);
-	ESF_DECLARE(typeObject,"setTreatWarningsAsError",1,1,
-				(runtime.setTreatWarningsAsError(parameter[0].toBool()),RtValue(nullptr)))
+	ES_FUN(typeObject,"setTreatWarningsAsError",1,1,
+				(rt.setTreatWarningsAsError(parameter[0].toBool()),RtValue(nullptr)))
 
 	//!	[ESMF] void Runtime.warn([message]);
-	ESF_DECLARE(typeObject,"warn",0,1, (runtime.warn(parameter[0].toString()),RtValue(nullptr)))
+	ES_FUN(typeObject,"warn",0,1, (rt.warn(parameter[0].toString()),RtValue(nullptr)))
 
 	// --- internals and experimental functions
 
 	//! [ESF]  Object _callFunction(fun[,obj[,Array params]])
-	ES_FUNCTION_DECLARE(typeObject,"_callFunction",1,3, {
-		EPtr<Array> paramArr( (parameter.count()>2) ? assertType<Array>(runtime,parameter[2]) : nullptr );
+	ES_FUNCTION2(typeObject,"_callFunction",1,3, {
+		EPtr<Array> paramArr( (parameter.count()>2) ? assertType<Array>(rt,parameter[2]) : nullptr );
 		ParameterValues params(paramArr.isNotNull() ? paramArr->count() : 0);
 		if(paramArr.isNotNull()){
 			int i = 0;
@@ -112,11 +112,11 @@ void Runtime::init(EScript::Namespace & globals) {
 				params.set(i++, param);
 			}
 		}
-		return runtime.internals->startFunctionExecution(parameter[0],parameter[1],params);
+		return rt.internals->startFunctionExecution(parameter[0],parameter[1],params);
 	})
 
 	//! [ESF]  Object _getCurrentCaller()
-	ESF_DECLARE(typeObject,"_getCurrentCaller",0,0, runtime.getCallingObject().get() )
+	ES_FUN(typeObject,"_getCurrentCaller",0,0, rt.getCallingObject().get() )
 }
 
 // ----------------------------------------------------------------------
@@ -195,12 +195,12 @@ ObjRef Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & caller,const P
 	if(callResult.isFunctionCallContext()){ // user function?
 		_CountedRef<FunctionCallContext> fcc = callResult._getFCC();
 		resultObj = internals->executeFunctionCallContext(fcc);
-	}else{
+	}else if(internals->getState()==RuntimeInternals::STATE_EXCEPTION){ // error occured? throw an exception! callResult is undefined.
+		throw internals->fetchAndClearException().detachAndDecrease();
+	}else {
 		resultObj = callResult._toObject(); // the value should always be convertible to Object...
 	}
-	// error occured? throw an exception!
-	if(internals->getState()==RuntimeInternals::STATE_EXCEPTION)
-		throw internals->fetchAndClearException().detachAndDecrease();
+	
 	return resultObj;
 }
 

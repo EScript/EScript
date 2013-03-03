@@ -17,36 +17,36 @@ Type * UserFunction::getTypeObject(){
 //! (static) initMembers
 void UserFunction::init(EScript::Namespace & globals) {
 	// [UserFunction] ---|> [ExtObject] ---|> [Object]
-	Type * t = getTypeObject();
-	declareConstant(&globals,getClassName(),t);
+	Type * typeObject = getTypeObject();
+	declareConstant(&globals,getClassName(),typeObject);
 
 	//! [ESMF] String UserFunction.getFilename()
-	ESMF_DECLARE(t,UserFunction,"getFilename",0,0,self->getCode().getFilename())
+	ES_MFUN(typeObject,UserFunction,"getFilename",0,0,thisObj->getCode().getFilename())
 
 	//! [ESMF] String UserFunction.getCode()
-	ESMF_DECLARE(t,UserFunction,"getCode",0,0,self->getCode().getCodeString())
+	ES_MFUN(typeObject,UserFunction,"getCode",0,0,thisObj->getCode().getCodeString())
 
 	//! [ESMF] Number|false UserFunction.getMaxParamCount()
-	ES_MFUNCTION_DECLARE(t,UserFunction,"getMaxParamCount",0,0,{
-		if(self->getMaxParamCount()<0 )
+	ES_MFUNCTION(typeObject,UserFunction,"getMaxParamCount",0,0,{
+		if(thisObj->getMaxParamCount()<0 )
 			return false;
-		return self->getMaxParamCount();
+		return thisObj->getMaxParamCount();
 	})
 	//! [ESMF] Number|false UserFunction.getMultiParam()
-	ES_MFUNCTION_DECLARE(t,UserFunction,"getMultiParam",0,0,{
-		if(self->getMultiParam()<0 )
+	ES_MFUNCTION(typeObject,UserFunction,"getMultiParam",0,0,{
+		if(thisObj->getMultiParam()<0 )
 			return false;
-		return self->getMultiParam();
+		return thisObj->getMultiParam();
 	})
 
 	//! [ESMF] Number UserFunction.getMinParamCount()
-	ESMF_DECLARE(t,UserFunction,"getMinParamCount",0,0, self->getMinParamCount())
+	ES_MFUN(typeObject,UserFunction,"getMinParamCount",0,0, thisObj->getMinParamCount())
 
 	//! [ESMF] Number UserFunction.getParamCount()
-	ESMF_DECLARE(t,UserFunction,"getParamCount",0,0, static_cast<uint32_t>(self->getParamCount()))
+	ES_MFUN(typeObject,UserFunction,"getParamCount",0,0, static_cast<uint32_t>(thisObj->getParamCount()))
 
 	//! [ESMF] String UserFunction._asm()
-	ESMF_DECLARE(t,UserFunction,"_asm",0,0, self->getInstructionBlock().toString())
+	ES_MFUN(typeObject,UserFunction,"_asm",0,0, thisObj->getInstructionBlock().toString())
 
 }
 

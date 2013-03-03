@@ -28,13 +28,13 @@ void IOLib::init(EScript::Namespace * o) {
 	declareConstant(o,"IO",lib);
 
 	//! [ESF] string fileGetContents(string filename,[format])
-	ES_FUNCTION_DECLARE(lib,"fileGetContents",1,2, {
+	ES_FUNCTION2(lib,"fileGetContents",1,2, {
 
 		StringData content;
 		try{
 			content = IO::loadFile(parameter[0].toString());
 		}catch(const std::ios::failure & e){
-			runtime.setException(e.what());
+			rt.setException(e.what());
 			return nullptr;
 		}
 		if(parameter.count()>1) {
@@ -42,7 +42,7 @@ void IOLib::init(EScript::Namespace * o) {
 				const std::string contentS(StringUtils::UCS2LE_to_ANSII(content.str()));
 				return contentS;
 			} else {
-				runtime.setException("Unknown format");
+				rt.setException("Unknown format");
 				return nullptr;
 			}
 		}
@@ -50,18 +50,18 @@ void IOLib::init(EScript::Namespace * o) {
 	})
 
 	//! [ESF] void filePutContents(string filename,string)
-	ES_FUNCTION_DECLARE(lib,"filePutContents",2,2,{
+	ES_FUNCTION2(lib,"filePutContents",2,2,{
 		try{
 			IO::saveFile(parameter[0].toString(),parameter[1].toString());
 		}catch(const std::ios::failure & e){
-			runtime.setException(e.what());
+			rt.setException(e.what());
 			return nullptr;
 		}
 		return nullptr;
 	})
 
 	//! [ESF] array dir(string dirname[,int flags])
-	ES_FUNCTION_DECLARE(lib,"dir",1,2, {
+	ES_FUNCTION2(lib,"dir",1,2, {
 		try {
 			const auto files = IO::getFilesInDir(parameter[0].toString(), parameter[1].toInt(E_DIR_FILES));
 			Array * ar = Array::create();
@@ -69,28 +69,28 @@ void IOLib::init(EScript::Namespace * o) {
 				ar->pushBack(create(file));
 			return ar;
 		} catch (const std::string & s) {
-			runtime.setException(s);
+			rt.setException(s);
 			return nullptr;
 		}
 	})
 
 	//! [ESF] string condensePath(string path)
-	ESF_DECLARE(lib,"condensePath",1,1,IO::condensePath(parameter[0].toString()))
+	ES_FUN(lib,"condensePath",1,1,IO::condensePath(parameter[0].toString()))
 
 	//! [ESF] bool isDir(string dirname)
-	ESF_DECLARE(lib,"isDir",1,1,IO::getEntryType(parameter[0].toString())==IO::TYPE_DIRECTORY)
+	ES_FUN(lib,"isDir",1,1,IO::getEntryType(parameter[0].toString())==IO::TYPE_DIRECTORY)
 
 	//! [ESF] bool isFile(string filename)
-	ESF_DECLARE(lib,"isFile",1,1,IO::getEntryType(parameter[0].toString())==IO::TYPE_FILE)
+	ES_FUN(lib,"isFile",1,1,IO::getEntryType(parameter[0].toString())==IO::TYPE_FILE)
 
 	//! [ESF] int fileMTime(string filename)
-	ESF_DECLARE(lib,"fileMTime",1,1,static_cast<int>(IO::getFileMTime(parameter[0].toString())))
+	ES_FUN(lib,"fileMTime",1,1,static_cast<int>(IO::getFileMTime(parameter[0].toString())))
 
 	//! [ESF] int fileSize(string filename)
-	ESF_DECLARE(lib,"fileSize",1,1,static_cast<double>(IO::getFileSize(parameter[0].toString())))
+	ES_FUN(lib,"fileSize",1,1,static_cast<double>(IO::getFileSize(parameter[0].toString())))
 
 	//! [ESF] string dirname(string path)
-	ESF_DECLARE(lib,"dirname", 1, 1,IO::dirname(parameter[0].toString()))
+	ES_FUN(lib,"dirname", 1, 1,IO::dirname(parameter[0].toString()))
 	// rename
 	// copy
 	// delete

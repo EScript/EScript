@@ -158,28 +158,27 @@ void StdLib::init(EScript::Namespace * globals) {
 
 	/*!	[ESF] void addSearchPath(path)
 		Adds a search path which is used for load(...) and loadOnce(...)	*/
-	ES_FUNCTION_DECLARE(globals,"addSearchPath",1,1,{
+	ES_FUNCTION2(globals,"addSearchPath",1,1,{
 		static const StringId seachPathsId("__searchPaths");
-		Array * searchPaths = dynamic_cast<Array*>(runtime.getAttribute(seachPathsId).getValue());
+		Array * searchPaths = dynamic_cast<Array*>(rt.getAttribute(seachPathsId).getValue());
 		if(searchPaths == nullptr){
 			searchPaths = Array::create();
-			runtime.setAttribute(seachPathsId, Attribute(searchPaths));
+			rt.setAttribute(seachPathsId, Attribute(searchPaths));
 		}
 		searchPaths->pushBack(String::create(parameter[0].toString()));
 		return nullptr;
 	})
 
 	//! [ESF] void assert( expression[,text])
-	ES_FUNCTION_DECLARE(globals,"assert",1,2, {
-		assertParamCount(runtime,parameter.count(),1,2);
+	ES_FUNCTION2(globals,"assert",1,2, {
 		if(!parameter[0].toBool()){
-			runtime.setException(parameter.count()>1?parameter[1].toString():"Assert failed.");
+			rt.setException(parameter.count()>1?parameter[1].toString():"Assert failed.");
 		}
 		return nullptr;
 	})
 
 	//! [ESF]  string chr(number)
-	ESF_DECLARE(globals,"chr",1,1,std::string(1, static_cast<char>(parameter[0].to<int>(runtime))))
+	ES_FUN(globals,"chr",1,1,std::string(1, static_cast<char>(parameter[0].to<int>(rt))))
 
 	// clock
 	{
@@ -191,25 +190,25 @@ void StdLib::init(EScript::Namespace * globals) {
 	}
 
 	//! [ESF]  number clock()
-	ES_FUNCTION_DECLARE(globals,"clock",0,0,{
+	ES_FUNCTION2(globals,"clock",0,0,{
 		LARGE_INTEGER time = _getPerformanceCounter();
 		return static_cast<double>(time.QuadPart-_clockStart.QuadPart) / static_cast<double>(frequency.QuadPart);
 	})
 
 	#else
 	//! [ESF]  number clock()
-	ESF_DECLARE(globals,"clock",0,0,static_cast<double>(clock())/CLOCKS_PER_SEC)
+	ES_FUN(globals,"clock",0,0,static_cast<double>(clock())/CLOCKS_PER_SEC)
 	#endif
 	}
 
 	//!	[ESF]  Object eval(string)
-	ESF_DECLARE(globals,"eval",1,1,
-				_eval(runtime,CodeFragment(Consts::FILENAME_INLINE, StringData(parameter[0].toString()))))
+	ES_FUN(globals,"eval",1,1,
+				_eval(rt,CodeFragment(Consts::FILENAME_INLINE, StringData(parameter[0].toString()))))
 
 	/*!	[ESF]  Map getDate([time])
 		like http://de3.php.net/manual/de/function.getdate.php	*/
-	ES_FUNCTION_DECLARE(globals,"getDate",0,1,{
-		time_t t=(parameter.count()==0)?time(nullptr):static_cast<time_t>(parameter[0].to<int>(runtime));
+	ES_FUNCTION2(globals,"getDate",0,1,{
+		time_t t=(parameter.count()==0)?time(nullptr):static_cast<time_t>(parameter[0].to<int>(rt));
 		tm *d = localtime (& t );
 		Map * m = Map::create();
 		m->setValue(create("seconds"),	create(d->tm_sec));
@@ -225,7 +224,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	})
 
 	//! [ESF] string|void getEnv(String)
-	ES_FUNCTION_DECLARE(globals,"getEnv",1,1,{
+	ES_FUNCTION2(globals,"getEnv",1,1,{
 		const char * value = std::getenv(parameter[0].toString().c_str());
 		if(value==nullptr)
 			return nullptr;
@@ -233,22 +232,22 @@ void StdLib::init(EScript::Namespace * globals) {
 	})
 
 	//! [ESF]  string getOS()
-	ESF_DECLARE(globals,"getOS",0,0,StdLib::getOS())
+	ES_FUN(globals,"getOS",0,0,StdLib::getOS())
 
 	//! [ESF] Runtime getRuntime( )
-	ESF_DECLARE(globals,"getRuntime",0,0, &runtime)
+	ES_FUN(globals,"getRuntime",0,0, &rt)
 
 	//!	[ESF] mixed load(string filename)
-	ESF_DECLARE(globals,"load",1,1,_loadAndExecute(runtime,findFile(runtime,parameter[0].toString())))
+	ES_FUN(globals,"load",1,1,_loadAndExecute(rt,findFile(rt,parameter[0].toString())))
 
 	//!	[ESF] mixed loadOnce(string filename)
-	ESF_DECLARE(globals,"loadOnce",1,1,StdLib::loadOnce(runtime,parameter[0].toString()))
+	ES_FUN(globals,"loadOnce",1,1,StdLib::loadOnce(rt,parameter[0].toString()))
 
 	//! [ESF]  Number ord(String)
-	ESF_DECLARE(globals,"ord",1,1,static_cast<int>(parameter[0].toString().c_str()[0] ))
+	ES_FUN(globals,"ord",1,1,static_cast<int>(parameter[0].toString().c_str()[0] ))
 
 	//! [ESF] void out(...)
-	ES_FUNCTION_DECLARE(globals,"out",0,-1, {
+	ES_FUNCTION2(globals,"out",0,-1, {
 		for(const auto & param : parameter) {
 			std::cout << param.toString();
 		}
@@ -257,7 +256,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	})
 
 	//! [ESF] void outln(...)
-	ES_FUNCTION_DECLARE(globals,"outln",0,-1, {
+	ES_FUNCTION2(globals,"outln",0,-1, {
 		for(const auto & param : parameter) {
 			std::cout << param.toString();
 		}
@@ -266,19 +265,19 @@ void StdLib::init(EScript::Namespace * globals) {
 	})
 
 	//!	[ESF]  BlockStatement parse(string) @deprecated
-	ES_FUNCTION_DECLARE(globals,"parse",1,1, {
+	ES_FUNCTION2(globals,"parse",1,1, {
 		ERef<UserFunction> script;
 
-		Compiler compiler(runtime.getLogger());
+		Compiler compiler(rt.getLogger());
 		script = compiler.compile(CodeFragment(Consts::FILENAME_INLINE, StringData(parameter[0].toString())));
 
 		return script.detachAndDecrease();
 	})
 	//! [ESF]  obj parseJSON(string)
-	ESF_DECLARE(globals,"parseJSON",1,1,JSON::parseJSON(parameter[0].toString()))
+	ES_FUN(globals,"parseJSON",1,1,JSON::parseJSON(parameter[0].toString()))
 
 	//! [ESF] void print_r(...)
-	ES_FUNCTION_DECLARE(globals,"print_r",0,-1, {
+	ES_FUNCTION2(globals,"print_r",0,-1, {
 		std::cout << "\n";
 		for(const auto & param : parameter) {
 			if(!param.isNull()) {
@@ -289,11 +288,11 @@ void StdLib::init(EScript::Namespace * globals) {
 	})
 
 	//!	[ESF]  number system(command)
-	ESF_DECLARE(globals,"system",1,1,system(parameter[0].toString().c_str()))
+	ES_FUN(globals,"system",1,1,system(parameter[0].toString().c_str()))
 
 	//!	[ESF] Number exec(String path, Array argv)
-	ES_FUNCTION_DECLARE(globals, "exec", 2, 2, {
-		Array * array = assertType<Array>(runtime, parameter[1]);
+	ES_FUNCTION2(globals, "exec", 2, 2, {
+		Array * array = assertType<Array>(rt, parameter[1]);
 		uint32_t argc = array->size();
 
 		char ** argv  = new char *[argc + 1];
@@ -316,10 +315,10 @@ void StdLib::init(EScript::Namespace * globals) {
 	})
 
 	//! [ESF]  number time()
-	ESF_DECLARE(globals,"time",0,0,static_cast<double>(time(nullptr)))
+	ES_FUN(globals,"time",0,0,static_cast<double>(time(nullptr)))
 
 	//! [ESF]  string toJSON(obj[,formatted = true])
-	ESF_DECLARE(globals,"toJSON",1,2,JSON::toJSON(parameter[0].get(),parameter[1].toBool(true)))
+	ES_FUN(globals,"toJSON",1,2,JSON::toJSON(parameter[0].get(),parameter[1].toBool(true)))
 
 }
 

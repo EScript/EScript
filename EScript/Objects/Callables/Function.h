@@ -25,7 +25,7 @@ class Function : public Object {
 	//	@}
 
 	// -----
-		typedef RtValue ( * functionPtr)(Runtime & runtime,Object * caller, const ParameterValues & parameter);
+		typedef RtValue ( * functionPtr)(Runtime & runtime,ObjPtr thisEObj, const ParameterValues & parameter);
 		// ---
 		Function(functionPtr fnptr);
 		Function(StringId originalName, int minParamCount, int maxParamCount, functionPtr fnptr);

@@ -13,8 +13,9 @@ class Runtime;
 template<class T> class EPtr;
 typedef EPtr<Object> ObjPtr;
 
-template<typename target_t>
-target_t convertTo(Runtime &,ObjPtr);
+/*! Convert the given EScript object to a desired type -- if the conversion 
+	fails, an exception is thrown.	*/
+template<typename target_t> target_t convertTo(Runtime &,ObjPtr);
 
 template<class T> static T * assertType(Runtime &, const ObjPtr &); // forward declaration
 

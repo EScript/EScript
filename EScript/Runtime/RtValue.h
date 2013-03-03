@@ -68,7 +68,9 @@ class RtValue{
 		}
 
 		RtValue()						: valueType(UNDEFINED) {}
-		RtValue(const bool b)			: valueType(BOOL) { value.value_bool = b;	}
+		
+		template<class T ,class = typename std::enable_if<std::is_same<T,bool>::value>::type>
+		RtValue(T b)					: valueType(BOOL) { value.value_bool = b;	}
 		RtValue(const StringId & id)	: valueType(IDENTIFIER) { value.value_indentifier = id;	}
 		RtValue(const double & v)		: valueType(NUMBER) { value.value_number = v;	}
 		RtValue(const float & v)		: valueType(NUMBER) { value.value_number = v;	}
@@ -183,13 +185,17 @@ class RtValue{
 		Object * _toObject()const;
 };
 
-inline RtValue rtValue(const float v)		{	return RtValue(v);	}
-inline RtValue rtValue(const double v)		{	return RtValue(v);	}
-inline RtValue rtValue(const bool v)		{	return RtValue(v);	}
-inline RtValue rtValue(Object * v)			{	return RtValue(v);	}
-inline RtValue rtValue(const ObjRef & v)	{	return RtValue(v);	}
-inline RtValue rtValue(ObjRef && v)			{	return RtValue(v);	}
-inline RtValue rtValue(const std::string&v)	{	return RtValue(v);	}
+/*! EScript::value(someValue) returns a RtValue wrapping 'someValue'. If 'someValue' can not be represented as
+	RtValue directly, a corresponding EScript object is created by calling EScript::create(someValue).	*/
+template<typename source_t>
+inline RtValue value(source_t obj,typename std::enable_if<std::is_convertible<source_t, RtValue>::value>::type * = nullptr){
+	return RtValue(obj); 
+}
+
+template<typename source_t>
+inline RtValue value(source_t obj,typename std::enable_if<!std::is_convertible<source_t, RtValue>::value>::type * = nullptr){
+	return create(obj); 
+}
 
 }
 #endif // ES_VALUE_H
