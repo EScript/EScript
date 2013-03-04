@@ -46,7 +46,7 @@ set(ESCRIPT_SOURCES
 	EScript/Runtime/RuntimeInternals.cpp
 	EScript/Utils/AttributeContainer.cpp
 	EScript/Utils/Debug.cpp
-	EScript/Utils/DeclarationsHelper.cpp
+	EScript/Utils/DeclarationHelper.cpp
 	EScript/Utils/Hashing.cpp
 	EScript/Utils/RuntimeHelper.cpp
 	EScript/Utils/IO/DefaultFileSystemHandler.cpp
