@@ -1,4 +1,9 @@
 --------------------------------------------
+EScript 0.6.7 Elise (Development version)
+Development: 2013-03 -- ...
+
+
+--------------------------------------------
 EScript 0.6.6 Eduard (Stable version)
 Release: 2013-02-10
 
