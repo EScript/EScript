@@ -7,6 +7,7 @@ General:
 
 Internals:
  - (bugfix) Missing conversion from "const char *" to RtValue added.
+ 
 
 C++-Api:
  - Number of necessary headers reduced: Normally, a binding's header needs only to 
@@ -14,9 +15,19 @@ C++-Api:
 	Everything needed for a basic implementation in the binding's .cpp file is included in
 	<EScript/Basics.h>. If additional standard types are needed (Number,Bool,String,Array, or Map)
 	the additional header <EScript/StdObjects.h> can be included.
- - Helper: 	 
+ - Helper:
     - declareObjectFunction(...) added.
-
+ - New function macros introduced: ES_CONSTRUCTOR, ES_CTOR, ES_FUNCTION2(to be renamed), ES_FUN, 
+	ES_MFUNCTION, and ES_MFUN. The new macros allow direct conversion to the desired C++-type 
+	(instead of the EScript wrapper type). Explicit conversion of a function's result into an 
+	EScript object is also no longer necessary in most cases. 
+	The available parameters are:
+	- rt (the runtime, formerly named 'runtime')
+	- parameter (array of parameters; same as before)
+	- thisObj (the object of the desired type -- c++ object or the EScript wrapper object. 
+		Replaces the former 'self' or '**self'.)
+	- thisEObj (the wrapper object; corresponds to the former 'caller' or 'self')
+ 
 --------------------------------------------
 EScript 0.6.5 Emilia (Development version)
 Development: 2012-11 -- 2013-02
