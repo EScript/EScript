@@ -43,7 +43,7 @@ std::string StdLib::getOS(){
 void StdLib::print_r(Object * o,int maxLevel,int level) {
 	if(!o) return;
 	if(level>maxLevel) {
-		std::cout << " ... \n";
+		std::cout << " ... " << std::endl;
 		return;
 	}
 
@@ -96,6 +96,7 @@ void StdLib::print_r(Object * o,int maxLevel,int level) {
 			std::cout << "\""<<o->toString()<<"\"";
 		else std::cout << o->toString();
 	}
+	std::cout.flush();
 }
 
 /*! Tries to locate the given __filename__ with the current searchPath set in the runtime.
