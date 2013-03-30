@@ -185,17 +185,5 @@ class RtValue{
 		Object * _toObject()const;
 };
 
-/*! EScript::value(someValue) returns a RtValue wrapping 'someValue'. If 'someValue' can not be represented as
-	RtValue directly, a corresponding EScript object is created by calling EScript::create(someValue).	*/
-template<typename source_t>
-inline RtValue value(source_t obj,typename std::enable_if<std::is_convertible<source_t, RtValue>::value>::type * = nullptr){
-	return RtValue(obj); 
-}
-
-template<typename source_t>
-inline RtValue value(source_t obj,typename std::enable_if<!std::is_convertible<source_t, RtValue>::value>::type * = nullptr){
-	return create(obj); 
-}
-
 }
 #endif // ES_VALUE_H

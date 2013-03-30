@@ -10,10 +10,10 @@
 #include <vector>
 #include <string>
 #include <type_traits>
+#include "../Runtime/RtValue.h"
 
 namespace EScript {
 
-class Object;
 class Array;
 class Number;
 class String;
@@ -48,6 +48,24 @@ template<class T ,class = typename std::enable_if<std::is_same<T,double>::value 
 		std::is_same<T,float>::value || std::is_same<T,int>::value || 
 		std::is_same<T,uint32_t>::value>::type>
 Number * create(T value)		{	return _Internals::createNumber(value);	}
+
+
+
+/*! EScript::value(someValue) returns a RtValue wrapping 'someValue'. If 'someValue' can not be represented as
+	RtValue directly, a corresponding EScript object is created by calling EScript::create(someValue).	
+	\note All specific create functions must be present before this file is included in order to be found by the 
+		compiler. \see http://gcc.gnu.org/gcc-4.7/porting_to.html (Name lookup changes)
+	*/
+template<typename source_t>
+inline RtValue value(source_t obj,typename std::enable_if<std::is_convertible<source_t, RtValue>::value>::type * = nullptr){
+	return RtValue(obj); 
+}
+
+template<typename source_t>
+inline RtValue value(source_t obj,typename std::enable_if<!std::is_convertible<source_t, RtValue>::value>::type * = nullptr){
+	return EScript::create(obj); 
+}
+
 }
 
 #endif // ES_STD_FACTORIES_H_INCLUDED
