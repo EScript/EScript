@@ -7,6 +7,7 @@
 
 #include "Collection.h"
 #include "../Iterator.h"
+#include "../../Utils/StdFactories.h"
 #include <map>
 
 namespace EScript {
@@ -57,6 +58,13 @@ class Map : public Collection {
 		static Map * create();
 		static Map * create(const std::unordered_map<StringId,Object *> &);
 
+		template<class Map_T>
+		static Map * create(const Map_T & m){
+			ERef<Map> eM = Map::create();
+			for(auto & keyValue : m)
+				eM->setValue(EScript::create(keyValue.first),EScript::create(keyValue.second));
+			return eM.detachAndDecrease();
+		}
 		// ---
 		Map(Type * type = nullptr) : Collection(type?type:getTypeObject()){}
 		virtual ~Map(){}

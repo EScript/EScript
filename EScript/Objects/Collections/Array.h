@@ -8,6 +8,7 @@
 #include "Collection.h"
 #include "../Iterator.h"
 #include "../../Utils/ObjArray.h"
+#include "../../Utils/StdFactories.h"
 #include <vector>
 #include <stack>
 
@@ -55,6 +56,16 @@ class Array : public Collection {
 		static Array * create(const ParameterValues & p,Type * type = nullptr);
 		static Array * create(size_t num,Object* const* objs,Type * type = nullptr);
 		static Array * create(size_t num,char ** strings,Type * type = nullptr);
+
+		template<class Collection_T>
+		static Array * create(const Collection_T & collection){
+			ERef<Array> a = Array::create();
+			a->reserve(collection.size());
+			for(auto & elem : collection)
+				a->pushBack(EScript::create(elem));
+			return a.detachAndDecrease();
+		}
+		
 		static void release(Array * b);
 		virtual ~Array()	{ }
 	//	@}
