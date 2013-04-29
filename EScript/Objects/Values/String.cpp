@@ -296,15 +296,15 @@ std::string String::toDbgString()const{
 }
 
 //! ---|> [Object]
-double String::toDouble()const {
-	int to = 0;
-	return StringUtils::getNumber(sData.str().c_str(),to, true);
+double String::toDouble() const {
+	std::size_t to = 0;
+	return StringUtils::getNumber(sData.str().c_str(), to, true);
 }
 
 //! ---|> [Object]
-int String::toInt()const {
-	int to = 0;
-	return static_cast<int>(StringUtils::getNumber(sData.str().c_str(),to,  true));
+int String::toInt() const {
+	std::size_t to = 0;
+	return static_cast<int>(StringUtils::getNumber(sData.str().c_str(), to, true));
 }
 
 //! ---|> [Object]

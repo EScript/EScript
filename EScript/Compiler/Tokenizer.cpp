@@ -159,7 +159,7 @@ Token * Tokenizer::readNextToken(const char * prog, std::size_t & cursor,int &li
 	}
 	// Numbers
 	else if(isNumber(c)) {
-		int to = cursor;
+		std::size_t to = cursor;
 		const double number = StringUtils::getNumber(prog,to);
 		if(to>cursor && !isChar(prog[to])) {
 			cursor = to;
