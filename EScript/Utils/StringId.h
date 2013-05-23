@@ -43,7 +43,7 @@ class StringId{
 }
 namespace std{
 template <> struct hash<EScript::StringId> {
-	size_t operator()(const EScript::StringId & id) const throw() {	return id.getValue();	}
+	size_t operator()(const EScript::StringId & id) const noexcept {	return id.getValue();	}
 };
 }
 
