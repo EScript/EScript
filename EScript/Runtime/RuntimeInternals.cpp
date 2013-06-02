@@ -174,7 +174,7 @@ ObjRef RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> fc
 			//! \todo check once if the stack is big enough
 			
 			ParameterValues params(numParams);
-			for(int i = numParams-1;i>=0;--i )
+			for(int i = static_cast<int>(numParams)-1;i>=0;--i )
 				params.emplace(i,fcc->stack_popObjectValue());
 
 			ObjRef fun( std::move(fcc->stack_popObject()) );
@@ -206,7 +206,7 @@ ObjRef RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> fc
 				numParams = fcc->stack_popUInt32();
 			ParameterValues params(numParams);
 			// pop the parameters for the first constructor
-			for(int i = numParams-1;i>=0;--i )
+			for(int i = static_cast<int>(numParams)-1;i>=0;--i )
 				params.emplace(i,fcc->stack_popObjectValue());
 
 			// pop objects whose constructor is called
@@ -326,7 +326,7 @@ ObjRef RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> fc
 
 				// pop super constructor parameters
 				ParameterValues params(numParams);
-				for(int i = numParams-1;i>=0;--i )
+				for(int i = static_cast<int>(numParams)-1;i>=0;--i )
 					params.emplace(i,fcc->stack_popObjectValue());
 
 				// pop next super constructor
@@ -506,7 +506,7 @@ ObjRef RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> fc
 											v.second;
 			
 			ParameterValues params(numParams);
-			for(int i = numParams-1;i>=0;--i )
+			for(int i = static_cast<int>(numParams)-1;i>=0;--i )
 				params.emplace(i,fcc->stack_popObjectValue());
 			
 			RtValue result(std::move(sysCall(funId,params)));
@@ -1032,8 +1032,8 @@ void RuntimeInternals::initSystemFunctions(){
 				auto fcc = rtIt.getActiveFCC();
 				uint32_t numParams = parameter[0].to<uint32_t>(rt); // original number of parameters
 				std::vector<RtValue> tmpStackStorage;
-				// foreach expanding parameter
-				for(size_t i=parameter.count()-1;i>0;--i){
+				// for each expanding parameter..
+				for(int i = static_cast<int>(parameter.count())-1;i>0;--i){
 					// pop and store non expanding parameters
 					for(uint32_t j = parameter[i].to<uint32_t>(rt); j>0; --j)
 						tmpStackStorage.emplace_back(fcc->stack_popValue());
@@ -1041,7 +1041,8 @@ void RuntimeInternals::initSystemFunctions(){
 					// pop expanding array parameter
 					ObjRef expandingParam( std::move(fcc->stack_popObject()));
 					Array * arr = assertType<Array>(rt,expandingParam);
-					numParams += arr->size()-1;
+					numParams += arr->size();
+					--numParams;	// the extracted array is no parameter
 
 					// store array values
 					for(auto it=arr->rbegin();it!=arr->rend();++it)

@@ -39,7 +39,7 @@ class Tokenizer {
 
 	private:
 
-		Token * readNextToken(const char * prog, int & cursor,int &line,size_t & startPos,tokenList_t & tokens);
+		Token * readNextToken(const char * prog, std::size_t & cursor,int &line,size_t & startPos,tokenList_t & tokens);
 		Token * identifyToken(StringId id)const;
 
 		static bool isNumber(const char c)	{	return c>='0' && c<='9';	}

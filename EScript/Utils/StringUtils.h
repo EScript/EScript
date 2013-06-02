@@ -13,7 +13,7 @@ namespace EScript {
 namespace StringUtils {
 
 
-double getNumber(const char * s,int & length,bool checkSign = false);
+double getNumber(const char * s, std::size_t & cursor, bool checkSign = false);
 std::string rTrim(const std::string & s);
 std::string lTrim(const std::string & s);
 std::string trim(const std::string & s);

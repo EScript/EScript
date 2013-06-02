@@ -63,11 +63,7 @@ void IOLib::init(EScript::Namespace * o) {
 	//! [ESF] array dir(string dirname[,int flags])
 	ES_FUNCTION2(lib,"dir",1,2, {
 		try {
-			const auto files = IO::getFilesInDir(parameter[0].toString(), parameter[1].toInt(E_DIR_FILES));
-			Array * ar = Array::create();
-			for(const auto & file : files) 
-				ar->pushBack(create(file));
-			return ar;
+			return Array::create( IO::getFilesInDir(parameter[0].toString(), parameter[1].toInt(E_DIR_FILES)));
 		} catch (const std::string & s) {
 			rt.setException(s);
 			return nullptr;

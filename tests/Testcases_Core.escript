@@ -1034,6 +1034,31 @@ if(!benchmark)
 }
 
 
+
+{	// EStdLib (...)
+	
+	
+	Array."=>" ::= fn(callable){
+		var myWrapper = thisFn.wrapperFn.clone();
+		myWrapper.wrappedFun := callable;
+		myWrapper.boundParams := this.clone();
+		return myWrapper;
+	};
+
+	Array."=>".wrapperFn := fn(params...){
+		// _getCurrentCaller() is used instead of "this", as "this" may not be defined if this function
+		// is called without a caller. This then results in a warning due to an undefined variable "this".
+		return (Runtime._getCurrentCaller()->thisFn.wrappedFun)(thisFn.boundParams...,params...);
+	};
+	var arr = [1,2,3];
+	var f1 = arr => 0->fn(p...){	return [this,p...];	};
+	arr+=4;
+	var f2 = arr => fn(p...){	return [p...];	};
+
+	test("EStdLib:", f1(4)==[0,1,2,3,4] && f2(5)==[1,2,3,4,5]);
+}
+
+
 {	// raw strings & string concatenation
 	test("String literals", "foo" "" "bar" == "foobar" && "0" /*dumdidu*/ '1' "2" +"3" == "0123" && 
 R"(a\

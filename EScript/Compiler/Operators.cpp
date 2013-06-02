@@ -52,6 +52,7 @@ const Operator * Operator::getOperator(StringId id) {
 		declareOperator(p   ,"---|>");
 		declareOperator(p   ,"isA");
 		declareOperator(p   ,"->"); // ??
+		declareOperator(++p ,"=>"); 
 		declareOperator(++p ,"&");
 		declareOperator(++p ,"^");
 		declareOperator(++p ,"|");

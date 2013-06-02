@@ -12,7 +12,7 @@
 
 namespace EScript{
 
-double StringUtils::getNumber(const char * s,int &cursor,bool checkSign) {
+double StringUtils::getNumber(const char * s, std::size_t & cursor, bool checkSign) {
 	char c = s[cursor];
 	std::string accum="";
 	bool sign = true;
