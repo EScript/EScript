@@ -613,7 +613,7 @@ if(!benchmark)
    var a = 1+2; // = 1-2;
    Number.setAttribute("+",normalPlus,EScript.ATTR_TYPE_ATTR_BIT);
    var b = 1+2; // = 1+2//
- /// Fakult�t
+ /// Fakultät
    Number.setAttribute("!_post",fn(){
 	   if(this<=1) return this;
 	   return this* ((this-1)!);
@@ -1066,6 +1066,16 @@ b
 c\n)" == "a\\\nb\nc\\n"	&& R"#(foo)#" == "foo" && R"Delimiter()Delimiter".empty());	
 }
 //out(Runtime.getLocalStackInfo());
+
+
+{	// utf8-support
+	var variäblö = 2;
+	
+	test("(partial) utf8-support", variäblö==2 
+//		&& "ä".length() == 1
+//		&& "äöü"[1] == "ö"
+	);
+}
 
 //
 //}

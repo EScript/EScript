@@ -83,7 +83,7 @@ ERef<AST::Block> Parser::parse(const CodeFragment & code) {
 
 	/// 1. Tokenize
 	try {
-		tokenizer.getTokens(code.getCodeString().c_str(),tokens); //! \todo Use codeFragment for Tokenizer
+		tokenizer.getTokens(code.getCodeString(),tokens); //! \todo Use codeFragment for Tokenizer
 		pass_1(ctxt);
 	} catch (Exception * e) {
 		//std::cerr << e->toString() << std::endl;

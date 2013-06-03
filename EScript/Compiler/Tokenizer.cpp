@@ -61,14 +61,14 @@ void Tokenizer::defineToken(const std::string & name,Token * value){
 	customTokens[StringId(name)] = value;
 }
 
-void Tokenizer::getTokens( const char * prog,tokenList_t & tokens){
+void Tokenizer::getTokens( const std::string & codeU8,tokenList_t & tokens){
 	std::size_t cursor = 0;
 	int line = 1;
 	size_t startPos = std::string::npos;
 
 	Token * token;
 	do {
-		token = readNextToken(prog,cursor,line,startPos,tokens);
+		token = readNextToken(codeU8,cursor,line,startPos,tokens);
 		if(token!=nullptr) {
 			token->setLine(line);
 			token->setStaringPos(startPos);
@@ -79,26 +79,31 @@ void Tokenizer::getTokens( const char * prog,tokenList_t & tokens){
 }
 
 //!	Reads the next Token from prog beginning with position cursor and moves cursor to the next Token.
-Token * Tokenizer::readNextToken(const char * prog, std::size_t & cursor,int &line,size_t & startPos,tokenList_t & tokens) {
+Token * Tokenizer::readNextToken(const std::string & codeU8, std::size_t & cursor,int &line,size_t & startPos,tokenList_t & tokens) {
+	if(cursor>=codeU8.length())
+		return new TEndScript;
+	
+	const char * prog = codeU8.c_str();
 	char c = prog[cursor];
 
 	// Step over whitespace characters
-	while( isWhitechar(c) || c=='\0') {
+	while( isWhitechar(c) ) {
 		if(c=='\n') ++line;
-		if(c=='\0')
-			return new TEndScript;
 		++cursor;
-		c = prog[cursor];
+		if(cursor>=codeU8.length())
+			return new TEndScript;
+
+		c = codeU8[cursor];
 	}
 	startPos = static_cast<size_t>(cursor);
 
 	// Raw strings:   R"Delimiter(my string dum di du)Delimiter"
-	if(c=='R' && prog[cursor+1]=='"' ) {
+	if(c=='R' && codeU8[cursor+1]=='"' ) {
 		cursor+=2;
 		std::ostringstream delimiter;
 		delimiter << ')';
-		for(c = prog[cursor]; c!='('; ++cursor,c = prog[cursor]){
-			if(c==0)
+		for(c = codeU8[cursor]; c!='('; ++cursor,c = codeU8[cursor]){
+			if(cursor>=codeU8.length())
 				throw new Error(std::string("Unclosed Raw String; missing '('."),line);
 			else if(isWhitechar(c))
 				throw new Error(std::string("No whitespace allowed in raw string delimiter."),line);
@@ -111,57 +116,47 @@ Token * Tokenizer::readNextToken(const char * prog, std::size_t & cursor,int &li
 	
 		const auto first = cursor;
 		size_t length = 0;
-		while(true){
-			c = prog[cursor];
+		while(cursor<codeU8.length()){
+			c = codeU8[cursor];
 			if(c==')'&&StringUtils::beginsWith(prog+cursor,d.c_str())){
 				cursor+=d.length();
 				return new TValueString((std::string(prog+first,length)));
 			}else if(c=='\n'){
 				++line;
-			}else if(c==0){
-				throw new Error(std::string("Unclosed Raw String; missing '"+d+"'"),line);
 			}
 			++cursor;
 			++length;
 		}
+		throw new Error(std::string("Unclosed Raw String; missing '"+d+"'"),line);
 	}
 
-	// Multiline Comment
-	// Returns 0 if a comment is read.
-	if(c=='/'&& prog[cursor+1]=='*') {
+	// Multi line comment (returns nullptr)
+	if(c=='/' && codeU8[cursor+1]=='*') {
 		cursor+=2;
-		if(prog[cursor]=='\0')
-			throw new Error("Unclosed Comment",line);
-
-		while(true) {
-			if(prog[cursor]=='\n') ++line;
-			++cursor;
-			if( prog[cursor] =='/' && prog[cursor-1] =='*') {
-				++cursor;
+		while(cursor<codeU8.length()) {
+			if(codeU8[cursor]=='\n'){
+				++line;
+			}else if( codeU8[cursor] =='*' && codeU8[cursor+1] =='/') {
+				cursor+=2;
 				return nullptr;
-				//return new TEndCommand; // Sure of this?
 			}
-
-			if(prog[cursor]=='\0')
-				throw new Error("Unclosed Comment",line) ;
-
-		}
-	}
-	// SingleLine Comment
-	// Returns 0 if a comment is read.
-	else  if(c=='/'&& prog[cursor+1]=='/') {
-		++cursor;
-		while(true) {
-			if(prog[cursor]=='\0'||prog[cursor]=='\n')
-				return nullptr;
 			++cursor;
 		}
+		throw new Error("Unclosed Comment",line);
+	}
+	// Single line comment (returns nullptr)
+	else if(c=='/' && codeU8[cursor+1]=='/') {
+		++cursor;
+		while(cursor<codeU8.length() && codeU8[cursor]!='\n')
+			++cursor;
+		return nullptr;
+
 	}
 	// Numbers
 	else if(isNumber(c)) {
 		std::size_t to = cursor;
 		const double number = StringUtils::getNumber(prog,to);
-		if(to>cursor && !isChar(prog[to])) {
+		if(to>cursor && !isChar(codeU8[to])) {
 			cursor = to;
 			return new TValueNumber(number);
 		} else {
@@ -175,7 +170,7 @@ Token * Tokenizer::readNextToken(const char * prog, std::size_t & cursor,int &li
 		while( isNumber(c) || isChar(c)) {
 			accum+=c;
 			++cursor;
-			c = prog[cursor];
+			c = codeU8[cursor];
 		}
 		const StringId id(accum);
 		Token * o = identifyToken(id);
@@ -213,41 +208,37 @@ Token * Tokenizer::readNextToken(const char * prog, std::size_t & cursor,int &li
 	} else if(c==']') {
 		++cursor;
 		return new TEndIndex;
-	} else if(c==':' && prog[cursor+1]!='=' && prog[cursor+1]!=':' ) {
+	} else if(c==':' && codeU8[cursor+1]!='=' && codeU8[cursor+1]!=':' ) {
 		++cursor;
 		return new TColon;
-	} else if(c=='$' && isChar(prog[cursor+1]) ){
-		c = prog[++cursor]; // consume '$'
+	} else if(c=='$' && isChar(codeU8[cursor+1]) ){
+		c = codeU8[++cursor]; // consume '$'
 		std::string accum;
 		while( isNumber(c) || isChar(c)) {
 			accum+=c;
 			++cursor;
-			c = prog[cursor];
+			c = codeU8[cursor];
 		}
 //        std::cout << "FOUND ID :"<<accum<<":"<<cursor<<"\n";
 		return new TValueIdentifier(StringId(accum));
 
 	} else if( isOperator(c) ) {
-		int i = cursor;
 		std::string accum;
+		size_t cursor2 = cursor;
 		while(isOperator(c)) {
-			accum+=c;
-			++i;
-			c = prog[i];
-			//  if(accum!="-"&& c=='-')
-			//      break;
+			accum += c;
+			++cursor2;
+			c = codeU8[cursor2];
 		}
-		int size = accum.size();
+		
 		const Operator * op = nullptr;
-		while(true) {
-			op = Operator::getOperator(accum.substr(0,size));
+		for(size_t operatorLength = accum.length(); true; --operatorLength) {
+			op = Operator::getOperator(accum.substr(0,operatorLength));
 			if(op!=nullptr) {
-				cursor+=size;
-				//if(size>1) cursor--;
+				cursor+=operatorLength;
 				break;
 			}
-			--size;
-			if(size<=0) {
+			if(operatorLength<=1) {
 				std::cout  << std::endl<< accum << std::endl;
 				throw new Error(std::string("Unknown Operator: ")+accum,line);
 			}
@@ -273,15 +264,19 @@ Token * Tokenizer::readNextToken(const char * prog, std::size_t & cursor,int &li
 	else if(c=='"' || c=='\'') {
 		const char stringEncloser = c;
 		++cursor;
-		c = prog[cursor];
+		c = codeU8[cursor];
 		std::ostringstream s;
-		while(c!='\0' && c!= stringEncloser) {
-			if(c=='\n'){
+		while(cursor<codeU8.length()) {
+			if(c==stringEncloser){
+				++cursor;
+				return new TValueString(s.str());
+			}else if(c=='\n'){
 				++line;
 			}else if(c=='\\' ) { // http://de.wikipedia.org/wiki/Steuerzeichen
 				++cursor;
-				switch(prog[cursor]){
-					case 0:		throw new Error(std::string("Unclosed String. 1")+s.str().substr(0,10),line);
+				if(cursor>=codeU8.length())
+					break;
+				switch(codeU8[cursor]){
 					case '0':	c = '\0'; break;	// nullptr
 					case 'a':	c = '\a'; break;	// BELL
 					case 'b':	c = '\b'; break;	// BACKSPACE
@@ -291,27 +286,24 @@ Token * Tokenizer::readNextToken(const char * prog, std::size_t & cursor,int &li
 					case '\\':	c = '\\'; break;
 					case '"':	c = '\"'; break;
 					case '\'':	c = '\''; break;
-					default:	c = prog[cursor];
+					default:	c = codeU8[cursor];
 				}
 			}
 			s<<c;
 			++cursor;
-			c = prog[cursor];
+			c = codeU8[cursor];
 		}
-		if(c=='\0')
-			throw new Error(std::string("Unclosed String. 2")+s.str().substr(0,10),line);
+		throw new Error(std::string("Unclosed String. 2")+s.str().substr(0,10),line);
+		
+	}else if(line==1 && c=='#' && codeU8[cursor+1]=='!') {
 		++cursor;
-		return new TValueString(s.str());
-	}else if(line==1 && c=='#' && prog[cursor+1]=='!') {
-		++cursor;
-		while(true) {
-			if(prog[cursor]=='\0'||prog[cursor]=='\n')
-				return nullptr;
+		while(cursor<codeU8.length() && codeU8[cursor]!='\n')
 			++cursor;
-		}
+		return nullptr;
+
 	}
 	throw new Error(std::string("Unknown syntax error near: \n...")+(prog+ (cursor>10?(cursor-10):0) ),line);
-	return new Token;
+	return nullptr;
 }
 
 }
