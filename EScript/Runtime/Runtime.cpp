@@ -195,12 +195,12 @@ ObjRef Runtime::executeFunction(const ObjPtr & fun,const ObjPtr & caller,const P
 	if(callResult.isFunctionCallContext()){ // user function?
 		_CountedRef<FunctionCallContext> fcc = callResult._getFCC();
 		resultObj = internals->executeFunctionCallContext(fcc);
-	}else if(internals->getState()==RuntimeInternals::STATE_EXCEPTION){ // error occured? throw an exception! callResult is undefined.
-		throw internals->fetchAndClearException().detachAndDecrease();
 	}else {
 		resultObj = callResult._toObject(); // the value should always be convertible to Object...
 	}
-	
+	if(internals->getState()==RuntimeInternals::STATE_EXCEPTION){ // error occurred? throw an exception! callResult is undefined.
+		throw internals->fetchAndClearException().detachAndDecrease();
+	}
 	return resultObj;
 }
 
