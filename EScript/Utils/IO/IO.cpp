@@ -7,6 +7,7 @@
 #include "../StringUtils.h"
 
 #include <memory>
+#include <deque>
 namespace EScript{
 namespace IO{
 std::unique_ptr<AbstractFileSystemHandler> fileSystemHandler(new DefaultFileSystemHandler);

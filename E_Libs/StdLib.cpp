@@ -178,7 +178,7 @@ void StdLib::init(EScript::Namespace * globals) {
 		return nullptr;
 	})
 
-	//! [ESF]  string chr(number)
+	//! [ESF]  string chr(number)         UNICODE_TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	ES_FUN(globals,"chr",1,1,std::string(1, static_cast<char>(parameter[0].to<int>(rt))))
 
 	// clock
@@ -244,7 +244,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	//!	[ESF] mixed loadOnce(string filename)
 	ES_FUN(globals,"loadOnce",1,1,StdLib::loadOnce(rt,parameter[0].toString()))
 
-	//! [ESF]  Number ord(String)
+	//! [ESF]  Number ord(String)                  UNICODE_TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	ES_FUN(globals,"ord",1,1,static_cast<int>(parameter[0].toString().c_str()[0] ))
 
 	//! [ESF] void out(...)

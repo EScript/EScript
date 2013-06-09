@@ -1072,9 +1072,25 @@ c\n)" == "a\\\nb\nc\\n"	&& R"#(foo)#" == "foo" && R"Delimiter()Delimiter".empty(
 	var variäblö = 2;
 	
 	test("(partial) utf8-support", variäblö==2 
-//		&& "ä".length() == 1
-//		&& "äöü"[1] == "ö"
+		&& "ä".length() == 1
+		&& "dämlich".length() == 7
+		&& "äöü"[1] == "ö"
+		&& "#äöüghf3%ßhksdggnkl"[2] == "ö"
+		&& "#äöüghf3%ßhksdggnkl"[9] == "ß"
+		&& "äöü".substr(1) == "öü"
+		&& "dfgrtg gfd adsäbcßäa".substr(-3)=="ßäa"
+
 	);
+//	outln("äbc".substr(1));
+//	outln("äbcßäa".substr(-3)=="ßäa");
+//	for(var i=0;true;++i){
+//		var s = " Fünction pärameter checks "[i];
+//		out(i,":",s," ");
+//		if(!s)
+//		break;
+//	}
+//	outln([1]);
+
 }
 
 //

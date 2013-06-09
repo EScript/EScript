@@ -50,10 +50,10 @@ void String::init(EScript::Namespace & globals) {
 
 	//! [ESMF] String String[(Number)position ]
 	ES_MFUNCTION(typeObject,String,"_get",1,1, {
-		int pos = parameter[0]->toInt();
-		if(static_cast<unsigned int>(pos)>=thisObj->getString().length())
+		const std::string s = thisObj->sData.getSubStr( parameter[0].to<uint32_t>(rt), 1 );
+		if(s.empty())
 			return nullptr;
-		return thisObj->getString().substr(pos,1);
+		return s;
 	})
 
 
@@ -91,7 +91,7 @@ void String::init(EScript::Namespace & globals) {
 		return s.substr(s.length()-search.length(),search.length())==search;
 	})
 
-	//! [ESMF] String String.fillUp(length[, string fill=" ")
+	//! [ESMF] String String.fillUp(length[, string fill=" ") // UNICODE_TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	ES_MFUNCTION(typeObject,String,"fillUp",1,2,{
 		const std::string & s(thisObj->getString());
 		std::ostringstream sprinter;
@@ -105,7 +105,7 @@ void String::init(EScript::Namespace & globals) {
 		return sprinter.str();
 	})
 
-	//! [ESMF] Number|false String.find( (String)search [,(Number)startIndex] )
+	//! [ESMF] Number|false String.find( (String)search [,(Number)startIndex] ) // UNICODE_TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	ES_MFUNCTION(typeObject,String,"find",1,2, {
 		const std::string & s(thisObj->getString());
 		std::string search = parameter[0].toString();
@@ -124,7 +124,7 @@ void String::init(EScript::Namespace & globals) {
 	})
 
 	//! [ESMF] Number String.length()
-	ES_MFUN(typeObject,String,"length",0,0, static_cast<uint32_t>(thisObj->getString().length()))
+	ES_MFUN(typeObject,String,"length",0,0, static_cast<uint32_t>(thisObj->sData.getNumCodepoints()))
 
 	//! [ESMF] String String.ltrim()
 	ES_MFUN(typeObject,String,"lTrim",0,0,StringUtils::lTrim(thisObj->getString()))
@@ -132,10 +132,10 @@ void String::init(EScript::Namespace & globals) {
 	//! [ESMF] String String.rTrim()
 	ES_MFUN(typeObject,String,"rTrim",0,0,StringUtils::rTrim(thisObj->getString()))
 
-	//! [ESMF] String String.substr( (Number)begin [,(Number)length] )
+	//! [ESMF] String String.substr( (Number)begin [,(Number)length] ) // UNICODE_TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	ES_MFUNCTION(typeObject,String,"substr",1,2, {
 		int start = parameter[0].to<int>(rt);
-		int length = thisObj->getString().length();
+		int length = thisObj->sData.getNumCodepoints();
 		if(start>=length) return create("");
 		if(start<0) start = length+start;
 		if(start<0) start = 0;
@@ -150,7 +150,8 @@ void String::init(EScript::Namespace & globals) {
 				}
 			}
 		}
-		return thisObj->getString().substr(start,count);
+		return thisObj->sData.getSubStr( static_cast<size_t>(start), static_cast<size_t>(count) );
+//		thisObj->getString().substr(start,count);
 	})
 
 	//! [ESMF] String String.trim()

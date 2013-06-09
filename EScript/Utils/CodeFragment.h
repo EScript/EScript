@@ -20,7 +20,7 @@ class CodeFragment{
 
 		CodeFragment() : start(0),length(0){}
 		CodeFragment(const StringId & _filename,const StringData & fullCode) :
-				filename(_filename),data(fullCode), start(0),length(fullCode.length()){}
+				filename(_filename),data(fullCode), start(0),length(fullCode.getDataSize()){}
 		CodeFragment(const StringId & _filename, const StringData & _data,const size_t _start, const size_t _length) :
 				filename(_filename),data(_data), start(_start),length(_length){}
 		CodeFragment(const CodeFragment & other,const size_t _start, const size_t _length) :
