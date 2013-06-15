@@ -613,45 +613,51 @@ RtValue RuntimeInternals::startFunctionExecution(const ObjPtr & fun,const ObjPtr
 				popActiveFCC();
 				return RtValue();
 			}
-			uint32_t vIdx = Consts::LOCAL_VAR_INDEX_firstParameter;
+			uint32_t variableIdx = Consts::LOCAL_VAR_INDEX_firstParameter;
 			const int maxParamCount = userFunction->getMaxParamCount();
 			if(maxParamCount<0){ // multiParameter
-				const int multiParam = userFunction->getMultiParam();
-				ParameterValues::const_iterator it = pValues.begin();
+				const int multiParamIndex = userFunction->getMultiParam();
+				ParameterValues::const_iterator valueIt = pValues.begin();
 
-				// before
-				if(multiParam>0){
-					for(const auto pValuesEnd = std::next(pValues.begin(), userFunction->getMultiParam()); it!=pValuesEnd; ++it,++vIdx){
-						fcc->assignToLocalVariable(vIdx,*it);
+				// assign parameter values coming before the multi parameter 
+				if(multiParamIndex>0){
+					const auto firstMultiParamValue = std::min( pValues.end(), std::next(pValues.begin(),userFunction->getMultiParam()) );
+					while(valueIt<firstMultiParamValue){
+						fcc->assignToLocalVariable(variableIdx,*valueIt);
+						++variableIdx;
+						++valueIt;
 					}
 				}
-				if(fcc->getLocalVariableName(vIdx).empty()){ // empty parameter name? -> ignore the values
-					++vIdx;
-					it = std::next(pValues.begin(), pValues.size()+1+multiParam-userFunction->getParamCount());
-				}else{ // copy values into multiParamArray 
+				if(fcc->getLocalVariableName(variableIdx).empty()){ // empty parameter name? -> ignore the values
+					++variableIdx;
+					valueIt = std::next(pValues.begin(), pValues.size()+1+multiParamIndex-userFunction->getParamCount());
+					for(; valueIt<pValues.end(); ++valueIt,++variableIdx) // assign the remaining values
+						fcc->assignToLocalVariable(variableIdx,*valueIt);
+				}else if(valueIt>=pValues.end()){ // multi parameter lies behind the actually given parameters: fn(a=1,m...){} ()
+					fcc->assignToLocalVariable(Consts::LOCAL_VAR_INDEX_firstParameter+multiParamIndex, Array::create()); // assign an empty array
+				}else { // copy values into multiParam
 					EPtr<Array> multiParamArray = Array::create();
 					ObjRef arrayRef(multiParamArray.get());
-					for(const auto pValuesEnd = std::next(pValues.begin(), pValues.size()+1+multiParam-userFunction->getParamCount()); 
-										it!=pValuesEnd; ++it){
-						multiParamArray->pushBack( *it );
+					const auto pValuesEnd = std::next(pValues.begin(), pValues.size()+1+multiParamIndex-userFunction->getParamCount());
+					while( valueIt<pValuesEnd ){
+						multiParamArray->pushBack( *valueIt );
+						++valueIt;
 					}
-					fcc->assignToLocalVariable(vIdx++,arrayRef);
+					fcc->assignToLocalVariable(variableIdx++,arrayRef);
+					for(; valueIt<pValues.end(); ++valueIt,++variableIdx) // assign the remaining values
+						fcc->assignToLocalVariable(variableIdx,*valueIt);
 				}
-				
-				// after
-				for(; it!=pValues.end(); ++it,++vIdx)
-					fcc->assignToLocalVariable(vIdx,*it);
 			} // too many parameters
 			else if( pValues.size()>static_cast<size_t>(maxParamCount) ){
 				std::ostringstream os;
 				os<<"Too many parameters given: Expected "<<maxParamCount<<", got "<<pValues.size()<<'.';
 				warn(os.str());
 				const auto pValuesEnd = std::next(pValues.begin(), maxParamCount);
-				for(ParameterValues::const_iterator it = pValues.begin(); it!= pValuesEnd; ++it,++vIdx)
-					fcc->assignToLocalVariable(vIdx,*it);
+				for(ParameterValues::const_iterator it = pValues.begin(); it!= pValuesEnd; ++it,++variableIdx)
+					fcc->assignToLocalVariable(variableIdx,*it);
 			}else{ // normal parameter count range
-				for(ParameterValues::const_iterator it = pValues.begin(); it!= pValues.end(); ++it,++vIdx)
-					fcc->assignToLocalVariable(vIdx,*it);
+				for(ParameterValues::const_iterator it = pValues.begin(); it!= pValues.end(); ++it,++variableIdx)
+					fcc->assignToLocalVariable(variableIdx,*it);
 			}
 			// init $thisFn (\todo only if the variable is used?)
 			fcc->assignToLocalVariable(Consts::LOCAL_VAR_INDEX_thisFn,fun);

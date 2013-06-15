@@ -732,3 +732,11 @@
 	}
 	test("BUG[20121025]", errorFound);
 }
+
+{	// Calling a function with a multiParameter and default values produces an access violation (crash)
+	var f = fn(a,b="bar",c...){
+		return a=="foo" && b=="bar" && c==[];
+	};
+	
+	test("BUG[20130614]", f("foo"));
+}
