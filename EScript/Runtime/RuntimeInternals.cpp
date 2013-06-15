@@ -731,44 +731,28 @@ RtValue RuntimeInternals::startFunctionExecution(const ObjPtr & fun,const ObjPtr
 
 //! (internal)
 RtValue RuntimeInternals::startInstanceCreation(EPtr<Type> type,ParameterValues & pValues){ // add caller as parameter?
+	std::vector<ObjPtr> constructors;
 
 	// collect constructors
-	std::vector<ObjPtr> constructors;
-	EPtr<Type> typeCursor = type;
-	do{
+	for(EPtr<Type> typeCursor = type; typeCursor.isNotNull(); typeCursor = typeCursor->getBaseType()){
 		const Attribute * ctorAttr = typeCursor->_accessAttribute(Consts::IDENTIFIER_fn_constructor,true);
-		if(ctorAttr==nullptr){
-			typeCursor = typeCursor->getBaseType();
-			continue;
-		}// first constructor must not be private -- if it is not an attribute of the calling object or of a base class (needed for factory functions!)
-		else if(constructors.empty() && ctorAttr->isPrivate() &&
-				(getCallingObject().isNull() || !(getCallingObject() == typeCursor.get() || getCallingObject()->isA(typeCursor.get())))){
-			setException("Can't instanciate Type with private _contructor."); //! \todo check this!
-			return RtValue(); // failure
-		}else{
-			ObjPtr fun = ctorAttr->getValue();
-			const internalTypeId_t funType = fun->_getInternalTypeId();
-
-			if(funType==_TypeIds::TYPE_USER_FUNCTION){
-				constructors.push_back(fun);
-				typeCursor = typeCursor->getBaseType();
-				continue;
-			}else if(_TypeIds::TYPE_FUNCTION){
-				constructors.push_back(fun);
-			}else{
-				setException("Constructor has to be a UserFunction or a Function.");
+		if(ctorAttr){
+			// first constructor must not be private -- unless it is an attribute of the calling object or of a base class (needed for factory functions!)
+			if(constructors.empty() && ctorAttr->isPrivate() &&
+					(getCallingObject().isNull() || !(getCallingObject() == typeCursor.get() || getCallingObject()->isA(typeCursor.get())))){
+				setException("Can't instantiate Type with private _contructor."); //! \todo check this!
 				return RtValue(); // failure
 			}
-			break;
+			ObjPtr fun = ctorAttr->getValue();
+			constructors.push_back(fun);
+			if(fun->_getInternalTypeId()==_TypeIds::TYPE_FUNCTION) // factory function found
+				break;
 		}
-	}while(typeCursor.isNotNull());
-
-	if(constructors.empty()) // failure
-		return RtValue(); // failure
-
-	{ // call the outermost constructor and pass the other constructor-functions by adding them to the stack
+	}
+	
+	// call the outermost constructor and pass the other constructor-functions by adding them to the stack
+	if(!constructors.empty()) {
 		ObjRef fun = constructors.front();
-
 		RtValue result( std::move(startFunctionExecution(fun,type.get(),pValues)) );
 		if(result.isFunctionCallContext()){
 			FunctionCallContext * fcc = result._getFCC();
@@ -776,18 +760,14 @@ RtValue RuntimeInternals::startInstanceCreation(EPtr<Type> type,ParameterValues 
 				fcc->stack_pushObject(*it);
 			fcc->markAsConstructorCall();
 			return RtValue::createFunctionCallContext(fcc);
-		}else{
-			if(!result.isObject()){
-				if(state!=STATE_EXCEPTION) // if an exception occured in the constructor, the result may be nullptr
-					setException("Constructor did not create an Object.");
-				return RtValue(); // failure
-			}
-
-			// init attribute
+		}else if(result.isObject()){
+			// init attributes
 			result._getObject()->_initAttributes(runtime);
 			return result;
 		}
 	}
+	if(state!=STATE_EXCEPTION) // if no exception occurred in the constructor, the result may be nullptr
+		setException("Constructor failed to create an object.");
 	return RtValue(); // failure
 }
 
