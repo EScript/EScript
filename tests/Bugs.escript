@@ -740,3 +740,19 @@
 	
 	test("BUG[20130614]", f("foo"));
 }
+
+
+{	// An exception in a yielded function does not invalidate the yieldIterator. When called again, this produces a "Empty Stack" error.
+	var yieldIt = fn(){
+		yield;
+		1/0; // exception
+		return 1; // do something after the exception
+	}();
+	
+	var exceptionsCaught = 0;
+	try{	yieldIt.next();	}catch(e){		++exceptionsCaught;	}
+	
+	test("BUG[20130715]", exceptionsCaught == 1 && yieldIt.end() );
+}
+
+
