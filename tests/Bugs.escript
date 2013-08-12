@@ -756,3 +756,11 @@
 }
 
 
+
+{	// Invalid number parsing for large numbers (depending on the occurrence of a dot in the number)
+	
+	test("BUG[20130723]",	1.0e+10==1e+10 && // bug
+							1.0e+09==1e+09 &&
+							2.0e+10==2e+10 && // bug
+							2.0e+09==2e+09 );
+}
