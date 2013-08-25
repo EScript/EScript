@@ -764,3 +764,15 @@
 							2.0e+10==2e+10 && // bug
 							2.0e+09==2e+09 );
 }
+{	// Calling a delegate with an invalid (=nullptr; not void) function leads to a SEGFAULT.
+	
+	var l = Runtime.getLoggingLevel();
+	Runtime.setLoggingLevel(Runtime.LOG_ERROR); // ignore warnings
+	
+	var exceptionsCaught = 0;
+	try{	(1->void())();	}catch(e){		++exceptionsCaught;	} // should throw an exception but no SEGFAULT.
+
+	Runtime.setLoggingLevel(l);
+	
+	test("BUG[20130815]", exceptionsCaught == 1 );
+}

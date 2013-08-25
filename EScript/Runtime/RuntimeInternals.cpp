@@ -599,6 +599,10 @@ ObjRef RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> fc
 
 //! (internal)
 RtValue RuntimeInternals::startFunctionExecution(const ObjPtr & fun,const ObjPtr & _callingObject,ParameterValues & pValues){
+	if(fun.isNull()){
+		setException("No function to call!");
+		return RtValue();
+	}
 	switch( fun->_getInternalTypeId() ){
 		case _TypeIds::TYPE_USER_FUNCTION:{
 			UserFunction * userFunction = static_cast<UserFunction*>(fun.get());
