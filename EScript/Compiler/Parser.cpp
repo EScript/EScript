@@ -13,6 +13,7 @@
 #include "AST/ConditionalExpr.h"
 #include "AST/LogicOpExpr.h"
 #include "AST/LoopStatement.h"
+#include "AST/SwitchCaseStatement.h"
 #include "AST/TryCatchStatement.h"
 #include "AST/ValueExpr.h"
 #include "../Consts.h"
@@ -104,20 +105,20 @@ ERef<AST::Block> Parser::parse(const CodeFragment & code) {
 }
 
 //! [Helper]
-struct _BlockInfo {
+struct _BracketInfo {
 	Token * token;
 	unsigned int index;
-	bool isCommandBlock;
-	bool empty;
-	bool containsColon;
-	bool containsCommands;
+	bool isBlockOrMap, containsColon, containsCommands,
+		nextCBlockIsSwitchCaseBlock,isSwitchCaseBlock;
 	int shortIf; // a?b:c
 
-	_BlockInfo(unsigned int _index = 0,Token * _token = nullptr):
+	_BracketInfo(unsigned int _index = 0,Token * _token = nullptr):
 			token(_token),index(_index),
-			isCommandBlock(Token::isA<TStartBlock>(token)),empty(true),
-			containsColon(false),containsCommands(false),shortIf(0) {};
-	_BlockInfo(const _BlockInfo & b) = default;
+			isBlockOrMap(false),
+			containsColon(false),containsCommands(false),
+			nextCBlockIsSwitchCaseBlock(false),isSwitchCaseBlock(false),
+			shortIf(0) {};
+	_BracketInfo(const _BracketInfo & b) = default;
 
 };
 /**
@@ -130,19 +131,31 @@ struct _BlockInfo {
 void Parser::pass_1(ParsingContext & ctxt) {
 	Tokenizer::tokenList_t & tokens = ctxt.tokens;
 
-	std::stack<_BlockInfo> bInfStack;
-	bInfStack.push(_BlockInfo());
+	std::stack<_BracketInfo> bInfStack;
+	bInfStack.push(_BracketInfo());
 
 	for(size_t cursor = 0;cursor<tokens.size();++cursor) {
 		Token * token = tokens.at(cursor).get();
 		/// currentBlockInfo
-		_BlockInfo & cbi = bInfStack.top();
-
+		_BracketInfo & cbi = bInfStack.top();
 		switch(token->getType()){
-			case TStartBracket::TYPE_ID:
-			case TStartBlock::TYPE_ID:
+			case TStartBracket::TYPE_ID:{
+				bInfStack.push(_BracketInfo(cursor,token));
+				continue;
+			}
+			case TStartBlock::TYPE_ID:{
+				if(bInfStack.top().nextCBlockIsSwitchCaseBlock){
+					bInfStack.top().nextCBlockIsSwitchCaseBlock = false;
+					bInfStack.push(_BracketInfo(cursor,token));
+					bInfStack.top().isSwitchCaseBlock = true;
+				}else{
+					bInfStack.push(_BracketInfo(cursor,token));
+				}
+				bInfStack.top().isBlockOrMap = true; // isBlockOrMap
+				continue;
+			}
 			case TStartIndex::TYPE_ID:{
-				bInfStack.push(_BlockInfo(cursor,token));
+				bInfStack.push(_BracketInfo(cursor,token));
 				continue;
 			}
 			case TEndBracket::TYPE_ID:{
@@ -160,44 +173,45 @@ void Parser::pass_1(ParsingContext & ctxt) {
 				continue;
 			}
 			case TEndBlock::TYPE_ID:{
-				if(!cbi.isCommandBlock) {
+				if(!cbi.isBlockOrMap) {
 					throwError(ctxt,"Syntax error: '}'",token);
 				}
 				/// Block is Map Constructor
-				if( cbi.containsColon) {
+				if( cbi.containsColon && !cbi.isSwitchCaseBlock) {
 					unsigned int startIndex = cbi.index;
-
 					Token * t = new TStartMap;
 					if( !tokens.at(startIndex).isNull() )
 						t->setLine((tokens.at(startIndex))->getLine());
-//					Token::removeReference(tokens.at(startIndex));
 
-					tokens[startIndex]=t;
-//					Token::addReference(t);
-
+					tokens[startIndex] = t;
 					t = new TEndMap;
 					if( !tokens.at(cursor).isNull() )
 						t->setLine((tokens.at(cursor))->getLine());
-//					Token::removeReference(tokens.at(cursor));
 
 					tokens[cursor]=t;
-//					Token::addReference(t);
 				}
 				bInfStack.pop();
+				continue;
+			}
+			case TControl::TYPE_ID:{
+				cbi.containsCommands = true;
+				if(Token::cast<TControl>(token)->getId() == Consts::IDENTIFIER_switch){
+					cbi.nextCBlockIsSwitchCaseBlock = true;
+				}
 				continue;
 			}
 			default:{
 			}
 		}
-
-		if(cbi.isCommandBlock) {
-			cbi.empty = false;
+		if(cbi.isBlockOrMap) {
 			if(Token::isA<TColon>(token) ){
 				if(cbi.shortIf>0) {
 					cbi.shortIf--;
+				} else if(cbi.isSwitchCaseBlock){
+					/// ok
 				} else if(cbi.containsCommands) {
 					throwError(ctxt,"Syntax error in Block: ':'",token);
-				} else {
+				} else { /// block is a map constructor
 					cbi.containsColon = true;
 					Token * t = new TMapDelimiter;
 
@@ -218,6 +232,8 @@ void Parser::pass_1(ParsingContext & ctxt) {
 			} else if(Token::isA<TOperator>(token) && token->toString()=="?") {
 				++cbi.shortIf;
 			}
+
+
 		}
 	}
 	//std::cout << "\n###"<<tStack.top()->toString();
@@ -315,9 +331,9 @@ void Parser::pass_2(ParsingContext & ctxt,
 			/// Open new Block
 			case TStartBlock::TYPE_ID:{
 				TStartBlock * sb = Token::cast<TStartBlock>(token);
-				
+
 				Block * currentBlock = Block::createBlockExpression(sb->getLine());
-				
+
 				blockStack.push(currentBlock);
 				sb->setBlock(currentBlock);
 				enrichedTokens.push_back(token);
@@ -347,7 +363,7 @@ void Parser::pass_2(ParsingContext & ctxt,
 						// add shortcut to the closing bracket
 						currentBracket.top()->endBracketIndex = enrichedTokens.size()-1;
 						currentBracket.pop();
-						
+
 						// second closing bracket
 						t = new TEndBracket;
 						t->setLine(token->getLine());
@@ -384,20 +400,20 @@ void Parser::pass_2(ParsingContext & ctxt,
 			// "part1" "part2"
 			case TValueString::TYPE_ID:{
 				enrichedTokens.push_back(token);
-		
+
 				// no consecutive strings?
 				if( ctxt.tokens.at(cursor+1)->getType()!=TValueString::TYPE_ID ){
 					continue;
 				}
 				std::stringstream os;
-	
+
 				TValueString * ts;
 				while( (ts = Token::cast<TValueString>(ctxt.tokens.at(cursor)))!=nullptr ){
 					os << ts->getValue();
 					++cursor;
 				}
 				--cursor;
-				
+
 				Token::cast<TValueString>(token)->setString(os.str());
 				continue;
 			}
@@ -405,7 +421,7 @@ void Parser::pass_2(ParsingContext & ctxt,
 			case TOperator::TYPE_ID:{
 				if( token->toString() == "fn"  ) {
 					functionBracketDepth.push(0);
-					
+
 					// bracket before 'fn'
 					TStartBracket * t = new TStartBracket;
 					t->setLine(token->getLine());
@@ -523,10 +539,12 @@ EPtr<AST::ASTNode> Parser::readExpression(ParsingContext & ctxt,int & cursor,int
 	else if(Token::isA<TStartBracket>(tokens.at(cursor)) &&
 			 Token::isA<TEndBracket>(tokens[to]) &&
 			 findCorrespondingBracket<TStartBracket,TEndBracket>(ctxt,cursor,to,1)==to) {
+		std::cout << "Read Expression in Brackets";
+
 		++cursor; // step over '('
 		EPtr<AST::ASTNode> innerExpression = readExpression(ctxt,cursor,to-1);
 		if(innerExpression.isNotNull()) // if expression is not empty
-			++cursor; // step to ')' 
+			++cursor; // step to ')'
 		return innerExpression;
 	}
 
@@ -561,22 +579,50 @@ EPtr<AST::ASTNode> Parser::readExpression(ParsingContext & ctxt,int & cursor,int
 
 //! (internal)
 EPtr<AST::ASTNode> Parser::readStatement(ParsingContext & ctxt,int & cursor)const{
-
-	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
-	if(Token::isA<TControl>(tokens.at(cursor))) {
+	const auto & token = ctxt.tokens.at(cursor);
+	if(Token::isA<TControl>(token)) {
 		return readControl(ctxt,cursor);
 	} /// sub-Block: {...}
-	else if(Token::isA<TStartBlock>(tokens.at(cursor))) {
+	else if(Token::isA<TStartBlock>(token)) {
 		Block * block = readBlockExpression(ctxt,cursor);
 		block->convertToStatement();
 		return block;
-	}else{
-		EPtr<ASTNode> exp = readExpression(ctxt,cursor);
-		if(exp.isNotNull())
-			return exp;
-		return nullptr;
+	} /// expression
+	else{
+		return readExpression(ctxt,cursor);
 	}
 
+}
+
+void Parser::assertTokenIsStatemetEnding(ParsingContext& ctxt,Token* token)const{
+	/// Commands have to end on ";" or "}".
+	if(!(Token::isA<TEndCommand>(token) || Token::isA<TEndBlock>(token))) {
+		log(ctxt,Logger::LOG_DEBUG, token->toString(),token);
+		throwError(ctxt,"Syntax error in Block (Missing ';' ?).",token);
+	}
+}
+
+/*! Check for shadowed local variables.
+	Used when reading blocks by readBlockExpression or when reading
+	a case block.
+	\note The issued warning has LOG_PEDANTIC_WARNING level.*/
+void Parser::warnOnShadowedLocalVars(ParsingContext & ctxt,TStartBlock * tBlock)const{
+	if(ctxt.blocks.empty())
+		return;
+	auto block = tBlock->getBlock();
+	const auto & vars = block->getVars();
+	if(vars.empty())
+		return;
+	for(int i = ctxt.blocks.size()-1; i>=0 && ctxt.blocks[i]!=nullptr; --i ){
+		const Block::declaredVariableMap_t & vars2 = ctxt.blocks[i]->getVars();
+		if(vars2.empty())
+			continue;
+		for(const auto & var : vars) {
+			if(vars2.count(var) > 0) {
+				log(ctxt, Logger::LOG_PEDANTIC_WARNING, "Shadowed local variable  '" + var.toString() + "' in block.", tBlock);
+			}
+		}
+	}
 }
 
 /**
@@ -590,47 +636,24 @@ Block * Parser::readBlockExpression(ParsingContext & ctxt,int & cursor)const {
 	Block * b = tsb?reinterpret_cast<Block *>(tsb->getBlock()):nullptr;
 	if(b==nullptr)
 		throwError(ctxt,"No Block!",tokens.at(cursor));
-
-	/// Check for shadowed local variables
-	if(!ctxt.blocks.empty()){
-		const Block::declaredVariableMap_t & vars = b->getVars();
-		if(!vars.empty()){
-			for(int i = ctxt.blocks.size()-1; i>=0 && ctxt.blocks[i]!=nullptr; --i ){
-				const Block::declaredVariableMap_t & vars2 = ctxt.blocks[i]->getVars();
-				if(vars2.empty())
-					continue;
-				for(const auto & var : vars) {
-					if(vars2.count(var) > 0) {
-						log(ctxt, Logger::LOG_PEDANTIC_WARNING, "Shadowed local variable  '" + var.toString() + "' in block.", tokens.at(cursor));
-					}
-				}
-			}
-		}
-	}
-
-	ctxt.blocks.push_back(b);
-
 	++cursor;
 
+	warnOnShadowedLocalVars(ctxt,tsb);
+	ctxt.blocks.push_back(b);
 
 	/// Read commands.
 	while(!Token::isA<TEndBlock>(tokens.at(cursor))) {
 		if(Token::isA<TEndScript>(tokens.at(cursor)))
 			throwError(ctxt,"Unclosed Block {...",tsb);
 
-		int line = tokens.at(cursor)->getLine();
+		const int line = tokens.at(cursor)->getLine();
 		EPtr<AST::ASTNode> stmt = readStatement(ctxt,cursor);
 
 		if(stmt.isNotNull()){
 			b->addStatement(stmt);
 			stmt->setLine(line);
 		}
-
-		/// Commands have to end on ";" or "}".
-		if(!(Token::isA<TEndCommand>(tokens.at(cursor)) || Token::isA<TEndBlock>(tokens.at(cursor)))) {
-			log(ctxt,Logger::LOG_DEBUG, tokens.at(cursor)->toString(),tokens.at(cursor));
-			throwError(ctxt,"Syntax error in Block.",tokens.at(cursor));
-		}
+		assertTokenIsStatemetEnding(ctxt,tokens.at(cursor).get());
 		++cursor;
 	}
 	ctxt.blocks.pop_back();
@@ -700,9 +723,9 @@ EPtr<AST::ASTNode> Parser::readMap(ParsingContext & ctxt,int & cursor)const  {
 
 }
 
-/*!	read binary expression	
+/*!	read binary expression
 	\note called by readExpression
-	\note If the syntax is correct, @p cursor equals @p to after returning. 
+	\note If the syntax is correct, @p cursor equals @p to after returning.
 			readExpression issues an SyntaxError otherwise.
 */
 EPtr<AST::ASTNode> Parser::readBinaryExpression(ParsingContext & ctxt,int & cursor,int to)const  {
@@ -869,7 +892,7 @@ EPtr<AST::ASTNode> Parser::readBinaryExpression(ParsingContext & ctxt,int & curs
 			log(ctxt,Logger::LOG_DEBUG, "Error .1 ",tokens[opPosition]);
 			throwError(ctxt,"Syntax error after '.'.",tokens[opPosition]);
 		}
-		
+
 		/// "a.b"
 		if(Token::isA<TIdentifier>(tokens[cursor])){
 			return new GetAttributeExpr(leftExpression,Token::cast<TIdentifier>(tokens[cursor])->getId());
@@ -895,10 +918,10 @@ EPtr<AST::ASTNode> Parser::readBinaryExpression(ParsingContext & ctxt,int & curs
 
 		/// search for expanding parameters f(0,arr...,2,3)
 		std::vector<uint32_t> expandingParams = extractExpandingParameters(paramExps);
-		
+
 		FunctionCallExpr * funcCall = FunctionCallExpr::createFunctionCall(leftExpression,paramExps,currentLine);
 		funcCall->emplaceExpandingParameters(std::move(expandingParams));
-		
+
 		return funcCall;
 	}
 	///  Index Exression | Array
@@ -921,7 +944,7 @@ EPtr<AST::ASTNode> Parser::readBinaryExpression(ParsingContext & ctxt,int & curs
 			}
 			/// search for expanding parameters f(0,arr...,2,3)
 			auto expandingParams = extractExpandingParameters(paramExps);
-		
+
 			FunctionCallExpr * funcCall = FunctionCallExpr::createSysCall( Consts::SYS_CALL_CREATE_ARRAY,paramExps,currentLine);
 			funcCall->emplaceExpandingParameters(std::move(expandingParams));
 			return funcCall;
@@ -1144,13 +1167,13 @@ EPtr<AST::ASTNode> Parser::readFunctionDeclaration(ParsingContext & ctxt,int & c
  * Cursor is placed at the last Token of the statement.
  * @param tokens Program as Token-List.
  * @param cusror Cursor pointing at current Token.
- * @return Control-statement or an 
+ * @return Control-statement or an
  * \note throws an exception if no Control-Statement could be read.
  */
 EPtr<AST::ASTNode> Parser::readControl(ParsingContext & ctxt,int & cursor)const  {
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	TControl * tc = Token::cast<TControl>(tokens.at(cursor));
-	if(!tc) 
+	if(!tc)
 		throwError(ctxt,"No control found.",tokens.at(cursor));
 	++cursor;
 
@@ -1359,7 +1382,7 @@ EPtr<AST::ASTNode> Parser::readControl(ParsingContext & ctxt,int & cursor)const 
 		// __it = SYS_CALL_GET_ITERATOR( obj ) ( ~ __it = obj.getIterator();  + some special cases)
 		ASTNode::refArray_t loopInitParams;
 		loopInitParams.push_back(arrayExpression);
-		EPtr<AST::ASTNode> loopInit = 
+		EPtr<AST::ASTNode> loopInit =
 			SetAttributeExpr::createAssignment(nullptr,itId,
 				FunctionCallExpr::createSysCall(Consts::SYS_CALL_GET_ITERATOR,loopInitParams,tokens.at(cursor)->getLine()));
 
@@ -1369,7 +1392,7 @@ EPtr<AST::ASTNode> Parser::readControl(ParsingContext & ctxt,int & cursor)const 
 					new GetAttributeExpr(new GetAttributeExpr(nullptr,itId), Consts::IDENTIFIER_fn_it_end),ASTNode::refArray_t() ));
 
 		// __it.next()
-		EPtr<AST::ASTNode> increaseStatement = 
+		EPtr<AST::ASTNode> increaseStatement =
 				FunctionCallExpr::createFunctionCall(
 					new GetAttributeExpr(new GetAttributeExpr(nullptr,itId), Consts::IDENTIFIER_fn_it_next),ASTNode::refArray_t() );
 
@@ -1402,6 +1425,88 @@ EPtr<AST::ASTNode> Parser::readControl(ParsingContext & ctxt,int & cursor)const 
 
 	}
 
+	/// switch-case
+	/*
+		switch( valueExpr ){
+			case caseExpr: statement* [...]
+			default: statments*
+		}
+	*/
+	else if(cId==Consts::IDENTIFIER_switch) {
+		if(!Token::isA<TStartBracket>(tokens.at(cursor)))
+			throwError(ctxt,"[switch] expects (",tokens.at(cursor));
+		++cursor;
+		EPtr<AST::ASTNode> decisionValue = readExpression(ctxt,cursor);
+		++cursor;
+		if(!Token::isA<TEndBracket>(tokens.at(cursor))) {
+			throwError(ctxt,"[switch] expects (...)",tokens.at(cursor));
+		}
+		++cursor;
+
+		TStartBlock * tsb = Token::cast<TStartBlock>(tokens.at(cursor));
+		Block * block = tsb?reinterpret_cast<Block *>(tsb->getBlock()):nullptr;
+		if(block==nullptr)
+			throwError(ctxt,"[switch] expects {...}",tokens.at(cursor));
+		++cursor;
+
+		warnOnShadowedLocalVars(ctxt,tsb);
+		ctxt.blocks.push_back(block);
+
+		std::vector<std::pair<size_t,ERef<AST::ASTNode>>> caseDescriptions;
+
+		bool defaultCaseRead = false;
+		/// Read commands.
+		while(!Token::isA<TEndBlock>(tokens.at(cursor))) {
+			if(Token::isA<TEndScript>(tokens.at(cursor)))
+				throwError(ctxt,"Unclosed Block {...",tsb);
+
+			const int line = tokens.at(cursor)->getLine();
+			if(Token::isA<TIdentifier>(tokens.at(cursor))){
+				/// case <expression> :
+				if(Token::cast<TIdentifier>(tokens.at(cursor))->getId() == Consts::IDENTIFIER_case){
+					if(defaultCaseRead)
+						throwError(ctxt,"[case] 'case' after 'default:'");
+
+					++cursor;
+					EPtr<AST::ASTNode> decisionExpr = readExpression(ctxt,cursor);
+					++cursor;
+					if(!Token::isA<TColon>(tokens.at(cursor))) {
+						throwError(ctxt,"[case] ':' expected.'",tokens.at(cursor));
+					}
+					++cursor;
+					caseDescriptions.emplace_back(block->getStatements().size(),decisionExpr);
+					continue;
+				}else if(Token::cast<TIdentifier>(tokens.at(cursor))->getId() == Consts::IDENTIFIER_default){
+					++cursor;
+					if(!Token::isA<TColon>(tokens.at(cursor)))
+						throwError(ctxt,"[default] ':' expected.",tokens.at(cursor));
+					++cursor;
+					if(defaultCaseRead){
+						throwError(ctxt,"[default] Only one default case allowed.",tokens.at(cursor));
+					}
+					defaultCaseRead = true;
+					caseDescriptions.emplace_back(block->getStatements().size(),nullptr);
+					continue;
+
+				}
+			}
+
+			EPtr<AST::ASTNode> stmt = readStatement(ctxt,cursor);
+
+			if(stmt.isNotNull()){
+				block->addStatement(stmt);
+				stmt->setLine(line);
+			}
+			assertTokenIsStatemetEnding(ctxt,tokens.at(cursor).get());
+			++cursor;
+		}
+		if(!defaultCaseRead){
+			caseDescriptions.emplace_back(block->getStatements().size(),nullptr);
+		}
+
+		ctxt.blocks.pop_back();
+		return new SwitchCaseStatement(decisionValue,block,std::move(caseDescriptions));
+	}
 	/// try-catch-control
 	/*
 		try [tryBlock] catch(varId) {[catchBlock]}
@@ -1515,7 +1620,7 @@ Parser::lValue_t Parser::getLValue(ParsingContext & ctxt,int from,int to,EPtr<AS
 	}
 	/// ".$a"
 	/// "a.b.$c"
-	else if(TValueIdentifier * i = Token::cast<TValueIdentifier>(tokens[to])) {	
+	else if(TValueIdentifier * i = Token::cast<TValueIdentifier>(tokens[to])) {
 		TOperator * top = Token::cast<TOperator>(tokens[to-1]);
 
 		if(top && top->getOperator()->getString()==".") {
@@ -1523,7 +1628,7 @@ Parser::lValue_t Parser::getLValue(ParsingContext & ctxt,int from,int to,EPtr<AS
 			identifier = i->getValue();
 			return LVALUE_MEMBER;
 		}
-		
+
 	}
 	/// Index "a[1]"
 	else if(Token::isA<TEndIndex>(tokens[to])) {
@@ -1683,7 +1788,7 @@ UserFunctionExpr::parameterList_t Parser::readFunctionParameters(ParsingContext 
 		int idPos=-1;
 		StringId name;
 		EPtr<AST::ASTNode> defaultExpression = nullptr;
-		
+
 		while(true){
 			Token * t = tokens.at(c).get();
 			if(Token::isA<TIdentifier>(t)) {
@@ -1692,7 +1797,7 @@ UserFunctionExpr::parameterList_t Parser::readFunctionParameters(ParsingContext 
 				idPos = c;
 
 				Token * tNext = tokens.at(c+1).get();
-				// '*'|'...' ? 
+				// '*'|'...' ?
 				if(  Token::isA<TOperator>(tNext) && (tNext->toString()=="..." || tNext->toString()=="*" )){
 					if(multiParamState!=0)
 						throwError(ctxt,"[fn] Only one multi parameter (...) allowed.",tokens.at(cursor));
@@ -1721,7 +1826,7 @@ UserFunctionExpr::parameterList_t Parser::readFunctionParameters(ParsingContext 
 				c = findCorrespondingBracket<TStartIndex,TEndIndex>(ctxt,c);
 			}else if(Token::isA<TStartMap>(t)){
 				c = findCorrespondingBracket<TStartMap,TEndMap>(ctxt,c);
-			}else if(Token::isA<TOperator>(t) && t->toString()=="..." && 
+			}else if(Token::isA<TOperator>(t) && t->toString()=="..." &&
 						(Token::isA<TEndBracket>(tokens.at(c+1))||Token::isA<TDelimiter>(tokens.at(c+1)))){
 				// empty multi-parameter fn(a,...,b)
 				if(multiParamState!=0)
@@ -1840,7 +1945,7 @@ std::vector<uint32_t> Parser::extractExpandingParameters(std::vector<ERef<AST::A
 	}
 	return expandingParameters;
 }
-		
+
 /**
  * A.m @(const,private,somthingWithOptions("foo")) := ...
  *       ^from                            ^p    ^to

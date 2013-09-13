@@ -34,8 +34,10 @@ const StringId Consts::IDENTIFIER_null("null");
 
 const StringId Consts::IDENTIFIER_as("as");
 const StringId Consts::IDENTIFIER_break("break");
+const StringId Consts::IDENTIFIER_case("case");
 const StringId Consts::IDENTIFIER_catch("catch");
 const StringId Consts::IDENTIFIER_continue("continue");
+const StringId Consts::IDENTIFIER_default("default");
 const StringId Consts::IDENTIFIER_do("do");
 const StringId Consts::IDENTIFIER_else("else");
 const StringId Consts::IDENTIFIER_exit("exit");
@@ -44,6 +46,7 @@ const StringId Consts::IDENTIFIER_foreach("foreach");
 const StringId Consts::IDENTIFIER_if("if");
 const StringId Consts::IDENTIFIER_namespace("namespace");
 const StringId Consts::IDENTIFIER_return("return");
+const StringId Consts::IDENTIFIER_switch("switch");
 const StringId Consts::IDENTIFIER_throw("throw");
 const StringId Consts::IDENTIFIER_try("try");
 const StringId Consts::IDENTIFIER_var("var");

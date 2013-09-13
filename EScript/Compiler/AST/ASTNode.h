@@ -12,6 +12,7 @@
 #include <vector>
 
 namespace EScript {
+
 namespace AST {
 
 //! [ASTNode]  ---|> [EReferenceCounter]
@@ -21,9 +22,9 @@ class ASTNode : public EReferenceCounter<ASTNode> {
 		typedef std::vector<ERef<ASTNode>> refArray_t;
 		typedef EPtr<ASTNode> ptr_t;
 		typedef ERef<ASTNode> ref_t;
-		
+
 		typedef uint8_t nodeType_t;
-		
+
 		static const nodeType_t TYPE_BLOCK_EXPRESSION			= 0x00;
 		static const nodeType_t TYPE_BLOCK_STATEMENT			= 0x01;
 		static const nodeType_t TYPE_BREAK_STATEMENT			= 0x02;
@@ -38,15 +39,16 @@ class ASTNode : public EReferenceCounter<ASTNode> {
 		static const nodeType_t TYPE_LOOP_STATEMENT				= 0x0b;
 		static const nodeType_t TYPE_RETURN_STATEMENT			= 0x0c;
 		static const nodeType_t TYPE_SET_ATTRIBUTE_EXPRESSION	= 0x0d;
-		static const nodeType_t TYPE_THROW_STATEMENT			= 0x0e;
-		static const nodeType_t TYPE_TRY_CATCH_STATEMENT		= 0x0f;
-		static const nodeType_t TYPE_USER_FUNCTION_EXPRESSION	= 0x10;
-		static const nodeType_t TYPE_VALUE_BOOL					= 0x11;
-		static const nodeType_t TYPE_VALUE_FLOATING_POINT		= 0x12;
-		static const nodeType_t TYPE_VALUE_IDENTIFIER			= 0x13;
-		static const nodeType_t TYPE_VALUE_STRING				= 0x14;
-		static const nodeType_t TYPE_VALUE_VOID					= 0x15;
-		static const nodeType_t TYPE_YIELD_STATEMENT			= 0x16;
+		static const nodeType_t TYPE_SWITCH_STATEMENT			= 0x0e;
+		static const nodeType_t TYPE_THROW_STATEMENT			= 0x0f;
+		static const nodeType_t TYPE_TRY_CATCH_STATEMENT		= 0x10;
+		static const nodeType_t TYPE_USER_FUNCTION_EXPRESSION	= 0x11;
+		static const nodeType_t TYPE_VALUE_BOOL					= 0x12;
+		static const nodeType_t TYPE_VALUE_FLOATING_POINT		= 0x13;
+		static const nodeType_t TYPE_VALUE_IDENTIFIER			= 0x14;
+		static const nodeType_t TYPE_VALUE_STRING				= 0x15;
+		static const nodeType_t TYPE_VALUE_VOID					= 0x16;
+		static const nodeType_t TYPE_YIELD_STATEMENT			= 0x17;
 
 		virtual ~ASTNode(){}
 
@@ -54,9 +56,9 @@ class ASTNode : public EReferenceCounter<ASTNode> {
 		int getLine()const					{	return line;	}
 		bool isExpression()const			{	return isExpr;	}
 		void setLine(int l)					{	line = l;	}
-		
+
 	protected:
-		ASTNode(nodeType_t _typeId, bool _isExpression, int _line=-1) : 
+		ASTNode(nodeType_t _typeId, bool _isExpression, int _line=-1) :
 				typeId(_typeId),line(_line),isExpr(_isExpression){}
 		void convert(nodeType_t _typeId, bool _isExpression){
 			typeId = _typeId;

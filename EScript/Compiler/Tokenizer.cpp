@@ -33,6 +33,7 @@ Token * Tokenizer::identifyStaticToken(StringId id){
 		constants[Consts::IDENTIFIER_foreach] = new TControl(Consts::IDENTIFIER_foreach);
 		constants[Consts::IDENTIFIER_as] = new TControl(Consts::IDENTIFIER_as);
 		constants[Consts::IDENTIFIER_for] = new TControl(Consts::IDENTIFIER_for);
+		constants[Consts::IDENTIFIER_switch] = new TControl(Consts::IDENTIFIER_switch);
 
 		constants[Consts::IDENTIFIER_try] = new TControl(Consts::IDENTIFIER_try);
 		constants[Consts::IDENTIFIER_catch] = new TControl(Consts::IDENTIFIER_catch);
@@ -82,7 +83,7 @@ void Tokenizer::getTokens( const std::string & codeU8,tokenList_t & tokens){
 Token * Tokenizer::readNextToken(const std::string & codeU8, std::size_t & cursor,int &line,size_t & startPos,tokenList_t & tokens) {
 	if(cursor>=codeU8.length())
 		return new TEndScript;
-	
+
 	const char * prog = codeU8.c_str();
 	char c = prog[cursor];
 
@@ -113,7 +114,7 @@ Token * Tokenizer::readNextToken(const std::string & codeU8, std::size_t & curso
 		++cursor; // step over '('
 
 		const std::string d(delimiter.str());
-	
+
 		const auto first = cursor;
 		size_t length = 0;
 		while(cursor<codeU8.length()){
@@ -230,7 +231,7 @@ Token * Tokenizer::readNextToken(const std::string & codeU8, std::size_t & curso
 			++cursor2;
 			c = codeU8[cursor2];
 		}
-		
+
 		const Operator * op = nullptr;
 		for(size_t operatorLength = accum.length(); true; --operatorLength) {
 			op = Operator::getOperator(accum.substr(0,operatorLength));
@@ -248,9 +249,9 @@ Token * Tokenizer::readNextToken(const std::string & codeU8, std::size_t & curso
 			Token * last = tokens.empty()? nullptr : tokens.back().get(); // Bugfix[BUG:20090107]
 			if( last==nullptr ||
 					(!(Token::isA<TEndBracket>(last)	|| Token::isA<TEndIndex>(last)||
-						Token::isA<TIdentifier>(last)	|| 
+						Token::isA<TIdentifier>(last)	||
 						Token::isA<TValueBool>(last)	|| Token::isA<TValueIdentifier>(last) ||
-						Token::isA<TValueString>(last)	|| Token::isA<TValueNumber>(last) || 
+						Token::isA<TValueString>(last)	|| Token::isA<TValueNumber>(last) ||
 						Token::isA<TValueVoid>(last) ))){
 				// TODO ++,--
 
@@ -294,7 +295,7 @@ Token * Tokenizer::readNextToken(const std::string & codeU8, std::size_t & curso
 			c = codeU8[cursor];
 		}
 		throw new Error(std::string("Unclosed String. 2")+s.str().substr(0,10),line);
-		
+
 	}else if(line==1 && c=='#' && codeU8[cursor+1]=='!') {
 		++cursor;
 		while(cursor<codeU8.length() && codeU8[cursor]!='\n')

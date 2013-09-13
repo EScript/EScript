@@ -81,6 +81,11 @@ class Parser {
 
 		void throwError(ParsingContext & ctxt,const std::string & msg,Token * token = nullptr)const;
 		void throwError(ParsingContext & ctxt,const std::string & msg,const _CountedRef<Token> & token)const	{	throwError(ctxt,msg,token.get());	}
+
+		void assertTokenIsStatemetEnding(ParsingContext &,Token*)const;
+
+		void warnOnShadowedLocalVars(ParsingContext & ctxt,TStartBlock * tBlock)const;
+
 };
 }
 

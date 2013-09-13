@@ -15,6 +15,7 @@
 #include "AST/LogicOpExpr.h"
 #include "AST/LoopStatement.h"
 #include "AST/SetAttributeExpr.h"
+#include "AST/SwitchCaseStatement.h"
 #include "AST/TryCatchStatement.h"
 #include "AST/UserFunctionExpr.h"
 #include "AST/ValueExpr.h"
@@ -70,7 +71,7 @@ UserFunction * Compiler::compile(const CodeFragment & code){
 void Compiler::compileASTNode(CompilerContext & ctxt,EPtr<AST::ASTNode> node)const{
 	if(node->getLine()>=0)
 		ctxt.setLine(node->getLine());
-		
+
 	const AST::ASTNode::nodeType_t typeId = node->getNodeType();
 	handlerRegistry_t::iterator it = handlerRegistry.find(typeId);
 	if(it==handlerRegistry.end()){
@@ -153,7 +154,7 @@ void Compiler::throwError(CompilerContext & ctxt,const std::string & msg)const{
 //! (static)
 bool initHandler(handlerRegistry_t & m){
 	using namespace AST;
-	
+
 	// \note  the redundant assignment to 'id2' is a workaround to a strange linker error ("undefined reference EScript::_TypeIds::TYPE_NUMBER")
 	#define ADD_HANDLER( _id, _type, _block) \
 	{ \
@@ -207,7 +208,7 @@ bool initHandler(handlerRegistry_t & m){
 		}
 		ctxt.addInstruction(Instruction::createJmp(target));
 	})
-	
+
 	// Block
 	ADD_HANDLER( ASTNode::TYPE_BLOCK_EXPRESSION, Block, {
 //				std::cout << " TYPE_BLOCK_EXPRESSION "<<self->getLine()<<"\n";
@@ -232,7 +233,7 @@ bool initHandler(handlerRegistry_t & m){
 			ctxt.popSetting();
 		}
 	})
-	
+
 	// BlockStatement
 	ADD_HANDLER( ASTNode::TYPE_BLOCK_STATEMENT, Block, {
 //								std::cout << " TYPE_BLOCK_STATEMENT "<<self->getLine()<<"\n";
@@ -372,10 +373,10 @@ bool initHandler(handlerRegistry_t & m){
 				ctxt.addInstruction(Instruction::createPushUInt(next - *it -1));
 			}
 			ctxt.addInstruction(Instruction::createSysCall(Consts::SYS_CALL_EXPAND_PARAMS_ON_STACK,
-															static_cast<uint32_t>(self->getExpandingParameters().size()+1))); 
+															static_cast<uint32_t>(self->getExpandingParameters().size()+1)));
 			paramCount = Consts::DYNAMIC_PARAMETER_COUNT;
 		}
-		
+
 		if( self->isSysCall()){
 			ctxt.addInstruction(Instruction::createSysCall(self->getSysCallId(),paramCount));
 		}else if( self->isConstructorCall()){
@@ -543,6 +544,67 @@ bool initHandler(handlerRegistry_t & m){
 				ctxt.addInstruction(Instruction::createSetAttribute(attrId));
 		}
 	})
+	typedef std::deque<std::pair<size_t,uint32_t>> caseMarkerQueue_t; // macros don't like nested template parameters...
+	ADD_HANDLER( ASTNode::TYPE_SWITCH_STATEMENT, SwitchCaseStatement, {
+		const auto endMarker = ctxt.createMarker();
+		const Block* block = self->getBlock();
+
+		// ---------------
+		// jmp dispatcher
+		ctxt.addExpression(self->getDecisionExpression());
+
+		if(block->hasLocalVars())
+			ctxt.pushSetting_localVars(block->getVars());
+
+		// add comparisons
+		auto defaultMarker = endMarker;
+		caseMarkerQueue_t caseMarkers; // stmtIndex -> marker
+		for(const auto & posAndExpression: self->getCaseInfos()){
+			const auto caseMarker = ctxt.createMarker();
+			caseMarkers.emplace_back(posAndExpression.first,caseMarker);
+
+			if(posAndExpression.second.isNotNull()){
+				ctxt.addExpression(posAndExpression.second);
+//				ctxt.addInstruction(Instruction::createSysCall(Consts::SYS_CALL_CASE_TEST));
+
+				//... syscall call caseCompare(caseMarker)
+				ctxt.addInstruction(Instruction::createJmpOnTrue(caseMarker));
+//				ctxt.addInstruction(Instruction::createPop());
+			}else{ // default:
+				defaultMarker = caseMarker;
+			}
+		}
+
+		// nothing found...jump to the default case
+		ctxt.addInstruction(Instruction::createPop());
+		ctxt.addInstruction(Instruction::createJmp(defaultMarker));
+
+		// ---------------
+		// cases block
+		ctxt.pushSetting_marker( CompilerContext::BREAK_MARKER ,endMarker);
+
+
+		size_t stmtIdx = 0;
+		for( const auto & stmt : block->getStatements()){
+			while(!caseMarkers.empty() && stmtIdx==caseMarkers.front().first){
+				ctxt.addInstruction(Instruction::createSetMarker(caseMarkers.front().second));
+				caseMarkers.pop_front();
+			}
+			ctxt.addStatement(stmt);
+			++stmtIdx;
+		}
+
+		// ---------------
+		// after the cases block
+		ctxt.addInstruction(Instruction::createSetMarker(endMarker));
+		if(block->hasLocalVars()){
+			for(const auto & localVar : block->getVars()) {
+				ctxt.addInstruction(Instruction::createResetLocalVariable(ctxt.getCurrentVarIndex(localVar)));
+			}
+			ctxt.popSetting(); // localVars
+		}
+		ctxt.popSetting(); // BREAK_MARKER
+	})
 
 	// ReturnStatement
 	ADD_HANDLER( ASTNode::TYPE_THROW_STATEMENT, ThrowStatement, {
@@ -628,7 +690,7 @@ bool initHandler(handlerRegistry_t & m){
 					break;
 				++minParamValueCount;
 			}
-			
+
 			int maxParamValueCount = 0;
 			size_t i = 0;
 			for(const auto & param : self->getParamList()) {
@@ -643,11 +705,11 @@ bool initHandler(handlerRegistry_t & m){
 			}
 			fun->setParameterCounts(self->getParamList().size(),minParamValueCount,maxParamValueCount);
 		}
-		
+
 		// declare local variables
-		for(const auto & param : self->getParamList()) 
+		for(const auto & param : self->getParamList())
 			fun->getInstructionBlock().declareLocalVariable(param.getName());
-		
+
 		ctxt2.pushSetting_basicLocalVars(); // make 'this' and parameters available
 
 		// default parameters
@@ -726,7 +788,7 @@ bool initHandler(handlerRegistry_t & m){
 		ctxt.addInstruction(Instruction::createPushFunction(ctxt.registerInternalFunction(fun.get())));
 
 	})
-	
+
 	// YieldStatement
 	ADD_HANDLER( ASTNode::TYPE_YIELD_STATEMENT, YieldStatement, {
 		if(self->getValueExpression().isNotNull()){

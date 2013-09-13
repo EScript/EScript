@@ -40,7 +40,9 @@ struct Consts{
 	static const StringId IDENTIFIER_as;
 	static const StringId IDENTIFIER_break;
 	static const StringId IDENTIFIER_catch;
+	static const StringId IDENTIFIER_case;
 	static const StringId IDENTIFIER_continue;
+	static const StringId IDENTIFIER_default;
 	static const StringId IDENTIFIER_do;
 	static const StringId IDENTIFIER_else;
 	static const StringId IDENTIFIER_exit;
@@ -49,6 +51,7 @@ struct Consts{
 	static const StringId IDENTIFIER_if;
 	static const StringId IDENTIFIER_namespace;
 	static const StringId IDENTIFIER_return;
+	static const StringId IDENTIFIER_switch;
 	static const StringId IDENTIFIER_throw;
 	static const StringId IDENTIFIER_try;
 	static const StringId IDENTIFIER_var;
@@ -80,7 +83,8 @@ struct Consts{
 	static const size_t SYS_CALL_GET_ITERATOR = 5;
 	static const size_t SYS_CALL_TEST_ARRAY_PARAMETER_CONSTRAINTS = 6;
 	static const size_t SYS_CALL_EXPAND_PARAMS_ON_STACK = 7;
-	
+	static const size_t SYS_CALL_CASE_TEST = 8;
+
 	static const uint32_t DYNAMIC_PARAMETER_COUNT = ~0u;
 };
 //	@}
