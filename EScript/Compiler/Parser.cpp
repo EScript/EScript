@@ -539,7 +539,6 @@ EPtr<AST::ASTNode> Parser::readExpression(ParsingContext & ctxt,int & cursor,int
 	else if(Token::isA<TStartBracket>(tokens.at(cursor)) &&
 			 Token::isA<TEndBracket>(tokens[to]) &&
 			 findCorrespondingBracket<TStartBracket,TEndBracket>(ctxt,cursor,to,1)==to) {
-		std::cout << "Read Expression in Brackets";
 
 		++cursor; // step over '('
 		EPtr<AST::ASTNode> innerExpression = readExpression(ctxt,cursor,to-1);

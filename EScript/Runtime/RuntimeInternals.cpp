@@ -54,6 +54,11 @@ ObjRef RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> fc
 				// \note the local variable $0 contains the created object, "fcc->getCaller()" contains the instanciated Type-Object.
 				result = fcc->getLocalVariable(Consts::LOCAL_VAR_INDEX_this);
 			}
+			if(fcc->stack_size()!=0){
+				std::cout <<fcc->stack_size() <<" ";
+				setException("(internal) FCC-Stack contains invalid value.");
+				break;
+			}
 			if(fcc->isExecutionStoppedAfterEnding()){
 				popActiveFCC();
 				return result; 
@@ -213,7 +218,7 @@ ObjRef RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> fc
 			ObjRef caller( std::move(fcc->stack_popObject()) );
 			EPtr<Type> type = caller.toType<Type>();
 			if(type.isNull()){
-				setException("Can't instanciate object not of type 'Type'");
+				setException("Can't instantiate object not of type 'Type'");
 				break;
 			}
 
@@ -894,7 +899,7 @@ void RuntimeInternals::throwException(const std::string & s,Object * obj) {
 
 //! (internal)
 void RuntimeInternals::initSystemFunctions(){
-	systemFunctions.resize(8);  //! < this has to be adjusted manually if new system functions are added.
+	systemFunctions.resize(9);  //! < this has to be adjusted manually if new system functions are added.
 
 	#define ES_SYS_FUNCTION(_name) \
 	static EScript::RtValue _name(	EScript::RuntimeInternals & rtIt UNUSED_ATTRIBUTE, \
@@ -1046,6 +1051,27 @@ void RuntimeInternals::initSystemFunctions(){
 		};
 		systemFunctions[Consts::SYS_CALL_EXPAND_PARAMS_ON_STACK] = _::sysCall;
 	}
+	{	/*! [ESSF] bool SYS_CALL_CASE_TEST( object );
+			If the parameter equals the topmost stack content, the stack is popped and true is returned,
+				false is returned otherwise.
+		*/
+		struct _{
+			ES_SYS_FUNCTION( sysCall) {
+				assertParamCount(rtIt.runtime,parameter.count(),1,1);
+				auto fcc = rtIt.getActiveFCC();
+				ObjRef decisionValue = fcc->stack_popObject();
+				if( parameter[0]->isEqual(rtIt.runtime,decisionValue.get()) ){
+					// decisionValue is consumed
+					return true;
+				}else{
+					fcc->stack_pushObject(decisionValue); // push back the decisionValue
+					return false;
+				}
+			}
+		};
+		systemFunctions[Consts::SYS_CALL_CASE_TEST] = _::sysCall;
+	}
+	
 }
 
 void RuntimeInternals::stackSizeError(){
@@ -1057,7 +1083,7 @@ void RuntimeInternals::stackSizeError(){
 RtValue RuntimeInternals::sysCall(uint32_t sysFnId,ParameterValues & params){
 	if(sysFnId>=systemFunctions.size()){
 		std::ostringstream os;
-		os << "Unknown systemCall #"<<sysFnId<<'.';
+		os << "(internal) Unknown systemCall #"<<sysFnId<<'.';
 		runtime.setException(os.str());
 		return nullptr;
 	}

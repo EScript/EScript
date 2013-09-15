@@ -564,19 +564,16 @@ bool initHandler(handlerRegistry_t & m){
 			caseMarkers.emplace_back(posAndExpression.first,caseMarker);
 
 			if(posAndExpression.second.isNotNull()){
-				ctxt.addExpression(posAndExpression.second);
-//				ctxt.addInstruction(Instruction::createSysCall(Consts::SYS_CALL_CASE_TEST));
+				ctxt.addExpression(posAndExpression.second); // push case expression
+				ctxt.addInstruction(Instruction::createSysCall(Consts::SYS_CALL_CASE_TEST,1));
 
-				//... syscall call caseCompare(caseMarker)
 				ctxt.addInstruction(Instruction::createJmpOnTrue(caseMarker));
-//				ctxt.addInstruction(Instruction::createPop());
 			}else{ // default:
 				defaultMarker = caseMarker;
 			}
 		}
-
-		// nothing found...jump to the default case
-		ctxt.addInstruction(Instruction::createPop());
+		// finally jump to the default case
+		ctxt.addInstruction(Instruction::createPop());	// pop decision var
 		ctxt.addInstruction(Instruction::createJmp(defaultMarker));
 
 		// ---------------
@@ -592,6 +589,10 @@ bool initHandler(handlerRegistry_t & m){
 			}
 			ctxt.addStatement(stmt);
 			++stmtIdx;
+		}
+		while(!caseMarkers.empty() ){ // add remaining case markers (after the last instruction)
+			ctxt.addInstruction(Instruction::createSetMarker(caseMarkers.front().second));
+			caseMarkers.pop_front();
 		}
 
 		// ---------------

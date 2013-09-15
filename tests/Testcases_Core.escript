@@ -1028,6 +1028,54 @@ if(!benchmark)
 	test("@(init):", b.a == 17 && b.b==17 && b.c == [] && b.d.value==17  );
 }
 
+
+{	// switch/case
+
+	var switchTestFn = fn(decision){
+		var a = "";
+		switch(decision){
+			case void: // must be placed before false-case (false==void -> true)
+				a+="void";
+				break;
+			case false:
+				a+="false";
+				break;
+			case 1:
+				var v1 = "foo";
+				a+="1";
+			case 2:
+				a+="2";
+			case "3":
+				a+="3" + v1;
+			case 4:
+			case 5:
+				a+="45";
+				break;
+			case "foo":{
+				a+="foo";
+			}
+			default:
+				a+="default";
+			}
+		return a;
+	};
+	switch(1){} // empty switch should be allowed
+	
+	test("switch/case", switchTestFn(false) === "false" &&
+		switchTestFn(void) === "void"  &&
+		switchTestFn(1) === "123foo45"  &&
+		switchTestFn(2) === "23void45"  &&
+		switchTestFn(3) === "3void45"  &&
+		switchTestFn(4) === "45"  &&
+		switchTestFn(5) === "45"  &&
+		switchTestFn("foo") === "foodefault" &&
+		switchTestFn("bla") === "default" );
+	
+	
+	//! \todo if first statement is no case statement, a warning should be shown!
+	
+}
+
 {	// StdLib (not complete!)
 	test("StdLib:", !getEnv("PATH").empty() && !getEnv("THIS_SHOULD_NOT_EXIST") &&
 		chr(65)=="A" && ord("A")==65 && ord("")==0 );
