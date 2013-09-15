@@ -740,3 +740,39 @@
 	
 	test("BUG[20130614]", f("foo"));
 }
+
+
+{	// An exception in a yielded function does not invalidate the yieldIterator. When called again, this produces a "Empty Stack" error.
+	var yieldIt = fn(){
+		yield;
+		1/0; // exception
+		return 1; // do something after the exception
+	}();
+	
+	var exceptionsCaught = 0;
+	try{	yieldIt.next();	}catch(e){		++exceptionsCaught;	}
+	
+	test("BUG[20130715]", exceptionsCaught == 1 && yieldIt.end() );
+}
+
+
+
+{	// Invalid number parsing for large numbers (depending on the occurrence of a dot in the number)
+	
+	test("BUG[20130723]",	1.0e+10==1e+10 && // bug
+							1.0e+09==1e+09 &&
+							2.0e+10==2e+10 && // bug
+							2.0e+09==2e+09 );
+}
+{	// Calling a delegate with an invalid (=nullptr; not void) function leads to a SEGFAULT.
+	
+	var l = Runtime.getLoggingLevel();
+	Runtime.setLoggingLevel(Runtime.LOG_ERROR); // ignore warnings
+	
+	var exceptionsCaught = 0;
+	try{	(1->void())();	}catch(e){		++exceptionsCaught;	} // should throw an exception but no SEGFAULT.
+
+	Runtime.setLoggingLevel(l);
+	
+	test("BUG[20130815]", exceptionsCaught == 1 );
+}

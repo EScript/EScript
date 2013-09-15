@@ -266,8 +266,9 @@ void Runtime::yieldNext(YieldIterator & yIt){
 		return;
 	}
 	ObjRef result( internals->executeFunctionCallContext( fcc ) );
-	// error occured? throw an exception!
+	// error occurred? throw an exception!
 	if(internals->getState()==RuntimeInternals::STATE_EXCEPTION){
+		yIt.setFCC( nullptr ); // the exception rendered the fcc invalid; it must not be called again. 
 		throw internals->fetchAndClearException().detachAndDecrease();
 	}
 	YieldIterator * newYieldIterator = result.toType<YieldIterator>();

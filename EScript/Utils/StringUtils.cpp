@@ -38,6 +38,22 @@ double StringUtils::getNumber(const char * s, std::size_t & cursor, bool checkSi
 		unsigned int number = 0;
 		sscanf(accum.c_str(),"%x",&number);
 		return sign?static_cast<double>(number) : -static_cast<double>(number);
+	} else if(c=='0' && (s[cursor+1]=='b'|| s[cursor+1]=='B')) { // binaryNumber
+		++cursor;
+		double number = 0;
+		while(true) {
+			++cursor;
+			c = s[cursor];
+			if( c=='0' ){
+				number *= 2;
+			} else if( c=='1' ){
+				number *= 2;
+				++number;
+			}else{
+				break;
+			}
+		}
+		return sign?number : -number;
 	} else if(c>='0' && c<='9') {
 		//const char * begin = s+cursor;
 		int dot = 0;
@@ -59,18 +75,8 @@ double StringUtils::getNumber(const char * s, std::size_t & cursor, bool checkSi
 		}
 		numAccum[i]=0;
 
-		// float;
-		if(dot) {
-			double number = 0;//std::atof(numAccum.c_str());
-			sscanf(numAccum,"%lf",&number);
-			//std::cout << number << " ";
-			return sign?number:-number;
-		} else {
-			int number = static_cast<int>(std::atof(numAccum)); // atoi???
-			//std::cout << number << " ";
-			return sign?number:-number;
-		}
-
+		double number = std::strtod(numAccum,nullptr);
+		return sign?number:-number;
 	}
 	return 0;
 }

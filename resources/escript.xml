@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE language SYSTEM "language.dtd">
+<!--
+  EScript syntax highlighting definition for Kate.
+
+  Copyright 2013 Benjamin Eikel <benjamin@eikel.org>
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in
+  all copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+  THE SOFTWARE.
+-->
+<language name="EScript"
+		section="Scripts"
+		version="1.0"
+		kateversion="2.4"
+		extensions="*.escript"
+		indenter="cstyle"
+		author="Benjamin Eikel (benjamin@eikel.org)"
+		license="MIT">
+	<highlighting>
+		<list name="keywords">
+			<item>as</item>
+			<item>break</item>
+			<item>catch</item>
+			<item>continue</item>
+			<item>do</item>
+			<item>else</item>
+			<item>exit</item>
+			<item>foreach</item>
+			<item>for</item>
+			<item>if</item>
+			<item>namespace</item>
+			<item>return</item>
+			<item>thisFn</item>
+			<item>throw</item>
+			<item>try</item>
+			<item>var</item>
+			<item>while</item>
+			<item>yield</item>
+		</list>
+		<list name="literals">
+			<item>null</item>
+			<item>false</item>
+			<item>true</item>
+			<item>void</item>
+		</list>
+		<list name="special_variables">
+			<item>this</item>
+			<item>_printableName</item>
+			<item>__LINE__</item>
+			<item>___result</item>
+		</list>
+		<list name="special_functions">
+			<item>getIterator</item>
+			<item>end</item>
+			<item>key</item>
+			<item>next</item>
+			<item>value</item>
+			<item>_call</item>
+			<item>_constructor</item>
+			<item>_get</item>
+			<item>_set</item>
+		</list>
+		<list name="attributes">
+			<item>const</item>
+			<item>init</item>
+			<item>member</item>
+			<item>override</item>
+			<item>private</item>
+			<item>public</item>
+			<item>type</item>
+			<item>super</item>
+		</list>
+		<list name="operators">
+			<item>UNKNOWN</item>
+			<item>_</item>
+			<item>@</item>
+			<item>.</item>
+			<item>[</item>
+			<item>]</item>
+			<item>(</item>
+			<item>)</item>
+			<item>new</item>
+			<item>fn</item>
+			<item>lambda</item>
+			<item>++</item>
+			<item>--</item>
+			<item>_-</item>
+			<item>~</item>
+			<item>!</item>
+			<item>*</item>
+			<item>/</item>
+			<item>%</item>
+			<item>+</item>
+			<item>-</item>
+			<item>&lt;&lt;</item>
+			<item>&gt;&gt;</item>
+			<item>&lt;</item>
+			<item>&gt;</item>
+			<item>&gt;=</item>
+			<item>&lt;=</item>
+			<item>~=</item>
+			<item>==</item>
+			<item>!=</item>
+			<item>===</item>
+			<item>!==</item>
+			<item>---|></item>
+			<item>isA</item>
+			<item>-&gt;</item>
+			<item>=&gt;</item>
+			<item>&amp;</item>
+			<item>^</item>
+			<item>|</item>
+			<item>&amp;&amp;</item>
+			<item>||</item>
+			<item>:</item>
+			<item>?</item>
+			<item>=</item>
+			<item>:=</item>
+			<item>::=</item>
+			<item>*=</item>
+			<item>/=</item>
+			<item>%=</item>
+			<item>+=</item>
+			<item>-=</item>
+			<item>&amp;=</item>
+			<item>^=</item>
+			<item>|=</item>
+			<item>...</item>
+			<item>,</item>
+		</list>
+		<contexts>
+			<context attribute="Normal Text" lineEndContext="#stay" name="Normal">
+				<DetectSpaces />
+				<keyword attribute="Keyword" context="#stay" String="keywords" />
+				<keyword attribute="Literal" context="#stay" String="literals" />
+				<keyword attribute="Operator" context="#stay" String="operators" />
+				<keyword attribute="Literal" context="#stay" String="special_variables" />
+				<keyword attribute="FunctionCall" context="#stay" String="special_functions" />
+				<keyword attribute="Attribute" context="#stay" String="attributes" />
+				<DetectIdentifier />
+				<DetectChar attribute="Operator" context="#stay" char="{" beginRegion="Block" />
+				<DetectChar attribute="Operator" context="#stay" char="}" endRegion="Block" />
+				<Float attribute="Number" context="#stay" />
+				<HlCOct attribute="Number" context="#stay" />
+				<HlCHex attribute="Number" context="#stay" />
+				<Int attribute="Number" context="#stay" />
+				<DetectChar attribute="String" context="Single Quote String" char="'" />
+				<DetectChar attribute="String" context="Double Quote String" char="&quot;" />
+				<RegExpr attribute="Identifier" context="#stay" String="\$[a-zA-Z_][a-zA-Z0-9_]*" />
+				<Detect2Chars attribute="Comment" context="Single Line Comment" char="/" char1="/" />
+				<Detect2Chars attribute="Comment" context="Multi Line Comment" char="/" char1="*" beginRegion="Comment" />
+			</context>
+			<context attribute="String" lineEndContext="#stay" name="Single Quote String">
+				<HlCStringChar attribute="Escaped Char" context="#stay" />
+				<DetectChar attribute="String" context="#pop" char="'" />
+			</context>
+			<context attribute="String" lineEndContext="#stay" name="Double Quote String">
+				<HlCStringChar attribute="Escaped Char" context="#stay" />
+				<DetectChar attribute="String" context="#pop" char="&quot;" />
+			</context>
+			<context attribute="Comment" lineEndContext="#pop" name="Single Line Comment">
+				<LineContinue attribute="Comment" context="#stay" />
+				<IncludeRules context="##Alerts" />
+			</context>
+			<context attribute="Comment" lineEndContext="#stay" name="Multi Line Comment">
+				<Detect2Chars attribute="Comment" context="#pop" char="*" char1="/" endRegion="Comment" />
+				<IncludeRules context="##Alerts" />
+			</context>
+		</contexts>
+		<itemDatas>
+			<itemData name="Normal Text"  defStyleNum="dsNormal"   spellChecking="false" />
+			<itemData name="Keyword"      defStyleNum="dsKeyword"  spellChecking="false" />
+			<itemData name="Literal"      defStyleNum="dsDataType" spellChecking="false" />
+			<itemData name="FunctionCall" defStyleNum="dsFunction" spellChecking="false" />
+			<itemData name="Attribute"    defStyleNum="dsDataType" spellChecking="false" />
+			<itemData name="Number"       defStyleNum="dsDecVal"   spellChecking="false" />
+			<itemData name="Operator"     defStyleNum="dsNormal"   spellChecking="false" />
+			<itemData name="Identifier"   defStyleNum="dsDataType" spellChecking="false" />
+			<itemData name="String"       defStyleNum="dsString" />
+			<itemData name="Escaped Char" defStyleNum="dsChar" />
+			<itemData name="Comment"      defStyleNum="dsComment" />
+		</itemDatas>
+	</highlighting>
+	<general>
+		<comments>
+			<comment name="singleLine" start="//" />
+			<comment name="multiLine" start="/*" end="*/" />
+		</comments>
+	</general>
+</language>
