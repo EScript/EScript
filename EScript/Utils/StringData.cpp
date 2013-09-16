@@ -74,55 +74,7 @@ StringData::Data * StringData::getEmptyData(){
 	return emptyString;
 }
 
-
-
-//
-//static const uint32_t INVALID_CODE_POINT = ~0;
-//
-//static uint32_t readCodePoint_utf8(const char* &cursor,const char*utf8End){
-//	if(cursor >= utf8End )
-//		return INVALID_CODE_POINT;
-//	const uint8_t byte0 = static_cast<uint8_t>(*cursor);
-//	if(byte0<0x80){ // 1 byte
-//		++cursor;
-//		return static_cast<uint32_t>(byte0);
-//	}else if(byte0<0xE0){ // 2 byte sequence
-//		if(byte0<0xC2 || cursor+1 >= utf8End)
-//			return INVALID_CODE_POINT;
-//		const uint8_t byte1 = static_cast<uint8_t>(*(cursor+1));
-//		if( (byte1&0xC0) != 0x80 )
-//			return INVALID_CODE_POINT;
-//		cursor += 2;
-//		return	(static_cast<uint32_t>(byte0&0x1F) << 6) + (byte1&0x3F) ;
-//	}else if(byte0<0xF0){ // 3 byte sequence
-//		if(cursor+2 >= utf8End)
-//			return INVALID_CODE_POINT;
-//		const uint8_t byte1 = static_cast<uint8_t>(*(cursor+1));
-//		const uint8_t byte2 = static_cast<uint8_t>(*(cursor+2));
-//		if( (byte1&0xC0) != 0x80 || (byte2&0xC0) != 0x80 )
-//			return INVALID_CODE_POINT;
-//		cursor += 3;
-//		return	(static_cast<uint32_t>(byte0&0x0F) << 12) + 
-//				(static_cast<uint32_t>(byte1&0x3F) << 6) + 
-//				(byte2&0x3F) ;
-//	}else if(byte0<0xF5){ // 4 byte sequence
-//		if(cursor+3 >= utf8End)
-//			return INVALID_CODE_POINT;
-//		const uint8_t byte1 = static_cast<uint8_t>(*(cursor+1));
-//		const uint8_t byte2 = static_cast<uint8_t>(*(cursor+2));
-//		const uint8_t byte3 = static_cast<uint8_t>(*(cursor+3));
-//		if( (byte1&0xC0) != 0x80 || (byte2&0xC0) != 0x80 || (byte3&0xC0) != 0x80 )
-//			return INVALID_CODE_POINT;
-//		cursor += 4;
-//		return	(static_cast<uint32_t>(byte0&0x07) << 18) + 
-//				(static_cast<uint32_t>(byte1&0x3F) << 12) + 
-//				(static_cast<uint32_t>(byte2&0x3F) << 6) + 
-//				(byte3&0x3F);
-//	}else{
-//		return INVALID_CODE_POINT;
-//	}
-//}
-
+//! (internal)
 static size_t getUTF8CodePointLength(const char* cursor){
 	const uint8_t byte0 = static_cast<uint8_t>(*cursor);
 	if(byte0<0x80){ // 1 byte
@@ -156,48 +108,48 @@ size_t StringData::getNumCodepoints()const{
 	return data->numCodePoints;
 }
 
-size_t StringData::getCodePointLocation(const size_t codePointIdx){
-	static const uint32_t JUMP_TABLE_STEP_SIZE = 8;
+static const uint32_t JUMP_TABLE_STEP_SIZE = 8;
 	
-	switch(data->dataType){
-		case Data::RAW:
-		case Data::ASCII:
-			return codePointIdx;
-		case Data::UNKNOWN_UNICODE:
-		case Data::UNICODE_WITH_LENGTH:{	// create jumpTable
-			std::vector<size_t> jumpTable;
-			
-			size_t codePointCursor = 0;
-			
-			const size_t numBytes = getDataSize();
-			for(size_t byteCursor = 0; byteCursor<numBytes; 
-					byteCursor += getUTF8CodePointLength(data->s.c_str()+byteCursor) ){
+//! (internal)
+void StringData::initJumpTable()const{
+	std::vector<size_t> jumpTable;
+	size_t codePointCursor = 0;
+	const size_t numBytes = getDataSize();
+	for(size_t byteCursor = 0; byteCursor<numBytes; 
+			byteCursor += getUTF8CodePointLength(data->s.c_str()+byteCursor) ){
 
-				if( (codePointCursor%JUMP_TABLE_STEP_SIZE)==0 && byteCursor>0) // skip the initial 0
-					jumpTable.emplace_back(byteCursor);
-				
-				++codePointCursor;
-			}
-			data->numCodePoints = codePointCursor;
-			
-			if(codePointCursor == getDataSize()){
-				data->dataType = Data::ASCII;
-				return codePointIdx;
-			}else{
-				data->dataType = Data::UNICODE_WITH_JUMTABLE;
-				if(!jumpTable.empty())
-					data->jumpTable.reset(new std::vector<size_t>(std::move(jumpTable)));
-			}
-			break;
-		}
-		case Data::UNICODE_WITH_JUMTABLE:
-			break;
-		default:
-			assert(false);
+		if( (codePointCursor%JUMP_TABLE_STEP_SIZE)==0 && byteCursor>0) // skip the initial 0
+			jumpTable.emplace_back(byteCursor);
+		
+		++codePointCursor;
 	}
+	data->numCodePoints = codePointCursor;
+	
+	if(codePointCursor == getDataSize()){
+		data->dataType = Data::ASCII;
+	}else{
+		data->dataType = Data::UNICODE_WITH_JUMTABLE;
+		if(!jumpTable.empty())
+			data->jumpTable.reset(new std::vector<size_t>(std::move(jumpTable)));
+	}
+}
 
+//! (internal)
+size_t StringData::codePointToBytePos(const size_t codePointIdx)const{
+	if(codePointIdx==0)
+		return empty() ? std::string::npos : 0;
+
+	// init if necessary
+	if(data->dataType == Data::UNKNOWN_UNICODE || data->dataType == Data::UNICODE_WITH_LENGTH)
+		initJumpTable();
+	
+	// 8bit string -> direct access
+	if(data->dataType == Data::RAW || data->dataType == Data::ASCII)
+		return codePointIdx < getDataSize() ? codePointIdx : std::string::npos;
+	
+	
 	if(codePointIdx>=data->numCodePoints){
-		return getDataSize();
+		return std::string::npos;
 	}else{
 		const size_t jumpTableEntry = codePointIdx/JUMP_TABLE_STEP_SIZE;
 		
@@ -205,7 +157,7 @@ size_t StringData::getCodePointLocation(const size_t codePointIdx){
 		size_t codePointCursor = jumpTableEntry*JUMP_TABLE_STEP_SIZE;
 		while(codePointCursor<codePointIdx){
 			if(byteCursor>=getDataSize())
-				return getDataSize();
+				return std::string::npos;
 			byteCursor += getUTF8CodePointLength(data->s.c_str()+byteCursor);
 			++codePointCursor;
 		}
@@ -213,15 +165,41 @@ size_t StringData::getCodePointLocation(const size_t codePointIdx){
 	}
 }
 
-
-std::string StringData::getSubStr(const size_t codePointStart, const size_t numCodePoints){
-	const size_t startPos = getCodePointLocation(codePointStart);
-	const size_t endPos = getCodePointLocation(codePointStart+numCodePoints);
+std::string StringData::getSubStr(const size_t codePointStart, const size_t numCodePoints)const{
+	const size_t startPos = codePointToBytePos(codePointStart);
+	const size_t endPos = codePointToBytePos(codePointStart+numCodePoints);
 	if(startPos>=getDataSize())
 		return "";
 	return data->s.substr(startPos,endPos-startPos);
-
-
 }
+
+size_t StringData::find(const std::string& subj,const size_t codePointStart)const{
+	const size_t subjLength = subj.length();
+	
+	if(subjLength==0 || subjLength>str().length())
+		return std::string::npos;
+	
+	// init if necessary
+	if(data->dataType == Data::UNKNOWN_UNICODE || data->dataType == Data::UNICODE_WITH_LENGTH)
+		initJumpTable();
+	
+	// 8bit string -> use normal find
+	if(data->dataType == Data::RAW || data->dataType == Data::ASCII)
+		return str().find(subj,codePointStart);
+	
+	// perform linear search
+	size_t byteCursor = codePointToBytePos(codePointStart);
+	size_t codePointCursor = codePointStart;
+	
+	const size_t endByte = str().length() - subj.length();
+	while(byteCursor<endByte){
+		if( str().compare(byteCursor,subjLength,subj)==0 )
+			return codePointCursor;
+		byteCursor += getUTF8CodePointLength(data->s.c_str()+byteCursor);
+		++codePointCursor;
+	}
+	return std::string::npos;
+}
+		
 
 }

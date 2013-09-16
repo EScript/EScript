@@ -13,7 +13,7 @@ namespace EScript {
 namespace StringUtils {
 
 
-double getNumber(const char * s, std::size_t & cursor, bool checkSign = false);
+double readNumber(const char * s, std::size_t & cursor, bool checkSign = false);
 std::string rTrim(const std::string & s);
 std::string lTrim(const std::string & s);
 std::string trim(const std::string & s);
@@ -28,10 +28,6 @@ std::string replaceMultiple(const std::string & subject,const std::vector<std::p
 //! \note this is only a hack!
 std::string UCS2LE_to_ANSII(const std::string & str);
 
-bool beginsWith(const char * subject,const char * find);
-bool stepWhitespaces(const char * subject,int & cursor);
-bool stepText(const char * subject,int & cursor,const char * search);
-
 //! Split the subject at the occurrence of delimiter into at most max parts.
 void split(const std::string & subject,const std::string & delimiter, std::vector<std::string> & result,int max=-1);
 
@@ -43,6 +39,8 @@ std::string toUpper(const std::string & s);
 
 //! \note the first line has index 0
 std::string getLine(const std::string &s,const int lineIndex);
+
+size_t countCodePoints(const std::string& str_u8);
 
 }
 }

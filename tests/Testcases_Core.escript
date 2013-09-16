@@ -126,7 +126,7 @@ var FAILED="\t failed\n";
 		&& s.endsWith("bar")&&!s.endsWith("b")&&s.beginsWith("foo")&& s.beginsWith(s)&&  !s.beginsWith(s+s)
 		&& s.contains("ob") && !s.contains("oc") && "f".getType()==String
 		&& "a,b,c".split(",",2) == ["a","b,c"] && "/".split("/") == ["",""]
-		&& "bla".fillUp(10,'.') == "bla......."
+		&& "bla".fillUp(10,'.') == "bla......." && "x".fillUp(100,"") == "x" && "x".fillUp(4,"12") == "x1212"
 		&& spacy.lTrim()== "bla  \n\r  " && spacy.rTrim()=="\t   bla" && spacy.trim()=="bla" && "".trim().empty()
 		&& s2=="ababab" && s2b == "ababab"
 		&& "abc" <= "bcd" && "A" < "a" && !("bcd" <= "abc") && !("a" < "A")
@@ -137,7 +137,15 @@ var FAILED="\t failed\n";
 		&& "foooooo".rFind("o") == 6 && "foooooo".rFind("o",4) == 4 && !("fooooxx".rFind("x",4))
 		&& "FooBar".substr(1) == "ooBar" && "FooBar".substr(-4) == "oBar" && "FooBar".substr(1,-3) == "oo"  && "FooBar".substr(-3,1) == "B"
 		&& " fOObaR12.3".toLower() == " foobar12.3" &&" fOObaR12.3".toUpper() == " FOOBAR12.3"
+
+		// unicode 
+		&& "blä".length() == 3
+		&& "föße"[2] == "ß"
+		&& "fääääääääääöße".find("ß") == 12 && "fääääääääääöße".find("ü") == false
+		&& "bla".fillUp(10,'ä') == "blaäääääää" 
+
 		,String);
+
 }
 
 //---

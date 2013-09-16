@@ -34,11 +34,14 @@ class String : public Object {
 		StringData & operator*()					{	return sData;	}
 		const std::string & operator*()const		{	return sData.str();	}
 
+		void appendString(const std::string & _s)	{	sData.set(sData.str()+_s);	}
+		bool empty()const							{	return sData.empty();	}
+		size_t length()const						{	return sData.getNumCodepoints();	}
+		size_t getDataSize()const					{	return sData.getDataSize();	}
+
 		const std::string & getString()const		{	return sData.str();	}
 		void setString(const std::string & _s)		{	sData.set(_s);	}
 		void setString(const StringData & _sData)	{	sData.set(_sData);	}
-		void appendString(const std::string & _s)	{	sData.set(sData.str()+_s);	} //!!!!!!!!!!!!!!!!!!!!
-		bool empty()const							{	return sData.empty();	}
 
 		//! ---|> [Object]
 		virtual Object * clone()const				{	return create(sData);	}

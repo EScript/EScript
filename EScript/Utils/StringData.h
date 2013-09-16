@@ -27,7 +27,7 @@ class StringData{
 				UNICODE_WITH_JUMTABLE	// the string contains of a known number of code points and contains
 										//  a jump table for random accesses
 			} dataType;
-			std::unique_ptr<std::vector<size_t>> jumpTable;
+			std::unique_ptr<std::vector<size_t>> jumpTable; //!< jumpTable[i] := strPos of codePoint( (i+1)*JUMP_TABLE_STEP_SIZE)
 			size_t numCodePoints;
 
 			Data(const std::string & _s,dataType_t t) : 
@@ -36,6 +36,7 @@ class StringData{
 				s(c,size),referenceCounter(0),dataType(t),numCodePoints(0){}
 			Data(Data &&) = default;
 			Data(const Data &) = delete;
+			void initJumpTable();
 
 		};
 		static Data * createData(const std::string & s);
@@ -46,6 +47,8 @@ class StringData{
 		Data * data;
 		static Data * getEmptyData();
 		static std::stack<Data*> dataPool;
+		
+		void initJumpTable()const;
 	public:
 		StringData() : data(getEmptyData())								{	++data->referenceCounter;	}
 		explicit StringData(const std::string & s) : data(createData(s)){	++data->referenceCounter;	}
@@ -56,15 +59,16 @@ class StringData{
 			if( (--data->referenceCounter) <=0 )
 				releaseData(data);
 		}
-
+		/*! Returns the byte index of the given codePointIdx in the utf8 encoded string.
+			If the codePoint is invalid, std::string::npos is returned. */
+		size_t codePointToBytePos(const size_t codePointNr)const;
 		bool empty()const								{	return str().empty();	}
 		
-		/*! Returns the byte index of the given codePointIdx in the utf8 encoded string.
-			\note check the result against the dataSize to check if the result is valid. */
-		size_t getCodePointLocation(const size_t codePointNr);
 		size_t getDataSize()const						{	return str().length();	}
 		size_t getNumCodepoints()const;
-		std::string getSubStr(const size_t codePointStart, const size_t numCodePoints);
+		std::string getSubStr(const size_t codePointStart, const size_t numCodePoints)const;
+		
+		size_t find(const std::string& subj,const size_t codePointStart=0)const;
 
 		bool operator==(const StringData & other)const	{	return (data==other.data) || (str()==other.str()); }
 		StringData & operator=(const StringData & other){

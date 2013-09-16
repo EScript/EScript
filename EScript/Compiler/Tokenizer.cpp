@@ -79,6 +79,13 @@ void Tokenizer::getTokens( const std::string & codeU8,tokenList_t & tokens){
 
 }
 
+static bool strBeginsWith(const char * subject,const char * find) {
+	for(size_t i = 0 ; find[i]!=0 ; ++i){
+		if(subject[i]!=find[i])
+			return false;
+	}
+	return true;
+}
 //!	Reads the next Token from prog beginning with position cursor and moves cursor to the next Token.
 Token * Tokenizer::readNextToken(const std::string & codeU8, std::size_t & cursor,int &line,size_t & startPos,tokenList_t & tokens) {
 	if(cursor>=codeU8.length())
@@ -119,7 +126,7 @@ Token * Tokenizer::readNextToken(const std::string & codeU8, std::size_t & curso
 		size_t length = 0;
 		while(cursor<codeU8.length()){
 			c = codeU8[cursor];
-			if(c==')'&&StringUtils::beginsWith(prog+cursor,d.c_str())){
+			if(c==')'&& strBeginsWith(prog+cursor,d.c_str())){
 				cursor+=d.length();
 				return new TValueString((std::string(prog+first,length)));
 			}else if(c=='\n'){
@@ -156,7 +163,7 @@ Token * Tokenizer::readNextToken(const std::string & codeU8, std::size_t & curso
 	// Numbers
 	else if(isNumber(c)) {
 		std::size_t to = cursor;
-		const double number = StringUtils::getNumber(prog,to);
+		const double number = StringUtils::readNumber(prog,to);
 		if(to>cursor && !isChar(codeU8[to])) {
 			cursor = to;
 			return new TValueNumber(number);

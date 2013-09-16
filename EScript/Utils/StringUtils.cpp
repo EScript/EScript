@@ -12,7 +12,7 @@
 
 namespace EScript{
 
-double StringUtils::getNumber(const char * s, std::size_t & cursor, bool checkSign) {
+double StringUtils::readNumber(const char * s, std::size_t & cursor, bool checkSign) {
 	char c = s[cursor];
 	std::string accum="";
 	bool sign = true;
@@ -240,43 +240,6 @@ std::string StringUtils::UCS2LE_to_ANSII(const std::string & source)   {
 		}
 	}
 	return s.str();
-}
-
-bool StringUtils::beginsWith(const char * subject,const char * find) {
-	for(size_t i = 0 ; find[i]!=0 ; ++i){
-		if(subject[i]!=find[i])
-			return false;
-	}
-	return true;
-}
-
-bool StringUtils::stepWhitespaces(const char * subject,int & cursor) {
-	while(true) {
-		char c = subject[cursor];
-
-		if(c==' '||c=='\t'||c=='\n'||c=='\r'||c=='\0'||c==11) {
-			++cursor;
-		} else if(c==0) {
-			return false;
-		} else {
-			return true;
-		}
-	}
-}
-
-bool StringUtils::stepText(const char * subject,int & cursor,const char * search) {
-	int _cursor = cursor;
-	while(true) {
-		const char s = search[0];
-		if(s==0) {
-			cursor = _cursor;
-			return true;
-		}
-		if(subject[_cursor]!=s ||subject[_cursor]==0 )
-			return false;
-		++_cursor;
-		++search;
-	}
 }
 
 void StringUtils::split(const std::string & subject,const std::string & delimiter, std::vector<std::string> & result, int max){
