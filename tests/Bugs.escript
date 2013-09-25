@@ -776,3 +776,12 @@
 	
 	test("BUG[20130815]", exceptionsCaught == 1 );
 }
+
+{	// replaceAll with one parameter may crash.
+	
+	var exceptionsCaught = 0;
+	try{	"foo".replaceAll("o");	}catch(e){		++exceptionsCaught;	} // should throw an exception not crash
+
+	test("BUG[20130922]",	exceptionsCaught == 1 );
+}
+

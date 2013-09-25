@@ -23,10 +23,13 @@
 // general functions
 
 /*! Macro for defining and declaring an EScript function.
+	Available variables:
+		- EScript::Runtime rt
+		- EScript::ParameterValues parameter
 	\example
-		// Within the Collection::init(...) function:
-		ES_FUNCTION2(typeObj, "==", 1, 1, {
-				return assertType<Collection>(rt, thisEObj)->rt_isEqual(rt, parameter[0]);
+		// Within the SomeLib::init(...) function:
+		ES_FUNCTION2(typeObj, "someStaticFunction", 1, 1, {
+				return someStaticFunction(parameter[0].to<const SomeValue&>(rt));
 		})
 */
 #define ES_FUNCTION2(_typeObject, _fnNameStr, _min, _max, _block) \
@@ -38,9 +41,12 @@
 	}
 
 /*! Macro for defining and declaring a (simple) EScript function in short form.
+	Available variables:
+		- EScript::Runtime rt
+		- EScript::ParameterValues parameter
 	\example
-		// Within the Collection::init(...) function:
-		ES_FUN(typeObj, "==", 1, 1, assertType<Collection>(rt,thisEObj)->rt_isEqual(rt, parameter[0]))
+		// Within the SomeLib::init(...) function:
+		ES_FUN(typeObj, "someStaticFunction", 1, 1, someStaticFunction(parameter[0].to<const SomeValue&>(rt)))
 */
 #define ES_FUN(_typeObject, _fnNameStr, _min, _max, _returnExpr) \
 	ES_FUNCTION2(_typeObject, _fnNameStr, _min, _max,{return EScript::value(_returnExpr);})
@@ -49,10 +55,15 @@
 // member functions
 
 /*! Macro for defining and declaring an EScript member function.
+	Available variables:
+		- EScript::Runtime rt
+		- EScript::ParameterValues parameter
+		- EScript::Object thisEObj
+		- _targetType thisObj
 	\example
-		// Within the Collection::init(...) function:
-		ES_MFUNCTION(typeObj, Collection, "==", 1, 1, {
-				return thisObj->rt_isEqual(rt, parameter[0]);
+		// Within the SomeType::init(...) function:
+		ES_MFUNCTION(typeObj, SomeType, "someMethod", 1, 1, {
+				return thisObj->someMethod(parameter[0].to<const SomeValue&>(rt));
 		})
 */
 #define ES_MFUNCTION(_typeObject, _targetType, _fnNameStr, _min, _max, _block) \
@@ -63,9 +74,14 @@
 
 /*! Macro for defining and declaring a (simple) EScript member function in short form.
 	\note The variable \a thisObj contains the thisEObj with the type \a _targetType (otherwise an exception is thrown).
+	Available variables:
+		- EScript::Runtime rt
+		- EScript::ParameterValues parameter
+		- EScript::Object thisEObj
+		- _targetType thisObj
 	\example
-		// Within the Collection::init(...) function:
-		ES_MFUN(typeObj, Collection, "==", 1, 1, thisObj->rt_isEqual(rt, parameter[0]))
+		// Within the SomeType::init(...) function:
+		ES_MFUN(typeObj, SomeType, "someMethod", 1, 1, thisObj->someMethod(parameter[0].to<const SomeValue&>(rt)))
 */
 #define ES_MFUN(_typeObject, _targetType, _fnNameStr, _min, _max, _returnExpr) \
 	ES_MFUNCTION(_typeObject,_targetType,_fnNameStr,_min,_max,{ return EScript::value(_returnExpr); })
@@ -73,12 +89,24 @@
 // -----------------
 // constructors
 
+/*! Macro for defining and declaring a EScript constructor function .
+	Available variables:
+		- EScript::Runtime rt
+		- EScript::ParameterValues parameter
+		- EScript::Type thisType
+*/
 #define ES_CONSTRUCTOR(_typeObject,_min,_max,_block)	\
 	ES_MFUNCTION(_typeObject,EScript::Type,"_constructor",_min,_max,{ \
 		EScript::Type * thisType UNUSED_ATTRIBUTE = thisObj; \
 		do _block while(false); \
 	})
 
+/*! Macro for defining and declaring a EScript constructor function in short form .
+	Available variables:
+		- EScript::Runtime rt
+		- EScript::ParameterValues parameter
+		- EScript::Type thisType
+*/
 #define ES_CTOR(_typeObject,_min,_max,_returnExpr) \
 	ES_CONSTRUCTOR(_typeObject,_min,_max,{ return EScript::value(_returnExpr); })
 

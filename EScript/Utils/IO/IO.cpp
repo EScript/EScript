@@ -57,8 +57,7 @@ std::string IO::dirname(const std::string & filename) {
 
 std::string IO::condensePath(const std::string & inputPath){
 	// split
-	std::vector<std::string> parts;
-	StringUtils::split(inputPath,"/",parts);
+	std::vector<std::string> parts = StringUtils::split(inputPath,"/");
 	// condense
 	std::deque<std::string> parts2;
 	for(const auto & part : parts) {

@@ -200,6 +200,35 @@ size_t StringData::find(const std::string& subj,const size_t codePointStart)cons
 	}
 	return std::string::npos;
 }
+
+size_t StringData::rFind(const std::string& subj,const size_t codePointStart)const{
+	const size_t subjLength = subj.length();
+	
+	if(subjLength==0 || subjLength>str().length())
+		return std::string::npos;
+
+	// init if necessary
+	if(data->dataType == Data::UNKNOWN_UNICODE || data->dataType == Data::UNICODE_WITH_LENGTH)
+		initJumpTable();
+	
+	// 8bit string -> use normal rfind
+	if(data->dataType == Data::RAW || data->dataType == Data::ASCII)
+		return str().rfind(subj,codePointStart);
+
+	const size_t bytePos = str().rfind(subj,codePointToBytePos(codePointStart));
+	if(bytePos==std::string::npos)
+		return std::string::npos;
+	
+	// find code point for byte pos
+	size_t codePointCursor = codePointStart;
+	for(size_t byteCursor = codePointToBytePos(codePointStart); byteCursor>bytePos; --byteCursor){
+		const uint8_t c = static_cast<uint8_t>(str().at(byteCursor));
+		if(c<0x80 || c>0xBF )
+			--codePointCursor;
+	}
+	return codePointCursor;
+}
+
 		
 
 }

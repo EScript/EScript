@@ -69,6 +69,7 @@ class StringData{
 		std::string getSubStr(const size_t codePointStart, const size_t numCodePoints)const;
 		
 		size_t find(const std::string& subj,const size_t codePointStart=0)const;
+		size_t rFind(const std::string& subj,const size_t codePointStart=std::string::npos)const;
 
 		bool operator==(const StringData & other)const	{	return (data==other.data) || (str()==other.str()); }
 		StringData & operator=(const StringData & other){

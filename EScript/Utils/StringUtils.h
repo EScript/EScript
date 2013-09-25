@@ -5,7 +5,6 @@
 #ifndef STRINGUTILS_H
 #define STRINGUTILS_H
 #include <string>
-#include <utility>
 #include <vector>
 
 namespace EScript {
@@ -29,13 +28,7 @@ std::string replaceMultiple(const std::string & subject,const std::vector<std::p
 std::string UCS2LE_to_ANSII(const std::string & str);
 
 //! Split the subject at the occurrence of delimiter into at most max parts.
-void split(const std::string & subject,const std::string & delimiter, std::vector<std::string> & result,int max=-1);
-
-//! Convert uppercase letter to lowercase
-std::string toLower(const std::string & s);
-
-//! Convert lowercase letter to uppercase
-std::string toUpper(const std::string & s);
+std::vector<std::string> split(const std::string & subject,const std::string & delimiter, int max=-1);
 
 //! \note the first line has index 0
 std::string getLine(const std::string &s,const int lineIndex);

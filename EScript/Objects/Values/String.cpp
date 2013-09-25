@@ -101,7 +101,7 @@ void String::init(EScript::Namespace & globals) {
 	})
 
 	//! [ESMF] Number|false String.find( (String)search [,(Number)startIndex] )
-	ES_MFUNCTION(typeObject,String,"find",1,2, {
+	ES_MFUNCTION(typeObject,const String,"find",1,2, {
 		const size_t pos = thisObj->sData.find(parameter[0].toString(),parameter[1].toUInt(0));
 		if(pos==std::string::npos ) {
 			return false;
@@ -111,107 +111,109 @@ void String::init(EScript::Namespace & globals) {
 	})
 
 	//! [ESMF] Number String.length()
-	ES_MFUN(typeObject,String,"length",0,0, static_cast<uint32_t>(thisObj->sData.getNumCodepoints()))
+	ES_MFUN(typeObject,const String,"length",0,0, static_cast<uint32_t>(thisObj->sData.getNumCodepoints()))
 
 	//! [ESMF] String String.ltrim()
-	ES_MFUN(typeObject,String,"lTrim",0,0,StringUtils::lTrim(thisObj->getString()))
+	ES_MFUN(typeObject,const String,"lTrim",0,0,StringUtils::lTrim(thisObj->getString()))
 
 	//! [ESMF] String String.rTrim()
-	ES_MFUN(typeObject,String,"rTrim",0,0,StringUtils::rTrim(thisObj->getString()))
+	ES_MFUN(typeObject,const String,"rTrim",0,0,StringUtils::rTrim(thisObj->getString()))
 
-	//! [ESMF] String String.substr( (Number)begin [,(Number)length] ) // UNICODE_TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	ES_MFUNCTION(typeObject,String,"substr",1,2, {
+	//! [ESMF] String String.substr( (Number)begin [,(Number)length] )
+	ES_MFUNCTION(typeObject,const String,"substr",1,2, {
 		int start = parameter[0].to<int>(rt);
-		const size_t length = thisObj->sData.getNumCodepoints();
+		const int length = thisObj->sData.getNumCodepoints();
 		if(start>=length) return create("");
-		if(start<0) start = length+start;
-		int count = length-start;
+		if(start<0) start = std::max(0, length+start);
+		int substrLength = length-start;
 		if(parameter.count()>1) {
-			int i = parameter[1].to<int>(rt);
-			if(i<count) {
+			const int i = parameter[1].to<int>(rt);
+			if(i<substrLength) {
 				if(i<0) {
-					count+=i;
+					substrLength+=i;
 				} else {
-					count = i;
+					substrLength = i;
 				}
 			}
 		}
-		return thisObj->sData.getSubStr( static_cast<size_t>(start), static_cast<size_t>(count) );
+		return thisObj->sData.getSubStr( static_cast<size_t>(start), static_cast<size_t>(substrLength) );
 	})
 
 	//! [ESMF] String String.trim()
-	ES_MFUN(typeObject,String,"trim",0,0,StringUtils::trim(thisObj->getString()))  // UNICODE_TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	ES_MFUN(typeObject,const String,"trim",0,0,StringUtils::trim(thisObj->getString()))
 
-
-	//! [ESMF] String String.replace((String)search,(String)replace)  // UNICODE_TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	ES_MFUN(typeObject,String,"replace",2,2,
+	//! [ESMF] String String.replace((String)search,(String)replace)
+	ES_MFUN(typeObject,const String,"replace",2,2,
 				StringUtils::replaceAll(thisObj->getString(),parameter[0].toString(),parameter[1]->toString(),1))
 
 	typedef std::pair<std::string,std::string> keyValuePair_t;
-	//! [ESMF] String.replaceAll( (Map | ((String)search,(String)replace)) [,(Number)max])  // UNICODE_TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	ES_MFUNCTION(typeObject,String,"replaceAll",1,3,{
+	//! [ESMF] String.replaceAll( (Map | ((String)search,(String)replace)) [,(Number)max])
+	ES_MFUNCTION(typeObject,const String,"replaceAll",1,3,{
 		const std::string & subject(thisObj->getString());
 
 		//Map * m
 		if( Map * m = parameter[0].toType<Map>()) {
 			assertParamCount(rt,parameter.count(),1,2);
 			std::vector<keyValuePair_t> rules;
-			ERef<Iterator> iRef = m->getIterator();
-			while(!iRef->end()) {
-				ObjRef key = iRef->key();
-				ObjRef value = iRef->value();
-				rules.push_back(std::make_pair(key.toString(),value.toString()));
-				iRef->next();
-			}
+			
+			for(const auto & it : *m)
+				rules.emplace_back(it.first,it.second.value->toString());
 			return StringUtils::replaceMultiple(subject,rules,parameter[1].toInt(-1));
+		}else{
+			assertParamCount(rt,parameter.count(),2,3);
+			return StringUtils::replaceAll(subject,parameter[0].toString(),parameter[1].toString(),parameter[2].toInt(-1));
 		}
-
-		const std::string search(parameter[0].toString());
-		const std::string replace(parameter[1]->toString());
-
-		return StringUtils::replaceAll(subject,search,replace,parameter[2].toInt(-1));
 	})
 
-	//! [ESMF] Number|false String.rFind( (String)search [,(Number)startIndex] )// UNICODE_TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	ES_MFUNCTION(typeObject,String,"rFind",1,2, {
-		const std::string & s(thisObj->getString());
-		std::string search = parameter[0].toString();
-		size_t start = s.length();
-		if(parameter.count()>1) {
-			start = static_cast<size_t>(parameter[1].to<int>(rt));
-			if(start>=s.length())
-				start = s.length();
-			//std::cout << " #"<<start<< " ";
-		}
-		size_t pos = s.rfind(search,start);
+	//! [ESMF] Number|false String.rFind( (String)search [,(Number)startIndex] )
+	ES_MFUNCTION(typeObject,const String,"rFind",1,2, {
+		const size_t pos = parameter.count() == 1 ? 
+								thisObj->sData.rFind(parameter[0].toString()) :
+								thisObj->sData.rFind(parameter[0].toString(),parameter[1].toUInt());
 		if(pos==std::string::npos ) {
 			return false;
-		} else return static_cast<uint32_t>(pos);
+		} else {
+			return static_cast<uint32_t>(pos);
+		}
 	})
 
 
 
 
-	//! [ESMF] Array String.split((String)search[,(Number)max])  // UNICODE_TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	ES_MFUNCTION(typeObject,String,"split",1,2, {
-		std::vector<std::string> result;
-		StringUtils::split( thisObj->getString(), parameter[0].toString(), result, parameter[1].to<int>(rt,-1) );
-		return Array::create(result);
+	//! [ESMF] Array String.split((String)search[,(Number)max])
+	ES_MFUNCTION(typeObject,const String,"split",1,2, {
+		return Array::create( StringUtils::split( thisObj->getString(), parameter[0].toString(),  parameter[1].to<int>(rt,-1) ) );
 	})
 
-	//! [ESMF] String String.toLower()  // UNICODE_TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	ES_MFUN(typeObject,String,"toLower",0,0,StringUtils::toLower(thisObj->getString()))
+	//! [ESMF] String String.toLower()
+	ES_MFUNCTION(typeObject,const String,"toLower",0,0,{
+		std::string str = thisObj->getString();
+		for(size_t i=0;i<str.length();++i){
+			const char c = str[i];
+			if(c>='A' && c<='Z')
+				str[i] = c-'A'+'a';
+		}
+		return str;
+	})
 
-	//! [ESMF] String String.toUpper()  // UNICODE_TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	ES_MFUN(typeObject,String,"toUpper",0,0,StringUtils::toUpper(thisObj->getString()))
+	//! [ESMF] String String.toUpper()
+	ES_MFUNCTION(typeObject,const String,"toUpper",0,0,{
+		std::string str = thisObj->getString();
+		for(size_t i=0;i<str.length();++i){
+			const char c = str[i];
+			if(c>='a' && c<='z')
+				str[i] = c-'a'+'A';
+		}
+		return str;
+	})
 
 	//- Operators
 
 	//! [ESMF] String String+(String)Obj
-	ES_MFUN(typeObject,String,"+",1,1,thisObj->getString() + parameter[0].toString())
+	ES_MFUN(typeObject,const String,"+",1,1,thisObj->getString() + parameter[0].toString())
 
 	//! [ESMF] String String*(Number)Obj
-	ES_MFUNCTION(typeObject,String,"*",1,1,{
+	ES_MFUNCTION(typeObject,const String,"*",1,1,{
 		std::string s;
 		const std::string s2( thisObj->getString() );
 		for(int i = parameter[0].to<int>(rt);i>0;--i)
@@ -224,25 +226,25 @@ void String::init(EScript::Namespace & globals) {
 
 	//! [ESMF] thisObj String*=(Number)Obj
 	ES_MFUNCTION(typeObject,String,"*=",1,1,{
-		std::string s;
-		std::string s2( thisObj->getString() );
+		std::ostringstream s;
+		const std::string s2( thisObj->getString() );
 		for(int i = parameter[0].to<int>(rt);i>0;--i)
-			s+=s2;
-		thisObj->setString(s);
+			s<<s2;
+		thisObj->setString(s.str());
 		return  thisEObj;
 	})
 
 	//! [ESMF] bool String>(String)Obj
-	ES_MFUN(typeObject,String,">",1,1,thisObj->getString() > parameter[0].toString())
+	ES_MFUN(typeObject,const String,">",1,1,thisObj->getString() > parameter[0].toString())
 
 	//! [ESMF] bool String>=(String)Obj
-	ES_MFUN(typeObject,String,">=",1,1,thisObj->getString() >= parameter[0].toString())
+	ES_MFUN(typeObject,const String,">=",1,1,thisObj->getString() >= parameter[0].toString())
 
 	//! [ESMF] bool String<(String)Obj
-	ES_MFUN(typeObject,String,"<",1,1,thisObj->getString() < parameter[0].toString())
+	ES_MFUN(typeObject,const String,"<",1,1,thisObj->getString() < parameter[0].toString())
 
 	//! [ESMF] bool String<=(String)Obj
-	ES_MFUN(typeObject,String,"<=",1,1,thisObj->getString() <= parameter[0].toString())
+	ES_MFUN(typeObject,const String,"<=",1,1,thisObj->getString() <= parameter[0].toString())
 }
 
 //---
@@ -268,7 +270,7 @@ void String::release(String * o){
 	#endif
 	if(o->getType()!=getTypeObject()){
 		delete o;
-		std::cout << "Found diff StringType\n";
+		std::cout << "(internal) String::release: Invalid StringType\n";
 	}else{
 	   pool.push(o);
 	}

@@ -134,7 +134,7 @@ var FAILED="\t failed\n";
 		&& "blub".find("lu") == 1 && !("blob".find("lu"))
 		&& ("foo"*3).replace("oo","x") == "fxfoofoo"
 		&& ("foo"*3).replaceAll( {"oo":"ar ","f":"b"},3 ) == "bar boofoo"
-		&& "foooooo".rFind("o") == 6 && "foooooo".rFind("o",4) == 4 && !("fooooxx".rFind("x",4))
+		&& "fooooooxx".rFind("oo") == 5 && "fooooooxxoo".rFind("oo",8) == 5  && !("fooooxx".rFind("x",4))
 		&& "FooBar".substr(1) == "ooBar" && "FooBar".substr(-4) == "oBar" && "FooBar".substr(1,-3) == "oo"  && "FooBar".substr(-3,1) == "B"
 		&& " fOObaR12.3".toLower() == " foobar12.3" &&" fOObaR12.3".toUpper() == " FOOBAR12.3"
 
@@ -142,10 +142,9 @@ var FAILED="\t failed\n";
 		&& "blä".length() == 3
 		&& "föße"[2] == "ß"
 		&& "fääääääääääöße".find("ß") == 12 && "fääääääääääöße".find("ü") == false
+		&& "fööööööxxöö".rFind("öö",8) == 5 
 		&& "bla".fillUp(10,'ä') == "blaäääääää" 
-
 		,String);
-
 }
 
 //---

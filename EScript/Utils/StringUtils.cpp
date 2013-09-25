@@ -6,7 +6,6 @@
 #include <cstdlib>
 #include <cstdio>
 #include <iomanip>
-#include <locale>
 #include <sstream>
 #include <cstdint>
 
@@ -86,15 +85,13 @@ std::string StringUtils::trim(const std::string & s) {
 		return std::string();
 	unsigned int start,end;
 	for(start = 0;start<s.length();++start) {
-		char c = s[start];
-		if(c==' '||c=='\t'||c=='\n'||c=='\r'||c=='\0'||c==11)
-			continue;
-		break;
+		const char c = s[start];
+		if(c!=' '&&c!='\t'&&c!='\n'&&c!='\r'&&c!='\0'&&c!=11)
+			break;
 	}
 	for(end = s.length()-1;end>=start;--end) {
-		char c = s[end];
-		if(c==' '||c=='\t'||c=='\n'||c=='\r'||c=='\0'||c==11)
-			continue;
+		const char c = s[end];
+		if(c!=' '&&c!='\t'&&c!='\n'&&c!='\r'&&c!='\0'&&c!=11)
 		break;
 	}
 	const int count = end-start+1;
@@ -102,7 +99,7 @@ std::string StringUtils::trim(const std::string & s) {
 }
 std::string StringUtils::rTrim(const std::string & s){
 	for(int right = s.length()-1 ; right >= 0 ; --right){
-		char c = s[right];
+		const char c = s[right];
 		if( !(c==' '||c=='\t'||c=='\n'||c=='\r'||c=='\0'||c==11))
 			return s.substr(0,right+1);
 	}
@@ -110,7 +107,7 @@ std::string StringUtils::rTrim(const std::string & s){
 }
 std::string StringUtils::lTrim(const std::string & s){
 	for(size_t left = 0 ; left<s.length() ; ++left){
-		char c = s[left];
+		const char c = s[left];
 		if( !(c==' '||c=='\t'||c=='\n'||c=='\r'||c=='\0'||c==11))
 			return s.substr(left,s.length()-left);
 	}
@@ -242,32 +239,34 @@ std::string StringUtils::UCS2LE_to_ANSII(const std::string & source)   {
 	return s.str();
 }
 
-void StringUtils::split(const std::string & subject,const std::string & delimiter, std::vector<std::string> & result, int max){
+std::vector<std::string> StringUtils::split(const std::string & subject,const std::string & delimiter, int max){
+	std::vector<std::string> result;
 	const size_t len = subject.length();
-	const size_t delimiterLen = delimiter.length();
-	if(len==0){
-		return;
-	}else if(delimiterLen>len || delimiterLen==0){
-		result.emplace_back(subject);
-	}else{
-		size_t cursor = 0;
-		for( int i = 1 ; i!=max&&cursor<=len-delimiterLen ; ++i){
-			size_t pos = subject.find(delimiter,cursor);
-			if( pos==std::string::npos ) // no delimiter found? -> to the end
-				pos = len;
-			result.push_back( subject.substr(cursor,pos-cursor) );
-			cursor = pos+delimiterLen;
+	if(len>0){
+		const size_t delimiterLen = delimiter.length();
+		if(delimiterLen>len || delimiterLen==0){
+			result.emplace_back(subject);
+		}else{
+			size_t cursor = 0;
+			for( int i = 1 ; i!=max&&cursor<=len-delimiterLen ; ++i){
+				size_t pos = subject.find(delimiter,cursor);
+				if( pos==std::string::npos ) // no delimiter found? -> to the end
+					pos = len;
+				result.push_back( subject.substr(cursor,pos-cursor) );
+				cursor = pos+delimiterLen;
 
-			if(cursor==len){ // ending on delimiter? -> add empty part
-				result.push_back("");
+				if(cursor==len){ // ending on delimiter? -> add empty part
+					result.push_back("");
+				}
 			}
+			if(cursor<len)
+				result.push_back( subject.substr(cursor,len-cursor) );
 		}
-		if(cursor<len)
-			result.push_back( subject.substr(cursor,len-cursor) );
 	}
+	return result;
 }
 
-std::string StringUtils::escape(const std::string & s){
+static std::vector<std::pair<std::string,std::string>> getEscapeRules(){
 	typedef std::pair<std::string,std::string> keyValuePair_t;
 	std::vector<keyValuePair_t> replace;
 	replace.emplace_back("\"","\\\"");
@@ -278,35 +277,14 @@ std::string StringUtils::escape(const std::string & s){
 	replace.emplace_back("\t","\\t");
 	replace.emplace_back(std::string("\0",1),"\\0");
 	replace.emplace_back("\\","\\\\");
-	return replaceMultiple(s,replace);
+	return replace;
 }
 
-std::string StringUtils::toLower(const std::string & s){
-	const size_t length = s.length();
-	if(length==0)
-		return "";
-	char * buffer = new char[length];
-	std::copy(s.c_str(),s.c_str()+length,buffer);
-	std::locale loc;
-	std::use_facet< std::ctype<char> >(loc).tolower( buffer, buffer+length );
-	const std::string output(buffer,length);
-	delete[]buffer;
-	return output;
+std::string StringUtils::escape(const std::string & s){
+	static const auto escapeRules = getEscapeRules();
+	return replaceMultiple(s,escapeRules);
 }
 
-
-std::string StringUtils::toUpper(const std::string & s){
-	const size_t length = s.length();
-	if(length==0)
-		return "";
-	char * buffer = new char[length];
-	std::copy(s.c_str(),s.c_str()+length,buffer);
-	std::locale loc;
-	std::use_facet< std::ctype<char> >(loc).toupper( buffer, buffer+length );
-	const std::string output(buffer,length);
-	delete[]buffer;
-	return output;
-}
 std::string StringUtils::getLine(const std::string &s,const int lineIndex){
 	size_t cursor = 0;
 	for(int i = 0;i<lineIndex;++i){
