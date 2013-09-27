@@ -1188,19 +1188,29 @@ EPtr<AST::ASTNode> Parser::readControl(ParsingContext & ctxt,int & cursor)const 
 			throwError(ctxt,"[if] expects (...)",tokens.at(cursor));
 		}
 		++cursor;
+		const bool actionIsNormalBlock = Token::isA<TStartBlock>(tokens.at(cursor));
 		EPtr<AST::ASTNode> action = readStatement(ctxt,cursor);
-		EPtr<AST::ASTNode> elseAction;
-		if((tc = Token::cast<TControl>(tokens.at(cursor+1)))) {
-			if(tc->getId()==Consts::IDENTIFIER_else) {
-				++cursor;
-				++cursor;
-				elseAction = readStatement(ctxt,cursor);
+		
+		// action is a loop 
+		if(!actionIsNormalBlock && 	action.isNotNull()){ 
+			auto wrappingBlock = action.toType<Block>(); // no normal block, but block? -> possibly a loop wrapping block
+			if(wrappingBlock && !wrappingBlock->getStatements().empty()){
+				auto loop = wrappingBlock->getStatements()[0].toType<AST::LoopStatement>();
+				if(loop && loop->getElseAction().isNotNull()){
+					log(ctxt,Logger::LOG_WARNING, "[if] Loops using 'else' should be wrapped in a block.",tc);
+				}
 			}
+		}
+		EPtr<AST::ASTNode> elseAction;
+		if((tc = Token::cast<TControl>(tokens.at(cursor+1))) && tc->getId()==Consts::IDENTIFIER_else) {
+			++cursor;
+			++cursor;
+			elseAction = readStatement(ctxt,cursor);
 		}
 		return new IfStatement(condition,action,elseAction);
 	}
 	/// for-Control
-	/*	for( [init] ; [condition] ; [incr] ) [action]
+	/*	for( [init] ; [condition] ; [incr] ) [action] else [elseAction]
 
 		{
 			[init]
@@ -1208,10 +1218,12 @@ EPtr<AST::ASTNode> Parser::readControl(ParsingContext & ctxt,int & cursor)const 
 			if( [condition] )
 				[action]
 			else
-				break;
+				goto else:
 		continue:
 			[incr]
 			goto A:
+		else:
+			[elseAction]
 		} break;
 	*/
 	else if(cId==Consts::IDENTIFIER_for) {
@@ -1239,9 +1251,14 @@ EPtr<AST::ASTNode> Parser::readControl(ParsingContext & ctxt,int & cursor)const 
 		}
 		++cursor;
 		EPtr<AST::ASTNode> action = readStatement(ctxt,cursor);
-
-
-		loopWrappingBlock->addStatement( LoopStatement::createForLoop(initExp,condition,incr,action) );
+		
+		EPtr<AST::ASTNode> elseAction;
+		if((tc = Token::cast<TControl>(tokens.at(cursor+1))) && tc->getId()==Consts::IDENTIFIER_else) {
+			++cursor;
+			++cursor;
+			elseAction = readStatement(ctxt,cursor);
+		}
+		loopWrappingBlock->addStatement( LoopStatement::createForLoop(initExp,condition,incr,action,elseAction) );
 		return loopWrappingBlock;
 	}
 	/// while-Control
@@ -1252,6 +1269,7 @@ EPtr<AST::ASTNode> Parser::readControl(ParsingContext & ctxt,int & cursor)const 
 			if( [condition] )
 				[action]
 			else
+				[elseAction]
 				break;
 			goto A:
 		} break:
@@ -1270,8 +1288,13 @@ EPtr<AST::ASTNode> Parser::readControl(ParsingContext & ctxt,int & cursor)const 
 		}
 		++cursor;
 		EPtr<AST::ASTNode> action = readStatement(ctxt,cursor);
-
-		loopWrappingBlock->addStatement(  LoopStatement::createWhileLoop(condition,action) );
+		EPtr<AST::ASTNode> elseAction;
+		if((tc = Token::cast<TControl>(tokens.at(cursor+1))) && tc->getId()==Consts::IDENTIFIER_else) {
+			++cursor;
+			++cursor;
+			elseAction = readStatement(ctxt,cursor);
+		}
+		loopWrappingBlock->addStatement(  LoopStatement::createWhileLoop(condition,action,elseAction) );
 		return loopWrappingBlock;
 	}
 	/// Do-while-Control
@@ -1282,6 +1305,8 @@ EPtr<AST::ASTNode> Parser::readControl(ParsingContext & ctxt,int & cursor)const 
 		continue:
 			if( [condition] )
 				goto A:
+			else
+				[elseAction]
 		} break:
 	*/
 	else if(cId==Consts::IDENTIFIER_do) {
@@ -1302,12 +1327,18 @@ EPtr<AST::ASTNode> Parser::readControl(ParsingContext & ctxt,int & cursor)const 
 		if(!Token::isA<TEndBlock>(tokens.at(cursor))) {
 			throwError(ctxt,"[do-while] expects (...)",tokens.at(cursor));
 		}
-		++cursor;
-		if(!Token::isA<TEndCommand>(tokens.at(cursor))) {
+		
+		EPtr<AST::ASTNode> elseAction;
+		if((tc = Token::cast<TControl>(tokens.at(cursor+1))) && tc->getId()==Consts::IDENTIFIER_else) {
+			++cursor;
+			++cursor;
+			elseAction = readStatement(ctxt,cursor);
+		}else if(Token::isA<TEndCommand>(tokens.at(cursor+1))) {
+			++cursor;
+		}else{
 			throwError(ctxt,"[do-while] expects ;",tokens.at(cursor));
 		}
-
-		loopWrappingBlock->addStatement( LoopStatement::createDoWhileLoop(condition,action) ) ;
+		loopWrappingBlock->addStatement( LoopStatement::createDoWhileLoop(condition,action,elseAction) ) ;
 		return loopWrappingBlock;
 	}
 	/// foreach-Control

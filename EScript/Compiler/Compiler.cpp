@@ -475,6 +475,7 @@ bool initHandler(handlerRegistry_t & m){
 		const uint32_t loopBegin = ctxt.createMarker();
 		const uint32_t loopEndMarker = ctxt.createMarker();
 		const uint32_t loopContinueMarker = ctxt.createMarker();
+		const uint32_t loopElseMarker = ctxt.createMarker();
 
 		if(self->getInitStatement().isNotNull()){
 			ctxt.addStatement(self->getInitStatement());
@@ -483,7 +484,7 @@ bool initHandler(handlerRegistry_t & m){
 
 		if(self->getPreConditionExpression().isNotNull()){
 			ctxt.addExpression(self->getPreConditionExpression());
-			ctxt.addInstruction(Instruction::createJmpOnFalse(loopEndMarker));
+			ctxt.addInstruction(Instruction::createJmpOnFalse(loopElseMarker));
 		}
 		ctxt.pushSetting_marker( CompilerContext::BREAK_MARKER ,loopEndMarker);
 		ctxt.pushSetting_marker( CompilerContext::CONTINUE_MARKER ,loopContinueMarker);
@@ -504,6 +505,11 @@ bool initHandler(handlerRegistry_t & m){
 			}
 			ctxt.addInstruction(Instruction::createJmp(loopBegin));
 		}
+		ctxt.addInstruction(Instruction::createSetMarker(loopElseMarker));
+		if(self->getElseAction().isNotNull()){
+			ctxt.addStatement(self->getElseAction());
+		}
+
 		ctxt.addInstruction(Instruction::createSetMarker(loopEndMarker));
 	})
 

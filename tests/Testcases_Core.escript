@@ -144,9 +144,17 @@ var FAILED="\t failed\n";
 		&& "fääääääääääöße".find("ß") == 12 && "fääääääääääöße".find("ü") == false
 		&& "fööööööxxöö".rFind("öö",8) == 5 
 		&& "bla".fillUp(10,'ä') == "blaäääääää" 
+
+		&& "ä".length() == 1
+		&& "dämlich".length() == 7
+		&& "äöü"[1] == "ö"
+		&& "#äöüghf3%ßhksdggnkl"[2] == "ö"
+		&& "#äöüghf3%ßhksdggnkl"[9] == "ß"
+		&& "äöü".substr(1) == "öü"
+		&& "dfgrtg gfd adsäbcßäa".substr(-3)=="ßäa"
 		,String);
 }
-
+		
 //---
 {
 	out("Void:\t\t");
@@ -1083,12 +1091,90 @@ if(!benchmark)
 	
 }
 
+{	// loop-else
+	
+	var forElseTest = fn(x){
+		var result = 0;
+		for(var i=0;i<x;++i){
+			if(i==5)
+				break;
+			else if(i>=3)
+				continue;
+			++result;
+		}else{
+			result += i+100;
+		}
+		return result;
+	};
+	
+	var whileElseTest = fn(x){
+		var result = 0;
+		var i=0;
+		while(i<x){
+			if(i==5)
+				break;
+			if(i>=3){
+				++i;
+				continue;
+			}
+			++result;
+			++i;
+		}else
+			result += i+100;
+		return result;
+	};
+	var doWhileElseTest = fn(x){
+		var result = -1;
+		var i = -1;
+		do{
+			if(i==5)
+				break;
+			if(i>=3){
+				++i;
+				continue;
+			}
+			++result;
+			++i;
+		}while(i<x) else {
+			result += i+100;
+		}
+		return result;
+	};
+	
+	var warnOnLoopWithElseInIf = false;
+	Runtime.setTreatWarningsAsError(true);
+	try{
+		eval( R"( 
+		if(true)
+			for(var i=0;i<10;++i){
+				out(".");
+			}else{
+				outln(i);
+			}
+		)" );
+	}catch(e){
+		if( (""+e).find("[if]")) // warning message should contain '[if]'
+			warnOnLoopWithElseInIf = true;
+	}
+	Runtime.setTreatWarningsAsError(false);
+	
+	test("loop-else",	
+		forElseTest(0) == 100 && forElseTest(2) == 104 && forElseTest(4) == 107 && forElseTest(10)==3 &&
+		whileElseTest(0) == 100 && whileElseTest(2) == 104 && whileElseTest(4) == 107 && whileElseTest(10)==3 &&
+		doWhileElseTest(0) == 100 && doWhileElseTest(2) == 104 && doWhileElseTest(4) == 107 && doWhileElseTest(10)==3 &&
+		warnOnLoopWithElseInIf &&
+		true);
+}
+
+{
+	var variäblö = 2;
+	test("unicode identifiers", variäblö==2);
+}
+
 {	// StdLib (not complete!)
 	test("StdLib:", !getEnv("PATH").empty() && !getEnv("THIS_SHOULD_NOT_EXIST") &&
 		chr(65)=="A" && ord("A")==65 && ord("")==0 );
 }
-
-
 
 {	// EStdLib (...)
 	
@@ -1121,32 +1207,6 @@ b
 c\n)" == "a\\\nb\nc\\n"	&& R"#(foo)#" == "foo" && R"Delimiter()Delimiter".empty());	
 }
 //out(Runtime.getLocalStackInfo());
-
-
-{	// utf8-support
-	var variäblö = 2;
-	
-	test("(partial) utf8-support", variäblö==2 
-		&& "ä".length() == 1
-		&& "dämlich".length() == 7
-		&& "äöü"[1] == "ö"
-		&& "#äöüghf3%ßhksdggnkl"[2] == "ö"
-		&& "#äöüghf3%ßhksdggnkl"[9] == "ß"
-		&& "äöü".substr(1) == "öü"
-		&& "dfgrtg gfd adsäbcßäa".substr(-3)=="ßäa"
-
-	);
-//	outln("äbc".substr(1));
-//	outln("äbcßäa".substr(-3)=="ßäa");
-//	for(var i=0;true;++i){
-//		var s = " Fünction pärameter checks "[i];
-//		out(i,":",s," ");
-//		if(!s)
-//		break;
-//	}
-//	outln([1]);
-
-}
 
 //
 //}
