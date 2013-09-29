@@ -14,7 +14,7 @@ files.filter( fn(filename){return filename.endsWith(".h") || filename.endsWith("
 foreach(files as var file){
 	out(file,"\t");
 
-	var input = IO.fileGetContents(file); // read file
+	var input = IO.loadTextFile(file); // read file
 
 	// use '\n' as line ending
 	var lineEnding="\n";
@@ -73,7 +73,7 @@ foreach(files as var file){
 	}
 	if(output!=input){
 		try{
-			IO.filePutContents(file,output);
+			IO.saveTextFile(file,output);
 		out("***changed***\n");
 		}catch(e){
 			out("\n",e,"\n");

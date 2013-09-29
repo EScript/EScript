@@ -103,7 +103,7 @@ void Runtime::init(EScript::Namespace & globals) {
 	// --- internals and experimental functions
 
 	//! [ESF]  Object _callFunction(fun[,obj[,Array params]])
-	ES_FUNCTION2(typeObject,"_callFunction",1,3, {
+	ES_FUNCTION(typeObject,"_callFunction",1,3, {
 		EPtr<Array> paramArr( (parameter.count()>2) ? assertType<Array>(rt,parameter[2]) : nullptr );
 		ParameterValues params(paramArr.isNotNull() ? paramArr->count() : 0);
 		if(paramArr.isNotNull()){

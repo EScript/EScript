@@ -12,7 +12,6 @@
 #include "Utils/DeclarationHelper.h"
 #include "Utils/RuntimeHelper.h"
 #include "Utils/Macros.h"
-#include "Utils/DeprecatedMacros.h" // only temporary!
 #include "Utils/StdConversions.h"
 #include "Utils/StdFactories.h"
 

@@ -28,11 +28,11 @@
 		- EScript::ParameterValues parameter
 	\example
 		// Within the SomeLib::init(...) function:
-		ES_FUNCTION2(typeObj, "someStaticFunction", 1, 1, {
+		ES_FUNCTION(typeObj, "someStaticFunction", 1, 1, {
 				return someStaticFunction(parameter[0].to<const SomeValue&>(rt));
 		})
 */
-#define ES_FUNCTION2(_typeObject, _fnNameStr, _min, _max, _block) \
+#define ES_FUNCTION(_typeObject, _fnNameStr, _min, _max, _block) \
 	{ \
 		struct _fnWrapper { \
 			ES_FUNCTION_DEF_(function)_block \
@@ -49,7 +49,7 @@
 		ES_FUN(typeObj, "someStaticFunction", 1, 1, someStaticFunction(parameter[0].to<const SomeValue&>(rt)))
 */
 #define ES_FUN(_typeObject, _fnNameStr, _min, _max, _returnExpr) \
-	ES_FUNCTION2(_typeObject, _fnNameStr, _min, _max,{return EScript::value(_returnExpr);})
+	ES_FUNCTION(_typeObject, _fnNameStr, _min, _max,{return EScript::value(_returnExpr);})
 
 // -----------------
 // member functions
@@ -67,7 +67,7 @@
 		})
 */
 #define ES_MFUNCTION(_typeObject, _targetType, _fnNameStr, _min, _max, _block) \
-	ES_FUNCTION2(_typeObject, _fnNameStr, _min, _max,{ \
+	ES_FUNCTION(_typeObject, _fnNameStr, _min, _max,{ \
 		_targetType * thisObj = thisEObj.to<_targetType*>(rt); \
 		do _block while(false); \
 	})

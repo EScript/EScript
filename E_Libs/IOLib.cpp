@@ -27,8 +27,8 @@ void IOLib::init(EScript::Namespace * o) {
 	Namespace * lib = new Namespace;
 	declareConstant(o,"IO",lib);
 
-	//! [ESF] string fileGetContents(string filename,[format])
-	ES_FUNCTION2(lib,"fileGetContents",1,2, {
+	//! [ESF] string loadTextFile(string filename,[format])
+	ES_FUNCTION(lib,"loadTextFile",1,2, {
 
 		StringData content;
 		try{
@@ -48,9 +48,10 @@ void IOLib::init(EScript::Namespace * o) {
 		}
 		return create(content);
 	})
+	declareConstant(lib,"fileGetContents",lib->getAttribute("loadTextFile").getValue()); //! \deprecated alias
 
-	//! [ESF] void filePutContents(string filename,string)
-	ES_FUNCTION2(lib,"filePutContents",2,2,{
+	//! [ESF] void saveTextFile(string filename,string)
+	ES_FUNCTION(lib,"saveTextFile",2,2,{
 		try{
 			IO::saveFile(parameter[0].toString(),parameter[1].toString());
 		}catch(const std::ios::failure & e){
@@ -59,9 +60,10 @@ void IOLib::init(EScript::Namespace * o) {
 		}
 		return nullptr;
 	})
+	declareConstant(lib,"filePutContents",lib->getAttribute("saveTextFile").getValue()); //! \deprecated alias
 
 	//! [ESF] array dir(string dirname[,int flags])
-	ES_FUNCTION2(lib,"dir",1,2, {
+	ES_FUNCTION(lib,"dir",1,2, {
 		try {
 			return Array::create( IO::getFilesInDir(parameter[0].toString(), parameter[1].toInt(E_DIR_FILES)));
 		} catch (const std::string & s) {

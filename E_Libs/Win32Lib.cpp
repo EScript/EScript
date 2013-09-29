@@ -23,7 +23,7 @@ void Win32Lib::init(EScript::Namespace * globals) {
 	ES_FUN(lib,"getClipboard",0,0,Win32Lib::getClipboard())
 
 	//! [ESF]	bool loadLibrary(string )
-	ES_FUNCTION2(lib,"loadLibrary",1,1, {
+	ES_FUNCTION(lib,"loadLibrary",1,1, {
 		HINSTANCE hDLL;
 		libInitFunction *  f;	// Function pointer
 

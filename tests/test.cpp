@@ -51,27 +51,29 @@ public:
 		declareConstant(&ns,getClassName(),typeObject);
 
 		//! TestObject new TestObject([i [,j]])
-		ESF_DECLARE(typeObject,"_constructor",0,2,new E_TestObject(parameter[0].to<int>(runtime),parameter[1].to<float>(runtime)))
+		ES_CTOR(typeObject,0,2,new E_TestObject(parameter[0].to<int>(rt),parameter[1].to<float>(rt)))
 
 		//! Number getM1()
-		ESMF_DECLARE(typeObject,E_TestObject,"getM1",0,0,(**self).m1)
+		ES_MFUN(typeObject, const TestObject,"getM1",0,0, thisObj->m1)
 
 		//! Number getM2()
-		ESMF_DECLARE(typeObject,E_TestObject,"getM2",0,0,(**self).m2)
+		ES_MFUN(typeObject, const TestObject,"getM2",0,0, thisObj->m2)
 		
 		//! self setM1(Number)
-		ESMF_DECLARE(typeObject,E_TestObject,"setM1",1,1,((**self).m1=parameter[0].to<int>(runtime),self))
+		ES_MFUN(typeObject, TestObject,"setM1",1,1,( thisObj->m1=parameter[0].to<int>(rt),thisEObj))
 
 		//! self setM2(Number)
-		ESMF_DECLARE(typeObject,E_TestObject,"setM2",1,1,((**self).m2=parameter[0].to<float>(runtime),self))
+		ES_MFUN(typeObject, TestObject,"setM2",1,1,( thisObj->m2=parameter[0].to<float>(rt),thisEObj))
 
 	}
 };
 
+// define rule to convert E_TestObject to TestObject*
+ES_CONV_EOBJ_TO_OBJ(E_TestObject, TestObject*,	&**eObj)
+
 // ----------------------------------------------------------------------------
 
 int main(int argc,char * argv[]) {
-
 	EScript::init();
 
 	// --- Init the TestObejct-Type

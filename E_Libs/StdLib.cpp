@@ -159,7 +159,7 @@ void StdLib::init(EScript::Namespace * globals) {
 
 	/*!	[ESF] void addSearchPath(path)
 		Adds a search path which is used for load(...) and loadOnce(...)	*/
-	ES_FUNCTION2(globals,"addSearchPath",1,1,{
+	ES_FUNCTION(globals,"addSearchPath",1,1,{
 		static const StringId seachPathsId("__searchPaths");
 		Array * searchPaths = dynamic_cast<Array*>(rt.getAttribute(seachPathsId).getValue());
 		if(searchPaths == nullptr){
@@ -171,7 +171,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	})
 
 	//! [ESF] void assert( expression[,text])
-	ES_FUNCTION2(globals,"assert",1,2, {
+	ES_FUNCTION(globals,"assert",1,2, {
 		if(!parameter[0].toBool()){
 			rt.setException(parameter.count()>1?parameter[1].toString():"Assert failed.");
 		}
@@ -191,7 +191,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	}
 
 	//! [ESF]  number clock()
-	ES_FUNCTION2(globals,"clock",0,0,{
+	ES_FUNCTION(globals,"clock",0,0,{
 		LARGE_INTEGER time = _getPerformanceCounter();
 		return static_cast<double>(time.QuadPart-_clockStart.QuadPart) / static_cast<double>(frequency.QuadPart);
 	})
@@ -208,7 +208,7 @@ void StdLib::init(EScript::Namespace * globals) {
 
 	/*!	[ESF]  Map getDate([time])
 		like http://de3.php.net/manual/de/function.getdate.php	*/
-	ES_FUNCTION2(globals,"getDate",0,1,{
+	ES_FUNCTION(globals,"getDate",0,1,{
 		time_t t=(parameter.count()==0)?time(nullptr):static_cast<time_t>(parameter[0].to<int>(rt));
 		tm *d = localtime (& t );
 		Map * m = Map::create();
@@ -225,7 +225,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	})
 
 	//! [ESF] string|void getEnv(String)
-	ES_FUNCTION2(globals,"getEnv",1,1,{
+	ES_FUNCTION(globals,"getEnv",1,1,{
 		const char * value = std::getenv(parameter[0].toString().c_str());
 		if(value==nullptr)
 			return nullptr;
@@ -248,7 +248,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	ES_FUN(globals,"ord",1,1,static_cast<int>(parameter[0].toString().c_str()[0] ))
 
 	//! [ESF] void out(...)
-	ES_FUNCTION2(globals,"out",0,-1, {
+	ES_FUNCTION(globals,"out",0,-1, {
 		for(const auto & param : parameter) {
 			std::cout << param.toString();
 		}
@@ -257,7 +257,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	})
 
 	//! [ESF] void outln(...)
-	ES_FUNCTION2(globals,"outln",0,-1, {
+	ES_FUNCTION(globals,"outln",0,-1, {
 		for(const auto & param : parameter) {
 			std::cout << param.toString();
 		}
@@ -266,7 +266,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	})
 
 	//!	[ESF]  BlockStatement parse(string) @deprecated
-	ES_FUNCTION2(globals,"parse",1,1, {
+	ES_FUNCTION(globals,"parse",1,1, {
 		ERef<UserFunction> script;
 
 		Compiler compiler(rt.getLogger());
@@ -278,7 +278,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	ES_FUN(globals,"parseJSON",1,1,JSON::parseJSON(parameter[0].toString()))
 
 	//! [ESF] void print_r(...)
-	ES_FUNCTION2(globals,"print_r",0,-1, {
+	ES_FUNCTION(globals,"print_r",0,-1, {
 		std::cout << "\n";
 		for(const auto & param : parameter) {
 			if(!param.isNull()) {
@@ -292,7 +292,7 @@ void StdLib::init(EScript::Namespace * globals) {
 	ES_FUN(globals,"system",1,1,system(parameter[0].toString().c_str()))
 
 	//!	[ESF] Number exec(String path, Array argv)
-	ES_FUNCTION2(globals, "exec", 2, 2, {
+	ES_FUNCTION(globals, "exec", 2, 2, {
 		Array * array = assertType<Array>(rt, parameter[1]);
 		uint32_t argc = array->size();
 

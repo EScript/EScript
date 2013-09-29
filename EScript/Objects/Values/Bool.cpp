@@ -46,7 +46,7 @@ void Bool::init(EScript::Namespace & globals) {
 				( thisEObj->toBool() ^ parameter[0].toBool())>0 )
 
 //	//! [ESMF] Bool !Bool
-//	ES_FUNCTION2(typeObject,"!_pre",0,0,{
+//	ES_FUNCTION(typeObject,"!_pre",0,0,{
 //						std::cout << " ????? ";
 //						return Bool::create(! thisEObj->toBool());
 //						})

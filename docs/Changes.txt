@@ -2,7 +2,41 @@
 EScript 0.6.7 Elise (Development version)
 Development: 2013-03 -- ...
 
+General:
+ - Named after Elise the Daring Rabbit
+ - Language feature release.
+ 
+Language:
+ - Support for unicode identifiers (utf8)
+ - All strings are now utf8 encoded.
+ - Support for switch/case added.
+ - Support for loop-else added. E.g.:
+		for(var i=0;i<10;++i){
+			if( searchForSomething(i) )
+				break; // found!
+		}else{
+			outln("something not found...");
+			return;
+		}
+ - Support for @(once) added: Statements can be annotated to be called only once. e.g.
+		fn(){
+			@(once) thisFn.staticCounter := 0; // this is only executed once
+			return ++thisFn.staticCounter;
+		};
 
+Internals:
+ - string hanling updated
+ - minor fixes and cleanups
+ 
+C++-Api:
+  - old ES_FUNCTION macro removed; ES_FUNCTION2 renamed to ES_FUNCTION
+ 
+
+Libs:
+ IOLib: 
+  - filePutContents -> saveTextFile
+  - fileGetContents -> loadTextFile
+ 
 --------------------------------------------
 EScript 0.6.6 Eduard (Stable version)
 Release: 2013-02-10

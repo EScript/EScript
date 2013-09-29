@@ -7,6 +7,8 @@
 
 #include "Macros.h"
 
+#define ES_FUNCTION2 ES_FUNCTION
+	
 
 //! (internal)
 #define ES_FUNCTION_DEF_OLD_(_name) \
@@ -88,17 +90,6 @@
 		}; \
 		declareFunction(_obj, _fnNameStr, _min, _max, _fnWrapper::function); \
 	}
-
-
-/*! Macro for defining an EScript function.
-	\example
-		ES_FUNCTION(esmf_Collection_equal) {
-			assertParamCount(runtime, parameter.count(), 1, 1); // at least and at most one parameter
-			return assertType<Collection>(runtime, caller)->rt_isEqual(runtime, parameter[0]);
-		}
-	\deprecated
-*/
-#define ES_FUNCTION(_name) ES_FUNCTION_DEF_OLD_(_name)
 
 /*! Macro for defining a (simple) EScript function in short form.
 	\example

@@ -51,7 +51,7 @@ void Number::init(EScript::Namespace & globals) {
 	ES_FUN(typeObject,"*",1,1,thisEObj->toDouble()*parameter[0].to<double>(rt))
 
 	//! [ESMF] Number / Number2
-	ES_FUNCTION2(typeObject,"/",1,1,{
+	ES_FUNCTION(typeObject,"/",1,1,{
 		const double d = parameter[0].to<double>(rt);
 		if(d==0){
 			rt.setException("Division by zero");
@@ -164,7 +164,7 @@ void Number::init(EScript::Namespace & globals) {
 	// - Misc
 
 	//! [ESMF] Number Number.abs()
-	ES_FUNCTION2(typeObject,"abs",0,0,{
+	ES_FUNCTION(typeObject,"abs",0,0,{
 		const double d = thisEObj->toDouble();
 		return  d>0?d:-d;
 	})
@@ -185,7 +185,7 @@ void Number::init(EScript::Namespace & globals) {
 	ES_FUN(typeObject,"cos",0,0,std::cos(thisEObj->toDouble()))
 
 	//! [ESMF] Number Number.clamp(min,max)
-	ES_FUNCTION2(typeObject,"clamp",2,2, {
+	ES_FUNCTION(typeObject,"clamp",2,2, {
 		const double d = thisEObj->toDouble();
 		const double min = parameter[0].to<double>(rt);
 		if(d<=min)
@@ -225,7 +225,7 @@ void Number::init(EScript::Namespace & globals) {
 		@example (123.456).round(0.1) == 123.5
 				(123.456).round(5) == 125
 				(123.456).round(10) == 120 */
-	ES_FUNCTION2(typeObject,"round",0,1,{
+	ES_FUNCTION(typeObject,"round",0,1,{
 		if(parameter.count()==0)
 			return std::round( thisEObj->toDouble());
 		const double reference = parameter[0].to<double>(rt);
@@ -249,14 +249,14 @@ void Number::init(EScript::Namespace & globals) {
 	ES_FUN(typeObject,"tan",0,0,std::tan( thisEObj->toDouble()))
 
 	//! [ESMF] String Number.toHex()
-	ES_FUNCTION2(typeObject,"toHex",0,0,{
+	ES_FUNCTION(typeObject,"toHex",0,0,{
 		std::ostringstream sprinter;
 		sprinter << std::hex << "0x"<<thisEObj->toInt();
 		return sprinter.str();
 	})
 
 	//! [ESMF] String Number.toIntStr()
-	ES_FUNCTION2(typeObject,"toIntStr",0,0,{
+	ES_FUNCTION(typeObject,"toIntStr",0,0,{
 		std::ostringstream sprinter;
 		sprinter <<thisEObj->toInt();
 		return sprinter.str();

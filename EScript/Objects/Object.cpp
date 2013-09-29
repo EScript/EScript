@@ -110,8 +110,9 @@ void Object::init(EScript::Namespace & globals) {
 	ES_FUN(typeObject,"assignAttribute",2,2,rt.assignToAttribute(thisEObj,parameter[0].toString(),parameter[1]))
 
 	typedef std::unordered_map<StringId,Object *> attrMap_t; // has to be defined here, due to compiler (gcc) bug.
+	
 	//! Map Object._getAttributes()
-	ES_FUNCTION2(typeObject,"_getAttributes",0,0,{
+	ES_FUNCTION(typeObject,"_getAttributes",0,0,{
 		attrMap_t attrs;
 		thisEObj->collectLocalAttributes(attrs);
 		return Map::create(attrs);
