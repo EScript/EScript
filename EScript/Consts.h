@@ -60,15 +60,17 @@ struct Consts{
 
 	static const StringId IDENTIFIER_LINE;
 
-	static const StringId PROPERTY_ATTR_const;
-	static const StringId PROPERTY_ATTR_init;
-	static const StringId PROPERTY_ATTR_member;
-	static const StringId PROPERTY_ATTR_override;
-	static const StringId PROPERTY_ATTR_private;
-	static const StringId PROPERTY_ATTR_public;
-	static const StringId PROPERTY_ATTR_type;
+	static const StringId ANNOTATION_ATTR_const;
+	static const StringId ANNOTATION_ATTR_init;
+	static const StringId ANNOTATION_ATTR_member;
+	static const StringId ANNOTATION_ATTR_override;
+	static const StringId ANNOTATION_ATTR_private;
+	static const StringId ANNOTATION_ATTR_public;
+	static const StringId ANNOTATION_ATTR_type;
+	
+	static const StringId ANNOTATION_FN_super;
 
-	static const StringId PROPERTY_FN_super;
+	static const StringId ANNOTATION_STMT_once;
 
 	static const size_t LOCAL_VAR_INDEX_this = 0; // $0
 	static const size_t LOCAL_VAR_INDEX_thisFn = 1;// $1
@@ -84,6 +86,8 @@ struct Consts{
 	static const size_t SYS_CALL_TEST_ARRAY_PARAMETER_CONSTRAINTS = 6;
 	static const size_t SYS_CALL_EXPAND_PARAMS_ON_STACK = 7;
 	static const size_t SYS_CALL_CASE_TEST = 8;
+	static const size_t SYS_CALL_ONCE = 9;
+	static const size_t NUM_SYS_CALLS = 10;
 
 	static const uint32_t DYNAMIC_PARAMETER_COUNT = ~0u;
 };

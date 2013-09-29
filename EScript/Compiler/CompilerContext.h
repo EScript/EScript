@@ -22,9 +22,8 @@ class ASTNode;
 }
 class Compiler;
 
-/*! Collection of "things" used during the compilation process.
-	As the compilation process is currently under development, it is not clear how this class changes
-	in the near future.	*/
+/*! Collection of "things" used during the compilation process of one user function function 
+	(or block of code without surrounding function).*/
 class CompilerContext {
 		Compiler & compiler;
 		InstructionBlock & instructions;
@@ -56,11 +55,13 @@ class CompilerContext {
 
 		int currentLine;
 		uint32_t currentMarkerId;
+		uint32_t currentOnceMarkerCounter; // used for @(once) [statement]
 
 		CodeFragment code;
 	public:
 		CompilerContext(Compiler & _compiler,InstructionBlock & _instructions,const CodeFragment & _code) :
-				compiler(_compiler),instructions(_instructions),currentLine(-1),currentMarkerId(Instruction::JMP_TO_MARKER_OFFSET),code(_code){}
+				compiler(_compiler),instructions(_instructions),currentLine(-1),currentMarkerId(Instruction::JMP_TO_MARKER_OFFSET),
+				currentOnceMarkerCounter(0),code(_code){}
 
 		void addInstruction(const Instruction & newInstruction)			{	instructions.addInstruction(newInstruction,currentLine);	}
 
@@ -73,6 +74,7 @@ class CompilerContext {
 		void addStatement(EPtr<AST::ASTNode> stmt);
 
 		uint32_t createMarker()											{	return currentMarkerId++;	}
+		StringId createOnceStatementMarker(); // used for @(once) [statement]
 		uint32_t declareString(const std::string & str)					{	return instructions.declareString(str);	}
 
 		const CodeFragment & getCode()const								{	return code;	}

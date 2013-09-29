@@ -1171,6 +1171,30 @@ if(!benchmark)
 	test("unicode identifiers", variäblö==2);
 }
 
+{	// @(once)
+	var f = fn(){
+		@(once) thisFn.staticVar := 0; // this is only executed once
+		@(once){ // statements can be blocks; multiple @(once) are supported per functions
+			thisFn.anotherStaticVar := thisFn.isSet($anotherStaticVar) ? 0 : 1; 
+		} 
+		return thisFn.staticVar += thisFn.anotherStaticVar;
+	};
+
+	var ok = true;
+	var lastValue = 0;
+	for(var i=0;i<10;++i){
+		var value = f();
+		if(value<=lastValue){
+			ok = false;
+			break;
+		}
+		lastValue = value;
+	}
+	
+	test("@(once)",ok);
+
+}
+
 {	// StdLib (not complete!)
 	test("StdLib:", !getEnv("PATH").empty() && !getEnv("THIS_SHOULD_NOT_EXIST") &&
 		chr(65)=="A" && ord("A")==65 && ord("")==0 );

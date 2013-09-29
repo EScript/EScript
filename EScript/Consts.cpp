@@ -53,14 +53,15 @@ const StringId Consts::IDENTIFIER_var("var");
 const StringId Consts::IDENTIFIER_while("while");
 const StringId Consts::IDENTIFIER_yield("yield");
 
-const StringId Consts::PROPERTY_ATTR_const("const");
-const StringId Consts::PROPERTY_ATTR_init("init");
-const StringId Consts::PROPERTY_ATTR_member("member");
-const StringId Consts::PROPERTY_ATTR_override("override");
-const StringId Consts::PROPERTY_ATTR_private("private");
-const StringId Consts::PROPERTY_ATTR_public("public");
-const StringId Consts::PROPERTY_ATTR_type("type");
-const StringId Consts::PROPERTY_FN_super("super");
+const StringId Consts::ANNOTATION_ATTR_const("const");
+const StringId Consts::ANNOTATION_ATTR_init("init");
+const StringId Consts::ANNOTATION_ATTR_member("member");
+const StringId Consts::ANNOTATION_ATTR_override("override");
+const StringId Consts::ANNOTATION_ATTR_private("private");
+const StringId Consts::ANNOTATION_ATTR_public("public");
+const StringId Consts::ANNOTATION_ATTR_type("type");
+const StringId Consts::ANNOTATION_FN_super("super");
+const StringId Consts::ANNOTATION_STMT_once("once");
 
 const StringId Consts::IDENTIFIER_LINE("__LINE__");
 

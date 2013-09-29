@@ -46,10 +46,10 @@ void Collection::init(EScript::Namespace & globals) {
 	ES_MFUN(typeObject,Collection, "size",0,0, static_cast<uint32_t>(thisObj->count()))
 
 	//! [ESMF] Number Collection.count()
-	ES_MFUN(typeObject,Collection, "count",0,0, static_cast<uint32_t>(thisObj->count()))
+	ES_MFUN(typeObject,const Collection, "count",0,0, static_cast<uint32_t>(thisObj->count()))
 
 	//! [ESMF] Bool Collection.empty()
-	ES_MFUN(typeObject,Collection,"empty",0,0,thisObj->count()==0 )
+	ES_MFUN(typeObject,const Collection,"empty",0,0,thisObj->count()==0 )
 
 	//! [ESMF] thisObj Collection.clear()
 	ES_MFUN(typeObject,Collection,"clear",0,0,(thisObj->clear(),thisEObj))
@@ -58,7 +58,7 @@ void Collection::init(EScript::Namespace & globals) {
 	ES_MFUN(typeObject,Collection,"getIterator",0,0,thisObj->getIterator())
 
 	//! [ESMF] Collection Collection.map(function[, AdditionalValues*])
-	ES_MFUNCTION(typeObject,Collection,"map",1,-1,{
+	ES_MFUNCTION(typeObject, Collection,"map",1,-1,{
 		ParameterValues additionalValues(parameter.count()-1);
 		if(!additionalValues.empty())
 			std::copy(parameter.begin()+1,parameter.end(),additionalValues.begin());
@@ -194,10 +194,10 @@ bool Collection::rt_isEqual(Runtime &runtime,const ObjPtr & other){
  */
 Object * Collection::rt_map(Runtime & runtime,ObjPtr function, const ParameterValues & additionalValues){
 	// Create new, empty Collection
-	ObjRef obj = callMemberFunction(runtime,getType(),Consts::IDENTIFIER_fn_constructor,ParameterValues());
+	ObjRef obj = runtime.createInstance(getType(),ParameterValues());
 	ERef<Collection> newCollectionRef = obj.toType<Collection>();
 	if(newCollectionRef.isNull()){
-		runtime.setException("Collection.map(..) No Contructor found!");
+		runtime.setException("Collection.map(..) No Constructor found!");
 		return nullptr;
 	}
 	obj = nullptr;

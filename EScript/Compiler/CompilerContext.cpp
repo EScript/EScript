@@ -15,6 +15,12 @@ void CompilerContext::addStatement(EPtr<AST::ASTNode> stmt){
 	compiler.addStatement(*this,stmt);
 }
 
+StringId CompilerContext::createOnceStatementMarker(){
+	std::ostringstream s;
+	s << "___once_"<<currentOnceMarkerCounter++;
+	return s.str();
+}
+
 uint32_t CompilerContext::getCurrentMarker(setting_t type)const{
 	for(std::vector<SettingsStackEntry>::const_reverse_iterator it = settingsStack.rbegin();it!=settingsStack.rend();++it){
 		const SettingsStackEntry & entry = *it;
