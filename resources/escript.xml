@@ -82,6 +82,7 @@
 			<item>const</item>
 			<item>init</item>
 			<item>member</item>
+			<item>once</item>
 			<item>override</item>
 			<item>private</item>
 			<item>public</item>
