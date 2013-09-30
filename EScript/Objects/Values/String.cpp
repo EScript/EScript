@@ -76,7 +76,7 @@ void String::init(EScript::Namespace & globals) {
 	//! [ESMF] Bool String.endsWith( (String)search )
 	ES_MFUNCTION(typeObject,const String,"endsWith",1,1, {
 		const std::string search = parameter[0].toString();
-		return thisObj->getString().compare(thisObj->getString().length()-search.length(),search.length(),search)==0;
+		return thisObj->getString().size()>=search.size() && thisObj->getString().compare(thisObj->getString().length()-search.length(),search.length(),search)==0;
 	})
 
 	//! [ESMF] String String.fillUp(length[, string fill=" ")
