@@ -1,10 +1,10 @@
-cmake_minimum_required(VERSION 2.8.8)
+cmake_minimum_required(VERSION 2.8.11)
 
 option(BUILD_ESCRIPT_TEST "Defines if the EScript test application is built.")
 if(BUILD_ESCRIPT_TEST)
 	add_executable(escript_test test.cpp)
-	set_property(TARGET escript_test APPEND PROPERTY COMPILE_DEFINITIONS ES_BUILD_TEST_APPLICATION)
-	target_link_libraries(escript_test EScript)
+	target_compile_definitions(escript_test PRIVATE ES_BUILD_TEST_APPLICATION)
+	target_link_libraries(escript_test LINK_PRIVATE EScript)
 	install(TARGETS escript_test
 		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT tests
 		LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT tests

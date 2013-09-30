@@ -1,26 +1,8 @@
 # - Configuration file for the EScript library
-# It defines the following variables:
-#  ESCRIPT_INCLUDE_DIRS - include directories for EScript
-#  ESCRIPT_LIBRARIES - libraries to link against EScript
-#  ESCRIPT_VERSION_MAJOR - major version of EScript
-#  ESCRIPT_VERSION_MINOR - minor version of EScript
-#  ESCRIPT_VERSION_PATCH - patch version of EScript
-#  ESCRIPT_VERSION_STRING - human-readable string containing the version of EScript
+# It defines the target "EScript".
 #
-
-# Set the version of EScript
-set(ESCRIPT_VERSION_MAJOR @ESCRIPT_VERSION_MAJOR@)
-set(ESCRIPT_VERSION_MINOR @ESCRIPT_VERSION_MINOR@)
-set(ESCRIPT_VERSION_PATCH @ESCRIPT_VERSION_PATCH@)
-set(ESCRIPT_VERSION_STRING ${ESCRIPT_VERSION_MAJOR}.${ESCRIPT_VERSION_MINOR}.${ESCRIPT_VERSION_PATCH})
 
 @PACKAGE_INIT@
 
-# Set the include directory
-set_and_check(ESCRIPT_INCLUDE_DIRS "@PACKAGE_CMAKE_INSTALL_INCLUDEDIR@")
-
 # Import the exported targets
 include("@PACKAGE_CMAKE_INSTALL_CMAKECONFIGDIR@/EScriptTargets.cmake")
-
-# Set the library variable
-set(ESCRIPT_LIBRARIES EScript)

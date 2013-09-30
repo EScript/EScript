@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8.8)
+cmake_minimum_required(VERSION 2.8.11)
 project(EScript CXX)
 
 set(ESCRIPT_VERSION_MAJOR 0)
@@ -110,6 +110,9 @@ install(TARGETS EScript EXPORT LibraryExport
 	ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT developmentlibraries
 )
 
+# Set include directories for users of this library
+target_include_directories(EScript INTERFACE ${CMAKE_INSTALL_FULL_INCLUDEDIR})
+
 # Library export
 install(EXPORT LibraryExport DESTINATION ${CMAKE_INSTALL_CMAKECONFIGDIR} FILE EScriptTargets.cmake COMPONENT developmentlibraries)
 
@@ -117,7 +120,8 @@ install(EXPORT LibraryExport DESTINATION ${CMAKE_INSTALL_CMAKECONFIGDIR} FILE ES
 include(CMakePackageConfigHelpers)
 configure_package_config_file(EScriptConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/EScriptConfig.cmake
                               INSTALL_DESTINATION ${CMAKE_INSTALL_CMAKECONFIGDIR}
-                              PATH_VARS CMAKE_INSTALL_INCLUDEDIR CMAKE_INSTALL_CMAKECONFIGDIR
+                              PATH_VARS CMAKE_INSTALL_CMAKECONFIGDIR
+                              NO_SET_AND_CHECK_MACRO
                               NO_CHECK_REQUIRED_COMPONENTS_MACRO)
 write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/EScriptConfigVersion.cmake
                                  VERSION ${ESCRIPT_VERSION_STRING}
