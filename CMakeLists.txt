@@ -111,7 +111,10 @@ install(TARGETS EScript EXPORT LibraryExport
 )
 
 # Set include directories for users of this library
-target_include_directories(EScript INTERFACE ${CMAKE_INSTALL_FULL_INCLUDEDIR})
+target_include_directories(EScript
+                           INTERFACE
+                           "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/..>"
+                           "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
 
 # Library export
 install(EXPORT LibraryExport DESTINATION ${CMAKE_INSTALL_CMAKECONFIGDIR} FILE EScriptTargets.cmake COMPONENT developmentlibraries)
