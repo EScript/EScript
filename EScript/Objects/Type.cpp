@@ -68,6 +68,12 @@ void Type::init(EScript::Namespace & globals) {
 		thisObj->collectTypeAttributes(attrs);
 		return Map::create(attrs);
 	})
+	
+	//! [ESMF] Type Type.hasBase(Type)
+	ES_MFUN(typeObject,const Type,"hasBase",1,1, thisObj->hasBase(parameter[0].to<Type*>(rt)))
+	
+	//! [ESMF] Type Type.isBaseOf(Type)
+	ES_MFUN(typeObject,const Type,"isBaseOf",1,1, thisObj->isBaseOf(parameter[0].to<Type*>(rt)))
 }
 
 //---
@@ -190,16 +196,22 @@ void Type::collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs)
 	}
 }
 
-//! ---|> Object
-bool Type::isA(Type * type) const {
-	if(type == nullptr)
-		return false;
-
-	for(Type * t = getBaseType();t!=nullptr;t = t->getBaseType()){
+bool Type::hasBase(Type * type) const {
+	for(const Type * t = this; t; t = t->getBaseType()){
 		if(t==type)
 			return true;
 	}
-	return Object::isA(type);
+	return false;
 }
+
+bool Type::isBaseOf(Type * type) const {
+	while(type){
+		if(type==this)
+			return true;
+		type = type->getBaseType();
+	}
+	return false;
+}
+
 
 }

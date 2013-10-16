@@ -207,16 +207,8 @@ Object * Object::clone() const {
 	return new Object(getType());
 }
 
-//! ---o
 bool Object::isA(Type * type) const {
-	if(type == nullptr)
-		return false;
-
-	for(Type * t = getType();t!=nullptr;t = t->getBaseType()){
-		if(t==type)
-			return true;
-	}
-	return false;
+	return getType() && getType()->hasBase(type);
 }
 
 //! ---o

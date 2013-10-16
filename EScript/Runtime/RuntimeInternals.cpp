@@ -741,12 +741,11 @@ RtValue RuntimeInternals::startInstanceCreation(EPtr<Type> type,ParameterValues 
 	std::vector<ObjPtr> constructors;
 
 	// collect constructors
-	for(EPtr<Type> typeCursor = type; typeCursor.isNotNull(); typeCursor = typeCursor->getBaseType()){
+	for(Type* typeCursor = type.get(); typeCursor; typeCursor = typeCursor->getBaseType()){
 		const Attribute * ctorAttr = typeCursor->_accessAttribute(Consts::IDENTIFIER_fn_constructor,true);
 		if(ctorAttr){
 			// first constructor must not be private -- unless it is an attribute of the calling object or of a base class (needed for factory functions!)
-			if(constructors.empty() && ctorAttr->isPrivate() &&
-					(getCallingObject().isNull() || !(getCallingObject() == typeCursor.get() || getCallingObject()->isA(typeCursor.get())))){
+			if(constructors.empty() && ctorAttr->isPrivate() && !typeCursor->isBaseOf( getCallingObject().toType<Type>() )){
 				setException("Can't instantiate Type with private _contructor."); //! \todo check this!
 				return RtValue(); // failure
 			}

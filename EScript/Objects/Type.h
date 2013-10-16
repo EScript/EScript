@@ -102,8 +102,8 @@ class Type : public Object {
 
 		Type * getBaseType()const					{	return baseType.get();	}
 
-		//! ---|> Object
-		virtual bool isA(Type * type)const;
+		bool hasBase(Type * type)const;
+		bool isBaseOf(Type * type)const;
 
 	private:
 		ERef<Type> baseType;

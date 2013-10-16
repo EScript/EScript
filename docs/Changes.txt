@@ -23,7 +23,16 @@ Language:
 			@(once) thisFn.staticCounter := 0; // this is only executed once
 			return ++thisFn.staticCounter;
 		};
-
+ - '---|>'-operator's  semantic changed for Types (equivalent to the .isA(...)-member).
+	someObject ---|> someType now consistently means: someObject's Type is someType or someObject's Type inherits from someType.
+	Examples:
+      [] ---|> Array			== true
+      [] ---|> Collection		== true
+	  Array ---|> Type			== true
+	  Array ---|> Collection	== false		!!!! changed !!!
+	  Array.hasBase( Collection ) == true		*** new ***
+	  Collection.isBaseOf( Array ) == true		*** new ***
+ 
 Internals:
  - string hanling updated
  - minor fixes and cleanups
