@@ -165,6 +165,8 @@ void FunctionCallContext::throwError(FunctionCallContext::error_t error)const{
 			throw std::logic_error(prefix+"Wrong data type on stack.");
 		case UNKNOWN_LOCAL_VARIABLE:
 			throw std::logic_error(prefix+"Invalid local variable.");
+		case UNKNOWN_STATIC_VARIABLE:
+			throw std::logic_error(prefix+"Invalid static variable.");
 		default:
 			throw std::logic_error(prefix+"???");
 	}

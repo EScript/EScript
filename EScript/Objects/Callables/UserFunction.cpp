@@ -54,12 +54,14 @@ void UserFunction::init(EScript::Namespace & globals) {
 UserFunction::UserFunction(const UserFunction & other) :
 		ExtObject(other),codeFragment(other.codeFragment),line(other.line),
 		paramCount(other.paramCount),minParamValueCount(other.minParamValueCount),maxParamValueCount(other.maxParamValueCount),
-		multiParam(other.multiParam),instructions(other.instructions){
+		multiParam(other.multiParam),instructions(other.instructions),
+		staticData(other.staticData){
 }
 
 //! (ctor)
 UserFunction::UserFunction() :
-		ExtObject(getTypeObject()),line(-1),paramCount(0),minParamValueCount(0),maxParamValueCount(0),multiParam(-1) {
+		ExtObject(getTypeObject()),line(-1),paramCount(0),
+		minParamValueCount(0),maxParamValueCount(0),multiParam(-1) {
 	//ctor
 }
 

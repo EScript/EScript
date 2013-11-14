@@ -51,6 +51,7 @@ struct Consts{
 	static const StringId IDENTIFIER_if;
 	static const StringId IDENTIFIER_namespace;
 	static const StringId IDENTIFIER_return;
+	static const StringId IDENTIFIER_static;
 	static const StringId IDENTIFIER_switch;
 	static const StringId IDENTIFIER_throw;
 	static const StringId IDENTIFIER_try;
@@ -67,7 +68,7 @@ struct Consts{
 	static const StringId ANNOTATION_ATTR_private;
 	static const StringId ANNOTATION_ATTR_public;
 	static const StringId ANNOTATION_ATTR_type;
-	
+
 	static const StringId ANNOTATION_FN_super;
 
 	static const StringId ANNOTATION_STMT_once;
@@ -87,7 +88,9 @@ struct Consts{
 	static const size_t SYS_CALL_EXPAND_PARAMS_ON_STACK = 7;
 	static const size_t SYS_CALL_CASE_TEST = 8;
 	static const size_t SYS_CALL_ONCE = 9;
-	static const size_t NUM_SYS_CALLS = 10;
+	static const size_t SYS_CALL_GET_STATIC_VAR = 10;
+	static const size_t SYS_CALL_SET_STATIC_VAR = 11;
+	static const size_t NUM_SYS_CALLS = 12;
 
 	static const uint32_t DYNAMIC_PARAMETER_COUNT = ~0u;
 };

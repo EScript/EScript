@@ -61,7 +61,7 @@ ObjRef RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> fc
 			}
 			if(fcc->isExecutionStoppedAfterEnding()){
 				popActiveFCC();
-				return result; 
+				return result;
 			}
 			popActiveFCC();
 
@@ -72,7 +72,7 @@ ObjRef RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> fc
 			}
 
 			if(useResultAsCaller){
-				fcc->initCaller(result); 
+				fcc->initCaller(result);
 			}else{
 				if(result.isNotNull())
 					result = result->getRefOrCopy();
@@ -172,12 +172,12 @@ ObjRef RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> fc
 				pop object
 				call the function
 				push result (or jump to exception point)	*/
-			uint32_t numParams = instruction.getValue_uint32(); 
+			uint32_t numParams = instruction.getValue_uint32();
 			if(numParams==Consts::DYNAMIC_PARAMETER_COUNT) // the parameter count is dynamic and lies on the stack.
 				numParams = fcc->stack_popUInt32();
-			
+
 			//! \todo check once if the stack is big enough
-			
+
 			ParameterValues params(numParams);
 			for(int i = static_cast<int>(numParams)-1;i>=0;--i )
 				params.emplace(i,fcc->stack_popObjectValue());
@@ -206,7 +206,7 @@ ObjRef RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> fc
 				push result (or jump to exception point)	*/
 
 
-			uint32_t numParams = instruction.getValue_uint32(); 
+			uint32_t numParams = instruction.getValue_uint32();
 			if(numParams==Consts::DYNAMIC_PARAMETER_COUNT) // the parameter count is dynamic and lies on the stack.
 				numParams = fcc->stack_popUInt32();
 			ParameterValues params(numParams);
@@ -504,16 +504,16 @@ ObjRef RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> fc
 				sysCall functionId,parameters
 				push result (or jump to exception point)	*/
 			const std::pair<uint32_t,uint32_t> v = instruction.getValue_uint32Pair();
-			
+
 			const uint32_t funId = v.first;
-			const uint32_t numParams = (v.second == Consts::DYNAMIC_PARAMETER_COUNT) ? 
-											fcc->stack_popUInt32() : 
+			const uint32_t numParams = (v.second == Consts::DYNAMIC_PARAMETER_COUNT) ?
+											fcc->stack_popUInt32() :
 											v.second;
-			
+
 			ParameterValues params(numParams);
 			for(int i = static_cast<int>(numParams)-1;i>=0;--i )
 				params.emplace(i,fcc->stack_popObjectValue());
-			
+
 			RtValue result(std::move(sysCall(funId,params)));
 			fcc->increaseInstructionCursor();
 			if(result.isFunctionCallContext()){ // user function?
@@ -628,7 +628,7 @@ RtValue RuntimeInternals::startFunctionExecution(const ObjPtr & fun,const ObjPtr
 				const int multiParamIndex = userFunction->getMultiParam();
 				ParameterValues::const_iterator valueIt = pValues.begin();
 
-				// assign parameter values coming before the multi parameter 
+				// assign parameter values coming before the multi parameter
 				if(multiParamIndex>0){
 					const auto firstMultiParamValue = std::min( pValues.end(), std::next(pValues.begin(),userFunction->getMultiParam()) );
 					while(valueIt<firstMultiParamValue){
@@ -691,7 +691,7 @@ RtValue RuntimeInternals::startFunctionExecution(const ObjPtr & fun,const ObjPtr
 				}
 			}
 			libfun->increaseCallCounter();
-			
+
 			try {
 				return (*libfun->getFnPtr())(runtime,_callingObject.get(),pValues);
 			} catch (Exception * e) {
@@ -755,14 +755,14 @@ RtValue RuntimeInternals::startInstanceCreation(EPtr<Type> type,ParameterValues 
 				break;
 		}
 	}
-	
+
 	// call the outermost constructor and pass the other constructor-functions by adding them to the stack
 	if(!constructors.empty()) {
 		ObjRef fun = constructors.front();
 		RtValue result( std::move(startFunctionExecution(fun,type.get(),pValues)) );
 		if(result.isFunctionCallContext()){
 			FunctionCallContext * fcc = result._getFCC();
-			for(std::vector<ObjPtr>::const_reverse_iterator it = constructors.rbegin(); std::next(it) != constructors.rend(); ++it) 
+			for(std::vector<ObjPtr>::const_reverse_iterator it = constructors.rbegin(); std::next(it) != constructors.rend(); ++it)
 				fcc->stack_pushObject(*it);
 			fcc->markAsConstructorCall();
 			return RtValue::createFunctionCallContext(fcc);
@@ -900,7 +900,7 @@ void RuntimeInternals::throwException(const std::string & s,Object * obj) {
 
 //! (internal)
 void RuntimeInternals::initSystemFunctions(){
-	systemFunctions.resize( Consts::NUM_SYS_CALLS );  
+	systemFunctions.resize( Consts::NUM_SYS_CALLS );
 
 	#define ES_SYS_FUNCTION(_name) \
 	static EScript::RtValue _name(	EScript::RuntimeInternals & rtIt UNUSED_ATTRIBUTE, \
@@ -1029,7 +1029,7 @@ void RuntimeInternals::initSystemFunctions(){
 					// pop and store non expanding parameters
 					for(uint32_t j = parameter[i].to<uint32_t>(rt); j>0; --j)
 						tmpStackStorage.emplace_back(fcc->stack_popValue());
-					
+
 					// pop expanding array parameter
 					ObjRef expandingParam( std::move(fcc->stack_popObject()));
 					Array * arr = assertType<Array>(rt,expandingParam);
@@ -1040,7 +1040,7 @@ void RuntimeInternals::initSystemFunctions(){
 					for(auto it=arr->rbegin();it!=arr->rend();++it)
 						tmpStackStorage.push_back(*it);
 				}
-					
+
 				// push stored values
 				while(!tmpStackStorage.empty()){
 					fcc->stack_pushValue(std::move(tmpStackStorage.back()));
@@ -1091,7 +1091,33 @@ void RuntimeInternals::initSystemFunctions(){
 		};
 		systemFunctions[Consts::SYS_CALL_ONCE] = _::sysCall;
 	}
-	
+	{	/*! [ESSF] vale SYS_CALL_GET_STATIC_VAR( ) : pop uint32 staticVarLocation;
+		*/
+		struct _{
+			ES_SYS_FUNCTION( sysCall ) {
+				auto fcc = rtIt.getActiveFCC();
+				const uint32_t staticVarIdx = fcc->stack_popUInt32();
+				return fcc->getStaticVar(staticVarIdx);
+			}
+		};
+		systemFunctions[Consts::SYS_CALL_GET_STATIC_VAR] = _::sysCall;
+	}
+	{	/*! [ESSF] vale SYS_CALL_SET_STATIC_VAR( ) : pop uint32 staticVarLocation, pop value;
+		*/
+		struct _{
+			ES_SYS_FUNCTION( sysCall ) {
+				auto fcc = rtIt.getActiveFCC();
+				const uint32_t staticVarIdx = fcc->stack_popUInt32();
+				ObjRef value = fcc->stack_popObject();
+				if(value.isNotNull())
+					value = value->getRefOrCopy();
+				 fcc->setStaticVar(staticVarIdx,value.get());
+				return nullptr;
+			}
+		};
+		systemFunctions[Consts::SYS_CALL_SET_STATIC_VAR] = _::sysCall;
+	}
+
 }
 
 void RuntimeInternals::stackSizeError(){

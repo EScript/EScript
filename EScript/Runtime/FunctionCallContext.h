@@ -34,7 +34,8 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		enum error_t{
 			STACK_EMPTY_ERROR,
 			STACK_WRONG_DATA_TYPE,
-			UNKNOWN_LOCAL_VARIABLE
+			UNKNOWN_LOCAL_VARIABLE,
+			UNKNOWN_STATIC_VARIABLE,
 		};
 		void throwError(error_t error)const;
 
@@ -104,6 +105,12 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 				throwError(UNKNOWN_LOCAL_VARIABLE);
 			return localVariables[index].get();
 		}
+		Object * getStaticVar(const uint32_t index)const{
+			const auto data = userFunction->getStaticData();
+			if(!data ||  index>=data->getStaticVariableValues().size())
+				throwError(UNKNOWN_STATIC_VARIABLE);
+			return data->getStaticVariableValues()[index].get();
+		}
 		std::string getLocalVariablesAsString(const bool includeUndefined)const;
 		void resetLocalVariable(const uint32_t index){
 			if(index>=localVariables.size())
@@ -112,6 +119,11 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		}
 		StringId getLocalVariableName(const uint32_t index)const{
 			return getInstructionBlock().getLocalVariables().at(index);
+		}
+		void setStaticVar(const uint32_t index,Object * value){
+			const auto data = userFunction->getStaticData();
+			if(!data || !data->updateStaticVariable(index,value))
+				throwError(UNKNOWN_STATIC_VARIABLE);
 		}
 	// @}
 
@@ -195,7 +207,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 			- returns an obj->cloneOrReference() if the contained value is already an Object.
 			- returns nullptr (and not Void) iff the value is undefined.	This is necessary to detect undefined parameters. */
 		ObjRef stack_popObjectValue();
-		
+
 		RtValue stack_popValue(){
 			const RtValue v = stack_top();
 			valueStack.pop_back();

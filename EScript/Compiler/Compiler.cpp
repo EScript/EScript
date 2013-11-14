@@ -34,7 +34,7 @@
 
 namespace EScript{
 
-typedef std::function<void (CompilerContext &, EPtr<AST::ASTNode>)> handler_t;
+typedef std::function<void (FunCompileContext &, EPtr<AST::ASTNode>)> handler_t;
 typedef std::map<internalTypeId_t, handler_t> handlerRegistry_t;
 static bool initHandler(handlerRegistry_t &);
 static handlerRegistry_t handlerRegistry;
@@ -47,33 +47,36 @@ Compiler::Compiler(Logger * _logger) : logger(_logger ? _logger : new StdLogger(
 
 UserFunction * Compiler::compile(const CodeFragment & code){
 
-	// prepare container function
+	ERef<AST::Block> syntaxTreeRoot(AST::Block::createBlockStatement());
+
+	{// parse code and build syntax tree
+		Parser p(getLogger());
+		ERef<AST::Block> block = p.parse(code);
+		block->convertToExpression();
+
+		// syntaxTreeRoot's outer Block is used to add a return statement: {return {block}}
+		syntaxTreeRoot->addStatement(new AST::ReturnStatement(block.get()));
+	}
+
+
 	ERef<UserFunction> fun = new UserFunction;
 	fun->setCode(code);
+	{ // compile syntax tree and create instructions
+		_CountedRef<StaticData> staticData = new StaticData;
 
-	// parse and build syntax tree
-	Parser p(getLogger());
-	ERef<AST::Block> block = p.parse(code);
-	block->convertToExpression();
+		FunCompileContext ctxt(*this,*staticData.get(),fun->getInstructionBlock(),code);
+		ctxt.addExpression(syntaxTreeRoot.get());
+		Compiler::finalizeInstructions(fun->getInstructionBlock());
 
-	// outerBlock is used to add a return statement: {return {block}}
-	ERef<AST::Block> outerBlock(AST::Block::createBlockStatement());
-	outerBlock->addStatement(new AST::ReturnStatement(block.get()));
-		
-	// compile and create instructions
-	CompilerContext ctxt(*this,fun->getInstructionBlock(),code);
-	
-	// this would make 'this' and 'thisFn' available. This is not intended here. (not sure though...)
-	//ctxt.pushSetting_basicLocalVars(); // make 'this' and parameters available
-
-	ctxt.addExpression(outerBlock.get());
-	Compiler::finalizeInstructions(fun->getInstructionBlock());
+		if(ctxt.getUsesStaticVars())
+			fun->setStaticData(std::move(staticData));
+	}
 
 	return fun.detachAndDecrease();
 }
 
 //! (internal)
-void Compiler::compileASTNode(CompilerContext & ctxt,EPtr<AST::ASTNode> node)const{
+void Compiler::compileASTNode(FunCompileContext & ctxt,EPtr<AST::ASTNode> node)const{
 	if(node->getLine()>=0)
 		ctxt.setLine(node->getLine());
 
@@ -86,7 +89,7 @@ void Compiler::compileASTNode(CompilerContext & ctxt,EPtr<AST::ASTNode> node)con
 	it->second(ctxt,node);
 }
 
-void Compiler::addExpression(CompilerContext & ctxt,EPtr<AST::ASTNode> expression)const{
+void Compiler::addExpression(FunCompileContext & ctxt,EPtr<AST::ASTNode> expression)const{
 	compileASTNode(ctxt,expression);
 	if( !expression->isExpression()){ // make sure that something is added to the stack
 		ctxt.addInstruction(Instruction::createPushVoid());
@@ -94,7 +97,7 @@ void Compiler::addExpression(CompilerContext & ctxt,EPtr<AST::ASTNode> expressio
 }
 
 //! (internal)
-void Compiler::addStatement(CompilerContext & ctxt,EPtr<AST::ASTNode> statement)const{
+void Compiler::addStatement(FunCompileContext & ctxt,EPtr<AST::ASTNode> statement)const{
 	compileASTNode(ctxt,statement);
 	if(statement->isExpression()){ // if something is added to the stack, remove it.
 		ctxt.addInstruction(Instruction::createPop());
@@ -144,7 +147,7 @@ void Compiler::finalizeInstructions( InstructionBlock & instructionBlock ){
 //	}
 }
 
-void Compiler::throwError(CompilerContext & ctxt,const std::string & msg)const{
+void Compiler::throwError(FunCompileContext & ctxt,const std::string & msg)const{
 	std::ostringstream os;
 	os << "Compiler: " << msg;
 	Exception * e = new Exception(os.str(),ctxt.getCurrentLine());
@@ -164,7 +167,7 @@ bool initHandler(handlerRegistry_t & m){
 	#define ADD_HANDLER( _id, _type, _block) \
 	{ \
 		struct _handler { \
-			void operator()(CompilerContext & ctxt,EPtr<ASTNode> obj){ \
+			void operator()(FunCompileContext & ctxt,EPtr<ASTNode> obj){ \
 				_type * self = obj.toType<_type>(); \
 				if(!self) throw std::invalid_argument("Compiler: Wrong type!"); \
 				do _block while(false); \
@@ -203,7 +206,7 @@ bool initHandler(handlerRegistry_t & m){
 
 	// @( [annotations] ) [statement]
 	ADD_HANDLER( ASTNode::TYPE_ANNOTATED_STATEMENT, AnnotatedStatement, {
-				
+
 		const uint32_t skipMarker = ctxt.createMarker();
 		ctxt.addInstruction(Instruction::createPushId( ctxt.createOnceStatementMarker() ));
 		ctxt.addInstruction(Instruction::createSysCall( Consts::SYS_CALL_ONCE,0 )); // directly pops the id from the stack
@@ -211,15 +214,15 @@ bool initHandler(handlerRegistry_t & m){
 		ctxt.addStatement(self->getStatement());
 		ctxt.addInstruction(Instruction::createSetMarker( skipMarker ));
 	})
-	
+
 	// break
 	ADD_HANDLER( ASTNode::TYPE_BREAK_STATEMENT, BreakStatement, {
-		const uint32_t target = ctxt.getCurrentMarker(CompilerContext::BREAK_MARKER);
+		const uint32_t target = ctxt.getCurrentMarker(FunCompileContext::BREAK_MARKER);
 		if(target==Instruction::INVALID_JUMP_ADDRESS){
 			ctxt.getCompiler().throwError(ctxt,"'break' outside a loop.");
 		}
 		std::vector<size_t> variablesToReset;
-		ctxt.collectLocalVariables(CompilerContext::BREAK_MARKER,variablesToReset);
+		ctxt.collectLocalVariables(FunCompileContext::BREAK_MARKER,variablesToReset);
 		for(const auto & var : variablesToReset) {
 			ctxt.addInstruction(Instruction::createResetLocalVariable(var));
 		}
@@ -229,8 +232,8 @@ bool initHandler(handlerRegistry_t & m){
 	// Block
 	ADD_HANDLER( ASTNode::TYPE_BLOCK_EXPRESSION, Block, {
 //				std::cout << " TYPE_BLOCK_EXPRESSION "<<self->getLine()<<"\n";
-		if(self->hasLocalVars())
-			ctxt.pushSetting_localVars(self->getVars());
+		if(self->hasDeclaredVars())
+			ctxt.pushSetting_declaredVars(self->getVars());
 
 		if(self->getStatements().empty()){
 			ctxt.addInstruction(Instruction::createPushVoid());
@@ -243,9 +246,12 @@ bool initHandler(handlerRegistry_t & m){
 				}
 			}
 		}
-		if(self->hasLocalVars()){
-			for(const auto & localVar : self->getVars()) {
-				ctxt.addInstruction(Instruction::createResetLocalVariable(ctxt.getCurrentVarIndex(localVar)));
+		if(self->hasDeclaredVars()){
+			// unset local variables
+			for(const auto & var : self->getVars()) {
+				auto varLocation = ctxt.getCurrentVarLocation(var.first);
+				if(isLocalVarLocation(varLocation))
+					ctxt.addInstruction(Instruction::createResetLocalVariable(varLocation.second));
 			}
 			ctxt.popSetting();
 		}
@@ -255,15 +261,18 @@ bool initHandler(handlerRegistry_t & m){
 	ADD_HANDLER( ASTNode::TYPE_BLOCK_STATEMENT, Block, {
 //								std::cout << " TYPE_BLOCK_STATEMENT "<<self->getLine()<<"\n";
 
-		if(self->hasLocalVars())
-			ctxt.pushSetting_localVars(self->getVars());
+		if(self->hasDeclaredVars())
+			ctxt.pushSetting_declaredVars(self->getVars());
 
 		for( AST::Block::cStatementCursor c = self->getStatements().begin();  c != self->getStatements().end(); ++c) {
 			ctxt.addStatement(*c);
 		}
-		if(self->hasLocalVars()){
-			for(const auto & localVar : self->getVars()) {
-				ctxt.addInstruction(Instruction::createResetLocalVariable(ctxt.getCurrentVarIndex(localVar)));
+		if(self->hasDeclaredVars()){
+			// unset local variables
+			for(const auto & var : self->getVars()) {
+				auto varLocation = ctxt.getCurrentVarLocation(var.first);
+				if(isLocalVarLocation(varLocation))
+					ctxt.addInstruction(Instruction::createResetLocalVariable(varLocation.second));
 			}
 			ctxt.popSetting();
 		}
@@ -296,12 +305,12 @@ bool initHandler(handlerRegistry_t & m){
 	})
 	// ContinueStatement
 	ADD_HANDLER( ASTNode::TYPE_CONTINUE_STATEMENT, ContinueStatement, {
-		const uint32_t target = ctxt.getCurrentMarker(CompilerContext::CONTINUE_MARKER);
+		const uint32_t target = ctxt.getCurrentMarker(FunCompileContext::CONTINUE_MARKER);
 		if(target==Instruction::INVALID_JUMP_ADDRESS){
 			ctxt.getCompiler().throwError(ctxt,"'continue' outside a loop.");
 		}
 		std::vector<size_t> variablesToReset;
-		ctxt.collectLocalVariables(CompilerContext::CONTINUE_MARKER,variablesToReset);
+		ctxt.collectLocalVariables(FunCompileContext::CONTINUE_MARKER,variablesToReset);
 		for(const auto & var : variablesToReset) {
 			ctxt.addInstruction(Instruction::createResetLocalVariable(var));
 		}
@@ -327,12 +336,19 @@ bool initHandler(handlerRegistry_t & m){
 					const StringId & attrId = gAttr->getAttrId();
 
 					if(gAttr->getObjectExpression()==nullptr){ // singleIdentifier (...)
-						const int localVarIndex = ctxt.getCurrentVarIndex(attrId);
-						if(localVarIndex>=0){
+						const auto varLocation = ctxt.getCurrentVarLocation(attrId);
+						if( isValidVarLocation(varLocation) ){ // localOrStaticVar(...)
 							if( !self->isConstructorCall() ){ // constructor calls don't need a caller
 								ctxt.addInstruction(Instruction::createPushVoid());
 							}
-							ctxt.addInstruction(Instruction::createGetLocalVariable(localVarIndex));
+							if(isLocalVarLocation(varLocation)){
+								ctxt.addInstruction(Instruction::createGetLocalVariable(varLocation.second));
+							}else{ // static var
+								ctxt.markAsUsingStaticVars();
+								ctxt.addInstruction(Instruction::createPushUInt(varLocation.second));
+								ctxt.addInstruction(Instruction::createSysCall(Consts::SYS_CALL_GET_STATIC_VAR,0));
+							}
+
 						}else{
 							if( self->isConstructorCall() ){ // constructor calls don't need a caller
 								ctxt.addInstruction(Instruction::createGetVariable(attrId));
@@ -409,9 +425,13 @@ bool initHandler(handlerRegistry_t & m){
 			ctxt.addExpression(self->getObjectExpression());
 			ctxt.addInstruction(Instruction::createGetAttribute(self->getAttrId()));
 		}else{
-			const int localVarIndex = ctxt.getCurrentVarIndex(self->getAttrId());
-			if(localVarIndex>=0){
-				ctxt.addInstruction(Instruction::createGetLocalVariable(localVarIndex));
+			const auto varLocation = ctxt.getCurrentVarLocation(self->getAttrId());
+			if(isLocalVarLocation(varLocation)){
+				ctxt.addInstruction(Instruction::createGetLocalVariable(varLocation.second));
+			}else if(isStaticVarLocation(varLocation)){ // static var
+				ctxt.markAsUsingStaticVars();
+				ctxt.addInstruction(Instruction::createPushUInt(varLocation.second));
+				ctxt.addInstruction(Instruction::createSysCall(Consts::SYS_CALL_GET_STATIC_VAR,0));
 			}else{
 				ctxt.addInstruction(Instruction::createGetVariable(self->getAttrId()));
 			}
@@ -503,8 +523,8 @@ bool initHandler(handlerRegistry_t & m){
 			ctxt.addExpression(self->getPreConditionExpression());
 			ctxt.addInstruction(Instruction::createJmpOnFalse(loopElseMarker));
 		}
-		ctxt.pushSetting_marker( CompilerContext::BREAK_MARKER ,loopEndMarker);
-		ctxt.pushSetting_marker( CompilerContext::CONTINUE_MARKER ,loopContinueMarker);
+		ctxt.pushSetting_marker( FunCompileContext::BREAK_MARKER ,loopEndMarker);
+		ctxt.pushSetting_marker( FunCompileContext::CONTINUE_MARKER ,loopContinueMarker);
 		if(self->getAction().isNotNull()) {
 			ctxt.addStatement(self->getAction());
 		}
@@ -550,10 +570,15 @@ bool initHandler(handlerRegistry_t & m){
 		if(self->isAssignment()){
 			// no object given: a = ...
 			if(self->getObjectExpression().isNull()){
-				// local variable: var a = ...
-				if(ctxt.getCurrentVarIndex(attrId)>=0){
-					ctxt.addInstruction(Instruction::createAssignLocal(ctxt.getCurrentVarIndex(attrId)));
-				}else{
+				const auto varLocation = ctxt.getCurrentVarLocation(attrId);
+				if(isLocalVarLocation(varLocation)){
+					ctxt.addInstruction(Instruction::createAssignLocal(varLocation.second));
+				}else if(isStaticVarLocation(varLocation)){
+					ctxt.markAsUsingStaticVars();
+					ctxt.addInstruction(Instruction::createPushUInt(varLocation.second));
+					ctxt.addInstruction(Instruction::createSysCall(Consts::SYS_CALL_SET_STATIC_VAR,0));
+					ctxt.addInstruction(Instruction::createPop());
+				}else{ // obj attr or global var
 					ctxt.addInstruction(Instruction::createAssignVariable(attrId));
 				}
 			}else{ // object.a =
@@ -576,8 +601,8 @@ bool initHandler(handlerRegistry_t & m){
 		// jmp dispatcher
 		ctxt.addExpression(self->getDecisionExpression());
 
-		if(block->hasLocalVars())
-			ctxt.pushSetting_localVars(block->getVars());
+		if(block->hasDeclaredVars())
+			ctxt.pushSetting_declaredVars(block->getVars());
 
 		// add comparisons
 		auto defaultMarker = endMarker;
@@ -601,7 +626,7 @@ bool initHandler(handlerRegistry_t & m){
 
 		// ---------------
 		// cases block
-		ctxt.pushSetting_marker( CompilerContext::BREAK_MARKER ,endMarker);
+		ctxt.pushSetting_marker( FunCompileContext::BREAK_MARKER ,endMarker);
 
 
 		size_t stmtIdx = 0;
@@ -621,9 +646,12 @@ bool initHandler(handlerRegistry_t & m){
 		// ---------------
 		// after the cases block
 		ctxt.addInstruction(Instruction::createSetMarker(endMarker));
-		if(block->hasLocalVars()){
-			for(const auto & localVar : block->getVars()) {
-				ctxt.addInstruction(Instruction::createResetLocalVariable(ctxt.getCurrentVarIndex(localVar)));
+		if(block->hasDeclaredVars()){
+			// unset local variables
+			for(const auto & varIdToType : block->getVars()) {
+				const auto varLocation = ctxt.getCurrentVarLocation(varIdToType.first);
+				if(isLocalVarLocation(varLocation))
+					ctxt.addInstruction(Instruction::createResetLocalVariable(varLocation.second));
 			}
 			ctxt.popSetting(); // localVars
 		}
@@ -645,7 +673,7 @@ bool initHandler(handlerRegistry_t & m){
 
 		// try
 		// ------
-		ctxt.pushSetting_marker(CompilerContext::EXCEPTION_MARKER,catchMarker);
+		ctxt.pushSetting_marker(FunCompileContext::EXCEPTION_MARKER,catchMarker);
 		ctxt.addInstruction(Instruction::createSetExceptionHandler(catchMarker));
 
 		// collect all variables that are declared inside the try-block (excluding nested try-blocks)
@@ -657,7 +685,7 @@ bool initHandler(handlerRegistry_t & m){
 		ctxt.popSetting(); // restore previous EXCEPTION_MARKER
 
 		// try block without exception --> reset catchMarker and jump to endMarker
-		ctxt.addInstruction(Instruction::createSetExceptionHandler(ctxt.getCurrentMarker(CompilerContext::EXCEPTION_MARKER)));
+		ctxt.addInstruction(Instruction::createSetExceptionHandler(ctxt.getCurrentMarker(FunCompileContext::EXCEPTION_MARKER)));
 		ctxt.addInstruction(Instruction::createJmp(endMarker));
 
 		// catch
@@ -666,7 +694,7 @@ bool initHandler(handlerRegistry_t & m){
 
 		ctxt.addInstruction(Instruction::createSetMarker(catchMarker));
 		// reset catchMarker
-		ctxt.addInstruction(Instruction::createSetExceptionHandler(ctxt.getCurrentMarker(CompilerContext::EXCEPTION_MARKER)));
+		ctxt.addInstruction(Instruction::createSetExceptionHandler(ctxt.getCurrentMarker(FunCompileContext::EXCEPTION_MARKER)));
 
 		// clear all variables defined inside try block
 		for(const auto & localVar : collectedVariableIndices) {
@@ -675,12 +703,15 @@ bool initHandler(handlerRegistry_t & m){
 
 		// define exception variable
 		if(!exceptionVariableName.empty()){
-			std::set<StringId> varSet;
-			varSet.insert(exceptionVariableName);
-			ctxt.pushSetting_localVars(varSet);
+			declaredVariableMap_t varSet;
+			varSet.insert(std::make_pair(exceptionVariableName,variableType_t::LOCAL_VAR));
+			ctxt.pushSetting_declaredVars(varSet);
 			// load exception-variable with exception object ( exceptionVariableName = __result )
 			ctxt.addInstruction(Instruction::createGetLocalVariable(Consts::LOCAL_VAR_INDEX_internalResult));
-			ctxt.addInstruction(Instruction::createAssignLocal(ctxt.getCurrentVarIndex(exceptionVariableName)));
+			const auto varLocation = ctxt.getCurrentVarLocation(exceptionVariableName);
+			if(!isLocalVarLocation(varLocation))
+				ctxt.getCompiler().throwError(ctxt,"Assertion failed."); // should never happen
+			ctxt.addInstruction(Instruction::createAssignLocal(varLocation.second));
 		}
 
 		// clear the exception-variable
@@ -690,7 +721,10 @@ bool initHandler(handlerRegistry_t & m){
 		ctxt.addStatement(self->getCatchBlock());
 		// pop exception variable
 		if(!exceptionVariableName.empty()){
-			ctxt.addInstruction(Instruction::createResetLocalVariable(ctxt.getCurrentVarIndex(exceptionVariableName)));
+			const auto varLocation = ctxt.getCurrentVarLocation(exceptionVariableName);
+			if(!isLocalVarLocation(varLocation))
+				ctxt.getCompiler().throwError(ctxt,"Assertion failed."); // should never happen
+			ctxt.addInstruction(Instruction::createResetLocalVariable(varLocation.second));
 			ctxt.popSetting(); // variable
 		}
 		// end:
@@ -704,7 +738,7 @@ bool initHandler(handlerRegistry_t & m){
 		fun->setCode(self->getCode());
 		fun->setLine(self->getLine());
 
-		CompilerContext ctxt2(ctxt.getCompiler(),fun->getInstructionBlock(),self->getCode());
+		FunCompileContext ctxt2(ctxt,fun->getInstructionBlock(),self->getCode());
 		ctxt2.setLine(self->getLine()); // set the line of all initializations to the line of the function declaration
 
 		{	// init parameter counts
@@ -740,7 +774,10 @@ bool initHandler(handlerRegistry_t & m){
 		for(const auto & param : self->getParamList()) {
 			EPtr<AST::ASTNode> defaultExpr = param.getDefaultValueExpression();
 			if(defaultExpr.isNotNull()){
-				const int varIdx = ctxt2.getCurrentVarIndex(param.getName()); // \todo assert(varIdx>=0)
+				const auto varLocation = ctxt2.getCurrentVarLocation(param.getName());
+				if(!isLocalVarLocation(varLocation))
+					ctxt.getCompiler().throwError(ctxt,"Assertion failed."); // should never happen
+				const int varIdx = varLocation.second;
 
 				const uint32_t parameterAvailableMarker = ctxt2.createMarker();
 				ctxt2.addInstruction(Instruction::createPushUInt(varIdx));
@@ -760,7 +797,10 @@ bool initHandler(handlerRegistry_t & m){
 			const ASTNode::refArray_t & typeExpressions = param.getTypeExpressions();
 			if(typeExpressions.empty())
 				continue;
-			const int varIdx = ctxt2.getCurrentVarIndex(param.getName());	// \todo assert(varIdx>=0)
+			const auto varLocation = ctxt2.getCurrentVarLocation(param.getName());
+			if(!isLocalVarLocation(varLocation))
+				ctxt.getCompiler().throwError(ctxt,"Assertion failed."); // should never happen
+			const int varIdx = varLocation.second;
 			// if the parameter has value constrains AND is a multi parameter, use a special system-call for this (instead of manually creating a foreach-loop here)
 			// e.g. fn([Bool,Number] p*){...}
 			if(param.isMultiParam()){
@@ -808,6 +848,10 @@ bool initHandler(handlerRegistry_t & m){
 		ctxt2.addStatement(self->getBlock());
 		ctxt2.popSetting();
 		Compiler::finalizeInstructions(fun->getInstructionBlock());
+		if(ctxt2.getUsesStaticVars()){
+			_CountedRef<StaticData> staticData = &ctxt.getStaticData();
+			fun->setStaticData(std::move(staticData));
+		}
 
 		ctxt.addInstruction(Instruction::createPushFunction(ctxt.registerInternalFunction(fun.get())));
 

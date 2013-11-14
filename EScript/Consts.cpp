@@ -46,6 +46,7 @@ const StringId Consts::IDENTIFIER_foreach("foreach");
 const StringId Consts::IDENTIFIER_if("if");
 const StringId Consts::IDENTIFIER_namespace("namespace");
 const StringId Consts::IDENTIFIER_return("return");
+const StringId Consts::IDENTIFIER_static("static");
 const StringId Consts::IDENTIFIER_switch("switch");
 const StringId Consts::IDENTIFIER_throw("throw");
 const StringId Consts::IDENTIFIER_try("try");

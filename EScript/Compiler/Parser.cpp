@@ -293,13 +293,22 @@ void Parser::pass_2(ParsingContext & ctxt,
 				/// Variable Declaration
 				if(tc->getId()==Consts::IDENTIFIER_var) {
 					if(TIdentifier * ti = Token::cast<TIdentifier>(ctxt.tokens.at(cursor+1))) {
-						if(!blockStack.top()->declareVar(ti->getId())){
+						if(!blockStack.top()->declareLocalVar(ti->getId())){
 							log(ctxt,Logger::LOG_WARNING, "Duplicate local variable '"+ti->toString()+'\'',ti);
 						}
-//						Token::removeReference(token);
 						continue;
 					} else
-						throwError(ctxt,"var expects Identifier.",tc);
+						throwError(ctxt,"var expects identifier.",tc);
+				}
+				/// Static variable Declaration
+				else if(tc->getId()==Consts::IDENTIFIER_static) {
+					if(TIdentifier * ti = Token::cast<TIdentifier>(ctxt.tokens.at(cursor+1))) {
+						if(!blockStack.top()->declareStaticVar(ti->getId())){
+							log(ctxt,Logger::LOG_WARNING, "Duplicate static variable '"+ti->toString()+'\'',ti);
+						}
+						continue;
+					} else
+						throwError(ctxt,"static expects identifier.",tc);
 				}
 				/// for(...) ---> for{...}
 				else if(tc->getId()==Consts::IDENTIFIER_for || tc->getId()==Consts::IDENTIFIER_foreach || tc->getId()==Consts::IDENTIFIER_while){
@@ -510,16 +519,16 @@ EPtr<AST::ASTNode> Parser::readExpression(ParsingContext & ctxt,int & cursor,int
 		///  Identifier
 		/// "a" => "_.get('a')"
 		else if(TIdentifier * ident = Token::cast<TIdentifier>(t)) {
-		// is local variable?
-			for(int i = ctxt.blocks.size()-1;i>=0;--i){
-				Block * b = ctxt.blocks.at(i);
-				if(b==nullptr)
-					break;
-				 else if(b->isLocalVar(ident->getId())){
-//////					std::cout <<"local:"<<ident->toString()<<"\n";
-					break;
-				 }
-		}
+//			// is local variable?
+//			for(int i = ctxt.blocks.size()-1;i>=0;--i){
+//				Block * b = ctxt.blocks.at(i);
+//				if(b==nullptr)
+//					break;
+//				 else if(b->isLocalVar(ident->getId())){
+////////					std::cout <<"local:"<<ident->toString()<<"\n";
+//					break;
+//				 }
+//			}
 			return new GetAttributeExpr(nullptr,ident->getId());  // ID
 		}
 		throwError(ctxt,"Unknown (or unimplemented) Token",t);
@@ -585,10 +594,10 @@ EPtr<AST::ASTNode> Parser::readAnnotatedStatement(ParsingContext & ctxt,int & cu
 	}
 	const int annotationTo = findCorrespondingBracket<TStartBracket,TEndBracket>(ctxt,cursor);
 	const auto annotations = readAnnotation(ctxt,cursor+1,annotationTo-1);
-	
+
 	cursor = annotationTo+1;
 	ERef<AST::ASTNode> statement = readStatement(ctxt,cursor);
-	
+
 	for(const auto & annotation : annotations) {
 		const StringId & name = annotation.first;
 		const int parameterPos = annotation.second;
@@ -620,7 +629,7 @@ EPtr<AST::ASTNode> Parser::readStatement(ParsingContext & ctxt,int & cursor)cons
 		Block * block = readBlockExpression(ctxt,cursor);
 		block->convertToStatement();
 		return block;
-	} /// annotated statement 
+	} /// annotated statement
 	else if(Token::isA<TOperator>(token) && token->toString()=="@") {
 		return readAnnotatedStatement(ctxt,cursor);
 	}/// expression
@@ -650,12 +659,12 @@ void Parser::warnOnShadowedLocalVars(ParsingContext & ctxt,TStartBlock * tBlock)
 	if(vars.empty())
 		return;
 	for(int i = ctxt.blocks.size()-1; i>=0 && ctxt.blocks[i]!=nullptr; --i ){
-		const Block::declaredVariableMap_t & vars2 = ctxt.blocks[i]->getVars();
+		const declaredVariableMap_t & vars2 = ctxt.blocks[i]->getVars();
 		if(vars2.empty())
 			continue;
 		for(const auto & var : vars) {
-			if(vars2.count(var) > 0) {
-				log(ctxt, Logger::LOG_PEDANTIC_WARNING, "Shadowed local variable  '" + var.toString() + "' in block.", tBlock);
+			if(vars2.count(var.first) > 0) {
+				log(ctxt, Logger::LOG_PEDANTIC_WARNING, "Shadowed variable  '" + var.first.toString() + "' in block.", tBlock);
 			}
 		}
 	}
@@ -1225,9 +1234,9 @@ EPtr<AST::ASTNode> Parser::readControl(ParsingContext & ctxt,int & cursor)const 
 		++cursor;
 		const bool actionIsNormalBlock = Token::isA<TStartBlock>(tokens.at(cursor));
 		EPtr<AST::ASTNode> action = readStatement(ctxt,cursor);
-		
-		// action is a loop 
-		if(!actionIsNormalBlock && 	action.isNotNull()){ 
+
+		// action is a loop
+		if(!actionIsNormalBlock && 	action.isNotNull()){
 			auto wrappingBlock = action.toType<Block>(); // no normal block, but block? -> possibly a loop wrapping block
 			if(wrappingBlock && !wrappingBlock->getStatements().empty()){
 				auto loop = wrappingBlock->getStatements()[0].toType<AST::LoopStatement>();
@@ -1286,7 +1295,7 @@ EPtr<AST::ASTNode> Parser::readControl(ParsingContext & ctxt,int & cursor)const 
 		}
 		++cursor;
 		EPtr<AST::ASTNode> action = readStatement(ctxt,cursor);
-		
+
 		EPtr<AST::ASTNode> elseAction;
 		if((tc = Token::cast<TControl>(tokens.at(cursor+1))) && tc->getId()==Consts::IDENTIFIER_else) {
 			++cursor;
@@ -1362,7 +1371,7 @@ EPtr<AST::ASTNode> Parser::readControl(ParsingContext & ctxt,int & cursor)const 
 		if(!Token::isA<TEndBlock>(tokens.at(cursor))) {
 			throwError(ctxt,"[do-while] expects (...)",tokens.at(cursor));
 		}
-		
+
 		EPtr<AST::ASTNode> elseAction;
 		if((tc = Token::cast<TControl>(tokens.at(cursor+1))) && tc->getId()==Consts::IDENTIFIER_else) {
 			++cursor;
@@ -1439,7 +1448,7 @@ EPtr<AST::ASTNode> Parser::readControl(ParsingContext & ctxt,int & cursor)const 
 		static const StringId itId("__it");
 
 		// var __it;
-		loopWrappingBlock->declareVar(itId);
+		loopWrappingBlock->declareLocalVar(itId);
 
 		/* \todo speedup by using systemCall:
 			for(__it = sysCall getIterator(arr); sysCall isIteratorEnd(__it); sysCall increasIterator (__it) )

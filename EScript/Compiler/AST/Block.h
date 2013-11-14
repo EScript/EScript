@@ -6,6 +6,7 @@
 #define ES_BLOCK_EXPR_H
 
 #include "ASTNode.h"
+#include "../VariableTypes.h"
 
 #include <deque>
 #include <set>
@@ -20,10 +21,9 @@ class Block : public ASTNode {
 		typedef std::deque<ref_t> statementList_t;
 		typedef statementList_t::iterator statementCursor;
 		typedef statementList_t::const_iterator cStatementCursor;
-		typedef std::set<StringId>  declaredVariableMap_t;
 
 		static Block * createBlockExpression(int line=-1){
-			return new Block(TYPE_BLOCK_EXPRESSION,true,line);	
+			return new Block(TYPE_BLOCK_EXPRESSION,true,line);
 		}
 		static Block * createBlockStatement(int line=-1){
 			return new Block(TYPE_BLOCK_STATEMENT,false,line);
@@ -36,12 +36,14 @@ class Block : public ASTNode {
 
 
 		//! returns false if variable was already declared
-		bool declareVar(StringId id)					{	return vars.insert(id).second;	}
+		bool declareLocalVar(StringId id)				{	return vars.insert(std::make_pair(id,variableType_t::LOCAL_VAR)).second;	}
+		bool declareStaticVar(StringId id)				{	return vars.insert(std::make_pair(id,variableType_t::STATIC_VAR)).second;	}
 		const declaredVariableMap_t & getVars()const	{	return vars;	}
-		bool isLocalVar(StringId id)					{	return vars.count(id)>0;	}
+//		bool isLocalVar(StringId id)					{	return vars.count(id)>0 && vars[id]==LOCAL_VAR;	}
+//		bool isDeclaredVar(StringId id)					{	return vars.count(id)>0;	}
 		void addStatement(ptr_t s)						{	statements.push_back(s);	}
-		bool hasLocalVars()const						{	return !vars.empty(); }
-		size_t getNumLocalVars()const					{	return vars.size(); }
+		bool hasDeclaredVars()const						{	return !vars.empty(); }
+		size_t getNumDeclaredVars()const				{	return vars.size(); }
 
 		void convertToStatement(){	convert(TYPE_BLOCK_STATEMENT,false);	}
 		void convertToExpression(){	convert(TYPE_BLOCK_EXPRESSION,true);	}

@@ -23,6 +23,18 @@ Language:
 			@(once) thisFn.staticCounter := 0; // this is only executed once
 			return ++thisFn.staticCounter;
 		};
+ - Static variables added: Variables declared with the keyword 'static' are accessible in the smallest surrounding block and all
+	nested blocks -- including functions defined here. The variable's storage exists only once, even if defined in a function
+	which is called recursively. This can e.g. be used to create a closure.
+	E.g.:
+	var createUID;
+	{
+		static id = 0;
+		createUID = fn(){	return ++id;	};
+	}
+	outln("New id: ",createUID());
+	 
+
  - '---|>'-operator's  semantic changed for Types (equivalent to the .isA(...)-member).
 	someObject ---|> someType now consistently means: someObject's Type is someType or someObject's Type inherits from someType.
 	Examples:
@@ -34,7 +46,7 @@ Language:
 	  Collection.isBaseOf( Array ) == true		*** new ***
  
 Internals:
- - string hanling updated
+ - string handling updated
  - minor fixes and cleanups
  
 C++-Api:
@@ -43,8 +55,8 @@ C++-Api:
 
 Libs:
  IOLib: 
-  - filePutContents -> saveTextFile
-  - fileGetContents -> loadTextFile
+  - IO.filePutContents -> IO.saveTextFile
+  - IO.fileGetContents -> IO.loadTextFile
  
 --------------------------------------------
 EScript 0.6.6 Eduard (Stable version)

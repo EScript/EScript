@@ -25,6 +25,7 @@ Token * Tokenizer::identifyStaticToken(StringId id){
 
 		constants[Consts::IDENTIFIER_while] = new TControl(Consts::IDENTIFIER_while);
 		constants[Consts::IDENTIFIER_break] = new TControl(Consts::IDENTIFIER_break);
+		constants[Consts::IDENTIFIER_static] = new TControl(Consts::IDENTIFIER_static);
 		constants[Consts::IDENTIFIER_var] = new TControl(Consts::IDENTIFIER_var);
 
 		constants[Consts::IDENTIFIER_continue] = new TControl(Consts::IDENTIFIER_continue);

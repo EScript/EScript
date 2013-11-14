@@ -1232,7 +1232,63 @@ b
 c\n)" == "a\\\nb\nc\\n"	&& R"#(foo)#" == "foo" && R"Delimiter()Delimiter".empty());	
 }
 //out(Runtime.getLocalStackInfo());
-
+{	//static variables
+	var ok = true;
+	
+	
+	{	// check use of value types (in contrast to reference types)
+		var sum = 0;
+		var numberObject = new Number(0); 
+		for(var i = 0;i<10;++i){
+			static s = numberObject;
+			++s; // this should ONLY affect s, and not numberObject
+			sum += s;
+		}
+		ok &= (sum==10) && (numberObject==0);
+	}
+	{ // static vars are not reset at the end of a block
+		for(var i = 0;i<10;++i){
+			static s = s ? s+1 : 0;
+			ok &= (s==i);
+		}
+	}
+	{ // static vars are stored at functions
+		var f;
+		var cleanup; 
+		{
+			static s1 = 0;
+			static staticFun = fn(){	return s1+1;	};
+			f = fn(){
+				s1 = staticFun();
+				return s1;
+			};
+			cleanup = fn(){	staticFun = void;	};
+		}
+		for(var i=0;i<5;++i)
+			f();
+		ok &= (f()==6);
+		cleanup(); // break the cyclic dependency for the memory test: [staticStorage] <-> staticFun
+	}
+	{	// use static variable as Type constraint
+		var f;
+		{
+			static T = Number;
+			f = fn(T value){
+				return value;
+			};
+		}
+		f(1);
+		var exception = false;
+		try{
+			f("foo");
+		}catch(e){
+			exception = true;
+		}
+		ok &= exception; 
+	}
+	
+	test("static",ok);
+}
 //
 //}
 //{
