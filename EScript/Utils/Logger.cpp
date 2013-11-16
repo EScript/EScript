@@ -53,7 +53,7 @@ void StdLogger::doLog(level_t l,const std::string & msg){
 			break;
 		}
 		case LOG_INFO:{
-			out << "Debug: ";
+			out << "Info: ";
 			break;
 		}
 		case LOG_WARNING:{

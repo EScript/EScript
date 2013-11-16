@@ -1,10 +1,11 @@
 // Testcases for HasEScript Scripting-Language
-out ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79,"\n");
+outln ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79);
 
 //----
 // init
 GLOBALS.benchmark:=false;
-GLOBALS.errors:=0; // error count
+//GLOBALS.errors:=0; // error count
+static errors = 0; // error count
 //! new testing function
 GLOBALS.test := fn(description,result,checkCoverageType=false){
 	if(!result)
@@ -91,6 +92,7 @@ if(benchmark){
 load("Testcases_IOLib.escript");
 load("Testcases_MathLib.escript");
 load("Testcases_Runtime.escript");
+load("Testcases_StdLib.escript");
 //if(getOS()=="WINDOWS")
 //	load(__DIR__+"/Testcases_Win32Lib.escript");
 load("Bugs.escript");

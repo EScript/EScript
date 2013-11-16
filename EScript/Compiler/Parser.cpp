@@ -862,7 +862,7 @@ EPtr<AST::ASTNode> Parser::readBinaryExpression(ParsingContext & ctxt,int & curs
 
 				for(const auto & annotation : annotations) {
 					const StringId & name = annotation.first;
-					log(ctxt,Logger::LOG_INFO,"Annotation:"+name.toString(),atOp );
+//					log(ctxt,Logger::LOG_DEBUG,"Annotation:"+name.toString(),atOp );
 					if(name == Consts::ANNOTATION_ATTR_const){
 						flags |= Attribute::CONST_BIT;
 					}else if(name == Consts::ANNOTATION_ATTR_init){
@@ -1167,7 +1167,7 @@ EPtr<AST::ASTNode> Parser::readFunctionDeclaration(ParsingContext & ctxt,int & c
 		for(const auto & annotation : annotations) {
 			const StringId & name = annotation.first;
 			int parameterPos = annotation.second;
-			log(ctxt,Logger::LOG_INFO,"Annotation:"+name.toString(),superOp );
+//			log(ctxt,Logger::LOG_DEBUG,"Annotation:"+name.toString(),superOp );
 			if(name == Consts::ANNOTATION_FN_super){
 				if(parameterPos<0){
 					throwError(ctxt,"'super' annotation needs parameter list.",superOp);

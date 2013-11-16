@@ -45,6 +45,9 @@ void UserFunction::init(EScript::Namespace & globals) {
 	//! [ESMF] Number UserFunction.getParamCount()
 	ES_MFUN(typeObject,UserFunction,"getParamCount",0,0, static_cast<uint32_t>(thisObj->getParamCount()))
 
+	//! [ESMF] Bool UserFunction.usesStaticData()
+	ES_MFUN(typeObject,UserFunction,"usesStaticData",0,0, thisObj->getStaticData()!=nullptr)
+
 	//! [ESMF] String UserFunction._asm()
 	ES_MFUN(typeObject,UserFunction,"_asm",0,0, thisObj->getInstructionBlock().toString())
 
