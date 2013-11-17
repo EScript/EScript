@@ -1,6 +1,8 @@
 loadOnce("Std/basics.escript");
 Std.addModuleSearchPath(".");
 
+//Runtime.setLoggingLevel(Runtime.LOG_INFO);
+// ----------------------------------------------------------
 {
 	var MultiProcedure = Std.require('Std/MultiProcedure');
 	var ok = true;
@@ -44,6 +46,7 @@ Std.addModuleSearchPath(".");
 
 	test("Std.MultiProcedure", Std.MultiProcedure == MultiProcedure  && ok);
 }
+// ----------------------------------------------------------
 {
 	var Set = Std.require('Std/Set');
 
@@ -73,6 +76,7 @@ Std.addModuleSearchPath(".");
 
 	test("Std.Set",	Std.Set == Set  && ok );
 }
+// ----------------------------------------------------------
 {
 	var PriorityQueue = Std.require('Std/PriorityQueue');
 
@@ -124,7 +128,7 @@ Std.addModuleSearchPath(".");
 		ok &&
 		true );
 }
-
+// ----------------------------------------------------------
 {
 	var DataWrapper = Std.require('Std/DataWrapper');
 	var ok = true;
@@ -169,6 +173,58 @@ Std.addModuleSearchPath(".");
 	test("Std.DataWrapper",Std.DataWrapper == DataWrapper && ok);
 
 }
+// ----------------------------------------------------------
+
+{
+	var DataWrapperContainer = Std.require('Std/DataWrapperContainer');
+	var DataWrapper = Std.require('Std/DataWrapper');
+	var ok = true;
+
+	var result = [];
+	
+	var container = new DataWrapperContainer({
+		"a" : DataWrapper.createFromValue("a"),
+		"b" : DataWrapper.createFromValue("b"),
+	});
+	container.onDataChanged += [result]=>fn(result, key,value){
+		result += ""+key+":"+value;
+	};
+	container.addDataWrapper("c" , DataWrapper.createFromValue("c") ); // result += "c:c"
+
+	ok &= (container.count() == 3);
+	
+	container["a"] = container["a"]+"2";
+	container.getDataWrapper("b")("b2");
+	var c = container.getDataWrapper("c");
+	container.unset("c");
+
+	ok &= (container.count() == 2);
+	ok &= container.containsKey("a");
+	ok &= !container.containsKey("c");
+
+	c("c3"); // should not influence the result
+	
+	container.assign({ "a":"a3" });
+		
+	ok &= (result == [ "c:c", "a:a2", "b:b2", "a:a3" ]);
+
+	// iterator
+	var result2 = [];
+	foreach(container as var key,var value){
+		result2 += key + ":" +value;
+	}
+	ok &= (result2 == ["a:a3","b:b2"]);
+
+	// clear
+	ok &= !container.empty();
+	container.clear();
+	ok &= container.empty();
+	ok &= !container.containsKey("a");
+	ok &= container.count() == 0;
+
+	test("Std.DataWrapperContainer",Std.DataWrapperContainer == DataWrapperContainer && ok);
+}
+// ----------------------------------------------------------
 {
 	var info = Std.require('Std/info');
 	var ok = true;
@@ -183,95 +239,128 @@ Std.addModuleSearchPath(".");
 	//info(t);
 	test("Std.info",Std.info == info && ok);
 }
-// loadOnce("LibUtilExt/DataWrapper.escript");
+// ----------------------------------------------------------
 
-	// {
-	// }
+{
+	var ObjectSerialization = Std.require('Std/ObjectSerialization');
+	var ok = true;
+	
+	var fun = fn(){return "foo";};
+	var extObj = new ExtObject({$m1:1});
+	extObj.selfRef := extObj;
+	extObj.fun := fun;
 
-	// // --------
+	var mFun = new (Std.require('Std/MultiProcedure'));
+	mFun += fn(arr){	arr+="foo"; };
+	mFun += fn(arr){	arr+="bar"; };
 
-	// {
-		// var a = new ExtObject({ $m : 3 });
-		// var wrapper = DataWrapper.createFromAttribute(a,$m);
+	
+	var m = {
+		"number":1,
+		"bool":true,
+		"array": [1,2,3],
+		"identifier": $foo,
+		"function": fun,
+		"void" : void,
+		"extObject" : extObj,
+		"boundParams" : [1,2] => fn(a,b){return a+b;},
+		"reservedString" : "##REF:##",
+		"multiProcedure" : mFun
+	};
+//	outln(ObjectSerialization.serialize(m));
+	var m2 = ObjectSerialization.create(ObjectSerialization.serialize(m));
+	ok &= (m["number"] === m2["number"]);
+	ok &= (m["bool"] === m2["bool"]);
+	ok &= ([1,2,3] == m2["array"]);
+	ok &= ($foo == m2["identifier"]);
+	ok &= (m2["function"]() == "foo");
+	ok &= (void === m2["void"]);
+	ok &= (m2["reservedString"] === m["reservedString"]);
+	ok &= (m2["boundParams"]() === 3);
+	var extObj2 = m2["extObject"];
+	ok &= (extObj2.m1 === 1);
+	ok &= (extObj2.selfRef === extObj2);
+	ok &= (extObj2.fun() === "foo");
+	ok &= (extObj2.fun === m2["function"]);
 
-		// wrapper(wrapper()+20);
-		// a.m+=100;
-		// wrapper.refresh();
+	var arr = [];
+	m2["multiProcedure"](arr);
+	ok &= (arr == ["foo","bar"]);
+	
+	
+	{ // serializing functions which use static variables should produce a warning
+		var exception = false;
+		Runtime.setTreatWarningsAsError(true);
+		try{
+			static s1 = "foo";
+			ObjectSerialization.serialize(fn(){return s1;});
+		}catch(e){
+			exception = true;
+		}
+		ok &= exception;
+	}
+	{// map with reserved keys
+		var map = {"##TYPE##":"foo"}; 
+		ok &= ObjectSerialization.create(ObjectSerialization.serialize(map)) == map;
+	}
+//	print_r(ObjectSerialization.serialize("##TYPE##"));
+		
+	{// custom type using specialized registry
+		static MyType = new Type;
+		MyType.m1 := void;
+		MyType._constructor ::= fn(s){	this.m1 = s;	};
+		
+		var registry = new ObjectSerialization.TypeRegistry;
+		
+		registry.registerType(MyType,"MyType")
+			.enableIdentityTracking()
+			.addDescriber(fn(ctxt,MyType obj,Map d){	d['m1'] = ctxt.createDescription(obj.m1);	})
+			.setFactory( fn(ctxt,Type actualType,Map d){		return new actualType(d['m1']);	});
+		
+		var ctxt = new ObjectSerialization.Context(registry);
+		var obj = new MyType( [1,2,3] );
+//		print_r(ctxt.serialize(obj));
+		var obj2 = ctxt.createObject(ctxt.serialize(obj));
+//		ok &= 
+	}
 
-		// addResult("DataWrapper 2",wrapper() == 123 );
-	// }
-
-	// // --------
-
-	// {
-		// var map = { 'm' : 3 };
-		// var wrapper = DataWrapper.createFromCollectionEntry(map,'m');
-		// wrapper(wrapper()+20);
-		// map['m'] += 100;
-
-		// var array = [0,3,17];
-		// var wrapper2 = DataWrapper.createFromCollectionEntry(array,1);
-
-		// wrapper2(wrapper2()+20);
-		// array[1] += 100;
-		// addResult("DataWrapper 3",
-					// wrapper() == 123 && map ==  { 'm' : 123 }
-					// && wrapper2() == 123 && array==[0,123,17] );
-	// }
-
-	// // --------
-	// {
-		// var d1 = DataWrapper.createFromValue(1);
-		// var g = new DataWrapperContainer({
-				// $d2 : DataWrapper.createFromValue(2)
-		// });
-		// g.addDataWrapper($d1,d1);
-
-		// var log = [];
-		// g.onDataChanged += log->fn(key,value){
-			// this+=""+key+":"+value;
-		// };
-
-		// g.merge({
-			// $d3 : DataWrapper.createFromValue(3)
-		// });
-
-
-		// var sum = 0;
-		// foreach(g.getValues() as var key,var value){
-			// sum += value;
-		// }
-		// d1(10);
-		// g.assign({ $d2 : 100 });
-		// g.setValue($d3,1000);
-		// var d3 = g.getDataWrapper($d3);
-		// g.unset($d3);
-		// d3(2000); // this should NOT occur in the log!
-
-		// // test .getIterator()
-		// var m = new Map;
-		// foreach(g as var key,var value)
-			// m[key] = value;
-
-		// addResult("DataWrapperContainer",g[$d1] == 10 && g[$d2] == 100
-					// && d3() == 2000 && g.getValue($d4,"foo") == "foo" && sum == 6
-					// && log == [ "d3:3","d1:10","d2:100","d3:1000" ]
-					// && m == { "d1":10, "d2":100, "d3":2000 });
-		// g.destroy(); // always destroy a DataWrapperContainer to remove all circling dependecies.
-	// }
-
-	// // --------
-
-
-	// {	//Options
-		// var options = [0,2,4];
-		// var wrapper1 = DataWrapper.createFromValue(1).setOptions(options);
-		// var wrapper2 = DataWrapper.createFromValue(2);
-		// var wrapper3 = DataWrapper.createFromValue(3).setOptionsProvider( fn() { return [get(),get()*2,get()*3 ]; });
-
-		// options+="Should not influence wrapper1's options.";
-
-		// addResult("DataWrapperContainer",wrapper1.hasOptions() && !wrapper2.hasOptions()  && wrapper3.hasOptions() &&
-					// wrapper1.getOptions()==[0,2,4] && wrapper2.getOptions()==[] && wrapper3.getOptions()==[3,6,9] );
-	// }
-
+	test("Std.ObjectSerialization",Std.ObjectSerialization == ObjectSerialization && ok);
+}
+// ----------------------------------------------------------
+{
+	var JSONDataStore = Std.require('Std/JSONDataStore');
+	var ok = true;
+	var value = [ true,1,void,"foo",[1,2], {"1":"bar"} ];
+	var filename = "./test_JSONDataStore.json";
+	var DataWrapper = Std.require('Std/DataWrapper');
+	{
+		var dataStore = new JSONDataStore(true);
+	
+		ok &= dataStore.init(filename,false);
+		ok &= (dataStore.getFilename() == filename);
+		
+		dataStore.clear();
+		dataStore["foo.bar.dum"] = value;
+		dataStore["foo.bar.di"] = "flup";
+		ok &= (dataStore.get("c1.value1",42) == 42);
+		var dw = DataWrapper.createFromEntry(dataStore,"c1.value2",5);
+		ok &= (dataStore.get("c1.value2") == 5);
+		dw(43);
+		ok &= (dataStore.get("c1.value2") == 43);
+	}
+	{
+		var dataStore = new JSONDataStore(false);
+		ok &= dataStore.init(filename);
+		ok &= (dataStore["foo.bar.dum"] == value);
+		ok &= (dataStore["foo.bar.di"] == "flup");
+		ok &= (dataStore.get("c1.value1") == 42);
+		var dw = DataWrapper.createFromEntry(dataStore,"c1.value2");
+		ok &= (dw() == 43);
+		dataStore.unset("c1.value1");
+		ok &= !dataStore.get("c1.value1");
+//		outln(IO.loadTextFile(filename));
+		dataStore.clear();
+		dataStore.save();
+	}
+	test("Std.JSONDataStore",Std.JSONDataStore == JSONDataStore && ok);
+}

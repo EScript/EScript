@@ -340,6 +340,7 @@ var FAILED="\t failed\n";
 		&& fn(a,b...,c){return b;}(1,4) == [] // multi parameter
 		&& ({var T=new Type; T._constructor::=fn(p...){this.m:=p;}; new T(1,2,3);}).m == [1,2,3] // multi parameter in constructor call
 		&& [0,1,[2,3,[4,5]...,[]...]...,6] == [0,1,2,3,4,5,6] // parameter expansion
+		&& !f2.usesStaticData()
 		,UserFunction
 	 );
 	 f3.staticVar = 0; // reset staticVar for next testing loop.
@@ -379,7 +380,7 @@ var FAILED="\t failed\n";
 	}
 
 
-	test("User def function(EXP!):", true
+	test("User def function:", true
 		&& userDefinedFunction(10) == 27 // 17+10
 		&& (1->fn(a){return this+a; }.bindLastParams2(27)) () == 28 // 1+27
 		&& [1,2,3].map( fn(key,value,sumA,sumB){return value+sumA+sumB;}.bindLastParams2(90,10) )  == [101,102,103]
@@ -1246,7 +1247,7 @@ c\n)" == "a\\\nb\nc\\n"	&& R"#(foo)#" == "foo" && R"Delimiter()Delimiter".empty(
 		}
 		ok &= (sum==10) && (numberObject==0);
 	}
-	{ // static vars are not reset at the end of a block
+	@(once){ // static vars are not reset at the end of a block (test works only once!)
 		for(var i = 0;i<10;++i){
 			static s = s ? s+1 : 0;
 			ok &= (s==i);
@@ -1264,6 +1265,7 @@ c\n)" == "a\\\nb\nc\\n"	&& R"#(foo)#" == "foo" && R"Delimiter()Delimiter".empty(
 			};
 			cleanup = fn(){	staticFun = void;	};
 		}
+		ok &= f.usesStaticData();
 		for(var i=0;i<5;++i)
 			f();
 		ok &= (f()==6);
