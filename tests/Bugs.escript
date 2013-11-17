@@ -785,3 +785,16 @@
 	test("BUG[20130922]",	exceptionsCaught == 1 );
 }
 
+{ // local variables are not reset when using 'continue'
+	var j = 0;
+	for(var i=0;i<10;++i){
+		var v1;
+		if(!v1){
+			v1 = 1;
+			continue;
+		}
+		j+= v1; // should never be called.
+	}
+
+	test("BUG[20131117]",	j == 0 );
+}

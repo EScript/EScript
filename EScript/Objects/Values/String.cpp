@@ -58,11 +58,8 @@ void String::init(EScript::Namespace & globals) {
 
 
 	// ---
-	//! [ESMF] Bool String.beginsWith( (String)search ) // \todo starting pos!!!!!!!!!!!!!!!!!!!!!!!!
-	ES_MFUNCTION(typeObject,const String,"beginsWith",1,1, {
-		const std::string search = parameter[0].toString();
-		return thisObj->getString().compare(0,search.length(),search)==0;
-	})
+	//! [ESMF] Bool String.beginsWith( (String)search[,(Number)startIndex] ) 
+	ES_MFUN(typeObject,const String,"beginsWith",1,2, thisObj->sData.beginsWith(parameter[0].toString(), parameter[1].to<uint32_t>(rt,0)))
 
 	//! [ESMF] Bool String.contains (String)search [,(Number)startIndex] )
 	ES_MFUN(typeObject,const String,"contains",1,2, 

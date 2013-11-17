@@ -2,18 +2,16 @@
 // This file is part of the EScript StdLib library.
 // See copyright notice in ../basics.escript
 // ------------------------------------------------------
+var Traits = Std.require('Std/Traits/basics');
+var GenericTrait = Std.require('Std/Traits/GenericTrait');
 
 /*!
  **		Collection of common traits.
  **/
  
-loadOnce(__DIR__+"/basics.escript");
 
 // these traits also count to the common traits
-Std.require('Std/CallableTrait');
-Std.require('Std/InterfaceTrait');
-
-Std.declareNamespace($Std,$Traits);
+Std.require('Std/Traits/CallableTrait');
 
 // -----
 
@@ -31,8 +29,8 @@ Std.declareNamespace($Std,$Traits);
 	\endcode
 };
 */
-Std.Traits.MultiConstructorTrait := new Std.Traits.GenericTrait("Std.Traits.MultiConstructorTrait");
-Std.Traits.MultiConstructorTrait.onInit += fn(Type type){
+Traits.MultiConstructorTrait := new GenericTrait("Std.Traits.MultiConstructorTrait");
+Traits.MultiConstructorTrait.onInit += fn(Type type){
 	if(type.isSetLocally($_constructor))
 		Runtime.exception("Std.Traits.MultiConstructorTrait: Type already has a constructor.");
 	type._constructors ::= new MultiProcedure;
@@ -44,14 +42,14 @@ Std.Traits.MultiConstructorTrait.onInit += fn(Type type){
 
 // -----
 
-Std.Traits.PrintableNameTrait := new Std.Traits.GenericTrait($PrintableNameTrait);
-Std.Traits.PrintableNameTrait.onInit += fn(obj,typename){	obj._printableName @(override) ::= typename;	};
+Traits.PrintableNameTrait := new GenericTrait($PrintableNameTrait);
+Traits.PrintableNameTrait.onInit += fn(obj,typename){	obj._printableName @(override) ::= typename;	};
 
  // ------
 
-Std.Traits.SingletonTrait := new Std.Traits.GenericTrait($SingletonTrait);
+Traits.SingletonTrait := new GenericTrait($SingletonTrait);
 {
-	var t = Std.Traits.SingletonTrait;
+	var t = Traits.SingletonTrait;
 	t.attributes._constructor @(private) ::= fn(){};
 	t.attributes.instance @(public) ::= fn(){
 		if(!this.isSetLocally($__instance))
@@ -65,9 +63,9 @@ Std.Traits.SingletonTrait := new Std.Traits.GenericTrait($SingletonTrait);
  * @param smaller the < function has to be given as parameter, all others are redirected to it.
  * @note this changes the behaviour of == and != which no longer behave like === and !== 
  */
-Std.Traits.DefaultComparisonOperatorsTrait := new Std.Traits.GenericTrait("Std.Traits.DefaultComparisonOperatorsTrait");
+Traits.DefaultComparisonOperatorsTrait := new GenericTrait("Std.Traits.DefaultComparisonOperatorsTrait");
 {
-	var t = Std.Traits.DefaultComparisonOperatorsTrait;
+	var t = Traits.DefaultComparisonOperatorsTrait;
 
 	t.attributes.'<'	::= fn(b){
 		assert( b ---|> __compare_baseType , "tried to compare objects of different type.");
@@ -85,5 +83,4 @@ Std.Traits.DefaultComparisonOperatorsTrait := new Std.Traits.GenericTrait("Std.T
 	};
 };
 
-Std._registerModuleResult("Std/Traits/CommonTraits",Std.Traits); // support loading with Std.requireModule and loadOnce.
 return Std.Traits;

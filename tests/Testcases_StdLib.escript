@@ -73,6 +73,11 @@ Std.addModuleSearchPath(".");
 	foreach(s1 as var value)
 		sum+=value;
 	ok &= (sum==1+3+4+5);
+	
+	var s7 = new Set("1");
+	var s8 = new Set("2");
+	s7.swap(s8);
+	ok &= (s7.toArray() == ["2"] && s8.toArray() == ["1"]);
 
 	test("Std.Set",	Std.Set == Set  && ok );
 }
@@ -254,6 +259,11 @@ Std.addModuleSearchPath(".");
 	mFun += fn(arr){	arr+="foo"; };
 	mFun += fn(arr){	arr+="bar"; };
 
+
+	var set = new (Std.require('Std/Set'));
+	set += 1;
+	set += 2;
+	set += 3;
 	
 	var m = {
 		"number":1,
@@ -265,7 +275,8 @@ Std.addModuleSearchPath(".");
 		"extObject" : extObj,
 		"boundParams" : [1,2] => fn(a,b){return a+b;},
 		"reservedString" : "##REF:##",
-		"multiProcedure" : mFun
+		"multiProcedure" : mFun,
+		"set" : set
 	};
 //	outln(ObjectSerialization.serialize(m));
 	var m2 = ObjectSerialization.create(ObjectSerialization.serialize(m));
@@ -277,6 +288,7 @@ Std.addModuleSearchPath(".");
 	ok &= (void === m2["void"]);
 	ok &= (m2["reservedString"] === m["reservedString"]);
 	ok &= (m2["boundParams"]() === 3);
+	ok &= (m2["set"] == set);
 	var extObj2 = m2["extObject"];
 	ok &= (extObj2.m1 === 1);
 	ok &= (extObj2.selfRef === extObj2);

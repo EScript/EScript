@@ -3,7 +3,7 @@
 // See copyright notice in ../basics.escript
 // ------------------------------------------------------
 
-loadOnce(__DIR__+"/TraitBasics.escript");
+var Traits = Std.require('Std/Traits/basics');
 
 /*! GenericTrait ---|> Trait
 	A GenericTrait offers:
@@ -12,9 +12,9 @@ loadOnce(__DIR__+"/TraitBasics.escript");
 	\note If you want to restrict the type of object to which the trait can be added,
 		add an corresponding constraint to the onInit-method.
 */
-Std.Traits.GenericTrait := new Type(Std.Traits.Trait);
+Traits.GenericTrait := new Type(Traits.Trait);
 {
-	var T = Std.Traits.GenericTrait;
+	var T = Traits.GenericTrait;
 	T._printableName @(override) ::= $GenericTrait;
 
 	T.attributes @(init,public,const) := fn(){	return new Type;	};
@@ -59,6 +59,5 @@ Std.Traits.GenericTrait := new Type(Std.Traits.Trait);
 	};
 }
 
-// Std._registerModuleResult("Std/Traits/GenericTrait",Std.Traits.GenericTrait); // support loading with Std.requireModule and loadOnce.
-return Std.Traits.GenericTrait ;
+return Traits.GenericTrait ;
 // ---------------------------------------

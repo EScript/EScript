@@ -68,6 +68,7 @@ class StringData{
 		size_t getNumCodepoints()const;
 		std::string getSubStr(const size_t codePointStart, const size_t numCodePoints)const;
 		
+		bool beginsWith(const std::string& subj,const size_t codePointStart=0)const;
 		size_t find(const std::string& subj,const size_t codePointStart=0)const;
 		size_t rFind(const std::string& subj,const size_t codePointStart=std::string::npos)const;
 

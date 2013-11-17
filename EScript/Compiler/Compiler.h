@@ -14,7 +14,7 @@
 
 namespace EScript {
 
-class FunCompileContext;
+class FnCompileContext;
 class Logger;
 namespace AST{
 class ASTNode;
@@ -47,12 +47,12 @@ class Compiler {
 		/*! (static,internal)
 			- Replaces the markers inside the assembly by jump addresses.	*/
 		static void finalizeInstructions( InstructionBlock & instructions );
-		void addExpression(FunCompileContext & ctxt,EPtr<AST::ASTNode> expression)const;
-		void addStatement(FunCompileContext & ctxt,EPtr<AST::ASTNode> statement)const;
+		void addExpression(FnCompileContext & ctxt,EPtr<AST::ASTNode> expression)const;
+		void addStatement(FnCompileContext & ctxt,EPtr<AST::ASTNode> statement)const;
 
-		void throwError(FunCompileContext & ctxt,const std::string & message)const;
+		void throwError(FnCompileContext & ctxt,const std::string & message)const;
 	private:
-		void compileASTNode(FunCompileContext & ctxt,EPtr<AST::ASTNode> node)const;
+		void compileASTNode(FnCompileContext & ctxt,EPtr<AST::ASTNode> node)const;
 	//	@}
 
 };

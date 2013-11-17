@@ -173,6 +173,14 @@ std::string StringData::getSubStr(const size_t codePointStart, const size_t numC
 	return data->s.substr(startPos,endPos-startPos);
 }
 
+bool StringData::beginsWith(const std::string& subj,const size_t codePointStart)const{
+	const size_t subjLength = subj.length();
+	const size_t bytePos = codePointToBytePos(codePointStart);
+	return (subjLength>0 && bytePos<str().length() && (bytePos+subjLength)<=str().length() ) ? 
+				str().compare(bytePos,subjLength,subj)==0 : 
+				false;
+}
+	
 size_t StringData::find(const std::string& subj,const size_t codePointStart)const{
 	const size_t subjLength = subj.length();
 	

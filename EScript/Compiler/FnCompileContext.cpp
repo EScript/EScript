@@ -1,28 +1,28 @@
-// FunCompileContext.cpp
+// FnCompileContext.cpp
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
-#include "CompilerContext.h"
+#include "FnCompileContext.h"
 #include "Compiler.h"
 #include "../Objects/Callables/UserFunction.h" // StaticData
 #include <sstream>
 
 namespace EScript{
 
-void FunCompileContext::addExpression(EPtr<AST::ASTNode> expression){
+void FnCompileContext::addExpression(EPtr<AST::ASTNode> expression){
 	compiler.addExpression(*this,expression);
 }
-void FunCompileContext::addStatement(EPtr<AST::ASTNode> stmt){
+void FnCompileContext::addStatement(EPtr<AST::ASTNode> stmt){
 	compiler.addStatement(*this,stmt);
 }
 
-StringId FunCompileContext::createOnceStatementMarker(){
+StringId FnCompileContext::createOnceStatementMarker(){
 	std::ostringstream s;
 	s << "___once_"<<currentOnceMarkerCounter++;
 	return s.str();
 }
 
-uint32_t FunCompileContext::getCurrentMarker(setting_t type)const{
+uint32_t FnCompileContext::getCurrentMarker(setting_t type)const{
 	for(std::vector<SettingsStackEntry>::const_reverse_iterator it = settingsStack.rbegin();it!=settingsStack.rend();++it){
 		const SettingsStackEntry & entry = *it;
 		if(entry.type == type)
@@ -31,7 +31,7 @@ uint32_t FunCompileContext::getCurrentMarker(setting_t type)const{
 	return Instruction::INVALID_JUMP_ADDRESS;
 }
 
-void FunCompileContext::pushSetting_basicLocalVars(){
+void FnCompileContext::pushSetting_basicLocalVars(){
 	settingsStack.push_back(SettingsStackEntry(VISIBLE_LOCAL_AND_STATIC_VARIABLES));
 	SettingsStackEntry & entry = settingsStack.back();
 
@@ -44,25 +44,25 @@ void FunCompileContext::pushSetting_basicLocalVars(){
 	}
 }
 
-void FunCompileContext::pushSetting_declaredVars(const declaredVariableMap_t & variables){
+void FnCompileContext::pushSetting_declaredVars(const declaredVariableMap_t & variables){
 	settingsStack.push_back(SettingsStackEntry(VISIBLE_LOCAL_AND_STATIC_VARIABLES));
 	SettingsStackEntry & entry = settingsStack.back();
 
-	for(const auto & var : variables) {
-		if(var.second == variableType_t::LOCAL_VAR){
-			const size_t varIndex = instructions.declareLocalVariable(var.first);
-			entry.declaredVariables[var.first] = std::make_pair(variableType_t::LOCAL_VAR,varIndex);
+	for(const auto & var_idAndType : variables) {
+		if(var_idAndType.second == variableType_t::LOCAL_VAR){
+			const size_t varIndex = instructions.declareLocalVariable(var_idAndType.first);
+			entry.declaredVariables[var_idAndType.first] = std::make_pair(variableType_t::LOCAL_VAR,varIndex);
 			if(!variableCollectorStack.empty()){
 				variableCollectorStack.top()->push_back(varIndex);
 			}
-		}else if(var.second == variableType_t::STATIC_VAR){
-			const size_t varIndex = staticData.declareStaticVariable(var.first);
-			entry.declaredVariables[var.first] = std::make_pair(variableType_t::STATIC_VAR,varIndex);
+		}else if(var_idAndType.second == variableType_t::STATIC_VAR){
+			const size_t varIndex = staticData.declareStaticVariable(var_idAndType.first);
+			entry.declaredVariables[var_idAndType.first] = std::make_pair(variableType_t::STATIC_VAR,varIndex);
 		}
 	}
 }
 
-varLocation_t FunCompileContext::getCurrentVarLocation(const StringId & name)const{
+varLocation_t FnCompileContext::getCurrentVarLocation(const StringId & name)const{
 	for(auto it = settingsStack.rbegin();it!=settingsStack.rend();++it){
 		if( (*it).type == VISIBLE_LOCAL_AND_STATIC_VARIABLES){
 			const auto fIt = (*it).declaredVariables.find(name);
@@ -72,7 +72,7 @@ varLocation_t FunCompileContext::getCurrentVarLocation(const StringId & name)con
 		}
 	}
 	// search for static variables
-	for(FunCompileContext *ctxt=parent;ctxt;ctxt=ctxt->parent){
+	for(FnCompileContext *ctxt=parent;ctxt;ctxt=ctxt->parent){
 		for(auto it = ctxt->settingsStack.rbegin();it!=ctxt->settingsStack.rend();++it){
 			if( (*it).type == VISIBLE_LOCAL_AND_STATIC_VARIABLES){
 				const auto fIt = (*it).declaredVariables.find(name);
@@ -85,21 +85,20 @@ varLocation_t FunCompileContext::getCurrentVarLocation(const StringId & name)con
 	return std::make_pair(variableType_t::LOCAL_VAR,-1); // invalid var
 }
 
-bool FunCompileContext::collectLocalVariables(setting_t entryType,std::vector<size_t> & variableIndices){
-	variableIndices.clear();
+std::vector<size_t> FnCompileContext::collectLocalVariables(setting_t entryType){
+	std::vector<size_t> variableIndices;
 	for(std::vector<SettingsStackEntry>::const_reverse_iterator it = settingsStack.rbegin();it!=settingsStack.rend();++it){
 		const SettingsStackEntry & entry = *it;
 		if(entry.type == VISIBLE_LOCAL_AND_STATIC_VARIABLES){
-			for(const auto & var : entry.declaredVariables) {
-				if(var.second.second == variableType_t::LOCAL_VAR)
-					variableIndices.push_back(var.second.first);
+			for(const auto & var_idAndLocation : entry.declaredVariables) { // id -> location
+				if(isLocalVarLocation(var_idAndLocation.second))
+					variableIndices.push_back(var_idAndLocation.second.second);
 			}
 		}
 		if(entry.type == entryType)
-			return true;
+			break;
 	}
-	return false;
-
+	return variableIndices;
 }
 
 }

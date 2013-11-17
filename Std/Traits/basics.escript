@@ -10,10 +10,10 @@ loadOnce(__DIR__+"/../basics.escript");
  **/
 Std.declareNamespace($Std,$Traits);
 
-var Ns = Std.Traits;
+static Traits = Std.Traits;
 
 //! (internal)
-Ns._accessObjTraitRegistry := fn(obj,createIfNotExist = false){
+static _accessObjTraitRegistry = fn(obj,createIfNotExist = false){
 	if(!obj.isSetLocally($__traits)){
 		if(!createIfNotExist)
 			return void;
@@ -26,10 +26,10 @@ Ns._accessObjTraitRegistry := fn(obj,createIfNotExist = false){
 
 /*! Add a trait to the given object.
 	The additional parameters are passed to the trait's init method. */
-Ns.addTrait := Std.Traits -> fn(obj, Std.Traits.Trait trait,params...){
+Traits.addTrait := fn(obj, Traits.Trait trait,params...){
 	var name = trait.getName();
 
-	var registry = this._accessObjTraitRegistry(obj,true);
+	var registry = _accessObjTraitRegistry(obj,true);
 	if(registry[name] && !trait.multipleUsesAllowed){
 		Runtime.exception("Adding a trait to an Object twice.\nObject:"+obj.toDbgString()+"\nTrait:"+name);
 	}
@@ -48,11 +48,11 @@ Ns.addTrait := Std.Traits -> fn(obj, Std.Traits.Trait trait,params...){
 /*! Add a trait to the given object. The trait is identified by its name.
 	\note The trait's name must correspond to the EScript attribute structure beginning with GLOBALS. 
 			e.g. "Std.Traits.SingletonTrait" --> Std.Traits.SingletonTrait	*/
-Ns.addTraitByName := Ns -> fn(obj,String traitName,params...){
-	this.addTrait(obj, this.getTraitByName(traitName), params...);
+Traits.addTraitByName := fn(obj, String traitName, params...){
+	Traits.addTrait(obj, Traits.getTraitByName(traitName), params...);
 };
 
-Ns.getTraitByName := fn(String traitName){
+Traits.getTraitByName := fn(String traitName){
 	var nameParts = traitName.split('.');
 	var traitSearch = GLOBALS;
 	foreach(nameParts as var p){
@@ -65,18 +65,18 @@ Ns.getTraitByName := fn(String traitName){
 };
 
 /*! Checks if the given object has a trait stored locally (and not by inheritance).*/
-Ns.queryLocalTrait := Ns -> fn(obj,traitOrTraitName){
-	var registry = this._accessObjTraitRegistry(obj,false);
+Traits.queryLocalTrait := fn(obj,traitOrTraitName){
+	var registry = _accessObjTraitRegistry(obj,false);
 	return registry ? 
-					registry[traitOrTraitName---|>this.Trait ? traitOrTraitName.getName():traitOrTraitName] :
+					registry[traitOrTraitName---|>Traits.Trait ? traitOrTraitName.getName():traitOrTraitName] :
 					false;
 };
 
 /*! Checks if the given object has a trait (the trait may be inherited).*/
-Ns.queryTrait := Ns -> fn(obj,traitOrTraitName){
+Traits.queryTrait := fn(obj,traitOrTraitName){
 	var traitName = traitOrTraitName---|>Traits.Trait ? traitOrTraitName.getName():traitOrTraitName;
 	while(obj){
-		var reg = Traits._accessObjTraitRegistry(obj,false);
+		var reg = _accessObjTraitRegistry(obj,false);
 		if(reg && reg[traitName])
 			return reg[traitName];
 		obj = obj---|>Type ? obj.getBaseType() : obj.getType();
@@ -85,11 +85,11 @@ Ns.queryTrait := Ns -> fn(obj,traitOrTraitName){
 };
 
 /*! Collects all traits of an object (including inherited traits).*/
-Ns.queryTraits := Ns -> fn(obj){
-	var traits = this._accessObjTraitRegistry(obj,false);
+Traits.queryTraits := Traits -> fn(obj){
+	var traits = _accessObjTraitRegistry(obj,false);
 	traits = traits ? traits.clone() : new Map;
 	for(var t = (obj---|>Type ? obj.getBaseType() : obj.getType()); t ; t = t.getBaseType()){
-		var traits2 = this._accessObjTraitRegistry(t,false);
+		var traits2 = _accessObjTraitRegistry(t,false);
 		if(traits2)
 			traits.merge(traits2);
 	}
@@ -97,8 +97,8 @@ Ns.queryTraits := Ns -> fn(obj){
 };
 
 /*! Throws an exception if the given object does not have the given trait. */
-Ns.requireTrait := Ns -> fn(obj,traitOrTraitName){
-	if(!this.queryTrait(obj,traitOrTraitName))
+Traits.requireTrait := fn(obj,traitOrTraitName){
+	if(!Traits.queryTrait(obj,traitOrTraitName))
 		Runtime.exception("Required trait not found\nObject:"+obj.toDbgString()+"\nTrait:"+traitOrTraitName);
 };
 
@@ -106,9 +106,9 @@ Ns.requireTrait := Ns -> fn(obj,traitOrTraitName){
 /*! Base class for all Trait implementations.
 	\note When creating a new Trait, you should consider using
 		GenericTrait instead of this base class.	*/
-Ns.Trait := new Type;
+Traits.Trait := new Type;
 {
-	var T = Ns.Trait;
+	var T = Traits.Trait;
 	T._printableName @(override) ::= $Trait;
 	T._traitName @(private) := void;
 
@@ -126,9 +126,9 @@ Ns.Trait := new Type;
 	};
 
 	T.allowMultipleUses ::= 		fn(){	return this.setMultipleUsesAllowed(true);	};
-	T.getMultipleUsesAllowed ::= fn(){	return multipleUsesAllowed;	};
-	T.getName ::=				fn(){	return _traitName ? _traitName : toString();	};
-	T.setMultipleUsesAllowed ::= fn(Bool b){	multipleUsesAllowed = b; 	return this;	};
+	T.getMultipleUsesAllowed ::= 	fn(){	return multipleUsesAllowed;	};
+	T.getName ::=					fn(){	return _traitName ? _traitName : toString();	};
+	T.setMultipleUsesAllowed ::=	fn(Bool b){	multipleUsesAllowed = b; 	return this;	};
 
 	//! ---o
 	T.init ::= fn(...){	Runtime.exception("This method is not implemented. Implement in subtype, or do not call!");	};
@@ -136,11 +136,4 @@ Ns.Trait := new Type;
 	
 }
 
-
-// ---------------------------
-
-
-// Std._registerModuleResult("Std/Traits/basics",Ns); // support loading with Std.requireModule and loadOnce.
-return Ns;
-//
-// ---------------------------------------
+return Traits;

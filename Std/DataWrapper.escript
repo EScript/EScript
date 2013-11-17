@@ -197,12 +197,4 @@ var DataWrapper = new Type;
 	};
 }
 
-
-
-
-
-// Std._registerModuleResult("Std/DataWrapper",Std.DataWrapper); // support loading with Std.requireModule and loadOnce.
-//Std._markAsLoaded(__DIR__,__FILE__);
-Std._registerModule('Std/DataWrapper',DataWrapper); // support loading with Std.requireModule and loadOnce.
-
 return DataWrapper;

@@ -124,6 +124,7 @@ var FAILED="\t failed\n";
 		&& void == "bar"[3]
 		&& mystring*3 == "bl\"#2bl\"#2bl\"#2" && !s.endsWith("\0")
 		&& s.endsWith("bar")&&!s.endsWith("b")&&s.beginsWith("foo")&& s.beginsWith(s)&&  !s.beginsWith(s+s)
+		&& s.beginsWith("bar",3) && !s.beginsWith("barx",3) && ! s.beginsWith("l",1000)
 		&& !"a".endsWith("foo") // subject is shorter than search
 		&& s.contains("ob") && !s.contains("oc") && "f".getType()==String
 		&& "a,b,c".split(",",2) == ["a","b,c"] && "/".split("/") == ["",""]

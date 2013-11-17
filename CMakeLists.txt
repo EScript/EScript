@@ -12,8 +12,8 @@ set(CMAKE_INSTALL_CMAKECONFIGDIR ${CMAKE_INSTALL_LIBDIR}/cmake/EScript)
 
 set(ESCRIPT_SOURCES
 	EScript/Compiler/AST/UserFunctionExpr.cpp
-	EScript/Compiler/CompilerContext.cpp
 	EScript/Compiler/Compiler.cpp
+	EScript/Compiler/FnCompileContext.cpp
 	EScript/Compiler/Operators.cpp
 	EScript/Compiler/Parser.cpp
 	EScript/Compiler/Token.cpp

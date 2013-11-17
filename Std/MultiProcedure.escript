@@ -74,7 +74,4 @@ Std.onModule('Std/ObjectSerialization', [T] => fn(MultiProcedure, ObjectSerializ
 
 Std.MultiProcedure := T;
 
-Std._registerModule('Std/MultiProcedure',T); // support loading with Std.requireModule and loadOnce.
-
 return Std.MultiProcedure;
-// ------------------------------------------

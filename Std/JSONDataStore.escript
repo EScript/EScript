@@ -159,9 +159,4 @@ T._set ::= fn(key,value){
 	return value;
 };
 
-//Std.Traits.addTrait( T, Std.Traits.JSONDataStore );
-Std._registerModule('Std/MultiProcedure',T); // support loading with Std.requireModule and loadOnce.
-
-
 return T;
-// -----------------

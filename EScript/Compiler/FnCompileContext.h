@@ -1,4 +1,4 @@
-// FunCompileContext.h
+// FnCompileContext.h
 // This file is part of the EScript programming language.
 // See copyright notice in EScript.h
 // ------------------------------------------------------
@@ -25,7 +25,7 @@ class Compiler;
 
 /*! Collection of "things" used during the compilation process of one user function function
 	(or block of code without surrounding function).*/
-class FunCompileContext {
+class FnCompileContext {
 		Compiler & compiler;
 		StaticData & staticData;
 		InstructionBlock & instructions;
@@ -60,15 +60,15 @@ class FunCompileContext {
 		uint32_t currentOnceMarkerCounter; // used for @(once) [statement]
 
 		CodeFragment code;
-		FunCompileContext* parent; // used for detecting the visibility of static variables
+		FnCompileContext* parent; // used for detecting the visibility of static variables
 		bool usesStaticVars; // if true, the function has to reference the static data container
 	public:
-		FunCompileContext(Compiler & _compiler,StaticData&sData, InstructionBlock & _instructions,const CodeFragment & _code) :
+		FnCompileContext(Compiler & _compiler,StaticData&sData, InstructionBlock & _instructions,const CodeFragment & _code) :
 				compiler(_compiler),staticData(sData),instructions(_instructions),currentLine(-1),currentMarkerId(Instruction::JMP_TO_MARKER_OFFSET),
 				currentOnceMarkerCounter(0),code(_code),parent(nullptr),usesStaticVars(false){}
 
 		// create a context for a function embedded another function
-		FunCompileContext(FunCompileContext& parentCtxt,InstructionBlock & _instructions,const CodeFragment & _code) :
+		FnCompileContext(FnCompileContext& parentCtxt,InstructionBlock & _instructions,const CodeFragment & _code) :
 				compiler(parentCtxt.compiler),staticData(parentCtxt.staticData),
 				instructions(_instructions),currentLine(-1),currentMarkerId(Instruction::JMP_TO_MARKER_OFFSET),
 				currentOnceMarkerCounter(0),code(_code),parent(&parentCtxt),usesStaticVars(false){}
@@ -76,9 +76,8 @@ class FunCompileContext {
 		void addInstruction(const Instruction & newInstruction)			{	instructions.addInstruction(newInstruction,currentLine);	}
 
 
-		/*! Collect all variable indices on the settings stack until an entry with the given type is found.
-			Iff no entry of the given type is found on the stack, false is returned.	*/
-		bool collectLocalVariables(setting_t entryType,std::vector<size_t> & variableIndices);
+		//! Collect all variable indices on the settings stack until an entry with the given type is found.
+		std::vector<size_t> collectLocalVariables(setting_t entryType);
 
 		void addExpression(EPtr<AST::ASTNode> expression);
 		void addStatement(EPtr<AST::ASTNode> stmt);

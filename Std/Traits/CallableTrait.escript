@@ -11,7 +11,7 @@ var Traits = Std.require('Std/Traits/basics');
 	\param (optional) fun	Function called when an instance of the type is used as function.
 							The first parameter is the instance object.
 */
-Traits.CallableTrait := new Traits.Trait("Std.Traits.CallableTrait");
+Traits.CallableTrait := new Traits.Trait('Std.Traits.CallableTrait');
 
 Traits.CallableTrait.init @(override) := fn(t,fun=void){
 	if(fun){
@@ -23,7 +23,10 @@ Traits.CallableTrait.init @(override) := fn(t,fun=void){
 	}
 };
 
-// Std._registerModuleResult("Std/Traits/CallableTrait",Std.Traits.CallableTrait); // support loading with Std.requireModule and loadOnce.
+Traits.addTrait(Function,		Traits.CallableTrait);
+Traits.addTrait(UserFunction,	Traits.CallableTrait);
+Traits.addTrait(Delegate,		Traits.CallableTrait);
+
+
 return Traits.CallableTrait;
-//
 // ---------------------------------------

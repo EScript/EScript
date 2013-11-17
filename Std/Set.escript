@@ -93,7 +93,7 @@ T.toArray ::= fn(){
 	return a;
 };
 T.swap ::= fn(Std.Set other){
-	data.swap(other.data);
+	data.swap(other._accessData());
 	return this;
 };
 T."+=" ::= T.add;
@@ -107,7 +107,18 @@ T."==" ::= fn(other){
 	return (other---|>(this.getType())) ? (data==other._accessData()) : false;
 };
 
-Std._registerModule('Std/Set',T); // support loading with Std.requireModule and loadOnce.
-return T;
+Std.onModule('Std/ObjectSerialization', [T] => fn(Set, ObjectSerialization){
+	ObjectSerialization.registerType(Set,'Std.Set')
+		.addDescriber(fn(ctxt,obj,Map d){	
+			d['entries'] = ctxt.createDescription( obj.toArray() );
+		})
+		.addInitializer(fn(ctxt, obj,Map d){
+			var entries = d['entries'];
+			if(entries){
+				foreach(entries as var d)
+					obj += ctxt.createObject(d);
+			}
+		});
+});
 
-// ------------------------------------------
+return T;

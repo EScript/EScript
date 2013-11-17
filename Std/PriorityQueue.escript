@@ -76,5 +76,4 @@ T.heapify @(private) ::= fn(i){
 	}
 };
 
-Std._registerModule('Std/PriorityQueue',T); // support loading with Std.requireModule and loadOnce.
 return T;

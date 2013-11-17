@@ -4,7 +4,7 @@
 // ------------------------------------------------------
 #include "Compiler.h"
 #include "Parser.h"
-#include "CompilerContext.h"
+#include "FnCompileContext.h"
 #include "../Consts.h"
 #include "AST/AnnotatedStatement.h"
 #include "AST/Block.h"
@@ -34,7 +34,7 @@
 
 namespace EScript{
 
-typedef std::function<void (FunCompileContext &, EPtr<AST::ASTNode>)> handler_t;
+typedef std::function<void (FnCompileContext &, EPtr<AST::ASTNode>)> handler_t;
 typedef std::map<internalTypeId_t, handler_t> handlerRegistry_t;
 static bool initHandler(handlerRegistry_t &);
 static handlerRegistry_t handlerRegistry;
@@ -64,7 +64,7 @@ UserFunction * Compiler::compile(const CodeFragment & code){
 	{ // compile syntax tree and create instructions
 		_CountedRef<StaticData> staticData = new StaticData;
 
-		FunCompileContext ctxt(*this,*staticData.get(),fun->getInstructionBlock(),code);
+		FnCompileContext ctxt(*this,*staticData.get(),fun->getInstructionBlock(),code);
 		ctxt.addExpression(syntaxTreeRoot.get());
 		Compiler::finalizeInstructions(fun->getInstructionBlock());
 
@@ -76,7 +76,7 @@ UserFunction * Compiler::compile(const CodeFragment & code){
 }
 
 //! (internal)
-void Compiler::compileASTNode(FunCompileContext & ctxt,EPtr<AST::ASTNode> node)const{
+void Compiler::compileASTNode(FnCompileContext & ctxt,EPtr<AST::ASTNode> node)const{
 	if(node->getLine()>=0)
 		ctxt.setLine(node->getLine());
 
@@ -89,7 +89,7 @@ void Compiler::compileASTNode(FunCompileContext & ctxt,EPtr<AST::ASTNode> node)c
 	it->second(ctxt,node);
 }
 
-void Compiler::addExpression(FunCompileContext & ctxt,EPtr<AST::ASTNode> expression)const{
+void Compiler::addExpression(FnCompileContext & ctxt,EPtr<AST::ASTNode> expression)const{
 	compileASTNode(ctxt,expression);
 	if( !expression->isExpression()){ // make sure that something is added to the stack
 		ctxt.addInstruction(Instruction::createPushVoid());
@@ -97,7 +97,7 @@ void Compiler::addExpression(FunCompileContext & ctxt,EPtr<AST::ASTNode> express
 }
 
 //! (internal)
-void Compiler::addStatement(FunCompileContext & ctxt,EPtr<AST::ASTNode> statement)const{
+void Compiler::addStatement(FnCompileContext & ctxt,EPtr<AST::ASTNode> statement)const{
 	compileASTNode(ctxt,statement);
 	if(statement->isExpression()){ // if something is added to the stack, remove it.
 		ctxt.addInstruction(Instruction::createPop());
@@ -147,7 +147,7 @@ void Compiler::finalizeInstructions( InstructionBlock & instructionBlock ){
 //	}
 }
 
-void Compiler::throwError(FunCompileContext & ctxt,const std::string & msg)const{
+void Compiler::throwError(FnCompileContext & ctxt,const std::string & msg)const{
 	std::ostringstream os;
 	os << "Compiler: " << msg;
 	Exception * e = new Exception(os.str(),ctxt.getCurrentLine());
@@ -167,7 +167,7 @@ bool initHandler(handlerRegistry_t & m){
 	#define ADD_HANDLER( _id, _type, _block) \
 	{ \
 		struct _handler { \
-			void operator()(FunCompileContext & ctxt,EPtr<ASTNode> obj){ \
+			void operator()(FnCompileContext & ctxt,EPtr<ASTNode> obj){ \
 				_type * self = obj.toType<_type>(); \
 				if(!self) throw std::invalid_argument("Compiler: Wrong type!"); \
 				do _block while(false); \
@@ -217,13 +217,11 @@ bool initHandler(handlerRegistry_t & m){
 
 	// break
 	ADD_HANDLER( ASTNode::TYPE_BREAK_STATEMENT, BreakStatement, {
-		const uint32_t target = ctxt.getCurrentMarker(FunCompileContext::BREAK_MARKER);
+		const uint32_t target = ctxt.getCurrentMarker(FnCompileContext::BREAK_MARKER);
 		if(target==Instruction::INVALID_JUMP_ADDRESS){
 			ctxt.getCompiler().throwError(ctxt,"'break' outside a loop.");
 		}
-		std::vector<size_t> variablesToReset;
-		ctxt.collectLocalVariables(FunCompileContext::BREAK_MARKER,variablesToReset);
-		for(const auto & var : variablesToReset) {
+		for(const auto & var : ctxt.collectLocalVariables(FnCompileContext::BREAK_MARKER)) {
 			ctxt.addInstruction(Instruction::createResetLocalVariable(var));
 		}
 		ctxt.addInstruction(Instruction::createJmp(target));
@@ -305,12 +303,11 @@ bool initHandler(handlerRegistry_t & m){
 	})
 	// ContinueStatement
 	ADD_HANDLER( ASTNode::TYPE_CONTINUE_STATEMENT, ContinueStatement, {
-		const uint32_t target = ctxt.getCurrentMarker(FunCompileContext::CONTINUE_MARKER);
+		const uint32_t target = ctxt.getCurrentMarker(FnCompileContext::CONTINUE_MARKER);
 		if(target==Instruction::INVALID_JUMP_ADDRESS){
 			ctxt.getCompiler().throwError(ctxt,"'continue' outside a loop.");
 		}
-		std::vector<size_t> variablesToReset;
-		ctxt.collectLocalVariables(FunCompileContext::CONTINUE_MARKER,variablesToReset);
+		std::vector<size_t> variablesToReset = ctxt.collectLocalVariables(FnCompileContext::CONTINUE_MARKER);
 		for(const auto & var : variablesToReset) {
 			ctxt.addInstruction(Instruction::createResetLocalVariable(var));
 		}
@@ -523,8 +520,8 @@ bool initHandler(handlerRegistry_t & m){
 			ctxt.addExpression(self->getPreConditionExpression());
 			ctxt.addInstruction(Instruction::createJmpOnFalse(loopElseMarker));
 		}
-		ctxt.pushSetting_marker( FunCompileContext::BREAK_MARKER ,loopEndMarker);
-		ctxt.pushSetting_marker( FunCompileContext::CONTINUE_MARKER ,loopContinueMarker);
+		ctxt.pushSetting_marker( FnCompileContext::BREAK_MARKER ,loopEndMarker);
+		ctxt.pushSetting_marker( FnCompileContext::CONTINUE_MARKER ,loopContinueMarker);
 		if(self->getAction().isNotNull()) {
 			ctxt.addStatement(self->getAction());
 		}
@@ -626,7 +623,7 @@ bool initHandler(handlerRegistry_t & m){
 
 		// ---------------
 		// cases block
-		ctxt.pushSetting_marker( FunCompileContext::BREAK_MARKER ,endMarker);
+		ctxt.pushSetting_marker( FnCompileContext::BREAK_MARKER ,endMarker);
 
 
 		size_t stmtIdx = 0;
@@ -673,7 +670,7 @@ bool initHandler(handlerRegistry_t & m){
 
 		// try
 		// ------
-		ctxt.pushSetting_marker(FunCompileContext::EXCEPTION_MARKER,catchMarker);
+		ctxt.pushSetting_marker(FnCompileContext::EXCEPTION_MARKER,catchMarker);
 		ctxt.addInstruction(Instruction::createSetExceptionHandler(catchMarker));
 
 		// collect all variables that are declared inside the try-block (excluding nested try-blocks)
@@ -685,7 +682,7 @@ bool initHandler(handlerRegistry_t & m){
 		ctxt.popSetting(); // restore previous EXCEPTION_MARKER
 
 		// try block without exception --> reset catchMarker and jump to endMarker
-		ctxt.addInstruction(Instruction::createSetExceptionHandler(ctxt.getCurrentMarker(FunCompileContext::EXCEPTION_MARKER)));
+		ctxt.addInstruction(Instruction::createSetExceptionHandler(ctxt.getCurrentMarker(FnCompileContext::EXCEPTION_MARKER)));
 		ctxt.addInstruction(Instruction::createJmp(endMarker));
 
 		// catch
@@ -694,7 +691,7 @@ bool initHandler(handlerRegistry_t & m){
 
 		ctxt.addInstruction(Instruction::createSetMarker(catchMarker));
 		// reset catchMarker
-		ctxt.addInstruction(Instruction::createSetExceptionHandler(ctxt.getCurrentMarker(FunCompileContext::EXCEPTION_MARKER)));
+		ctxt.addInstruction(Instruction::createSetExceptionHandler(ctxt.getCurrentMarker(FnCompileContext::EXCEPTION_MARKER)));
 
 		// clear all variables defined inside try block
 		for(const auto & localVar : collectedVariableIndices) {
@@ -738,7 +735,7 @@ bool initHandler(handlerRegistry_t & m){
 		fun->setCode(self->getCode());
 		fun->setLine(self->getLine());
 
-		FunCompileContext ctxt2(ctxt,fun->getInstructionBlock(),self->getCode());
+		FnCompileContext ctxt2(ctxt,fun->getInstructionBlock(),self->getCode());
 		ctxt2.setLine(self->getLine()); // set the line of all initializations to the line of the function declaration
 
 		{	// init parameter counts

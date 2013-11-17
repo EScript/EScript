@@ -135,8 +135,4 @@ T.getIterator ::= fn(){
 
 };
 
-
- Std._registerModule("Std/DataWrapperContainer",T); // support loading with Std.requireModule and loadOnce.
-//Std._markAsLoaded(__DIR__,__FILE__);
-
 return T;
