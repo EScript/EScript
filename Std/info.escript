@@ -34,13 +34,7 @@ info."+=" := fn(arr){
 	this.registry[arr[0]] = arr[1];
 	return this;
 };
-/* stereo
-	mode: left, right, sideBySide, crossEye
-	setRightEyeOffset
-	enableRightRye
-	enableLeftRye
-	sideBySideEnabled = dataWrapper
-	*/
+
 info.get := fn(obj,type = void){
 	var result = [];
 	if(void===obj){ // special case!
@@ -51,7 +45,7 @@ info.get := fn(obj,type = void){
 			type = obj.getType();
 		for(;type;type=type.getBaseType()){
 			if(registry[type]){
-				registry[type](obj,result);
+				(this -> registry[type])(obj,result);
 				break;
 			}
 		}else{

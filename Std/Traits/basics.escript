@@ -98,8 +98,10 @@ Traits.queryTraits := Traits -> fn(obj){
 
 /*! Throws an exception if the given object does not have the given trait. */
 Traits.requireTrait := fn(obj,traitOrTraitName){
-	if(!Traits.queryTrait(obj,traitOrTraitName))
+	var trait = Traits.queryTrait(obj,traitOrTraitName);
+	if(!trait)
 		Runtime.exception("Required trait not found\nObject:"+obj.toDbgString()+"\nTrait:"+traitOrTraitName);
+	return trait;
 };
 
 // ---------------------------

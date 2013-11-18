@@ -376,3 +376,42 @@ Std.addModuleSearchPath(".");
 	}
 	test("Std.JSONDataStore",Std.JSONDataStore == JSONDataStore && ok);
 }
+{	// traits
+	var ok = true;
+
+	var Traits = Std.require('Std/Traits/basics');
+	var T = new Type;
+	T.value := 0;
+	T._constructor ::= fn(v){	this.value = v; };
+
+	var PrintableNameTrait = Std.require('Std/Traits/PrintableNameTrait');
+	Traits.addTrait( T, PrintableNameTrait, "MyType" );
+
+	var DefaultComparisonOperatorsTrait = Std.require('Std/Traits/DefaultComparisonOperatorsTrait');
+	Traits.addTrait( T, DefaultComparisonOperatorsTrait, fn(other){	return this.value<other.value;	} );
+	
+	var t = new T(1);
+	ok &= t.toString().contains("MyType");
+	ok &= Traits.queryTrait( t, PrintableNameTrait );
+	ok &= Traits.queryTrait( t, "Std.Traits.PrintableNameTrait" );
+	ok &= Traits.queryTrait( t, PrintableNameTrait ) == PrintableNameTrait;
+	ok &= Traits.requireTrait( t, PrintableNameTrait ) == PrintableNameTrait;
+	ok &= !Traits.queryLocalTrait( t, PrintableNameTrait );
+	ok &= Traits.queryLocalTrait( T, PrintableNameTrait );
+	
+	var CallableTrait = Std.require('Std/Traits/CallableTrait');
+	ok &= Traits.queryTrait(fn(){},CallableTrait);
+	ok &= Traits.queryTrait(1->fn(){},CallableTrait);
+	ok &= Traits.queryTrait(Std.require('Std/MultiProcedure'),CallableTrait);
+	ok &= !Traits.queryTrait(1,CallableTrait);
+	
+	// DefaultComparisonOperatorsTrait
+	var t2 = new T(2);
+	ok &= t2>t && t<t2 && t==t && t2>=t && t<=t2 && t<=t && t2>=t2;
+	
+	test("Std.Traits", ok &&
+		Std.Traits == Traits &&
+		Std.Traits.CallableTrait == CallableTrait &&
+		Std.Traits.DefaultComparisonOperatorsTrait == DefaultComparisonOperatorsTrait &&
+		Std.Traits.PrintableNameTrait == PrintableNameTrait);
+}
