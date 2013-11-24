@@ -51,22 +51,22 @@ Std.addModuleSearchPath(".");
 	var Set = Std.require('Std/Set');
 
 	var ok = true;
-	var s1 = new Set(4,5,1,3,4);
+	var s1 = new Set([4,5,1,3,4]);
 
-	var s2 = new Set(1,3,4,7);
+	var s2 = new Set([1,3,4,7]);
 	var s3 = s2.clone();
 	s2+=5;
 	s2-=7;
 
-	var s4 = new Set("foo","blub");
-	var s5 = new Set("foo","bar");
+	var s4 = new Set(["foo","blub"]);
+	var s5 = new Set(["foo","bar"]);
 
 	var s6 = s4|s5;
 	s4|=s5;
 
-	ok &= 	s1==s2 && s1!=s3 && s1.count()==4 && s4==new Set("foo","blub","bar") && s4==s6 && s5!=s6 &&
-			(s1 & new Set(3,4,9,"bla")) == new Set(3,4) &&
-			s1.getSubstracted(new Set(3,4,9,"bla")) == new Set(1,5);
+	ok &= 	s1==s2 && s1!=s3 && s1.count()==4 && s4==new Set(["foo","blub","bar"]) && s4==s6 && s5!=s6 &&
+			(s1 & new Set([3,4,9,"bla"])) == new Set([3,4]) &&
+			s1.getSubstracted([3,4,9,"bla"]) == new Set([1,5]);
 
 
 	var sum=0;
@@ -74,8 +74,8 @@ Std.addModuleSearchPath(".");
 		sum+=value;
 	ok &= (sum==1+3+4+5);
 	
-	var s7 = new Set("1");
-	var s8 = new Set("2");
+	var s7 = new Set(["1"]);
+	var s8 = new Set(["2"]);
 	s7.swap(s8);
 	ok &= (s7.toArray() == ["2"] && s8.toArray() == ["1"]);
 

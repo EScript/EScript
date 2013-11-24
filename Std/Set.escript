@@ -16,9 +16,10 @@ T._printableName @(override) ::= $Set;
 T.data @(private,init) := Map;
 
 //! (ctor)
-T._constructor ::= fn( values... ){
-	foreach(values as var v)
-		this += v;
+T._constructor ::= fn( values=void ){
+	if(void!=values)
+		foreach(values as var v)
+			this += v;
 };
 
 T._accessData ::= fn(){
@@ -44,7 +45,10 @@ T.contains ::= fn(value){
 T.count ::= fn(){
 	return data.count();
 };
-T.getIntersection ::= fn(Std.Set other){
+T.getIntersection ::= fn(collection){
+	var other = collection.getType()==this.getType() ? 
+					collection : 
+					new (this.getType())(collection);
 	if(other.count()<this.count())
 		return other.getIntersection(this);
 	var s = new (this.getType());
@@ -57,32 +61,37 @@ T.getIntersection ::= fn(Std.Set other){
 T.getIterator ::= fn(){
 	return data.getIterator();
 };
-T.getMerged ::= fn(Std.Set other){
+T.getMerged ::= fn(collection){
 	var a = this.clone();
-	return a.merge(other);
+	return a.merge(collection);
 };
-T.getRemoved ::= fn(Std.Set other){
+T.getRemoved ::= fn(collection){
 	var a = this.clone();
-	return a.remove(other);
+	return a.remove(collection);
 };
-T.getSubstracted ::= fn(Std.Set other){
+T.getSubstracted ::= fn(collection){
 	var a = this.clone();
-	return a.substract(other);
+	return a.substract(collection);
 };
-T.intersect ::= fn(Std.Set other){
-	this.swap(getIntersection(other)); 
+T.intersect ::= fn(collection){
+	this.swap(getIntersection(collection)); 
 	return this;
 };
-T.merge ::= fn(Std.Set other){
-	this.data.merge(other._accessData());
+T.merge ::= fn(collection){
+	if(collection.getType()==this.getType()){
+		this.data.merge(collection._accessData());
+	}else{
+		foreach(collection as var value)
+			this += value;
+	}
 	return this;
 };
 T.remove ::= fn(value){
 	this.data.unset(value);
 	return this;
 };
-T.substract ::= fn(Std.Set other){
-	foreach(other as var value)
+T.substract ::= fn(collection){
+	foreach(collection as var value)
 		data.unset(value);
 	return this;
 };
