@@ -18,33 +18,25 @@ var DataWrapper = new Type;
 	Std.DataWrapper := T;
 	T._printableName @(override) ::= $DataWrapper;
 
-	T.currentValue @(private) := void;
-	T.refreshOnGet @(private) := false;
+	T.value @(private) := void;
+
+	//! ctor
+	T._constructor ::= 			fn(_value=void){	this.value = _value;	};
 
 	//! (internal) ---o
-	T.doGet @(private) ::= 		Std.ABSTRACT_METHOD;
+	T.doGet @(private) ::= 		fn(){	return this.value; };
 
 	//! (internal) ---o
-	T.doSet @(private) ::= 		Std.ABSTRACT_METHOD;
-
-	//! (internal)
-	T.initCurrentValue @(private) ::= fn(value,_refreshOnGet){
-		currentValue = value;
-		refreshOnGet = _refreshOnGet;
-	};
+	T.doSet @(private) ::= 		fn(newValue){	this.value = newValue; };
 
 	/*! ---o
 		\note Do NOT alter the returned value if it is not a primitive value! If you have to, clone it and the set it again!	*/
-	T.get ::= fn(){
-		if(refreshOnGet)
-			refresh();
-		return currentValue;
-	};
+	T.get ::= 					fn(){	return value;	};
 
 	//! Like refresh(), but always calls onDataChanged(newData) even if the value didn't change.
 	T.forceRefresh ::= fn(){
-		currentValue = doGet();
-		onDataChanged(currentValue);
+		this.value = this.doGet();
+		this.onDataChanged(this.value);
 	};
 
 	/*! Called when the value has been changed.
@@ -57,24 +49,29 @@ var DataWrapper = new Type;
 	/*! Refresh the internal data from the dataWrapper's data source. If the data has changed,
 		onDataChanged(newData) is called. This function has only to be called  manually if the connected data may change externally.*/
 	T.refresh ::= fn(){
-		var newValue = doGet();
-		if( !(currentValue==newValue) ){
-			currentValue = newValue;
-			onDataChanged(newValue);
+		var newValue = this.doGet();
+		if( !(this.value==newValue) ){
+			this.value = newValue;
+			this.onDataChanged(newValue);
 		}
 	};
 
 	/*! ---o
 		Set a new value. If the value does not equal the old value, onDataChanged(...) is called. */
 	T.set ::= fn(newValue){
-		if(! (currentValue==newValue) ){
-			doSet(newValue);
-			currentValue = doGet();
-			onDataChanged(newValue);
+		if(! (value==newValue) ){
+			this.doSet(newValue);
+			this.value = this.doGet();
+			this.onDataChanged(newValue);
 		}
 		return this;
 	};
 
+	//! (static) Factory
+	T.createFromValue ::= T->fn(_value){
+		return new this(_value);
+	};
+	
 	/*! Use a DataWrapper as a function without parameters to get its value; use it with one parameter to set its value.
 		\code
 			var myDataWrapper = Std.DataWrapper.createFromValue(5);
@@ -96,16 +93,21 @@ var DataWrapper = new Type;
 	T._constructor ::= fn(_obj,Identifier _attr){
 		this.obj @(private) := _obj;
 		this.attr @(private) := _attr;
-		this.initCurrentValue(doGet(),true);
+		this.value = this.doGet();
 	};
 
+	/*! ---|> DataWrapper
+		Always refresh the value before returning it.	*/
+	T.get @(override) ::= fn(){
+		this.refresh();
+		return this.value;
+	};
+		
 	//! ---|> DataWrapper
 	T.doGet @(override,private) ::= 	fn(){	return obj.getAttribute(attr);	};
 
 	//! ---|> DataWrapper
 	T.doSet @(override,private) ::= 	fn(newValue){	obj.assignAttribute(attr, newValue);	};
-
-
 
 	/*! (static) Factory
 		Creates a DataWrapper connected to an object's attribute.
@@ -129,14 +131,21 @@ var DataWrapper = new Type;
 		this.key @(private) := _key;
 		if(void==_collection[_key]&&void!=defaultValue)
 			_collection[_key] = defaultValue;
-		this.initCurrentValue(doGet(),true);
+		this.value = this.doGet();
 	};
+	
+	/*! ---|> DataWrapper
+		Always refresh the value before returning it.	*/
+	T.get @(override) ::= fn(){
+		this.refresh();
+		return this.value;
+	};
+	
+	//! ---|> DataWrapper
+	T.doGet @(override,private) ::= 	fn(){	return this.collection[this.key];	};
 
 	//! ---|> DataWrapper
-	T.doGet @(override,private) ::= 	fn(){	return collection[key];	};
-
-	//! ---|> DataWrapper
-	T.doSet @(override,private) ::= 	fn(newValue){	collection[key] = newValue;	};
+	T.doSet @(override,private) ::= 	fn(newValue){	this.collection[this.key] = newValue;	};
 
 	/*! (static) Factory
 		Creates a DataWrapper connected to a collection's entry.
@@ -144,32 +153,11 @@ var DataWrapper = new Type;
 				var someValue = DataWrapper.createFromEntry( values, key, 'foo' );
 		\note refreshOnGet is set to true. */
 	DataWrapper.createFromEntry ::= T->fn(collection, key, defaultValue=void){
-		//! \todo query collectionInterface !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		//! \todo query collectionInterface?
 
 		return new this(collection,key,defaultValue);
 	};
 
-}
-
-// ------------------------------------------
-// (internal) SimpleValueWrapper ---|> DataWrapper
-{
-	var T = new Type(DataWrapper);
-	T._printableName @(override) ::= $SimpleValueWrapper;
-	//! ctor
-	T._constructor ::= fn(_value){
-		initCurrentValue(_value,false);
-	};
-	//! ---|> DataWrapper
-	T.doGet @(override,private) ::= fn(){	return currentValue;	};
-
-	//! ---|> DataWrapper
-	T.doSet @(override,private) ::= fn(newValue){ currentValue = newValue; };
-
-	//! (static) Factory
-	DataWrapper.createFromValue ::= T->fn(value){
-		return new this(value);
-	};
 }
 
 // ------------------------------------------
@@ -178,10 +166,17 @@ var DataWrapper = new Type;
 	var T = new Type(DataWrapper);
 	T._printableName @(override) ::= $FnDataWrapper;
 	//! ctor
-	T._constructor ::= fn(_getter,_setter,Bool _refreshOnGet){
+	T._constructor ::= fn(_getter,_setter,Bool refreshOnGet){
 		this.doGet @(override,private) := _getter;
 		this.doSet @(override,private) := _setter ? _setter : fn(data){ }; // ignore
-		initCurrentValue(doGet(),_refreshOnGet);
+		this.value = this.doGet();
+		if(refreshOnGet){ // optionally refresh value before returning it
+			//! ---|> DataWrapper
+			T.get @(override) := fn(){
+				this.refresh();
+				return this.value;
+			};
+		}
 	};
 
 	/*! (static) Factory
@@ -189,11 +184,11 @@ var DataWrapper = new Type;
 		\code var someValue = Std.DataWrapper.createFromFunctions( A->fn(){ return this.m1;},  A->fn(newValue){ this.m1 = newValue; } );
 		\param getter Parameterless function called to get the current value
 		\param setter (optional; may be void) Function with one parameter called to set the current value
-		\param _refreshOnGet Iff true, the data is refreshed implicitly (=the getter is called) when calling get().
+		\param refreshOnGet Iff true, the data is refreshed implicitly (=the getter is called) when calling get().
 				Iff false, the last queried value is returned by get().
 	*/
-	DataWrapper.createFromFunctions ::= T->fn(getter, setter = void,_refreshOnGet = false){
-		return new this(getter,setter,_refreshOnGet);
+	DataWrapper.createFromFunctions ::= T->fn(getter, setter = void,refreshOnGet = false){
+		return new this(getter,setter,refreshOnGet);
 	};
 }
 

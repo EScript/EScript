@@ -188,13 +188,13 @@ Std.addModuleSearchPath(".");
 	var result = [];
 	
 	var container = new DataWrapperContainer({
-		"a" : DataWrapper.createFromValue("a"),
-		"b" : DataWrapper.createFromValue("b"),
+		"a" : new DataWrapper("a"),
+		"b" : new DataWrapper("b"),
 	});
 	container.onDataChanged += [result]=>fn(result, key,value){
 		result += ""+key+":"+value;
 	};
-	container.addDataWrapper("c" , DataWrapper.createFromValue("c") ); // result += "c:c"
+	container.addDataWrapper("c" , new DataWrapper("c") ); // result += "c:c"
 
 	ok &= (container.count() == 3);
 	
