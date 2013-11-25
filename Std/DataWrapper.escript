@@ -172,7 +172,7 @@ var DataWrapper = new Type;
 		this.value = this.doGet();
 		if(refreshOnGet){ // optionally refresh value before returning it
 			//! ---|> DataWrapper
-			T.get @(override) := fn(){
+			this.get @(override) := fn(){
 				this.refresh();
 				return this.value;
 			};
