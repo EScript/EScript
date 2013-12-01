@@ -8,8 +8,7 @@ loadOnce(__DIR__+"/basics.escript");
 /*!
  ** Set data structure
  */
-var T = new Type;
-Std.Set := T;
+static T = new Type;
 
 T._printableName @(override) ::= $Set;
 
@@ -101,7 +100,7 @@ T.toArray ::= fn(){
 		a+=value;
 	return a;
 };
-T.swap ::= fn(Std.Set other){
+T.swap ::= fn(T other){
 	data.swap(other._accessData());
 	return this;
 };
@@ -116,8 +115,8 @@ T."==" ::= fn(other){
 	return (other---|>(this.getType())) ? (data==other._accessData()) : false;
 };
 
-Std.onModule('Std/ObjectSerialization', [T] => fn(Set, ObjectSerialization){
-	ObjectSerialization.registerType(Set,'Std.Set')
+Std.onModule('Std/ObjectSerialization', fn(ObjectSerialization){
+	ObjectSerialization.registerType(T,'Std.Set')
 		.addDescriber(fn(ctxt,obj,Map d){	
 			d['entries'] = ctxt.createDescription( obj.toArray() );
 		})
@@ -130,4 +129,5 @@ Std.onModule('Std/ObjectSerialization', [T] => fn(Set, ObjectSerialization){
 		});
 });
 
+Std.Set := T;
 return T;

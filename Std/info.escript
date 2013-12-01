@@ -183,6 +183,4 @@ info+=[UserFunction,fn(obj,Array result){
 //	result += "}";
 //}];
 
-Std._registerModule('Std/info',info); // support loading with Std.requireModule and loadOnce.
-
 return info;

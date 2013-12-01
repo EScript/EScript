@@ -21,7 +21,7 @@ loadOnce(__DIR__+"/basics.escript");
 		// y:28
 	*/
 
-var T = new Type;
+static T = new Type;
 
 T._printableName @(override) ::= $MultiProcedure;
 T.REMOVE ::= $REMOVE;
@@ -35,29 +35,28 @@ T._call ::= fn(obj,params...){
 		}
 	}
 };
-T."+=" ::= fn(f){	this.functions += f;	};
-T.accessFunctions ::= fn(){	return functions;	};
-T.clear ::= fn(){	return functions.clear();	};
+T."+=" ::= 			fn(f){	this.functions += f;	};
+T.accessFunctions ::=	fn(){	return functions;	};
+T.clear ::=			fn(){	return functions.clear();	};
 T.clone ::= fn(){
 	var other = new (this.getType());
 	(other->fn(f){	functions = f;	})(functions.clone());
 	return other;
 };
-T.count ::= fn(){	return functions.count();	};
-T.empty ::= fn(){	return functions.empty();	};
+T.count ::=			fn(){	return functions.count();	};
+T.empty ::=			fn(){	return functions.empty();	};
 T.filter ::= fn(fun){
 	functions.filter(fun);
 	return this;
 };
 
 //!	\see Std.Traits.CallableTrait
-Std.onModule('Std/Traits/CallableTrait', [T] => fn(MultiProcedure, CallableTrait){
-	Std.require('Std/Traits/basics').addTrait( MultiProcedure, CallableTrait );
+Std.onModule('Std/Traits/CallableTrait', fn(CallableTrait){
+	Std.require('Std/Traits/basics').addTrait( T, CallableTrait );
 });
 
-
-Std.onModule('Std/ObjectSerialization', [T] => fn(MultiProcedure, ObjectSerialization){
-	ObjectSerialization.registerType(MultiProcedure,'Std.MultiProcedure')
+Std.onModule('Std/ObjectSerialization', fn(ObjectSerialization){
+	ObjectSerialization.registerType(T,'Std.MultiProcedure')
 		.enableIdentityTracking()
 		.addDescriber(fn(ctxt,mFun,Map d){	
 			d['functions'] = ctxt.createDescription( mFun.accessFunctions() );
@@ -71,7 +70,5 @@ Std.onModule('Std/ObjectSerialization', [T] => fn(MultiProcedure, ObjectSerializ
 		});
 });
 
-
 Std.MultiProcedure := T;
-
-return Std.MultiProcedure;
+return T;

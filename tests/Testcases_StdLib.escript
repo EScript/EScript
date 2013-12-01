@@ -4,6 +4,40 @@ Std.addModuleSearchPath(".");
 //Runtime.setLoggingLevel(Runtime.LOG_INFO);
 // ----------------------------------------------------------
 {
+	var ok = true;
+	var coroutine = Std.require('Std/coroutine');
+	{
+		var f = coroutine(fn( max ){
+			for(var i=0;i<max;++i){
+				yield i+this;
+			}
+		});
+		var v = (10->f)(5); // pass 10 as this object.
+		while(var result = f())
+			v += result;
+		ok &= (v == 14+13+12+11+10);
+	}
+	{
+		var f = coroutine(fn(max){
+			for(var i=0;i<max;++i)
+				yield i;
+			return 100;
+		});
+		var v = f(5);
+		while(f.isActive())
+			v += f();
+		ok &= (v == 100+4+3+2+1);
+		// start a second time
+		v = f(6);
+		while(f.isActive())
+			v += f();
+		ok &= (v == 100+5+4+3+2+1);
+		
+	}
+
+	test("Std.coroutine", ok );
+}
+{
 	var MultiProcedure = Std.require('Std/MultiProcedure');
 	var ok = true;
 
@@ -348,7 +382,7 @@ Std.addModuleSearchPath(".");
 	{
 		var dataStore = new JSONDataStore(true);
 	
-		ok &= dataStore.init(filename,false);
+		dataStore.init(filename,false);
 		ok &= (dataStore.getFilename() == filename);
 		
 		dataStore.clear();
@@ -409,6 +443,25 @@ Std.addModuleSearchPath(".");
 	var t2 = new T(2);
 	ok &= t2>t && t<t2 && t==t && t2>=t && t<=t2 && t<=t && t2>=t2;
 	
+	{ // removable traits
+		var removableTrait = new (Std.require('Std/Traits/GenericTrait'))("Tests/RemovableTrait");
+		removableTrait.attributes.member1 := 42;
+		ok &= !removableTrait.getRemovalAllowed();
+		removableTrait.allowRemoval();
+		ok &= removableTrait.getRemovalAllowed();
+		removableTrait.onRemove := fn(obj){
+			obj.member1 = void;
+		};
+	
+		var object = new ExtObject;
+		ok &= !Traits.queryTrait(object,removableTrait);
+		Traits.addTrait(object,removableTrait);
+		ok &= Traits.queryTrait(object,removableTrait);
+		ok &= (object.member1 == 42);
+		Traits.removeTrait(object,removableTrait);
+		ok &= !Traits.queryTrait(object,removableTrait);
+		ok &= !object.member1;
+	}
 	test("Std.Traits", ok &&
 		Std.Traits == Traits &&
 		Std.Traits.CallableTrait == CallableTrait &&

@@ -9,7 +9,6 @@
 loadOnce(__DIR__ + "/basics.escript");
 
 var T = new Type;
-Std.JSONDataStore := T;
 
 T._printableName @(override) ::= $JSONDataStore;
 
@@ -159,4 +158,5 @@ T._set ::= fn(key,value){
 	return value;
 };
 
+Std.JSONDataStore := T;
 return T;

@@ -9,7 +9,7 @@ loadOnce(__DIR__+"/basics.escript");
 // DataWrapperContainer
 
 var T = new Type;
-Std.DataWrapperContainer := T;
+
 T._printableName @(override) ::= $DataWrapperContainer;
 
 T.dataWrappers @(init,private) := Map;
@@ -135,4 +135,5 @@ T.getIterator ::= fn(){
 
 };
 
+Std.DataWrapperContainer := T;
 return T;

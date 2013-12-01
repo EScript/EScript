@@ -96,6 +96,21 @@ Traits.queryTraits := Traits -> fn(obj){
 	return traits;
 };
 
+/*! Remove a trait from the given object. If the trait is not designed for removal, an exception is thrown.  */
+Traits.removeTrait := fn(obj, Traits.Trait trait,params...){
+	var name = trait.getName();
+	if(!trait.getRemovalAllowed()){
+		Runtime.exception("Trait '"+name+"' can not be removed from an object.");
+	}
+	var registry = _accessObjTraitRegistry(obj,true);
+	if(!registry[name]){
+		Runtime.exception("Trait '"+name+"' can not be removed from the object '"+obj.toDbgString()+
+							"'.\nThe object does not have the trait.");
+	}
+	(trait->trait.onRemove)(obj,params...);
+	registry.unset(name);
+};
+
 /*! Throws an exception if the given object does not have the given trait. */
 Traits.requireTrait := fn(obj,traitOrTraitName){
 	var trait = Traits.queryTrait(obj,traitOrTraitName);
@@ -127,8 +142,22 @@ Traits.Trait := new Type;
 		}
 	};
 
+	//! Marks the trait as usable several times for a single object.
 	T.allowMultipleUses ::= 		fn(){	return this.setMultipleUsesAllowed(true);	};
+
+	/*! Marks the trait as removable. When calling Traits.removeTrait( obj, trait),
+		the trait's onRemove( obj ) method is called and the trait's name is removed from 
+		the object's set of used traits.
+		\note Normally traits should NOT be removable. Only add this feature if explicitly 
+			required.*/
+	T.allowRemoval ::= fn(){
+		this.removalAllowed := true;
+		if(!this.isSet($onRemove))
+			this.onRemove := Std.ABSTRACT_METHOD;
+		return this;
+	};
 	T.getMultipleUsesAllowed ::= 	fn(){	return multipleUsesAllowed;	};
+	T.getRemovalAllowed ::= 		fn(){	return this.isSet($removalAllowed);	};
 	T.getName ::=					fn(){	return _traitName ? _traitName : toString();	};
 	T.setMultipleUsesAllowed ::=	fn(Bool b){	multipleUsesAllowed = b; 	return this;	};
 

@@ -6,8 +6,7 @@
 loadOnce(__DIR__ + "/basics.escript");
 
 var T = new Type;
-Std.PriorityQueue := T;
-	
+
 T._printableName @(override) ::= $PriorityQueue;
 
 T.compare @(private) := void;
@@ -76,4 +75,5 @@ T.heapify @(private) ::= fn(i){
 	}
 };
 
+Std.PriorityQueue := T;
 return T;
