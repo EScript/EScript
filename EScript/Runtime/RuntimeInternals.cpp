@@ -48,7 +48,7 @@ ObjRef RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> fc
 		if(fcc->getInstructionCursor() == instructions.end()){
 			ObjRef result = fcc->getLocalVariable(Consts::LOCAL_VAR_INDEX_internalResult);
 			if(fcc->isConstructorCall()){
-				if( result.isNotNull() ){
+				if( result ){
 					warn("Constructors should not return a value.");
 				}
 				// \note the local variable $0 contains the created object, "fcc->getCaller()" contains the instanciated Type-Object.
@@ -74,7 +74,7 @@ ObjRef RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> fc
 			if(useResultAsCaller){
 				fcc->initCaller(result);
 			}else{
-				if(result.isNotNull())
+				if(result)
 					result = result->getRefOrCopy();
 				fcc->stack_pushValue(std::move(RtValue(std::move(result))));
 			}
@@ -146,7 +146,7 @@ ObjRef RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> fc
 			ObjRef value( std::move(fcc->stack_popObjectValue()) );
 
 			Attribute * attr = nullptr;
-			if( fcc->getCaller().isNotNull() ){
+			if( fcc->getCaller() ){
 				attr = fcc->getCaller()->_accessAttribute(instruction.getValue_Identifier(),false);
 			}
 			if(!attr){
@@ -216,7 +216,7 @@ ObjRef RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> fc
 
 			// pop objects whose constructor is called
 			ObjRef caller( std::move(fcc->stack_popObject()) );
-			EPtr<Type> type = caller.toType<Type>();
+			EPtr<Type> type = caller.castTo<Type>();
 			if(type.isNull()){
 				setException("Can't instantiate object not of type 'Type'");
 				break;
@@ -257,9 +257,9 @@ ObjRef RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> fc
 		case Instruction::I_FIND_VARIABLE:{
 			/*	if caller.Identifier -> push (caller, caller.Identifier)
 				else push (GLOBALS, GLOBALS.Identifier) (or nullptr,nullptr + Warning) 	*/
-			if(fcc->getCaller().isNotNull()){
+			if(fcc->getCaller()){
 				const Attribute & attr = fcc->getCaller()->getAttribute(instruction.getValue_Identifier());
-				if(attr.isNotNull()){
+				if(attr){
 					fcc->stack_pushObject(fcc->getCaller());
 					fcc->stack_pushObject(attr.getValue());
 					fcc->increaseInstructionCursor();
@@ -267,7 +267,7 @@ ObjRef RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> fc
 				}
 			}
 			ObjPtr obj = getGlobalVariable(instruction.getValue_Identifier());
-			if(obj.isNotNull()){
+			if(obj){
 				fcc->stack_pushObject(globals.get());
 				fcc->stack_pushObject(obj);
 			}else{
@@ -298,16 +298,16 @@ ObjRef RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> fc
 		case Instruction::I_GET_VARIABLE:{
 			/*	if caller.Identifier -> push (caller.Identifier)
 				else push (GLOBALS.Identifier) (or nullptr + Warning) 	*/
-			if(fcc->getCaller().isNotNull()){
+			if(fcc->getCaller()){
 				const Attribute & attr = fcc->getCaller()->getAttribute(instruction.getValue_Identifier());
-				if(attr.isNotNull()){
+				if(attr){
 					fcc->stack_pushObject(attr.getValue());
 					fcc->increaseInstructionCursor();
 					continue;
 				}
 			}
 			ObjPtr obj = getGlobalVariable(instruction.getValue_Identifier());
-			if(obj.isNotNull()){
+			if(obj){
 				fcc->stack_pushObject(obj);
 			}else{
 				warn("Variable not found: '"+instruction.getValue_Identifier().toString()+'\'');
@@ -724,7 +724,7 @@ RtValue RuntimeInternals::startFunctionExecution(const ObjPtr & fun,const ObjPtr
 			if(attr.getValue()){
 				// fun._call( callingObj , param0 , param1 , ... )
 				ParameterValues pValues2(pValues.count()+1);
-				pValues2.set(0,_callingObject.isNotNull() ? _callingObject : nullptr);
+				pValues2.set(0,_callingObject ? _callingObject : nullptr);
 				std::copy(pValues.begin(),pValues.end(),pValues2.begin()+1);
 
 				return startFunctionExecution(attr.getValue(),fun,pValues2);
@@ -745,7 +745,7 @@ RtValue RuntimeInternals::startInstanceCreation(EPtr<Type> type,ParameterValues 
 		const Attribute * ctorAttr = typeCursor->_accessAttribute(Consts::IDENTIFIER_fn_constructor,true);
 		if(ctorAttr){
 			// first constructor must not be private -- unless it is an attribute of the calling object or of a base class (needed for factory functions!)
-			if(constructors.empty() && ctorAttr->isPrivate() && !typeCursor->isBaseOf( getCallingObject().toType<Type>() )){
+			if(constructors.empty() && ctorAttr->isPrivate() && !typeCursor->isBaseOf( getCallingObject().castTo<Type>() )){
 				setException("Can't instantiate Type with private _contructor."); //! \todo check this!
 				return RtValue(); // failure
 			}
@@ -799,7 +799,7 @@ bool RuntimeInternals::checkParameterConstraint(Runtime & rt,const RtValue & val
 
 	if(value.isObject()){
 		Object * obj = value.getObject();
-		Type * type = constraint.toType<Type>();
+		Type * type = constraint.castTo<Type>();
 		return (type && obj->isA(type)) || obj->isIdentical(rt,constraint);
 	}else{
 		std::cout << "RuntimeInternals::checkParameterConstraint: TODO!";
@@ -811,14 +811,14 @@ bool RuntimeInternals::checkParameterConstraint(Runtime & rt,const RtValue & val
 // Information
 
 std::string RuntimeInternals::getCurrentFile()const{
-	if(getActiveFCC().isNotNull()){
+	if(getActiveFCC()){
 		return getActiveFCC()->getUserFunction()->getCode().getFilename();
 	}
 	return std::string();
 }
 
 int RuntimeInternals::getCurrentLine()const{
-	if(getActiveFCC().isNotNull()){
+	if(getActiveFCC()){
 		return getActiveFCC()->getCurrentLine();
 	}else{
 		return -1;
@@ -827,7 +827,7 @@ int RuntimeInternals::getCurrentLine()const{
 
 std::string RuntimeInternals::getLocalStackInfo(){
 	_Ptr<FunctionCallContext> fcc = getActiveFCC();
-	return fcc.isNotNull() ? fcc->stack_toDbgString() : "";
+	return fcc ? fcc->stack_toDbgString() : "";
 }
 
 std::string RuntimeInternals::getStackInfo(){
@@ -852,7 +852,7 @@ std::string RuntimeInternals::getStackInfo(){
 			if(activeLine>=0){
 				os<< "\nCode:\t'"<< StringUtils::trim(StringUtils::getLine(activeFun->getCode().getFullCode(),activeLine-1)) <<"'";
 			}
-			os<<"\nFun:\t" << (fcc->getCaller().isNotNull() ? fcc->getCaller()->toDbgString() : "undefined")<<
+			os<<"\nFun:\t" << (fcc->getCaller() ? fcc->getCaller()->toDbgString() : "undefined")<<
 				" -> "<<fcc->getUserFunction()->toDbgString();
 			if(nr==1){
 				os<<"\nLocals:\t" << fcc->getLocalVariablesAsString(false);
@@ -940,7 +940,7 @@ void RuntimeInternals::initSystemFunctions(){
 				for(size_t i = 0;i<parameter.size()-1;++i ){
 					if(i>0) os <<", ";
 					ObjRef obj = parameter[i];
-					os<<(obj.isNotNull() ? obj->toDbgString() : "???");
+					os<<(obj ? obj->toDbgString() : "???");
 				}
 				os << " but got " << parameter[parameter.size()-1]->toDbgString()<<".";
 				rtIt.setException(os.str());
@@ -966,9 +966,9 @@ void RuntimeInternals::initSystemFunctions(){
 			ES_SYS_FUNCTION( sysCall) {
 				assertParamCount(rtIt.runtime,parameter.count(),1,1);
 				ObjRef it;
-				if(	Collection * c = parameter[0].toType<Collection>()){
+				if(	Collection * c = parameter[0].castTo<Collection>()){
 					it = c->getIterator();
-				}else if(parameter[0].toType<YieldIterator>()){
+				}else if(parameter[0].castTo<YieldIterator>()){
 					it = parameter[0].get();
 				}else {
 					it = std::move(callMemberFunction(rtIt.runtime,parameter[0] ,Consts::IDENTIFIER_fn_getIterator,ParameterValues()));
@@ -1004,7 +1004,7 @@ void RuntimeInternals::initSystemFunctions(){
 						for(size_t i = 0;i<constraintEnd;++i ){
 							if(i>0) os <<", ";
 							ObjRef obj = parameter[i];
-							os<<(obj.isNotNull() ? obj->toDbgString() : "???");
+							os<<(obj ? obj->toDbgString() : "???");
 						}
 						os << " but got " << val->toDbgString()<<".";
 						rtIt.setException(os.str());
@@ -1109,7 +1109,7 @@ void RuntimeInternals::initSystemFunctions(){
 				auto fcc = rtIt.getActiveFCC();
 				const uint32_t staticVarIdx = fcc->stack_popUInt32();
 				ObjRef value = fcc->stack_popObject();
-				if(value.isNotNull())
+				if(value)
 					value = value->getRefOrCopy();
 				 fcc->setStaticVar(staticVarIdx,value.get());
 				return nullptr;
@@ -1139,7 +1139,7 @@ RtValue RuntimeInternals::sysCall(uint32_t sysFnId,ParameterValues & params){
 void RuntimeInternals::warn(const std::string & s)const {
 	std::ostringstream os;
 	os << s;
-	if(getActiveFCC().isNotNull()){
+	if(getActiveFCC()){
 		os<<" ('" << getActiveFCC()->getUserFunction()->getCode().getFilename() << "':~"<<getCurrentLine()<<")";
 	}
 	runtime.getLogger()->warn(os.str());

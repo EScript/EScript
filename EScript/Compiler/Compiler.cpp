@@ -168,7 +168,7 @@ bool initHandler(handlerRegistry_t & m){
 	{ \
 		struct _handler { \
 			void operator()(FnCompileContext & ctxt,EPtr<ASTNode> obj){ \
-				_type * self = obj.toType<_type>(); \
+				_type * self = obj.castTo<_type>(); \
 				if(!self) throw std::invalid_argument("Compiler: Wrong type!"); \
 				do _block while(false); \
 			} \
@@ -279,7 +279,7 @@ bool initHandler(handlerRegistry_t & m){
 	// ConditionalExpr
 	ADD_HANDLER( ASTNode::TYPE_CONDITIONAL_EXPRESSION, ConditionalExpr, {
 		if(self->getCondition().isNull()){
-			if(self->getElseAction().isNotNull()){
+			if(self->getElseAction()){
 				ctxt.addExpression(self->getElseAction());
 			}
 		}else{
@@ -290,7 +290,7 @@ bool initHandler(handlerRegistry_t & m){
 
 			ctxt.addExpression( self->getAction() );
 
-			if(self->getElseAction().isNotNull()){
+			if(self->getElseAction()){
 				const uint32_t endMarker = ctxt.createMarker();
 				ctxt.addInstruction(Instruction::createJmp(endMarker));
 				ctxt.addInstruction(Instruction::createSetMarker(elseMarker));
@@ -315,10 +315,10 @@ bool initHandler(handlerRegistry_t & m){
 	})
 	// ExitStatement
 	ADD_HANDLER( ASTNode::TYPE_EXIT_STATEMENT, ExitStatement, {
-		if(self->getValueExpression().isNotNull())
+		if(self->getValueExpression())
 			ctxt.addExpression(self->getValueExpression());
 		ctxt.addInstruction(Instruction::createSysCall(Consts::SYS_CALL_EXIT,
-														self->getValueExpression().isNotNull() ? 1 : 0));
+														self->getValueExpression() ? 1 : 0));
 	})
 	// FunctionCallExpr
 	ADD_HANDLER( ASTNode::TYPE_FUNCTION_CALL_EXPRESSION, FunctionCallExpr, {
@@ -326,7 +326,7 @@ bool initHandler(handlerRegistry_t & m){
 
 		if(!self->isSysCall()){
 			do{
-				GetAttributeExpr * gAttr = self->getGetFunctionExpression().toType<GetAttributeExpr>();
+				GetAttributeExpr * gAttr = self->getGetFunctionExpression().castTo<GetAttributeExpr>();
 
 				// getAttributeExpression (...)
 				if( gAttr ){
@@ -355,7 +355,7 @@ bool initHandler(handlerRegistry_t & m){
 						}
 						break;
 					} // getAttributeExpression.identifier (...)
-					else if(GetAttributeExpr * gAttrGAttr = gAttr->getObjectExpression().toType<GetAttributeExpr>() ){
+					else if(GetAttributeExpr * gAttrGAttr = gAttr->getObjectExpression().castTo<GetAttributeExpr>() ){
 						ctxt.addExpression(gAttrGAttr);
 						if( !self->isConstructorCall() ){ // constructor calls don't need a caller
 							ctxt.addInstruction(Instruction::createDup());
@@ -418,7 +418,7 @@ bool initHandler(handlerRegistry_t & m){
 
 	// GetAttributeExpr
 	ADD_HANDLER( ASTNode::TYPE_GET_ATTRIBUTE_EXPRESSION, GetAttributeExpr, {
-		if(self->getObjectExpression().isNotNull()){
+		if(self->getObjectExpression()){
 			ctxt.addExpression(self->getObjectExpression());
 			ctxt.addInstruction(Instruction::createGetAttribute(self->getAttrId()));
 		}else{
@@ -439,7 +439,7 @@ bool initHandler(handlerRegistry_t & m){
 	// IfStatement
 	ADD_HANDLER( ASTNode::TYPE_IF_STATEMENT, IfStatement, {
 		if(self->getCondition().isNull()){
-			if(self->getElseAction().isNotNull()){
+			if(self->getElseAction()){
 				ctxt.addStatement(self->getElseAction());
 			}
 		}else{
@@ -447,11 +447,11 @@ bool initHandler(handlerRegistry_t & m){
 
 			ctxt.addExpression(self->getCondition());
 			ctxt.addInstruction(Instruction::createJmpOnFalse(elseMarker));
-			if(self->getAction().isNotNull()){
+			if(self->getAction()){
 				ctxt.addStatement(self->getAction());
 			}
 
-			if(self->getElseAction().isNotNull()){
+			if(self->getElseAction()){
 				const uint32_t endMarker = ctxt.createMarker();
 				ctxt.addInstruction(Instruction::createJmp(endMarker));
 				ctxt.addInstruction(Instruction::createSetMarker(elseMarker));
@@ -511,36 +511,36 @@ bool initHandler(handlerRegistry_t & m){
 		const uint32_t loopContinueMarker = ctxt.createMarker();
 		const uint32_t loopElseMarker = ctxt.createMarker();
 
-		if(self->getInitStatement().isNotNull()){
+		if(self->getInitStatement()){
 			ctxt.addStatement(self->getInitStatement());
 		}
 		ctxt.addInstruction(Instruction::createSetMarker(loopBegin));
 
-		if(self->getPreConditionExpression().isNotNull()){
+		if(self->getPreConditionExpression()){
 			ctxt.addExpression(self->getPreConditionExpression());
 			ctxt.addInstruction(Instruction::createJmpOnFalse(loopElseMarker));
 		}
 		ctxt.pushSetting_marker( FnCompileContext::BREAK_MARKER ,loopEndMarker);
 		ctxt.pushSetting_marker( FnCompileContext::CONTINUE_MARKER ,loopContinueMarker);
-		if(self->getAction().isNotNull()) {
+		if(self->getAction()) {
 			ctxt.addStatement(self->getAction());
 		}
 		ctxt.popSetting();
 		ctxt.popSetting();
 
-		if(self->getPostConditionExpression().isNotNull()){ // increaseStmt is ignored!
+		if(self->getPostConditionExpression()){ // increaseStmt is ignored!
 			ctxt.addInstruction(Instruction::createSetMarker(loopContinueMarker));
 			ctxt.addExpression(self->getPostConditionExpression());
 			ctxt.addInstruction(Instruction::createJmpOnTrue(loopBegin));
 		}else{
 			ctxt.addInstruction(Instruction::createSetMarker(loopContinueMarker));
-			if(self->getIncreaseStatement().isNotNull()){
+			if(self->getIncreaseStatement()){
 				ctxt.addStatement(self->getIncreaseStatement());
 			}
 			ctxt.addInstruction(Instruction::createJmp(loopBegin));
 		}
 		ctxt.addInstruction(Instruction::createSetMarker(loopElseMarker));
-		if(self->getElseAction().isNotNull()){
+		if(self->getElseAction()){
 			ctxt.addStatement(self->getElseAction());
 		}
 
@@ -549,7 +549,7 @@ bool initHandler(handlerRegistry_t & m){
 
 	// ReturnStatement
 	ADD_HANDLER( ASTNode::TYPE_RETURN_STATEMENT, ReturnStatement, {
-		if(self->getValueExpression().isNotNull()){
+		if(self->getValueExpression()){
 			ctxt.addExpression(self->getValueExpression());
 			ctxt.addInstruction(Instruction::createAssignLocal(Consts::LOCAL_VAR_INDEX_internalResult));
 		}
@@ -608,7 +608,7 @@ bool initHandler(handlerRegistry_t & m){
 			const auto caseMarker = ctxt.createMarker();
 			caseMarkers.emplace_back(posAndExpression.first,caseMarker);
 
-			if(posAndExpression.second.isNotNull()){
+			if(posAndExpression.second){
 				ctxt.addExpression(posAndExpression.second); // push case expression
 				ctxt.addInstruction(Instruction::createSysCall(Consts::SYS_CALL_CASE_TEST,1));
 
@@ -657,10 +657,10 @@ bool initHandler(handlerRegistry_t & m){
 
 	// ReturnStatement
 	ADD_HANDLER( ASTNode::TYPE_THROW_STATEMENT, ThrowStatement, {
-		if(self->getValueExpression().isNotNull())
+		if(self->getValueExpression())
 			ctxt.addExpression(self->getValueExpression());
 		ctxt.addInstruction(Instruction::createSysCall(Consts::SYS_CALL_THROW,
-								self->getValueExpression().isNotNull() ? 1 : 0));
+								self->getValueExpression() ? 1 : 0));
 	})
 
 	// TryCatchStatement
@@ -770,7 +770,7 @@ bool initHandler(handlerRegistry_t & m){
 		// default parameters
 		for(const auto & param : self->getParamList()) {
 			EPtr<AST::ASTNode> defaultExpr = param.getDefaultValueExpression();
-			if(defaultExpr.isNotNull()){
+			if(defaultExpr){
 				const auto varLocation = ctxt2.getCurrentVarLocation(param.getName());
 				if(!isLocalVarLocation(varLocation))
 					ctxt.getCompiler().throwError(ctxt,"Assertion failed."); // should never happen
@@ -856,7 +856,7 @@ bool initHandler(handlerRegistry_t & m){
 
 	// YieldStatement
 	ADD_HANDLER( ASTNode::TYPE_YIELD_STATEMENT, YieldStatement, {
-		if(self->getValueExpression().isNotNull()){
+		if(self->getValueExpression()){
 			ctxt.addExpression(self->getValueExpression());
 		}else{
 			ctxt.addInstruction(Instruction::createPushVoid());

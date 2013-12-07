@@ -52,10 +52,10 @@ void Object::init(EScript::Namespace & globals) {
 	ES_FUN(typeObject,"toDbgString",0,0,thisEObj->toDbgString())
 
 	//! [ESMF] Bool Object.isA(Object o)
-	ES_FUN(typeObject,"isA",1,1,thisEObj->isA(parameter[0].toType<Type>()))
+	ES_FUN(typeObject,"isA",1,1,thisEObj->isA(parameter[0].castTo<Type>()))
 
 	//! [ESMF] Bool Object ---|> Object
-	ES_FUN(typeObject,"---|>",1,1,thisEObj->isA(parameter[0].toType<Type>()))
+	ES_FUN(typeObject,"---|>",1,1,thisEObj->isA(parameter[0].castTo<Type>()))
 
 	/*!	[ESMF] Bool Object.!=(Object o)
 		\note Uses isEqual(...) which calls "=="-Operator
@@ -280,8 +280,8 @@ Object * Object::getRefOrCopy() {
 }
 
 bool Object::isIdentical(Runtime & rt,const ObjPtr & o) {
-	if( (typeRef.isNotNull() && getType()->getFlag(Type::FLAG_CALL_BY_VALUE))){
-		return o.isNotNull() && getType() == o->getType() && isEqual(rt,o);
+	if( (typeRef && getType()->getFlag(Type::FLAG_CALL_BY_VALUE))){
+		return o && getType() == o->getType() && isEqual(rt,o);
 	}else{
 		return this==o.get();
 	}

@@ -22,7 +22,7 @@ void assertParamCount_2(Runtime & runtime, int paramCount, int min, int max) {
 		std::ostringstream sprinter;
 		sprinter << "Too few parameters: Expected " << min << ", got " << paramCount << ".";
 		ObjPtr caller = runtime.getCallingObject();
-		if(caller.isNotNull()) {
+		if(caller) {
 			sprinter << caller->toString();
 		}
 		runtime.throwException(sprinter.str());
@@ -30,7 +30,7 @@ void assertParamCount_2(Runtime & runtime, int paramCount, int min, int max) {
 		std::ostringstream sprinter;
 		sprinter << "Too many parameters: Expected " << max << ", got " << paramCount << ".";
 		ObjPtr caller = runtime.getCallingObject();
-		if(caller.isNotNull()) {
+		if(caller) {
 			sprinter << caller->toString();
 		}
 		runtime.warn(sprinter.str());
@@ -92,7 +92,7 @@ std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & fi
 	try {
 		ObjRef result = _loadAndExecute(runtime,filename);
 		ObjRef exitResult = runtime.fetchAndClearExitResult();
-		return std::make_pair(true,exitResult.isNotNull() ? exitResult : result);
+		return std::make_pair(true,exitResult ? exitResult : result);
 	} catch (Object * error) {
 		std::ostringstream os;
 		os << "Error occurred while loading file '" << filename << "':\n" << error->toString() << std::endl;

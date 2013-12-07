@@ -51,14 +51,14 @@ ExtObject::ExtObject() : Object(ExtObject::getTypeObject()) {
 }
 
 ExtObject::ExtObject(const ExtObject & other): Object(other.getType()){
-//	if(typeRef.isNotNull())
+//	if(typeRef)
 //		typeRef->copyObjAttributesTo(this);
 	cloneAttributesFrom(&other);
 }
 
 //! (ctor)
 ExtObject::ExtObject(Type * type) : Object(type) {
-	if(typeRef.isNotNull())
+	if(typeRef)
 		typeRef->copyObjAttributesTo(this);
 	//ctor
 }

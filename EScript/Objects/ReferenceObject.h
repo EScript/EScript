@@ -18,7 +18,7 @@ namespace Policies{ //! \todo --> Policies_RefObjEqComparators
 	struct EqualContent_ComparePolicy{
 		template <typename ReferenceObject_t>
 		static inline bool isEqual(ReferenceObject_t * a,const ObjPtr & b)	{
-			ReferenceObject_t * other = b.toType<ReferenceObject_t >();
+			ReferenceObject_t * other = b.castTo<ReferenceObject_t >();
 			return other && a->ref() == other->ref();
 		}
 	};

@@ -93,7 +93,9 @@ class _CountedRef  {
 		inline bool isNull()const						 	{	return obj==nullptr;	}
 
 		//! Returns true if the referenced object is not nullptr.
-		inline bool isNotNull()const							{	return obj!=nullptr;	}
+		inline bool isNotNull()const						{	return obj!=nullptr;	}
+		
+		inline explicit operator bool()const				{	return obj;	}
 
 		inline bool operator==(const _CountedRef & other)const	{	return obj==other.obj;	}
 		inline bool operator==(const _Ptr<_T> & other)const	{	return obj==other.get();	}
@@ -123,6 +125,7 @@ class _Ptr  {
 
 		//! Tries to convert object to given Type; returns nullptr if object is nullptr or not of given type.
 		template <class _T2> _T2 * toType()const	{	return isNull()?nullptr:dynamic_cast<_T2*>(obj);	}
+		template <class _T2> _T2 * castTo()const	{	return dynamic_cast<_T2*>(this->get());	}
 
 	//! @name Information
 	// @{
@@ -136,7 +139,9 @@ class _Ptr  {
 		inline bool isNull()const						 		{	return obj==nullptr;	}
 
 		//! Returns true if the referenced object is not nullptr.
-		inline bool isNotNull()const								{	return obj!=nullptr;	}
+		inline bool isNotNull()const							{	return obj!=nullptr;	}
+	
+		inline explicit operator bool()const					{	return obj;	}
 
 		inline bool operator==(const _Ptr & other)const			{	return obj==other.obj;	}
 		inline bool operator==(const _CountedRef<_T> & other)const	{	return obj==other.get();	}
@@ -215,6 +220,7 @@ class ERef : public _CountedRef<_T> {
 
 		//! Tries to convert object to given Type; returns nullptr if object is nullptr or not of given type.
 		template <class _T2> _T2 * toType()const	{	return this->isNull()?nullptr : dynamic_cast<_T2*>(this->get());	}
+		template <class _T2> _T2 * castTo()const	{	return dynamic_cast<_T2*>(this->get());	}
 };
 
 /*! Weak smart pointer for referencing Objects (without implicit handling of the reference counter!)
@@ -240,6 +246,8 @@ class EPtr{
 
 		//! Returns true if the referenced object is not nullptr.
 		inline bool isNotNull()const						{	return obj!=nullptr;	}
+		
+		inline explicit operator bool()const				{	return obj;	}
 
 		inline bool operator==(const EPtr & other)const		{	return obj==other.obj;	}
 		inline bool operator==(const _T * o2)const			{	return obj==o2; }
@@ -301,7 +309,7 @@ class EPtr{
 	
 		//! Tries to convert object to given Type; returns nullptr if object is nullptr or not of given type.
 		template <class _T2> _T2 * toType()const	{	return isNull()?nullptr:dynamic_cast<_T2*>(obj);	}
-
+		template <class _T2> _T2 * castTo()const	{	return dynamic_cast<_T2*>(this->get());	}
 };
 class Object;
 

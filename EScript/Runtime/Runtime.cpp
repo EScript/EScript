@@ -105,8 +105,8 @@ void Runtime::init(EScript::Namespace & globals) {
 	//! [ESF]  Object _callFunction(fun[,obj[,Array params]])
 	ES_FUNCTION(typeObject,"_callFunction",1,3, {
 		EPtr<Array> paramArr( (parameter.count()>2) ? assertType<Array>(rt,parameter[2]) : nullptr );
-		ParameterValues params(paramArr.isNotNull() ? paramArr->count() : 0);
-		if(paramArr.isNotNull()){
+		ParameterValues params(paramArr ? paramArr->count() : 0);
+		if(paramArr){
 			int i = 0;
 			for(const auto & param : *paramArr.get()) {
 				params.set(i++, param);
@@ -271,7 +271,7 @@ void Runtime::yieldNext(YieldIterator & yIt){
 		yIt.setFCC( nullptr ); // the exception rendered the fcc invalid; it must not be called again. 
 		throw internals->fetchAndClearException().detachAndDecrease();
 	}
-	YieldIterator * newYieldIterator = result.toType<YieldIterator>();
+	YieldIterator * newYieldIterator = result.castTo<YieldIterator>();
 
 	// function exited with another yield? -> reuse the data for the current iterator
 	if(newYieldIterator){

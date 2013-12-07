@@ -93,7 +93,7 @@ int main(int argc,char * argv[]) {
 	std::pair<bool,ObjRef> result = EScript::loadAndExecute(*rt.get(),file);
 
 	// --- output result
-	if(result.second.isNotNull()) {
+	if(result.second) {
 		std::cout << "\n\n --- "<<"\nResult: " << result.second.toString()<<"\n";
 	}
 

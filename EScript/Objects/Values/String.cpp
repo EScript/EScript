@@ -149,7 +149,7 @@ void String::init(EScript::Namespace & globals) {
 		const std::string & subject(thisObj->getString());
 
 		//Map * m
-		if( Map * m = parameter[0].toType<Map>()) {
+		if( Map * m = parameter[0].castTo<Map>()) {
 			assertParamCount(rt,parameter.count(),1,2);
 			std::vector<keyValuePair_t> rules;
 			

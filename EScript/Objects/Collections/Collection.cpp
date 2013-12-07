@@ -170,7 +170,7 @@ Object * Collection::rt_reduce(Runtime & runtime,ObjPtr function,ObjPtr initialV
 
 //! ---|> Object
 bool Collection::rt_isEqual(Runtime &runtime,const ObjPtr & other){
-	Collection * c = other.toType<Collection>();
+	Collection * c = other.castTo<Collection>();
 	if(c==nullptr || count()!=c->count() ) return false;
 
 	bool b = true;
@@ -195,7 +195,7 @@ bool Collection::rt_isEqual(Runtime &runtime,const ObjPtr & other){
 Object * Collection::rt_map(Runtime & runtime,ObjPtr function, const ParameterValues & additionalValues){
 	// Create new, empty Collection
 	ObjRef obj = runtime.createInstance(getType(),ParameterValues());
-	ERef<Collection> newCollectionRef = obj.toType<Collection>();
+	ERef<Collection> newCollectionRef = obj.castTo<Collection>();
 	if(newCollectionRef.isNull()){
 		runtime.setException("Collection.map(..) No Constructor found!");
 		return nullptr;

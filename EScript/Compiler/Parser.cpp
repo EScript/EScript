@@ -552,7 +552,7 @@ EPtr<AST::ASTNode> Parser::readExpression(ParsingContext & ctxt,int & cursor,int
 
 		++cursor; // step over '('
 		EPtr<AST::ASTNode> innerExpression = readExpression(ctxt,cursor,to-1);
-		if(innerExpression.isNotNull()) // if expression is not empty
+		if(innerExpression) // if expression is not empty
 			++cursor; // step to ')'
 		return innerExpression;
 	}
@@ -570,7 +570,7 @@ EPtr<AST::ASTNode> Parser::readExpression(ParsingContext & ctxt,int & cursor,int
 	/// "3+foo"
 	/// --------------------------
 	EPtr<AST::ASTNode> obj = readBinaryExpression(ctxt,cursor,to);
-	if(obj.isNotNull()) {
+	if(obj) {
 		if(cursor!=to){
 			throwError(ctxt,"Syntax error in expression.",tokens.at(cursor));
 		}
@@ -694,7 +694,7 @@ Block * Parser::readBlockExpression(ParsingContext & ctxt,int & cursor)const {
 		const int line = tokens.at(cursor)->getLine();
 		EPtr<AST::ASTNode> stmt = readStatement(ctxt,cursor);
 
-		if(stmt.isNotNull()){
+		if(stmt){
 			b->addStatement(stmt);
 			stmt->setLine(line);
 		}
@@ -1017,7 +1017,7 @@ EPtr<AST::ASTNode> Parser::readBinaryExpression(ParsingContext & ctxt,int & curs
 	} /// new Object
 	else if(op->getString()=="new") {
 		++cursor;
-		if(leftExpression.isNotNull())
+		if(leftExpression)
 			throwError(ctxt,"'new' is a unary left operator.",tokens.at(cursor));
 
 		int objExprTo = to;
@@ -1236,11 +1236,11 @@ EPtr<AST::ASTNode> Parser::readControl(ParsingContext & ctxt,int & cursor)const 
 		EPtr<AST::ASTNode> action = readStatement(ctxt,cursor);
 
 		// action is a loop
-		if(!actionIsNormalBlock && 	action.isNotNull()){
-			auto wrappingBlock = action.toType<Block>(); // no normal block, but block? -> possibly a loop wrapping block
+		if(!actionIsNormalBlock && 	action){
+			auto wrappingBlock = action.castTo<Block>(); // no normal block, but block? -> possibly a loop wrapping block
 			if(wrappingBlock && !wrappingBlock->getStatements().empty()){
-				auto loop = wrappingBlock->getStatements()[0].toType<AST::LoopStatement>();
-				if(loop && loop->getElseAction().isNotNull()){
+				auto loop = wrappingBlock->getStatements()[0].castTo<AST::LoopStatement>();
+				if(loop && loop->getElseAction()){
 					log(ctxt,Logger::LOG_WARNING, "[if] Loops using 'else' should be wrapped in a block.",tc);
 				}
 			}
@@ -1288,7 +1288,7 @@ EPtr<AST::ASTNode> Parser::readControl(ParsingContext & ctxt,int & cursor)const 
 		}
 		++cursor;
 		EPtr<AST::ASTNode> incr = readStatement(ctxt,cursor);
-		if(incr.isNotNull())
+		if(incr)
 			++cursor;
 		if(!Token::isA<TEndBlock>(tokens.at(cursor))) {
 			throwError(ctxt,"[for] expects )",tokens.at(cursor));
@@ -1567,7 +1567,7 @@ EPtr<AST::ASTNode> Parser::readControl(ParsingContext & ctxt,int & cursor)const 
 
 			EPtr<AST::ASTNode> stmt = readStatement(ctxt,cursor);
 
-			if(stmt.isNotNull()){
+			if(stmt){
 				block->addStatement(stmt);
 				stmt->setLine(line);
 			}

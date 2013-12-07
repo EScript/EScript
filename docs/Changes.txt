@@ -1,6 +1,6 @@
 --------------------------------------------
 EScript 0.6.7 Elise (Development version)
-Development: 2013-03 -- ...
+Development: 2013-03 -- 2013-12
 
 General:
  - Named after Elise the Daring Rabbit
@@ -51,8 +51,8 @@ Internals:
  
 C++-Api:
   - old ES_FUNCTION macro removed; ES_FUNCTION2 renamed to ES_FUNCTION
+  - ObjRef.toType<targetType> renamed to ObjRef.castTo<targetType> (toType temporarily remains for backward compatibility)
  
-
 Libs:
  IOLib: 
   - IO.filePutContents -> IO.saveTextFile

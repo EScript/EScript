@@ -26,7 +26,7 @@ FunctionCallContext * FunctionCallContext::create(const EPtr<UserFunction> userF
 		fcc = pool.top();
 		pool.pop();
 	}
-//	assert(userFunction.isNotNull()); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+//	assert(userFunction); //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	fcc->init(userFunction,_caller);
 	return fcc;
 }
@@ -46,7 +46,7 @@ std::string FunctionCallContext::getLocalVariablesAsString(const bool includeUnd
 		ObjPtr value = getLocalVariable(i);
 		if(value.isNull() && !includeUndefined )
 			continue;
-//		os << '$' << vars[i].toString() << '=' << (value.isNotNull() ? value->toDbgString() : "undefined" )<< '\t';
+//		os << '$' << vars[i].toString() << '=' << (value ? value->toDbgString() : "undefined" )<< '\t';
 		os << '$' << vars[i].toString() << '=' << value.toString("undefined") << '\t';
 	}
 	return os.str();

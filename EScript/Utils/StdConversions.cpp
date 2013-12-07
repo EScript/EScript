@@ -11,7 +11,7 @@ namespace EScript{
 
 template<>
 double convertTo<double>(Runtime &runtime,ObjPtr src){
-	if(src.isNotNull()){
+	if(src){
 		if(src->_getInternalTypeId()==_TypeIds::TYPE_NUMBER){
 			return **static_cast<Number*>(src.get());
 		}else if(src->_getInternalTypeId()==_TypeIds::TYPE_STRING){
