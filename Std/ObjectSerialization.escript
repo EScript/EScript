@@ -24,12 +24,6 @@ loadOnce(__DIR__+"/basics.escript");
 		out("someObject restored!");
 	
 */
-
-/*
-   \todo  support Maps containing '##TYPE##' ##REF## or ##ID##
-   \todo  support bound parameters: [1,2,3] => fn(a,b,c){ ... };
-
-*/
 static TypeRegistry;
 static TypeHandler;
 static GenericTypeHandler;

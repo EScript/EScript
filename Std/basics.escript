@@ -64,28 +64,27 @@ Std.ABSTRACT_METHOD @(const) := fn(...){	Runtime.exception("This method is not i
 // ------------------------------------------
 // module loading
 
-var moduleRegistry = new Map;
-var moduleListeners = new Map;
-var moduleSearchPaths = [];
+static moduleRegistry = new Map;
+static moduleListeners = new Map;
+static moduleSearchPaths = [];
 
 //! \todo allow aliases Std.setModuleAlias
-// on load
 
-Std.addModuleSearchPath := [moduleSearchPaths] => fn(moduleSearchPaths, String path){
+Std.addModuleSearchPath := fn(String path){
 	if(!path.endsWith("/"))
 		path += "/";
 	if(!moduleSearchPaths.contains(path))
 		moduleSearchPaths+= path;
 };
 
-Std.getModule := [moduleRegistry] => fn(moduleRegistry, String moduleId){
+Std.getModule := fn(String moduleId){
 	var module = moduleRegistry.get(moduleId);
 	return module==$__INVALID_MODULE ? void : module;
 };
 
 
 //! (internal)
-var loader = [moduleSearchPaths] => fn(moduleSearchPaths, String moduleId){
+static loader = fn(String moduleId){
 	if(moduleId.contains("\\") || moduleId.contains("..") ||
 			moduleId.beginsWith("/") || moduleId.contains("//") || moduleId.endsWith(".escript")){
 		Runtime.exception("Std.require: Invalid moduleId '"+moduleId+"'");
@@ -102,7 +101,10 @@ var loader = [moduleSearchPaths] => fn(moduleSearchPaths, String moduleId){
 	Runtime.exception("Std.require: Module not found '"+moduleId+"'");
 };
 
-Std.require := [loader,moduleRegistry,moduleListeners] => fn(loader,moduleRegistry,moduleListeners, String moduleId){
+/*!	If the module with the given @p moduleId has not been loaded before it is loaded and returned.
+	If the module has bee loaded, it is returned.
+	If the module can not be returned( the loading attempt failed), an exception is thrown.	*/
+Std.require := fn(String moduleId){
 	var module;
 	if(moduleRegistry.containsKey(moduleId)){
 		module = moduleRegistry[moduleId];
@@ -125,18 +127,21 @@ Std.require := [loader,moduleRegistry,moduleListeners] => fn(loader,moduleRegist
 
 
 //! experimental
-Std._registerModule := [moduleRegistry] => fn(moduleRegistry, String moduleId,module){
-	if(moduleRegistry.containsKey('moduleId'))
+Std._registerModule := fn(String moduleId,module){
+	if(moduleRegistry.containsKey(moduleId))
 		Runtime.warn("Std._registerModule: Replacing existing module '"+moduleId+"'");
 	moduleRegistry[moduleId] = module;
 };
 
 //! experimental
-Std._unregisterModule := [moduleRegistry] => fn(moduleRegistry, String moduleId){
+Std._unregisterModule := fn(String moduleId){
 	moduleRegistry.unset(moduleId);
 };
 
-Std.onModule := [moduleRegistry,moduleListeners] => fn(moduleRegistry,moduleListeners, String moduleId,callback){
+/*! Execute the @p callback when the module with @p moduleId is loaded.
+	If the module is already loaded, the callback is executed immediately.
+	The callback's parameter is the module.	*/
+Std.onModule := fn(String moduleId,callback){
 	var module = Std.getModule(moduleId);
 	if(void==module){
 		if(moduleListeners[moduleId])
