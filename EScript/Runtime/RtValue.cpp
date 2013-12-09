@@ -1,7 +1,10 @@
 // RtValue.cpp
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2013 Claudius Jähn <claudius@uni-paderborn.de>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #include "RtValue.h"
 #include "../Objects/Object.h"
 #include "../Objects/Identifier.h"
@@ -13,14 +16,14 @@
 #include <stdexcept>
 
 namespace EScript{
-	
-RtValue::RtValue(const std::string & s) : 
-		valueType(OBJECT_PTR){ 
+
+RtValue::RtValue(const std::string & s) :
+		valueType(OBJECT_PTR){
 	value.value_obj = String::create(s);
 	Object::addReference(value.value_obj);
 }
-RtValue::RtValue(const char * s) : 
-		valueType(OBJECT_PTR){ 
+RtValue::RtValue(const char * s) :
+		valueType(OBJECT_PTR){
 	value.value_obj = String::create(s);
 	Object::addReference(value.value_obj);
 }

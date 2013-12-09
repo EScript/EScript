@@ -1,7 +1,11 @@
 // Bool.cpp
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2011-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2011-2012 Benjamin Eikel <benjamin@eikel.org>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #include "Bool.h"
 
 #include "../../Basics.h"
@@ -12,7 +16,7 @@
 namespace EScript{
 
 template<> Bool * assertType<Bool>(Runtime & runtime, const ObjPtr & obj) {
-	if(obj.isNull()||obj->_getInternalTypeId()!=_TypeIds::TYPE_BOOL) 
+	if(obj.isNull()||obj->_getInternalTypeId()!=_TypeIds::TYPE_BOOL)
 		_Internals::assertType_throwError(runtime, obj, Bool::getClassName());
 	return static_cast<Bool*>(obj.get());
 }

@@ -1,7 +1,10 @@
 // Basics.h
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2013 Claudius Jähn <claudius@uni-paderborn.de>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #ifndef ESCRIPT_BASICS_H
 #define ESCRIPT_BASICS_H
 

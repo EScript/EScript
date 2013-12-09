@@ -1,7 +1,11 @@
 // Array.cpp
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2011-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2011-2013 Benjamin Eikel <benjamin@eikel.org>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #include "Array.h"
 
 #include "../../Basics.h"
@@ -16,7 +20,7 @@
 #include <iostream>
 #include <random>
 namespace EScript{
-	
+
 //! (static)
 Type * Array::getTypeObject(){
 	static Type * typeObject = new Type(Collection::getTypeObject()); // ---|> Collection

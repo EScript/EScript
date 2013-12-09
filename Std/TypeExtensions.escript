@@ -1,15 +1,18 @@
-// ObjectExtensions.escript
-// This file is part of the EScript StdLib library.
-// See copyright notice in basics.escript
-// ------------------------------------------------------
+// TypeExtensions.escript
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2013 Claudius Jähn <claudius@uni-paderborn.de>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 /*!
  **  Extensions for several EScript Types
  **/
- 
+
 // -------------------------------------
 // Array extensions
 
-//! Chunks an array into 'size' large chunks. The last chunk may contain less than 'size' elements. 
+//! Chunks an array into 'size' large chunks. The last chunk may contain less than 'size' elements.
 GLOBALS.Array.chunk ::= fn(size){
 	var chunks = [];
 	var currentChunk;
@@ -31,9 +34,9 @@ Array.fill ::= fn(value){
 
 Array.fill_n ::= fn(Number start,Number size, value){
 	var end = start+size;
-	if( end > count()) 
+	if( end > count())
 		end = count();
-	if( start<0 ) 
+	if( start<0 )
 		start = 0;
 	for(var i = start;i<end;++i)
 		this[i] = value;
@@ -45,36 +48,36 @@ Array.fill_n ::= fn(Number start,Number size, value){
 
 //!	Calculate the average value of Maps and Arrays.
 GLOBALS.Collection.avg ::= fn(){
-    if(this.count()==0)
-        return 0;
-    var accum;
-    var first = true;
-    foreach(this as var v){
-        if(first){
-            accum = v;
-            first = false;
-        }else{
-            accum+=v;
-        }
-    }
-    return accum/this.count();
+	if(this.count()==0)
+		return 0;
+	var accum;
+	var first = true;
+	foreach(this as var v){
+		if(first){
+			accum = v;
+			first = false;
+		}else{
+			accum+=v;
+		}
+	}
+	return accum/this.count();
 };
 
 //!	 Calculate the sum of values of Maps and Arrays.
 GLOBALS.Collection.sum ::= fn(){
-    if(this.count()==0)
-        return 0;
-    var accum;
-    var first = true;
-    foreach(this as var v){
-        if(first){
-            accum = v;
-            first = false;
-        }else{
-            accum+=v;
-        }
-    }
-    return accum;
+	if(this.count()==0)
+		return 0;
+	var accum;
+	var first = true;
+	foreach(this as var v){
+		if(first){
+			accum = v;
+			first = false;
+		}else{
+			accum+=v;
+		}
+	}
+	return accum;
 };
 
 
@@ -84,7 +87,7 @@ GLOBALS.Collection.sum ::= fn(){
 /**
  * Calculate k-combinations for the set {0, 1, 2, ..., n - 1}.
  * The binomial(n, k) subsets of size k are the possible combinations of the set of size n.
- * 
+ *
  * @param n Size of the set
  * @param k Size of the subsets
  * @return Array of binomial(n, k) arrays of size k

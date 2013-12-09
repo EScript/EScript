@@ -1,3 +1,11 @@
+# CMakeLists.txt
+# This file is part of the EScript programming language (http://escript.berlios.de)
+#
+# Copyright (C) 2011-2013 Claudius Jähn <claudius@uni-paderborn.de>
+# Copyright (C) 2011-2013 Benjamin Eikel <benjamin@eikel.org>
+#
+# Licensed under the MIT License. See LICENSE file for details.
+# ---------------------------------------------------------------------------------
 cmake_minimum_required(VERSION 2.8.11)
 project(EScript CXX)
 
@@ -79,7 +87,7 @@ endif()
 
 # Set version of library
 set_target_properties(EScript PROPERTIES VERSION ${ESCRIPT_VERSION_STRING}
-                                         SOVERSION ${ESCRIPT_VERSION_MAJOR})
+										 SOVERSION ${ESCRIPT_VERSION_MAJOR})
 
 # Install the header files
 file(GLOB ESCRIPT_HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/EScript/Instructions/*.h")
@@ -120,9 +128,9 @@ install(TARGETS EScript EXPORT LibraryExport
 
 # Set include directories for users of this library
 target_include_directories(EScript
-                           INTERFACE
-                           "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
-                           "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
+						   INTERFACE
+						   "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+						   "$<INSTALL_INTERFACE:$<INSTALL_PREFIX>/${CMAKE_INSTALL_INCLUDEDIR}>")
 
 # Library export
 install(EXPORT LibraryExport DESTINATION ${CMAKE_INSTALL_CMAKECONFIGDIR} FILE EScriptTargets.cmake COMPONENT developmentlibraries)
@@ -130,17 +138,17 @@ install(EXPORT LibraryExport DESTINATION ${CMAKE_INSTALL_CMAKECONFIGDIR} FILE ES
 # Create the configuration files
 include(CMakePackageConfigHelpers)
 configure_package_config_file(EScriptConfig.cmake.in ${CMAKE_CURRENT_BINARY_DIR}/EScriptConfig.cmake
-                              INSTALL_DESTINATION ${CMAKE_INSTALL_CMAKECONFIGDIR}
-                              PATH_VARS CMAKE_INSTALL_CMAKECONFIGDIR
-                              NO_SET_AND_CHECK_MACRO
-                              NO_CHECK_REQUIRED_COMPONENTS_MACRO)
+							  INSTALL_DESTINATION ${CMAKE_INSTALL_CMAKECONFIGDIR}
+							  PATH_VARS CMAKE_INSTALL_CMAKECONFIGDIR
+							  NO_SET_AND_CHECK_MACRO
+							  NO_CHECK_REQUIRED_COMPONENTS_MACRO)
 write_basic_package_version_file(${CMAKE_CURRENT_BINARY_DIR}/EScriptConfigVersion.cmake
-                                 VERSION ${ESCRIPT_VERSION_STRING}
-                                 COMPATIBILITY SameMajorVersion)
+								 VERSION ${ESCRIPT_VERSION_STRING}
+								 COMPATIBILITY SameMajorVersion)
 
 # Install the configuration files
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/EScriptConfig.cmake ${CMAKE_CURRENT_BINARY_DIR}/EScriptConfigVersion.cmake
-        DESTINATION ${CMAKE_INSTALL_CMAKECONFIGDIR} COMPONENT developmentlibraries)
+		DESTINATION ${CMAKE_INSTALL_CMAKECONFIGDIR} COMPONENT developmentlibraries)
 
 add_subdirectory(EScript)
 add_subdirectory(tests)

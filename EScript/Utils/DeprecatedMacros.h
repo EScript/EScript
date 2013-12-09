@@ -1,14 +1,17 @@
 // DeprecatedMacros.h
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2013 Claudius Jähn <claudius@uni-paderborn.de>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #ifndef ES_DEPRECATED_MACROS_H_INCLUDED
 #define ES_DEPRECATED_MACROS_H_INCLUDED
 
 #include "Macros.h"
 
 #define ES_FUNCTION2 ES_FUNCTION
-	
+
 
 //! (internal)
 #define ES_FUNCTION_DEF_OLD_(_name) \
@@ -94,7 +97,7 @@
 /*! Macro for defining a (simple) EScript function in short form.
 	\example
 		ESF(esmf_Collection_equal, 1, 1, assertType<Collection>(runtime,caller)->rt_isEqual(runtime, parameter[0]))
-	\deprecated		
+	\deprecated
 */
 #define ESF(_fnName, _min, _max, _returnExpr) \
 	ES_FUNCTION_DEF_OLD_(_fnName) { \

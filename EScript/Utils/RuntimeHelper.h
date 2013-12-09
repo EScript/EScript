@@ -1,7 +1,10 @@
 // RuntimeHelper.h
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2013 Claudius Jähn <claudius@uni-paderborn.de>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #ifndef ES_RUNTIME_HELPER_H_INCLUDED
 #define ES_RUNTIME_HELPER_H_INCLUDED
 
@@ -61,7 +64,7 @@ inline void assertParamCount(Runtime & runtime, const size_t paramCount, int min
  */
 template<class T> static T * assertType(Runtime & runtime, const ObjPtr & obj) {
 	T * t = dynamic_cast<T *>(obj.get());
-	if(t == nullptr) 
+	if(t == nullptr)
 		_Internals::assertType_throwError(runtime, obj, T::getClassName());
 	return t;
 }

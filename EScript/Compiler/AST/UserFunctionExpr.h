@@ -1,7 +1,11 @@
 // UserFunctionExpr.h
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2012-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2012 Benjamin Eikel <benjamin@eikel.org>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #ifndef ES_USERFUNCTION_EXPR_H
 #define ES_USERFUNCTION_EXPR_H
 
@@ -54,7 +58,7 @@ class UserFunctionExpr : public ASTNode {
 	//	@{
 		UserFunctionExpr(Block * block,const refArray_t & _sConstrExpressions,int line);
 		virtual ~UserFunctionExpr() {}
-		
+
 		Block * getBlock()const									{	return blockRef.get();	}
 		const CodeFragment & getCode()const						{	return code;	}
 

@@ -1,7 +1,10 @@
 // Set.escript
-// This file is part of the EScript StdLib library.
-// See copyright notice in basics.escript
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2013 Claudius Jähn <claudius@uni-paderborn.de>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 
 loadOnce(__DIR__+"/basics.escript");
 
@@ -45,8 +48,8 @@ T.count ::= fn(){
 	return data.count();
 };
 T.getIntersection ::= fn(collection){
-	var other = collection.getType()==this.getType() ? 
-					collection : 
+	var other = collection.getType()==this.getType() ?
+					collection :
 					new (this.getType())(collection);
 	if(other.count()<this.count())
 		return other.getIntersection(this);
@@ -73,7 +76,7 @@ T.getSubstracted ::= fn(collection){
 	return a.substract(collection);
 };
 T.intersect ::= fn(collection){
-	this.swap(getIntersection(collection)); 
+	this.swap(getIntersection(collection));
 	return this;
 };
 T.merge ::= fn(collection){
@@ -117,7 +120,7 @@ T."==" ::= fn(other){
 
 Std.onModule('Std/ObjectSerialization', fn(ObjectSerialization){
 	ObjectSerialization.registerType(T,'Std.Set')
-		.addDescriber(fn(ctxt,obj,Map d){	
+		.addDescriber(fn(ctxt,obj,Map d){
 			d['entries'] = ctxt.createDescription( obj.toArray() );
 		})
 		.addInitializer(fn(ctxt, obj,Map d){

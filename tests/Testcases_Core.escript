@@ -1,3 +1,11 @@
+// Testcases_Core.escript
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2011-2013 Claudius J�hn <claudius@uni-paderborn.de>
+// Copyright (C) 2012 Benjamin Eikel <benjamin@eikel.org>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 return fn(){
 // -------------------
 var OK="\t ok\n";
@@ -120,7 +128,7 @@ var FAILED="\t failed\n";
 	test("String:", true
 		&& new String(2) === "2"
 		&& "foo".length()==3 && "\0\0".length()==2
-		&& "bar"[1] == "a" 
+		&& "bar"[1] == "a"
 		&& void == "bar"[3]
 		&& mystring*3 == "bl\"#2bl\"#2bl\"#2" && !s.endsWith("\0")
 		&& s.endsWith("bar")&&!s.endsWith("b")&&s.beginsWith("foo")&& s.beginsWith(s)&&  !s.beginsWith(s+s)
@@ -140,12 +148,12 @@ var FAILED="\t failed\n";
 		&& "FooBar".substr(1) == "ooBar" && "FooBar".substr(-4) == "oBar" && "FooBar".substr(1,-3) == "oo"  && "FooBar".substr(-3,1) == "B"
 		&& " fOObaR12.3".toLower() == " foobar12.3" &&" fOObaR12.3".toUpper() == " FOOBAR12.3"
 
-		// unicode 
+		// unicode
 		&& "blä".length() == 3
 		&& "föße"[2] == "ß"
 		&& "fääääääääääöße".find("ß") == 12 && "fääääääääääöße".find("ü") == false
-		&& "fööööööxxöö".rFind("öö",8) == 5 
-		&& "bla".fillUp(10,'ä') == "blaäääääää" 
+		&& "fööööööxxöö".rFind("öö",8) == 5
+		&& "bla".fillUp(10,'ä') == "blaäääääää"
 
 		&& "ä".length() == 1
 		&& "dämlich".length() == 7
@@ -156,7 +164,7 @@ var FAILED="\t failed\n";
 		&& "dfgrtg gfd adsäbcßäa".substr(-3)=="ßäa"
 		,String);
 }
-		
+
 //---
 {
 	out("Void:\t\t");
@@ -1002,7 +1010,7 @@ if(!benchmark)
 	D.create();
 	D.create2();
 	try{	new C;	}catch(e){	++exceptionCount;	}
-	
+
 
 	test("@(const,private):",exceptionCount==6 && b.publicFunction()==117);
 }
@@ -1078,7 +1086,7 @@ if(!benchmark)
 		return a;
 	};
 	switch(1){} // empty switch should be allowed
-	
+
 	test("switch/case", switchTestFn(false) === "false" &&
 		switchTestFn(void) === "void"  &&
 		switchTestFn(1) === "123foo45"  &&
@@ -1088,14 +1096,14 @@ if(!benchmark)
 		switchTestFn(5) === "45"  &&
 		switchTestFn("foo") === "foodefault" &&
 		switchTestFn("bla") === "default" );
-	
-	
+
+
 	//! \todo if first statement is no case statement, a warning should be shown!
-	
+
 }
 
 {	// loop-else
-	
+
 	var forElseTest = fn(x){
 		var result = 0;
 		for(var i=0;i<x;++i){
@@ -1109,7 +1117,7 @@ if(!benchmark)
 		}
 		return result;
 	};
-	
+
 	var whileElseTest = fn(x){
 		var result = 0;
 		var i=0;
@@ -1143,11 +1151,11 @@ if(!benchmark)
 		}
 		return result;
 	};
-	
+
 	var warnOnLoopWithElseInIf = false;
 	Runtime.setTreatWarningsAsError(true);
 	try{
-		eval( R"( 
+		eval( R"(
 		if(true)
 			for(var i=0;i<10;++i){
 				out(".");
@@ -1160,8 +1168,8 @@ if(!benchmark)
 			warnOnLoopWithElseInIf = true;
 	}
 	Runtime.setTreatWarningsAsError(false);
-	
-	test("loop-else",	
+
+	test("loop-else",
 		forElseTest(0) == 100 && forElseTest(2) == 104 && forElseTest(4) == 107 && forElseTest(10)==3 &&
 		whileElseTest(0) == 100 && whileElseTest(2) == 104 && whileElseTest(4) == 107 && whileElseTest(10)==3 &&
 		doWhileElseTest(0) == 100 && doWhileElseTest(2) == 104 && doWhileElseTest(4) == 107 && doWhileElseTest(10)==3 &&
@@ -1178,8 +1186,8 @@ if(!benchmark)
 	var f = fn(){
 		@(once) thisFn.staticVar := 0; // this is only executed once
 		@(once){ // statements can be blocks; multiple @(once) are supported per functions
-			thisFn.anotherStaticVar := thisFn.isSet($anotherStaticVar) ? 0 : 1; 
-		} 
+			thisFn.anotherStaticVar := thisFn.isSet($anotherStaticVar) ? 0 : 1;
+		}
 		return thisFn.staticVar += thisFn.anotherStaticVar;
 	};
 
@@ -1193,7 +1201,7 @@ if(!benchmark)
 		}
 		lastValue = value;
 	}
-	
+
 	test("@(once)",ok);
 
 }
@@ -1204,8 +1212,8 @@ if(!benchmark)
 }
 
 {	// EStdLib (...)
-	
-	
+
+
 	Array."=>" ::= fn(callable){
 		var myWrapper = thisFn.wrapperFn.clone();
 		myWrapper.wrappedFun := callable;
@@ -1228,19 +1236,19 @@ if(!benchmark)
 
 
 {	// raw strings & string concatenation
-	test("String literals", "foo" "" "bar" == "foobar" && "0" /*dumdidu*/ '1' "2" +"3" == "0123" && 
+	test("String literals", "foo" "" "bar" == "foobar" && "0" /*dumdidu*/ '1' "2" +"3" == "0123" &&
 R"(a\
 b
-c\n)" == "a\\\nb\nc\\n"	&& R"#(foo)#" == "foo" && R"Delimiter()Delimiter".empty());	
+c\n)" == "a\\\nb\nc\\n"	&& R"#(foo)#" == "foo" && R"Delimiter()Delimiter".empty());
 }
 //out(Runtime.getLocalStackInfo());
 {	//static variables
 	var ok = true;
-	
-	
+
+
 	{	// check use of value types (in contrast to reference types)
 		var sum = 0;
-		var numberObject = new Number(0); 
+		var numberObject = new Number(0);
 		for(var i = 0;i<10;++i){
 			static s = numberObject;
 			++s; // this should ONLY affect s, and not numberObject
@@ -1256,7 +1264,7 @@ c\n)" == "a\\\nb\nc\\n"	&& R"#(foo)#" == "foo" && R"Delimiter()Delimiter".empty(
 	}
 	{ // static vars are stored at functions
 		var f;
-		var cleanup; 
+		var cleanup;
 		{
 			static s1 = 0;
 			static staticFun = fn(){	return s1+1;	};
@@ -1287,9 +1295,9 @@ c\n)" == "a\\\nb\nc\\n"	&& R"#(foo)#" == "foo" && R"Delimiter()Delimiter".empty(
 		}catch(e){
 			exception = true;
 		}
-		ok &= exception; 
+		ok &= exception;
 	}
-	
+
 	test("static",ok);
 }
 //

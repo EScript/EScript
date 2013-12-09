@@ -1,3 +1,11 @@
+// Bugs.escript
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2011-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2012 Benjamin Eikel <benjamin@eikel.org>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 
 {
 	// Bug - Wrong Calling-Object when UserFunctionCall contains expression
@@ -530,7 +538,7 @@
 		var B = new Type(A);
 		B.assignStaticAttribute ::= fn(){
 			staticAttribute = 1;
-		};	
+		};
 
 		B.assignStaticAttribute();
 	}catch(e){
@@ -555,12 +563,12 @@
 	var errorFound = false;
 	var result1 = false;
 	var result2 = false;
-	
+
 	Runtime.setTreatWarningsAsError(true);
 	try{
 		/* this should produce a warning, which is transformed
 			into an exception before the 'execute()' is executed. */
-		result1 = eval("var a; a:=true; out('Should not be executed!'); a;"); 
+		result1 = eval("var a; a:=true; out('Should not be executed!'); a;");
 	}catch(e){
 		errorFound = true;
 	}
@@ -568,9 +576,9 @@
 	// but it should work like an ordenary assignment
 	var l = Runtime.getLoggingLevel();
 	Runtime.setLoggingLevel(Runtime.LOG_ERROR); // ignore warnings
-	result2 = eval("var a; a:=true; a;"); 
+	result2 = eval("var a; a:=true; a;");
 	Runtime.setLoggingLevel(l);
-	
+
 	test( "BUG[20120226.2]", !result1 && result2 && errorFound );
 }
 { // Attributes with @(init) are initialized twice, if an object has an user defined constructor
@@ -618,9 +626,9 @@
 }
 
 { 	// berliOS bug #18694 (https://developer.berlios.de/bugs/?func=detailbug&bug_id=18694&group_id=12246)
-	// internal call member functions do not check for nullptr. Result: segmentation 
+	// internal call member functions do not check for nullptr. Result: segmentation
 	// faults and undetected errors.
-	
+
 	var exceptionCount = 0;
 	try{
 		[new ExtObject(),new ExtObject()].sort(); // ExtObject has no '<' operator, so this should fail
@@ -632,11 +640,11 @@
 		// ExtObject has no .getIterator attribute, this should fail and NOT throw
 		// a segmentation fault
 		foreach(new ExtObject() as var foo){}
-			
+
 	}catch(e){
 		++exceptionCount;
 	}
-	
+
 }
 {	// line numbers are not counted in raw strings
 	var l1 = __LINE__;
@@ -645,7 +653,7 @@
 	+3
 	+4)";
 	var l2 = __LINE__; // +5
-	
+
 	test( "BUG[20120814]", l2 == l1+5);
 }
 
@@ -656,7 +664,7 @@
 			var A = new Type;
 			A.B := new Type;
 			new A.B;
-				
+
 		)");
 	}catch(e){
 		ok = false;
@@ -669,7 +677,7 @@
 		eval("		Array.count 2 1 2 'foo' bla;	");
 	}catch(e){
 		++errorsFound;
-	}	
+	}
 	try{
 		eval("		fn( a = [2,3] foo 'bla' ){};	");
 	}catch(e){
@@ -679,7 +687,7 @@
 		eval("		var a = [1,2] bla;	");
 	}catch(e){
 		++errorsFound;
-	}	
+	}
 	try{
 		eval("		var a = []; a[1] 'foo';	");
 	}catch(e){
@@ -737,7 +745,7 @@
 	var f = fn(a,b="bar",c...){
 		return a=="foo" && b=="bar" && c==[];
 	};
-	
+
 	test("BUG[20130614]", f("foo"));
 }
 
@@ -748,37 +756,37 @@
 		1/0; // exception
 		return 1; // do something after the exception
 	}();
-	
+
 	var exceptionsCaught = 0;
 	try{	yieldIt.next();	}catch(e){		++exceptionsCaught;	}
-	
+
 	test("BUG[20130715]", exceptionsCaught == 1 && yieldIt.end() );
 }
 
 
 
 {	// Invalid number parsing for large numbers (depending on the occurrence of a dot in the number)
-	
+
 	test("BUG[20130723]",	1.0e+10==1e+10 && // bug
 							1.0e+09==1e+09 &&
 							2.0e+10==2e+10 && // bug
 							2.0e+09==2e+09 );
 }
 {	// Calling a delegate with an invalid (=nullptr; not void) function leads to a SEGFAULT.
-	
+
 	var l = Runtime.getLoggingLevel();
 	Runtime.setLoggingLevel(Runtime.LOG_ERROR); // ignore warnings
-	
+
 	var exceptionsCaught = 0;
 	try{	(1->void())();	}catch(e){		++exceptionsCaught;	} // should throw an exception but no SEGFAULT.
 
 	Runtime.setLoggingLevel(l);
-	
+
 	test("BUG[20130815]", exceptionsCaught == 1 );
 }
 
 {	// replaceAll with one parameter may crash.
-	
+
 	var exceptionsCaught = 0;
 	try{	"foo".replaceAll("o");	}catch(e){		++exceptionsCaught;	} // should throw an exception not crash
 

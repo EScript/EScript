@@ -1,12 +1,15 @@
-// TraitBasics.escript
-// This file is part of the EScript StdLib library.
-// See copyright notice in ../basics.escript
-// ------------------------------------------------------
+// basics.escript
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2013 Claudius Jähn <claudius@uni-paderborn.de>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 
 loadOnce(__DIR__+"/../basics.escript");
 
 /**
- **		This file contains the EScript Trait extension. 
+ **		This file contains the EScript Trait extension.
  **/
 Std.declareNamespace($Std,$Traits);
 
@@ -38,7 +41,7 @@ Traits.addTrait := fn(obj, Traits.Trait trait,params...){
 		if(!registry[name])
 			registry[name] = [];
 		registry[name] += trait;
-	
+
 	}else{
 		registry[name] = trait;
 	}
@@ -46,7 +49,7 @@ Traits.addTrait := fn(obj, Traits.Trait trait,params...){
 
 
 /*! Add a trait to the given object. The trait is identified by its name.
-	\note The trait's name must correspond to the EScript attribute structure beginning with GLOBALS. 
+	\note The trait's name must correspond to the EScript attribute structure beginning with GLOBALS.
 			e.g. "Std.Traits.SingletonTrait" --> Std.Traits.SingletonTrait	*/
 Traits.addTraitByName := fn(obj, String traitName, params...){
 	Traits.addTrait(obj, Traits.getTraitByName(traitName), params...);
@@ -67,7 +70,7 @@ Traits.getTraitByName := fn(String traitName){
 /*! Checks if the given object has a trait stored locally (and not by inheritance).*/
 Traits.queryLocalTrait := fn(obj,traitOrTraitName){
 	var registry = _accessObjTraitRegistry(obj,false);
-	return registry ? 
+	return registry ?
 					registry[traitOrTraitName---|>Traits.Trait ? traitOrTraitName.getName():traitOrTraitName] :
 					false;
 };
@@ -132,8 +135,8 @@ Traits.Trait := new Type;
 	//! If true, the Trait can be added multiple times to the same object.
 	T.multipleUsesAllowed := false;
 
-	/*! If a name is given, it is used to identify the trait. 
-		Multiple traits offering the same behavior (with different implementations) 
+	/*! If a name is given, it is used to identify the trait.
+		Multiple traits offering the same behavior (with different implementations)
 		may provide the same name.	*/
 	T._constructor ::= fn(name = void){
 		if(name){
@@ -146,9 +149,9 @@ Traits.Trait := new Type;
 	T.allowMultipleUses ::= 		fn(){	return this.setMultipleUsesAllowed(true);	};
 
 	/*! Marks the trait as removable. When calling Traits.removeTrait( obj, trait),
-		the trait's onRemove( obj ) method is called and the trait's name is removed from 
+		the trait's onRemove( obj ) method is called and the trait's name is removed from
 		the object's set of used traits.
-		\note Normally traits should NOT be removable. Only add this feature if explicitly 
+		\note Normally traits should NOT be removable. Only add this feature if explicitly
 			required.*/
 	T.allowRemoval ::= fn(){
 		this.removalAllowed := true;
@@ -163,8 +166,8 @@ Traits.Trait := new Type;
 
 	//! ---o
 	T.init ::= fn(...){	Runtime.exception("This method is not implemented. Implement in subtype, or do not call!");	};
-	
-	
+
+
 }
 
 return Traits;

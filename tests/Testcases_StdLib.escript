@@ -1,3 +1,11 @@
+// Testcases_StdLib.escript
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2013 Benjamin Eikel <benjamin@eikel.org>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 addSearchPath(__DIR__ + "/..");
 loadOnce("Std/basics.escript");
 Std.addModuleSearchPath(".");
@@ -34,7 +42,7 @@ Std.addModuleSearchPath(__DIR__ + "/..");
 		while(f.isActive())
 			v += f();
 		ok &= (v == 100+5+4+3+2+1);
-		
+
 	}
 
 	test("Std.coroutine", ok );
@@ -109,7 +117,7 @@ Std.addModuleSearchPath(__DIR__ + "/..");
 	foreach(s1 as var value)
 		sum+=value;
 	ok &= (sum==1+3+4+5);
-	
+
 	var s7 = new Set(["1"]);
 	var s8 = new Set(["2"]);
 	s7.swap(s8);
@@ -222,7 +230,7 @@ Std.addModuleSearchPath(__DIR__ + "/..");
 	var ok = true;
 
 	var result = [];
-	
+
 	var container = new DataWrapperContainer({
 		"a" : new DataWrapper("a"),
 		"b" : new DataWrapper("b"),
@@ -233,7 +241,7 @@ Std.addModuleSearchPath(__DIR__ + "/..");
 	container.addDataWrapper("c" , new DataWrapper("c") ); // result += "c:c"
 
 	ok &= (container.count() == 3);
-	
+
 	container["a"] = container["a"]+"2";
 	container.getDataWrapper("b")("b2");
 	var c = container.getDataWrapper("c");
@@ -244,9 +252,9 @@ Std.addModuleSearchPath(__DIR__ + "/..");
 	ok &= !container.containsKey("c");
 
 	c("c3"); // should not influence the result
-	
+
 	container.assign({ "a":"a3" });
-		
+
 	ok &= (result == [ "c:c", "a:a2", "b:b2", "a:a3" ]);
 
 	// iterator
@@ -285,7 +293,7 @@ Std.addModuleSearchPath(__DIR__ + "/..");
 {
 	var ObjectSerialization = Std.require('Std/ObjectSerialization');
 	var ok = true;
-	
+
 	var fun = fn(){return "foo";};
 	var extObj = new ExtObject({$m1:1});
 	extObj.selfRef := extObj;
@@ -300,7 +308,7 @@ Std.addModuleSearchPath(__DIR__ + "/..");
 	set += 1;
 	set += 2;
 	set += 3;
-	
+
 	var m = {
 		"number":1,
 		"bool":true,
@@ -334,8 +342,8 @@ Std.addModuleSearchPath(__DIR__ + "/..");
 	var arr = [];
 	m2["multiProcedure"](arr);
 	ok &= (arr == ["foo","bar"]);
-	
-	
+
+
 	{ // serializing functions which use static variables should produce a warning
 		var exception = false;
 		Runtime.setTreatWarningsAsError(true);
@@ -348,28 +356,28 @@ Std.addModuleSearchPath(__DIR__ + "/..");
 		ok &= exception;
 	}
 	{// map with reserved keys
-		var map = {"##TYPE##":"foo"}; 
+		var map = {"##TYPE##":"foo"};
 		ok &= ObjectSerialization.create(ObjectSerialization.serialize(map)) == map;
 	}
 //	print_r(ObjectSerialization.serialize("##TYPE##"));
-		
+
 	{// custom type using specialized registry
 		static MyType = new Type;
 		MyType.m1 := void;
 		MyType._constructor ::= fn(s){	this.m1 = s;	};
-		
+
 		var registry = new ObjectSerialization.TypeRegistry;
-		
+
 		registry.registerType(MyType,"MyType")
 			.enableIdentityTracking()
 			.addDescriber(fn(ctxt,MyType obj,Map d){	d['m1'] = ctxt.createDescription(obj.m1);	})
 			.setFactory( fn(ctxt,Type actualType,Map d){		return new actualType(d['m1']);	});
-		
+
 		var ctxt = new ObjectSerialization.Context(registry);
 		var obj = new MyType( [1,2,3] );
 //		print_r(ctxt.serialize(obj));
 		var obj2 = ctxt.createObject(ctxt.serialize(obj));
-//		ok &= 
+//		ok &=
 	}
 
 	test("Std.ObjectSerialization",Std.ObjectSerialization == ObjectSerialization && ok);
@@ -383,10 +391,10 @@ Std.addModuleSearchPath(__DIR__ + "/..");
 	var DataWrapper = Std.require('Std/DataWrapper');
 	{
 		var dataStore = new JSONDataStore(true);
-	
+
 		dataStore.init(filename,false);
 		ok &= (dataStore.getFilename() == filename);
-		
+
 		dataStore.clear();
 		dataStore["foo.bar.dum"] = value;
 		dataStore["foo.bar.di"] = "flup";
@@ -425,7 +433,7 @@ Std.addModuleSearchPath(__DIR__ + "/..");
 
 	var DefaultComparisonOperatorsTrait = Std.require('Std/Traits/DefaultComparisonOperatorsTrait');
 	Traits.addTrait( T, DefaultComparisonOperatorsTrait, fn(other){	return this.value<other.value;	} );
-	
+
 	var t = new T(1);
 	ok &= t.toString().contains("MyType");
 	ok &= Traits.queryTrait( t, PrintableNameTrait );
@@ -434,17 +442,17 @@ Std.addModuleSearchPath(__DIR__ + "/..");
 	ok &= Traits.requireTrait( t, PrintableNameTrait ) == PrintableNameTrait;
 	ok &= !Traits.queryLocalTrait( t, PrintableNameTrait );
 	ok &= Traits.queryLocalTrait( T, PrintableNameTrait );
-	
+
 	var CallableTrait = Std.require('Std/Traits/CallableTrait');
 	ok &= Traits.queryTrait(fn(){},CallableTrait);
 	ok &= Traits.queryTrait(1->fn(){},CallableTrait);
 	ok &= Traits.queryTrait(Std.require('Std/MultiProcedure'),CallableTrait);
 	ok &= !Traits.queryTrait(1,CallableTrait);
-	
+
 	// DefaultComparisonOperatorsTrait
 	var t2 = new T(2);
 	ok &= t2>t && t<t2 && t==t && t2>=t && t<=t2 && t<=t && t2>=t2;
-	
+
 	{ // removable traits
 		var removableTrait = new (Std.require('Std/Traits/GenericTrait'))("Tests/RemovableTrait");
 		removableTrait.attributes.member1 := 42;
@@ -454,7 +462,7 @@ Std.addModuleSearchPath(__DIR__ + "/..");
 		removableTrait.onRemove := fn(obj){
 			obj.member1 = void;
 		};
-	
+
 		var object = new ExtObject;
 		ok &= !Traits.queryTrait(object,removableTrait);
 		Traits.addTrait(object,removableTrait);

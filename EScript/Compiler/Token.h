@@ -1,7 +1,11 @@
 // Token.h
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2011-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2011-2012 Benjamin Eikel <benjamin@eikel.org>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #ifndef TOKENS_H
 #define TOKENS_H
 
@@ -240,7 +244,7 @@ struct TValueBool :  public Token {
 	virtual std::string toString()const		{	return value ? "true" : "false";	}
 	virtual Token * clone()const			{	return new TValueBool(value);	}
 	bool getValue()const					{	return value;	}
-	
+
 	bool value;
 };
 struct TValueIdentifier :  public Token {
@@ -250,7 +254,7 @@ struct TValueIdentifier :  public Token {
 	virtual std::string toString()const		{	return value.toString();	}
 	virtual Token * clone()const			{	return new TValueIdentifier(value);	}
 	const StringId & getValue()const		{	return value;	}
-	
+
 	StringId value;
 };
 struct TValueNumber :  public Token {
@@ -260,7 +264,7 @@ struct TValueNumber :  public Token {
 	virtual std::string toString()const		{	return "Number";	}
 	virtual Token * clone()const			{	return new TValueNumber(value);	}
 	double getValue()const					{	return value;	}
-	
+
 	double value;
 };
 struct TValueString :  public Token {
@@ -271,7 +275,7 @@ struct TValueString :  public Token {
 	virtual Token * clone()const			{	return new TValueString(value);	}
 	const std::string & getValue()const		{	return value;	}
 	void setString(const std::string & s)	{	value = s;	}
-	
+
 	std::string value;
 };
 struct TValueVoid :  public Token {

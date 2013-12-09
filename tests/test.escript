@@ -1,4 +1,11 @@
-// Testcases for HasEScript Scripting-Language
+// test.escript
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2011-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2012 Benjamin Eikel <benjamin@eikel.org>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 outln ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79);
 
 //----
@@ -59,8 +66,8 @@ if(benchmark){
 	var innerLoops = 20;
 	var sum = 0;
 
-	Runtime._setAddStackInfoToExceptions(false); // disable costly stack infos 
-	
+	Runtime._setAddStackInfoToExceptions(false); // disable costly stack infos
+
 	progress(0);
 
 	for(var i = 0;i<tries;++i){
@@ -74,7 +81,7 @@ if(benchmark){
 		progress(i/tries);
 	}
 	progress(1);
-	Runtime._setAddStackInfoToExceptions(true); 
+	Runtime._setAddStackInfoToExceptions(true);
 
 //	print_r(times);
 	times.sort();

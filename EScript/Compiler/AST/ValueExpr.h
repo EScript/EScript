@@ -1,7 +1,11 @@
 // ValueExpr.h
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2012-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2012 Benjamin Eikel <benjamin@eikel.org>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #ifndef ES_VALUEEXPR_H
 #define ES_VALUEEXPR_H
 
@@ -15,7 +19,7 @@ namespace AST {
 class BoolValueExpr : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(BoolValueExpr)
 	public:
-		BoolValueExpr(bool _value,int _line=-1) : 
+		BoolValueExpr(bool _value,int _line=-1) :
 				ASTNode(TYPE_VALUE_BOOL,_line),value(_value) {}
 		virtual ~BoolValueExpr(){}
 		bool getValue()const	{	return value;	}
@@ -26,7 +30,7 @@ class BoolValueExpr : public ASTNode {
 class IdentifierValueExpr : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(IdentifierValueExpr)
 	public:
-		IdentifierValueExpr(const StringId & _value,int _line=-1) : 
+		IdentifierValueExpr(const StringId & _value,int _line=-1) :
 				ASTNode(TYPE_VALUE_IDENTIFIER,_line),value(_value) {}
 		virtual ~IdentifierValueExpr(){}
 		const StringId & getValue()const	{	return value;	}
@@ -37,7 +41,7 @@ class IdentifierValueExpr : public ASTNode {
 class NumberValueExpr : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(NumberValueExpr)
 	public:
-		NumberValueExpr(double _value,int _line=-1) : 
+		NumberValueExpr(double _value,int _line=-1) :
 				ASTNode(TYPE_VALUE_FLOATING_POINT,_line),value(_value) {}
 		virtual ~NumberValueExpr(){}
 		double getValue()const	{	return value;	}
@@ -49,7 +53,7 @@ class NumberValueExpr : public ASTNode {
 class StringValueExpr : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(StringValueExpr)
 	public:
-		StringValueExpr(const std::string & _value,int _line=-1) : 
+		StringValueExpr(const std::string & _value,int _line=-1) :
 				ASTNode(TYPE_VALUE_STRING,_line),value(_value) {}
 		virtual ~StringValueExpr(){}
 		const std::string & getValue()const	{	return value;	}
@@ -60,7 +64,7 @@ class StringValueExpr : public ASTNode {
 class VoidValueExpr : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(VoidValueExpr)
 	public:
-		VoidValueExpr(int _line=-1) : 
+		VoidValueExpr(int _line=-1) :
 				ASTNode(TYPE_VALUE_VOID,_line) {}
 		virtual ~VoidValueExpr(){}
 };

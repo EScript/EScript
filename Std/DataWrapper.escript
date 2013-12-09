@@ -1,7 +1,10 @@
 // DataWrapper.escript
-// This file is part of the EScript StdLib library.
-// See copyright notice in basics.escript
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2013 Claudius Jähn <claudius@uni-paderborn.de>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 
 loadOnce(__DIR__+"/basics.escript");
 
@@ -71,7 +74,7 @@ var DataWrapper = new Type;
 	T.createFromValue ::= T->fn(_value){
 		return new this(_value);
 	};
-	
+
 	/*! Use a DataWrapper as a function without parameters to get its value; use it with one parameter to set its value.
 		\code
 			var myDataWrapper = Std.DataWrapper.createFromValue(5);
@@ -102,7 +105,7 @@ var DataWrapper = new Type;
 		this.refresh();
 		return this.value;
 	};
-		
+
 	//! ---|> DataWrapper
 	T.doGet @(override,private) ::= 	fn(){	return obj.getAttribute(attr);	};
 
@@ -133,14 +136,14 @@ var DataWrapper = new Type;
 			_collection[_key] = defaultValue;
 		this.value = this.doGet();
 	};
-	
+
 	/*! ---|> DataWrapper
 		Always refresh the value before returning it.	*/
 	T.get @(override) ::= fn(){
 		this.refresh();
 		return this.value;
 	};
-	
+
 	//! ---|> DataWrapper
 	T.doGet @(override,private) ::= 	fn(){	return this.collection[this.key];	};
 

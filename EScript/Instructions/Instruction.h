@@ -1,7 +1,11 @@
 // Instruction.h
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2012-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2012-2013 Benjamin Eikel <benjamin@eikel.org>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #ifndef INSTRUCTION_H
 #define INSTRUCTION_H
 
@@ -70,7 +74,7 @@ class Instruction {
 
 		bool getValue_Bool()const					{	return data.value_bool;	}
 		void setValue_Bool(bool v)					{	data.value_bool = v;	}
-		
+
 		std::pair<uint32_t,uint32_t> getValue_uint32Pair()const	{	return data.value_uint32Pair;	}
 		void setValue_uint32Pair(uint32_t v1,uint32_t v2)	{	data.value_uint32Pair = std::make_pair(v1,v2);	}
 

@@ -1,7 +1,11 @@
 // RuntimeInternals.h
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2012-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2012-2013 Benjamin Eikel <benjamin@eikel.org>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #ifndef ES_RUNTIME_INTERNALS_H
 #define ES_RUNTIME_INTERNALS_H
 
@@ -91,7 +95,7 @@ class RuntimeInternals  {
 	public:
 		enum state_t{	STATE_NORMAL,STATE_EXITING,STATE_EXCEPTION	};
 		bool checkNormalState()const					{	return state==STATE_NORMAL;	}
-		
+
 		ObjRef fetchAndClearException(){
 			if(state==STATE_EXCEPTION){
 				state = STATE_NORMAL;

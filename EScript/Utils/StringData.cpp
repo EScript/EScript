@@ -1,7 +1,11 @@
 // StringData.cpp
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2011-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2011-2012 Benjamin Eikel <benjamin@eikel.org>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #include "StringData.h"
 #include <iostream>
 #include <cassert>
@@ -103,28 +107,28 @@ size_t StringData::getNumCodepoints()const{
 			data->dataType = Data::ASCII;
 		else
 			data->dataType = Data::UNICODE_WITH_LENGTH;
-			
+
 	}
 	return data->numCodePoints;
 }
 
 static const uint32_t JUMP_TABLE_STEP_SIZE = 8;
-	
+
 //! (internal)
 void StringData::initJumpTable()const{
 	std::vector<size_t> jumpTable;
 	size_t codePointCursor = 0;
 	const size_t numBytes = getDataSize();
-	for(size_t byteCursor = 0; byteCursor<numBytes; 
+	for(size_t byteCursor = 0; byteCursor<numBytes;
 			byteCursor += getUTF8CodePointLength(data->s.c_str()+byteCursor) ){
 
 		if( (codePointCursor%JUMP_TABLE_STEP_SIZE)==0 && byteCursor>0) // skip the initial 0
 			jumpTable.emplace_back(byteCursor);
-		
+
 		++codePointCursor;
 	}
 	data->numCodePoints = codePointCursor;
-	
+
 	if(codePointCursor == getDataSize()){
 		data->dataType = Data::ASCII;
 	}else{
@@ -142,17 +146,17 @@ size_t StringData::codePointToBytePos(const size_t codePointIdx)const{
 	// init if necessary
 	if(data->dataType == Data::UNKNOWN_UNICODE || data->dataType == Data::UNICODE_WITH_LENGTH)
 		initJumpTable();
-	
+
 	// 8bit string -> direct access
 	if(data->dataType == Data::RAW || data->dataType == Data::ASCII)
 		return codePointIdx < getDataSize() ? codePointIdx : std::string::npos;
-	
-	
+
+
 	if(codePointIdx>=data->numCodePoints){
 		return std::string::npos;
 	}else{
 		const size_t jumpTableEntry = codePointIdx/JUMP_TABLE_STEP_SIZE;
-		
+
 		size_t byteCursor = jumpTableEntry>0 ? (*data->jumpTable.get())[jumpTableEntry-1] : 0;
 		size_t codePointCursor = jumpTableEntry*JUMP_TABLE_STEP_SIZE;
 		while(codePointCursor<codePointIdx){
@@ -176,29 +180,29 @@ std::string StringData::getSubStr(const size_t codePointStart, const size_t numC
 bool StringData::beginsWith(const std::string& subj,const size_t codePointStart)const{
 	const size_t subjLength = subj.length();
 	const size_t bytePos = codePointToBytePos(codePointStart);
-	return (subjLength>0 && bytePos<str().length() && (bytePos+subjLength)<=str().length() ) ? 
-				str().compare(bytePos,subjLength,subj)==0 : 
+	return (subjLength>0 && bytePos<str().length() && (bytePos+subjLength)<=str().length() ) ?
+				str().compare(bytePos,subjLength,subj)==0 :
 				false;
 }
-	
+
 size_t StringData::find(const std::string& subj,const size_t codePointStart)const{
 	const size_t subjLength = subj.length();
-	
+
 	if(subjLength==0 || subjLength>str().length())
 		return std::string::npos;
-	
+
 	// init if necessary
 	if(data->dataType == Data::UNKNOWN_UNICODE || data->dataType == Data::UNICODE_WITH_LENGTH)
 		initJumpTable();
-	
+
 	// 8bit string -> use normal find
 	if(data->dataType == Data::RAW || data->dataType == Data::ASCII)
 		return str().find(subj,codePointStart);
-	
+
 	// perform linear search
 	size_t byteCursor = codePointToBytePos(codePointStart);
 	size_t codePointCursor = codePointStart;
-	
+
 	const size_t endByte = str().length() - subj.length();
 	while(byteCursor<endByte){
 		if( str().compare(byteCursor,subjLength,subj)==0 )
@@ -211,14 +215,14 @@ size_t StringData::find(const std::string& subj,const size_t codePointStart)cons
 
 size_t StringData::rFind(const std::string& subj,const size_t codePointStart)const{
 	const size_t subjLength = subj.length();
-	
+
 	if(subjLength==0 || subjLength>str().length())
 		return std::string::npos;
 
 	// init if necessary
 	if(data->dataType == Data::UNKNOWN_UNICODE || data->dataType == Data::UNICODE_WITH_LENGTH)
 		initJumpTable();
-	
+
 	// 8bit string -> use normal rfind
 	if(data->dataType == Data::RAW || data->dataType == Data::ASCII)
 		return str().rfind(subj,codePointStart);
@@ -226,7 +230,7 @@ size_t StringData::rFind(const std::string& subj,const size_t codePointStart)con
 	const size_t bytePos = str().rfind(subj,codePointToBytePos(codePointStart));
 	if(bytePos==std::string::npos)
 		return std::string::npos;
-	
+
 	// find code point for byte pos
 	size_t codePointCursor = codePointStart;
 	for(size_t byteCursor = codePointToBytePos(codePointStart); byteCursor>bytePos; --byteCursor){
@@ -237,6 +241,6 @@ size_t StringData::rFind(const std::string& subj,const size_t codePointStart)con
 	return codePointCursor;
 }
 
-		
+
 
 }

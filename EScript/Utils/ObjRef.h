@@ -1,7 +1,11 @@
 // ObjRef.h
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2011-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2011-2012 Benjamin Eikel <benjamin@eikel.org>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #ifndef OBJREF_H
 #define OBJREF_H
 
@@ -48,13 +52,13 @@ class _CountedRef  {
 			}
 			return *this;
 		}
-		
+
 		//! Assignment
 		_CountedRef& operator=(_CountedRef&& other) {
 			swap(other);
 			return *this;
 		}
-		
+
 		/*! Detach the object from the Reference without decreasing
 			the reference counter or deleting the object; sets the Reference
 			to nullptr. */
@@ -94,7 +98,7 @@ class _CountedRef  {
 
 		//! Returns true if the referenced object is not nullptr.
 		inline bool isNotNull()const						{	return obj!=nullptr;	}
-		
+
 		inline explicit operator bool()const				{	return obj;	}
 
 		inline bool operator==(const _CountedRef & other)const	{	return obj==other.obj;	}
@@ -140,7 +144,7 @@ class _Ptr  {
 
 		//! Returns true if the referenced object is not nullptr.
 		inline bool isNotNull()const							{	return obj!=nullptr;	}
-	
+
 		inline explicit operator bool()const					{	return obj;	}
 
 		inline bool operator==(const _Ptr & other)const			{	return obj==other.obj;	}
@@ -172,7 +176,7 @@ class ERef : public _CountedRef<_T> {
 		template<typename target_t>
 		target_t to(Runtime &runtime){	return _Internals::doConvertTo<target_t>(runtime,*this); }
 
-		/*! If the reference is null, the default value is returend; 
+		/*! If the reference is null, the default value is returend;
 			otherwise a value of the type target_t is returned if possible or an exception is thrown.*/
 		template<typename target_t>
 		target_t to(Runtime &runtime,const target_t & defaultValue){	return this->isNull() ? defaultValue : _Internals::doConvertTo<target_t>(runtime,*this); }
@@ -246,7 +250,7 @@ class EPtr{
 
 		//! Returns true if the referenced object is not nullptr.
 		inline bool isNotNull()const						{	return obj!=nullptr;	}
-		
+
 		inline explicit operator bool()const				{	return obj;	}
 
 		inline bool operator==(const EPtr & other)const		{	return obj==other.obj;	}
@@ -261,7 +265,7 @@ class EPtr{
 		template<typename target_t>
 		target_t to(Runtime &runtime){	return _Internals::doConvertTo<target_t>(runtime,*this); }
 
-		/*! If the reference is null, the default value is returend; 
+		/*! If the reference is null, the default value is returend;
 			otherwise a value of the type target_t is returned if possible or an exception is thrown.*/
 		template<typename target_t>
 		target_t to(Runtime &runtime,const target_t & defaultValue){	return isNull() ? defaultValue : _Internals::doConvertTo<target_t>(runtime,*this); }
@@ -306,7 +310,7 @@ class EPtr{
 		std::string toString(const std::string & defaultValue)const {
 			return isNull()?defaultValue:obj->toString();
 		}
-	
+
 		//! Tries to convert object to given Type; returns nullptr if object is nullptr or not of given type.
 		template <class _T2> _T2 * toType()const	{	return isNull()?nullptr:dynamic_cast<_T2*>(obj);	}
 		template <class _T2> _T2 * castTo()const	{	return dynamic_cast<_T2*>(this->get());	}

@@ -1,7 +1,11 @@
 // JSON.cpp
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2011-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2012 Benjamin Eikel <benjamin@eikel.org>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #include "JSON.h"
 
 #include "../../EScript/Basics.h"
@@ -137,7 +141,7 @@ static Object * _parseJSON(Tokenizer::tokenList_t::iterator & cursor,const Token
 				++cursor;
 				break;
 			}
-			TValueString * key= Token::cast<TValueString>(*cursor); 
+			TValueString * key= Token::cast<TValueString>(*cursor);
 			if(!key){
 				std::cout << "string expected \n";
 				break;

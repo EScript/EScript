@@ -1,7 +1,10 @@
-// VariableType.h
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// VariableTypes.h
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2013 Claudius Jähn <claudius@uni-paderborn.de>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #ifndef ES_VARIABLE_TYPES_H
 #define ES_VARIABLE_TYPES_H
 
@@ -30,4 +33,3 @@ inline bool isValidVarLocation(const varLocation_t & l){
 }
 
 #endif // ES_VARIABLE_TYPES_H
-

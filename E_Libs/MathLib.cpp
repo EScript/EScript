@@ -1,7 +1,12 @@
 // MathLib.cpp
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2011-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2011-2012 Benjamin Eikel <benjamin@eikel.org>
+// Copyright (C) 2012 rpetring
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #include "MathLib.h"
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -38,7 +43,7 @@ class E_RandomNumberGenerator : public ReferenceObject<std::mt19937> {
 		E_RandomNumberGenerator(uint32_t seed) :
 			ReferenceObject_t(std::mt19937(seed), getTypeObject()) {
 		}
-		
+
 		E_RandomNumberGenerator(const std::mt19937 & engine) :
 			ReferenceObject_t(engine, getTypeObject()) {
 		}
@@ -108,7 +113,7 @@ void E_RandomNumberGenerator::init(EScript::Namespace & lib) {
 		}
 		return std::discrete_distribution<int>(weights.begin(), weights.end())(**thisObj);
 	})
-	
+
 	//! [ESMF] Number RandomNumberGenerator.chisquare(n)
 	ES_MFUN(typeObject, E_RandomNumberGenerator, "chisquare", 1, 1,
 				 std::chi_squared_distribution<double>(parameter[0].to<double>(rt))(**thisObj))

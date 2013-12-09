@@ -1,7 +1,11 @@
 // Type.cpp
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2011-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2012 Benjamin Eikel <benjamin@eikel.org>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #include "Type.h"
 
 #include "../Basics.h"
@@ -68,10 +72,10 @@ void Type::init(EScript::Namespace & globals) {
 		thisObj->collectTypeAttributes(attrs);
 		return Map::create(attrs);
 	})
-	
+
 	//! [ESMF] Type Type.hasBase(Type)
 	ES_MFUN(typeObject,const Type,"hasBase",1,1, thisObj->hasBase(parameter[0].to<Type*>(rt)))
-	
+
 	//! [ESMF] Type Type.isBaseOf(Type)
 	ES_MFUN(typeObject,const Type,"isBaseOf",1,1, thisObj->isBaseOf(parameter[0].to<Type*>(rt)))
 }

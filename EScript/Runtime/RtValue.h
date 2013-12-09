@@ -1,7 +1,10 @@
 // RtValue.h
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2013 Claudius Jähn <claudius@uni-paderborn.de>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #ifndef ES_VALUE_H
 #define ES_VALUE_H
 
@@ -36,7 +39,7 @@ class RtValue{
 			bool value_bool;
 			uint32_t value_uint32;
 			double value_number;
-			StringId value_indentifier; 
+			StringId value_indentifier;
 			uint32_t value_localStringIndex;
 			FunctionCallContext* value_fcc;
 			uint64_t raw;
@@ -53,7 +56,7 @@ class RtValue{
 		}value;
 		RtValue(const valueType_t type)	: valueType(type) {	}
 	public:
-		
+
 		//! (factory)
 		static RtValue createLocalStringIndex(const uint32_t idx){
 			RtValue v(LOCAL_STRING_IDX);
@@ -68,7 +71,7 @@ class RtValue{
 		}
 
 		RtValue()						: valueType(UNDEFINED) {}
-		
+
 		template<class T ,class = typename std::enable_if<std::is_same<T,bool>::value>::type>
 		RtValue(T b)					: valueType(BOOL) { value.value_bool = b;	}
 		RtValue(const StringId & id)	: valueType(IDENTIFIER) { value.value_indentifier = id;	}
@@ -172,15 +175,15 @@ class RtValue{
 		bool isUint32()const					{	return valueType == UINT32;	}
 		bool isUndefined()const					{	return valueType == UNDEFINED;	}
 		bool isVoid()const						{	return valueType == VOID_VALUE;	}
-		
+
 		bool toBool()const						{	return valueType == BOOL ? value.value_bool : toBool2();	}
-		
+
 	private:
 		bool toBool2()const; // expensive part of toBool()
 	public:
 		std::string toDbgString()const;
-	
-		/*! Convert the value to an object; 
+
+		/*! Convert the value to an object;
 			\note Do not use if the type can be LOCAL_STRING_IDX or FUNCTION_CALL_CONTEXT as this can't be properly converted!*/
 		Object * _toObject()const;
 };

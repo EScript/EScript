@@ -1,11 +1,14 @@
 // DefaultComparisonOperatorsTrait.escript
-// This file is part of the EScript StdLib library.
-// See copyright notice in ../basics.escript
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2013 Claudius Jähn <claudius@uni-paderborn.de>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 
 /*!sets up default compare functions for all objects ( <, >, <=, >=, ==, != )
  * @param smaller the < function has to be given as parameter, all others are redirected to it.
- * @note this changes the behavior of == and != which no longer behave like === and !== 
+ * @note this changes the behavior of == and != which no longer behave like === and !==
  */
 var GenericTrait = Std.require('Std/Traits/GenericTrait');
 var t = new GenericTrait("Std.Traits.DefaultComparisonOperatorsTrait");

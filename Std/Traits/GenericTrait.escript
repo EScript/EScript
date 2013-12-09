@@ -1,7 +1,10 @@
 // GenericTrait.escript
-// This file is part of the EScript StdLib library.
-// See copyright notice in ../basics.escript
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2013 Claudius Jähn <claudius@uni-paderborn.de>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 
 var Traits = Std.require('Std/Traits/basics');
 
@@ -53,7 +56,7 @@ Traits.GenericTrait := new Type(Traits.Trait);
 				obj.setAttribute(name,value,attrProperties);
 			}
 		}
-		
+
 		// call onInit(type,params...)
 		this.onInit(obj,params...);
 	};

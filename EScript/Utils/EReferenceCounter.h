@@ -1,7 +1,11 @@
 // EReferenceCounter.h
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2011-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2011-2012 Benjamin Eikel <benjamin@eikel.org>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #ifndef EREFERENCECOUNTER_H
 #define EREFERENCECOUNTER_H
 
@@ -16,7 +20,7 @@ struct _DefaultReleaseHandler{
 
 /*! (Non virtual) base class for reference counting.
 	@p Obj_t  Should be the new class itself.
-	@p ObjReleaseHandler_T	A class which has the function 'static void release(Ojb_t *)' 
+	@p ObjReleaseHandler_T	A class which has the function 'static void release(Ojb_t *)'
 		for releasing (deleting or storing) counted objects.	*/
 template<class Obj_t, class ObjReleaseHandler_T = _DefaultReleaseHandler<Obj_t> >
 class EReferenceCounter {

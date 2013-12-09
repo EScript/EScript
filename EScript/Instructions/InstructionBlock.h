@@ -1,7 +1,11 @@
 // InstructionBlock.h
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2012-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2012-2013 Benjamin Eikel <benjamin@eikel.org>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #ifndef INSTRUCTION_BLOCK_H
 #define INSTRUCTION_BLOCK_H
 

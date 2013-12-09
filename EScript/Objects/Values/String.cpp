@@ -1,7 +1,11 @@
 // String.cpp
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2011-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2012-2013 Benjamin Eikel <benjamin@eikel.org>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #include "String.h"
 #include "../../Basics.h"
 #include "../../StdObjects.h"
@@ -23,8 +27,8 @@ StringData String::objToStringData(Object * obj){
  * If the object is not of the appropriate type, a runtime error is thrown.
  */
 template<> String * assertType<String>(Runtime & runtime, const ObjPtr & obj) {
-	
-	if(obj.isNull()||obj->_getInternalTypeId()!=_TypeIds::TYPE_STRING) 
+
+	if(obj.isNull()||obj->_getInternalTypeId()!=_TypeIds::TYPE_STRING)
 		_Internals::assertType_throwError(runtime, obj, String::getClassName());
 	return static_cast<String*>(obj.get());
 }
@@ -58,11 +62,11 @@ void String::init(EScript::Namespace & globals) {
 
 
 	// ---
-	//! [ESMF] Bool String.beginsWith( (String)search[,(Number)startIndex] ) 
+	//! [ESMF] Bool String.beginsWith( (String)search[,(Number)startIndex] )
 	ES_MFUN(typeObject,const String,"beginsWith",1,2, thisObj->sData.beginsWith(parameter[0].toString(), parameter[1].to<uint32_t>(rt,0)))
 
 	//! [ESMF] Bool String.contains (String)search [,(Number)startIndex] )
-	ES_MFUN(typeObject,const String,"contains",1,2, 
+	ES_MFUN(typeObject,const String,"contains",1,2,
 				thisObj->getString().find(
 										parameter[0].toString(),
 										thisObj->sData.codePointToBytePos( parameter[1].toUInt(0) )) != std::string::npos )
@@ -82,12 +86,12 @@ void String::init(EScript::Namespace & globals) {
 		const size_t targetLength = parameter[0].to<uint32_t>(rt);
 		if(targetLength<=length)
 			return thisEObj;
-		
+
 		const std::string fillStr = parameter[1].toString(" ");
 		const size_t fillLength = StringData(fillStr).getNumCodepoints();
 		if(fillLength==0)
 			return thisEObj;
-		
+
 		std::ostringstream sprinter;
 		sprinter<<thisObj->getString();
 		while( length<targetLength ){
@@ -152,7 +156,7 @@ void String::init(EScript::Namespace & globals) {
 		if( Map * m = parameter[0].castTo<Map>()) {
 			assertParamCount(rt,parameter.count(),1,2);
 			std::vector<keyValuePair_t> rules;
-			
+
 			for(const auto & it : *m)
 				rules.emplace_back(it.first,it.second.value->toString());
 			return StringUtils::replaceMultiple(subject,rules,parameter[1].toInt(-1));
@@ -164,7 +168,7 @@ void String::init(EScript::Namespace & globals) {
 
 	//! [ESMF] Number|false String.rFind( (String)search [,(Number)startIndex] )
 	ES_MFUNCTION(typeObject,const String,"rFind",1,2, {
-		const size_t pos = parameter.count() == 1 ? 
+		const size_t pos = parameter.count() == 1 ?
 								thisObj->sData.rFind(parameter[0].toString()) :
 								thisObj->sData.rFind(parameter[0].toString(),parameter[1].toUInt());
 		if(pos==std::string::npos ) {
@@ -297,4 +301,3 @@ bool String::rt_isEqual(Runtime &, const ObjPtr & o){
 	return o.isNull()?false:sData==objToStringData(o.get());
 }
 }
-

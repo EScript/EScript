@@ -1,7 +1,11 @@
 // Object.cpp
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2011-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2011-2013 Benjamin Eikel <benjamin@eikel.org>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #include "Object.h"
 #include "../Basics.h"
 #include "../StdObjects.h"
@@ -110,7 +114,7 @@ void Object::init(EScript::Namespace & globals) {
 	ES_FUN(typeObject,"assignAttribute",2,2,rt.assignToAttribute(thisEObj,parameter[0].toString(),parameter[1]))
 
 	typedef std::unordered_map<StringId,Object *> attrMap_t; // has to be defined here, due to compiler (gcc) bug.
-	
+
 	//! Map Object._getAttributes()
 	ES_FUNCTION(typeObject,"_getAttributes",0,0,{
 		attrMap_t attrs;

@@ -1,7 +1,11 @@
 // Runtime.cpp
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2011-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2011-2013 Benjamin Eikel <benjamin@eikel.org>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #include "Runtime.h"
 #include "FunctionCallContext.h"
 #include "RuntimeInternals.h"
@@ -268,7 +272,7 @@ void Runtime::yieldNext(YieldIterator & yIt){
 	ObjRef result( internals->executeFunctionCallContext( fcc ) );
 	// error occurred? throw an exception!
 	if(internals->getState()==RuntimeInternals::STATE_EXCEPTION){
-		yIt.setFCC( nullptr ); // the exception rendered the fcc invalid; it must not be called again. 
+		yIt.setFCC( nullptr ); // the exception rendered the fcc invalid; it must not be called again.
 		throw internals->fetchAndClearException().detachAndDecrease();
 	}
 	YieldIterator * newYieldIterator = result.castTo<YieldIterator>();

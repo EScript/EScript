@@ -1,7 +1,11 @@
 // StringData.h
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2011-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2012 Benjamin Eikel <benjamin@eikel.org>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #ifndef STRINGDATA_H
 #define STRINGDATA_H
 
@@ -30,9 +34,9 @@ class StringData{
 			std::unique_ptr<std::vector<size_t>> jumpTable; //!< jumpTable[i] := strPos of codePoint( (i+1)*JUMP_TABLE_STEP_SIZE)
 			size_t numCodePoints;
 
-			Data(const std::string & _s,dataType_t t) : 
+			Data(const std::string & _s,dataType_t t) :
 				s(_s),referenceCounter(0),dataType(t),numCodePoints(0){}
-			Data(const char * c,size_t size,dataType_t t) : 
+			Data(const char * c,size_t size,dataType_t t) :
 				s(c,size),referenceCounter(0),dataType(t),numCodePoints(0){}
 			Data(Data &&) = default;
 			Data(const Data &) = delete;
@@ -47,7 +51,7 @@ class StringData{
 		Data * data;
 		static Data * getEmptyData();
 		static std::stack<Data*> dataPool;
-		
+
 		void initJumpTable()const;
 	public:
 		StringData() : data(getEmptyData())								{	++data->referenceCounter;	}
@@ -63,11 +67,11 @@ class StringData{
 			If the codePoint is invalid, std::string::npos is returned. */
 		size_t codePointToBytePos(const size_t codePointNr)const;
 		bool empty()const								{	return str().empty();	}
-		
+
 		size_t getDataSize()const						{	return str().length();	}
 		size_t getNumCodepoints()const;
 		std::string getSubStr(const size_t codePointStart, const size_t numCodePoints)const;
-		
+
 		bool beginsWith(const std::string& subj,const size_t codePointStart=0)const;
 		size_t find(const std::string& subj,const size_t codePointStart=0)const;
 		size_t rFind(const std::string& subj,const size_t codePointStart=std::string::npos)const;

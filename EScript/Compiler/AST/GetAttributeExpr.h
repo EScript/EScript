@@ -1,7 +1,11 @@
 // GetAttributeExpr.h
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2011-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2011-2012 Benjamin Eikel <benjamin@eikel.org>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #ifndef ES_GETATTRIBUTE_EXPR_H
 #define ES_GETATTRIBUTE_EXPR_H
 
@@ -15,7 +19,7 @@ namespace AST {
 class GetAttributeExpr : public ASTNode {
 		ES_PROVIDES_TYPE_NAME(GetAttributeExpr)
 	public:
-		GetAttributeExpr(ptr_t _obj,StringId _attrId) : 
+		GetAttributeExpr(ptr_t _obj,StringId _attrId) :
 				ASTNode(TYPE_GET_ATTRIBUTE_EXPRESSION,true),objExpression(_obj),attrId(_attrId) {}
 		virtual ~GetAttributeExpr(){}
 

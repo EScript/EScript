@@ -1,7 +1,11 @@
 // test.cpp
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2011-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2012 Benjamin Eikel <benjamin@eikel.org>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #ifdef ES_BUILD_TEST_APPLICATION
 #include <cstdlib>
 #include <iostream>
@@ -58,7 +62,7 @@ public:
 
 		//! Number getM2()
 		ES_MFUN(typeObject, const TestObject,"getM2",0,0, thisObj->m2)
-		
+
 		//! self setM1(Number)
 		ES_MFUN(typeObject, TestObject,"setM1",1,1,( thisObj->m1=parameter[0].to<int>(rt),thisEObj))
 

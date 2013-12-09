@@ -1,0 +1,12 @@
+Contributors (sorted by name):
+------------------------------
+Benjamin Eikel			<benjamin@eikel.org>		CMake build system, Documentation, Code optimizations
+Claudius Jähn			<claudius@uni-paderborn.de>	Main author
+Ralf Petring			<ralf@petring.net>			Testing
+
+Included external code:
+-----------------------
+dirent.h - dirent API for Microsoft Visual Studio	Copyright (C) 2006-2012 Toni Ronkko
+
+
+If you think you should be listed in this document and we don't do it already, please, contact us.

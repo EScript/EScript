@@ -1,7 +1,11 @@
 // Collection.cpp
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2011-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2011-2013 Benjamin Eikel <benjamin@eikel.org>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #include "Collection.h"
 #include "../../Basics.h"
 #include "../../StdObjects.h"
@@ -163,7 +167,7 @@ Object * Collection::rt_reduce(Runtime & runtime,ObjPtr function,ObjPtr initialV
 		parameters.set(0,runningVar);
 		parameters.set(1,key);
 		parameters.set(2,value);
-		runningVar = callFunction(runtime,function.get(),parameters); 
+		runningVar = callFunction(runtime,function.get(),parameters);
 	}
 	return runningVar.detachAndDecrease();
 }

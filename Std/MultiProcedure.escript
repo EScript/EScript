@@ -1,7 +1,10 @@
 // MultiProcedure.escript
-// This file is part of the EScript StdLib library.
-// See copyright notice in basics.escript
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2013 Claudius Jähn <claudius@uni-paderborn.de>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 
 loadOnce(__DIR__+"/basics.escript");
 
@@ -58,7 +61,7 @@ Std.onModule('Std/Traits/CallableTrait', fn(CallableTrait){
 Std.onModule('Std/ObjectSerialization', fn(ObjectSerialization){
 	ObjectSerialization.registerType(T,'Std.MultiProcedure')
 		.enableIdentityTracking()
-		.addDescriber(fn(ctxt,mFun,Map d){	
+		.addDescriber(fn(ctxt,mFun,Map d){
 			d['functions'] = ctxt.createDescription( mFun.accessFunctions() );
 		})
 		.addInitializer(fn(ctxt, mFun,Map d){

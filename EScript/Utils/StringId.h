@@ -1,7 +1,11 @@
 // StringId.h
-// This file is part of the EScript programming language.
-// See copyright notice in EScript.h
-// ------------------------------------------------------
+// This file is part of the EScript programming language (http://escript.berlios.de)
+//
+// Copyright (C) 2012-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2012 Benjamin Eikel <benjamin@eikel.org>
+//
+// Licensed under the MIT License. See LICENSE file for details.
+// ---------------------------------------------------------------------------------
 #ifndef ES_StringId_H
 #define ES_StringId_H
 
@@ -17,7 +21,7 @@ class StringId{
 		uint32_t id;
 	public:
 		static const std::string & toString(const uint32_t value)	{ return identifierIdToString(value);	}
-		
+
 		StringId() : id(0) {}
 		explicit StringId(uint32_t _id) : id(_id) {}
 		/*implicit*/ StringId(const std::string & str) : id(stringToIdentifierId(str)) {}
