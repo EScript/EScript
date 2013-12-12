@@ -23,7 +23,7 @@ class AnnotatedStatement : public ASTNode {
 			ASTNode(TYPE_ANNOTATED_STATEMENT,false),
 			statement(_statement),
 			annotationName(_annotationName){}
-		virtual ~AnnotatedStatement() = default;
+		virtual ~AnnotatedStatement() {}
 
 		StringId getName()const							{	return annotationName;	}
 		ptr_t getStatement()const						{	return statement.get();	}

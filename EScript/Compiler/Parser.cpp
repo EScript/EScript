@@ -1449,6 +1449,13 @@ EPtr<AST::ASTNode> Parser::readControl(ParsingContext & ctxt,int & cursor)const 
 		++cursor;
 		EPtr<AST::ASTNode> action = readStatement(ctxt,cursor);
 
+		EPtr<AST::ASTNode> elseAction;
+		if((tc = Token::cast<TControl>(tokens.at(cursor+1))) && tc->getId()==Consts::IDENTIFIER_else) {
+			++cursor;
+			++cursor;
+			elseAction = readStatement(ctxt,cursor);
+		}
+
 		static const StringId itId("__it");
 
 		// var __it;
@@ -1497,7 +1504,7 @@ EPtr<AST::ASTNode> Parser::readControl(ParsingContext & ctxt,int & cursor)const 
 
 		loopWrappingBlock->addStatement(
 				LoopStatement::createForLoop(loopInit,checkExpression,increaseStatement,
-												actionWrapper));
+												actionWrapper,elseAction));
 
 		return loopWrappingBlock;
 

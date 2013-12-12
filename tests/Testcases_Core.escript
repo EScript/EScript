@@ -1152,6 +1152,15 @@ if(!benchmark)
 		return result;
 	};
 
+	var forEachElseTest = fn(arr,search){
+		foreach(arr as var i){
+			if(i==search)
+				break;
+		}else{
+			return false;
+		}
+		return true;
+	};
 	var warnOnLoopWithElseInIf = false;
 	Runtime.setTreatWarningsAsError(true);
 	try{
@@ -1169,10 +1178,12 @@ if(!benchmark)
 	}
 	Runtime.setTreatWarningsAsError(false);
 
+	var arr=[1,2,3,4];
 	test("loop-else",
 		forElseTest(0) == 100 && forElseTest(2) == 104 && forElseTest(4) == 107 && forElseTest(10)==3 &&
 		whileElseTest(0) == 100 && whileElseTest(2) == 104 && whileElseTest(4) == 107 && whileElseTest(10)==3 &&
 		doWhileElseTest(0) == 100 && doWhileElseTest(2) == 104 && doWhileElseTest(4) == 107 && doWhileElseTest(10)==3 &&
+		forEachElseTest(arr,4) && !forEachElseTest(arr,5) &&
 		warnOnLoopWithElseInIf &&
 		true);
 }
