@@ -1,7 +1,7 @@
 // AddHeader.escript
 // This file is part of the EScript programming language (http://escript.berlios.de)
 //
-// Copyright (C) 2011-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2011-2013 Claudius JÃ¤hn <claudius@uni-paderborn.de>
 // Copyright (C) 2012 Benjamin Eikel <benjamin@eikel.org>
 //
 // Licensed under the MIT License. See LICENSE file for details.
@@ -12,7 +12,7 @@
 	// This file is part of the EScript programming language (http://escript.berlios.de)
 	//
 	// Copyright (C) 2007-2012 Benjamin Eikel <benjamin@eikel.org>
-	// Copyright (C) 2007-2012 Claudius Jähn <claudius@uni-paderborn.de>
+	// Copyright (C) 2007-2012 Claudius JÃ¤hn <claudius@uni-paderborn.de>
 	//
 	// Licensed under the MIT License. See LICENSE file for details.
 	// ---------------------------------------------------------------------------------
@@ -39,7 +39,7 @@ for(var i=3;i<args.count();++i){
 static lineEnding = "\n";
 static tempFileName = "log.tmp";
 static authorAliases = {
-	"claudiusj" : "Claudius Jähn <claudius@uni-paderborn.de>",
+	"claudiusj" : "Claudius JÃ¤hn <claudius@uni-paderborn.de>",
 	"eikel" : "Benjamin Eikel <benjamin@eikel.org>"
 };
 
