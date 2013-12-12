@@ -9,7 +9,6 @@
 addSearchPath(__DIR__ + "/..");
 loadOnce("Std/basics.escript");
 Std.addModuleSearchPath(".");
-Std.addModuleSearchPath(__DIR__ + "/..");
 
 //Runtime.setLoggingLevel(Runtime.LOG_INFO);
 // ----------------------------------------------------------

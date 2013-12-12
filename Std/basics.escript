@@ -66,7 +66,7 @@ Std.ABSTRACT_METHOD @(const) := fn(...){	Runtime.exception("This method is not i
 
 static moduleRegistry = new Map;
 static moduleListeners = new Map;
-static moduleSearchPaths = [];
+static moduleSearchPaths = [ __DIR__+"/.." ]; // use the folder containing the Std-library as default.
 
 //! \todo allow aliases Std.setModuleAlias
 
