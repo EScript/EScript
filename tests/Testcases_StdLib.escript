@@ -15,9 +15,9 @@ Std.addModuleSearchPath(__DIR__ + "/..");
 // ----------------------------------------------------------
 {
 	var ok = true;
-	var coroutine = Std.require('Std/coroutine');
+	var generatorFn = Std.require('Std/generatorFn');
 	{
-		var f = coroutine(fn( max ){
+		var f = generatorFn(fn( max ){
 			for(var i=0;i<max;++i){
 				yield i+this;
 			}
@@ -28,7 +28,7 @@ Std.addModuleSearchPath(__DIR__ + "/..");
 		ok &= (v == 14+13+12+11+10);
 	}
 	{
-		var f = coroutine(fn(max){
+		var f = generatorFn(fn(max){
 			for(var i=0;i<max;++i)
 				yield i;
 			return 100;
@@ -45,7 +45,7 @@ Std.addModuleSearchPath(__DIR__ + "/..");
 
 	}
 
-	test("Std.coroutine", ok );
+	test("Std.generatorFn", ok );
 }
 {
 	var MultiProcedure = Std.require('Std/MultiProcedure');
