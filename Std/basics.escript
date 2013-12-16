@@ -66,7 +66,7 @@ Std.ABSTRACT_METHOD @(const) := fn(...){	Runtime.exception("This method is not i
 
 static moduleRegistry = new Map;
 static moduleListeners = new Map;
-static moduleSearchPaths = [ __DIR__+"/.." ]; // use the folder containing the Std-library as default.
+static moduleSearchPaths = [ __DIR__+"/../" ]; // use the folder containing the Std-library as default.
 
 //! \todo allow aliases Std.setModuleAlias
 
@@ -91,7 +91,7 @@ static loader = fn(String moduleId){
 	}
 	foreach(moduleSearchPaths as var p){
 		var filename = p + moduleId + ".escript";
-	//	outln("Testing file: '" + filename +"'");
+//		outln("Testing file: '" + filename +"'");
 		if(IO.isFile(filename)){
 			Runtime.log(Runtime.LOG_INFO,"[Std] Loading module '"+filename+"'.");
 	//		outln("loading...");
