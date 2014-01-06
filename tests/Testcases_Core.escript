@@ -480,7 +480,6 @@ var FAILED="\t failed\n";
 			&& (var x=[1,2,3]).popFront()==1 && x==[2,3]
 			&& [1,2,3,4,5].reverse()==[5,4,3,2,1] && [1,2,3,4].reverse()==[4,3,2,1]
 			&& [1,2,3,4,5,6,7,8,9].filter(fn(a){return (a%2)==0;})==[2,4,6,8]
-			&& [1,2,3,4,5,6,7,8,9].filter(fn(a,b,c){return (a%b)==c;},3,0)==[3,6,9]
 			&& e.max()==100	&& [4,2,-3,7].min()==-3
 			&& e.contains(7)
 			&& !e.contains(4)

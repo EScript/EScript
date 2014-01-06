@@ -47,12 +47,9 @@ void Array::init(EScript::Namespace & globals) {
 	//! [ESMF] Object Array.back();
 	ES_MFUN(typeObject,Array,"back",0,0,thisObj->back())
 
-	//! [ESMF] thisObj Array.filter(function [,additionalParameters*])
-	ES_MFUNCTION(typeObject,Array,"filter",1,-1,{
-		ParameterValues additionalValues(parameter.count()-1);
-		if(!additionalValues.empty())
-			std::copy(parameter.begin()+1,parameter.end(),additionalValues.begin());
-		thisObj->rt_filter(rt,parameter[0],additionalValues);
+	//! [ESMF] thisObj Array.filter(function)
+	ES_MFUNCTION(typeObject,Array,"filter",1,1,{
+		thisObj->rt_filter(rt,parameter[0]);
 		return thisObj;
 	})
 
@@ -137,7 +134,7 @@ void Array::init(EScript::Namespace & globals) {
 	ES_MFUN(typeObject,Array,"splice",2,3,(thisObj->splice(parameter[0].to<int>(rt),parameter[1].to<int>(rt),parameter.count()>2 ? assertType<Array>(rt,parameter[2]) : nullptr),thisEObj))
 
 	//! [ESMF] Array Array.slice( start,length );
-	ES_MFUN(typeObject,Array,"slice",1,2,(thisObj->slice(parameter[0].to<int>(rt),parameter[1].toInt(0))))
+	ES_MFUN(typeObject,Array,"slice",1,2,thisObj->slice(parameter[0].to<int>(rt),parameter[1].toInt(0)).detachAndDecrease())
 
 	//! [ESMF] thisObj Array.swap( Array other );
 	ES_MFUN(typeObject,Array,"swap",1,1,(thisObj->swap(assertType<Array>(rt,parameter[0])),thisEObj))
@@ -434,13 +431,10 @@ void Array::rt_sort(Runtime & runtime,Object * function/*=nullptr*/,bool reverse
 }
 
 
-void Array::rt_filter(Runtime & runtime,ObjPtr function, const ParameterValues & additionalValues) {
+void Array::rt_filter(Runtime & runtime,ObjPtr function) {
 	std::vector<ObjRef> tempArray;
 
-	ParameterValues parameters(additionalValues.count()+1);
-	if(!additionalValues.empty())
-		std::copy(additionalValues.begin(),additionalValues.end(),parameters.begin()+1);
-
+	ParameterValues parameters(1);
 	for(const auto & element : data) {
 		parameters.set(0, element);
 		if( callFunction(runtime,function.get(),parameters).toBool() ){
@@ -506,17 +500,18 @@ void Array::splice(int startIndex,int length,Array * replacement){
 }
 
 
-Array * Array::slice(int startIndex,int length){
+ERef<Array> Array::slice(int startIndex,int length)const{
 	ERef<Array> result = Array::create();
-	if(startIndex<0)
-		startIndex = std::max( static_cast<int>(data.size())+startIndex, 0);
-	if(static_cast<size_t>(startIndex)<data.size()){
-		size_t endIndex = length>0 ? startIndex+length : data.size()+length;
+	if(!empty()){
+		if(startIndex<0)
+			startIndex = std::max( static_cast<int>(data.size())+startIndex, 0);
+
+		const size_t endIndex = std::min( length>0 ? startIndex+length : data.size()+length, data.size());
 
 		for(size_t i = static_cast<size_t>(startIndex); i<endIndex; ++i)
 			result->pushBack( data[i]->getRefOrCopy() );
 	}
-	return result.detachAndDecrease();
+	return result;
 }
 
 // ------- ArrayIterator
