@@ -806,3 +806,6 @@
 
 	test("BUG[20131117]",	j == 0 );
 }
+{ // Array.slice crashes if parameters extend the array's range
+	test("BUG[20140106]",	[1,2,3].slice(2,4) == [3] );
+}

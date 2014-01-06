@@ -44,7 +44,10 @@ Language:
 	  Array ---|> Collection	== false		!!!! changed !!!
 	  Array.hasBase( Collection ) == true		*** new ***
 	  Collection.isBaseOf( Array ) == true		*** new ***
- 
+
+Minor language changes:
+ - Array.filter only accepts one parameter.
+
 Internals:
  - string handling updated
  - minor fixes and cleanups

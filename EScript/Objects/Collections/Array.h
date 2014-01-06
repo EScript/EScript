@@ -120,13 +120,13 @@ class Array : public Collection {
 		void reserve(size_t capacity);
 		void resize(size_t newSize);
 		void reverse();
-		void rt_filter(Runtime & runtime,ObjPtr function, const ParameterValues & additionalValues);
+		void rt_filter(Runtime & runtime,ObjPtr function);
 		//! returns -1 if not found
 		int rt_indexOf(Runtime & runtime,ObjPtr search,size_t begin = 0);
 		size_t rt_removeValue(Runtime & runtime,const ObjPtr value,const int limit=-1,const size_t begin = 0);
 		void rt_sort(Runtime & runtime,Object * function = nullptr,bool reverseOrder = false);
 		size_t size() const						{	return data.size();		}
-		Array * slice(int startIndex,int length);
+		ERef<Array> slice(int startIndex,int length)const;
 		void splice(int startIndex,int length,Array * replacement);
 		void swap(Array * other);
 	//	@}
