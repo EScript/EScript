@@ -1,7 +1,7 @@
 # CMakeLists.txt
 # This file is part of the EScript programming language (http://escript.berlios.de)
 #
-# Copyright (C) 2011-2013 Claudius Jähn <claudius@uni-paderborn.de>
+# Copyright (C) 2011-2014 Claudius Jähn <claudius@uni-paderborn.de>
 # Copyright (C) 2011-2013 Benjamin Eikel <benjamin@eikel.org>
 #
 # Licensed under the MIT License. See LICENSE file for details.
@@ -10,8 +10,8 @@ cmake_minimum_required(VERSION 2.8.11)
 project(EScript CXX)
 
 set(ESCRIPT_VERSION_MAJOR 0)
-set(ESCRIPT_VERSION_MINOR 6)
-set(ESCRIPT_VERSION_PATCH 7)
+set(ESCRIPT_VERSION_MINOR 7)
+set(ESCRIPT_VERSION_PATCH 0)
 set(ESCRIPT_VERSION_STRING ${ESCRIPT_VERSION_MAJOR}.${ESCRIPT_VERSION_MINOR}.${ESCRIPT_VERSION_PATCH})
 
 # Set up install directories

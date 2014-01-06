@@ -1,4 +1,11 @@
 --------------------------------------------
+EScript 0.7.0 Eli (Stable)
+Development: 2013-12
+
+General:
+ - Named after Eli the elephantine rabbit
+ 
+--------------------------------------------
 EScript 0.6.7 Elise (Development version)
 Development: 2013-03 -- 2013-12
 
