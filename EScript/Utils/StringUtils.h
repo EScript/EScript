@@ -10,6 +10,7 @@
 #define STRINGUTILS_H
 #include <string>
 #include <vector>
+#include <cstdint>
 
 namespace EScript {
 
@@ -39,6 +40,7 @@ std::string getLine(const std::string &s,const int lineIndex);
 
 size_t countCodePoints(const std::string& str_u8);
 
+std::string utf32_to_utf8(const uint32_t u32);
 }
 }
 

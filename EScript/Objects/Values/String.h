@@ -43,6 +43,8 @@ class String : public Object {
 		size_t length()const						{	return sData.getNumCodepoints();	}
 		size_t getDataSize()const					{	return sData.getDataSize();	}
 
+		const StringData & _getStringData()const	{	return sData;	}
+		StringData & _getStringData()				{	return sData;	}
 		const std::string & getString()const		{	return sData.str();	}
 		void setString(const std::string & _s)		{	sData.set(_s);	}
 		void setString(const StringData & _sData)	{	sData.set(_sData);	}

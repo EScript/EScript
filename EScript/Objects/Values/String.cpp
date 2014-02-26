@@ -60,6 +60,16 @@ void String::init(EScript::Namespace & globals) {
 		return s;
 	})
 
+	//! [ESF] String String._createFromByteArray( [byte*] )
+	ES_FUNCTION(typeObject,"_createFromByteArray",1,1,{
+		auto& arr = *parameter[0].to<Array*>(rt);
+		std::string str;
+		str.resize(arr.size());
+		size_t i = 0;
+		for(const auto& obj : arr)
+			str.at(i++) = static_cast<int8_t>(obj?obj->toUInt():0);
+		return str;
+	})
 
 	// ---
 	//! [ESMF] Bool String.beginsWith( (String)search[,(Number)startIndex] )
@@ -70,6 +80,9 @@ void String::init(EScript::Namespace & globals) {
 				thisObj->getString().find(
 										parameter[0].toString(),
 										thisObj->sData.codePointToBytePos( parameter[1].toUInt(0) )) != std::string::npos )
+
+	//! [ESMF] Number String.dataSize()
+	ES_MFUN(typeObject,const String,"dataSize",0,0, static_cast<uint32_t>(thisObj->getDataSize()))
 
 	//! [ESMF] Bool String.empty()
 	ES_MFUN(typeObject,const String,"empty",0,0,thisObj->getString().empty())

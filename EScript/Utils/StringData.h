@@ -13,6 +13,7 @@
 #include <memory>
 #include <vector>
 #include <stack>
+#include <cstdint>
 
 namespace EScript {
 
@@ -68,6 +69,7 @@ class StringData{
 		size_t codePointToBytePos(const size_t codePointNr)const;
 		bool empty()const								{	return str().empty();	}
 
+		uint32_t getCodePoint(const size_t codePointIdx)const;
 		size_t getDataSize()const						{	return str().length();	}
 		size_t getNumCodepoints()const;
 		std::string getSubStr(const size_t codePointStart, const size_t numCodePoints)const;

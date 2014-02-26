@@ -11,7 +11,6 @@
 #include <cstdio>
 #include <iomanip>
 #include <sstream>
-#include <cstdint>
 
 namespace EScript{
 
@@ -300,4 +299,25 @@ std::string StringUtils::getLine(const std::string &s,const int lineIndex){
 	}
 	return s.substr(cursor, s.find('\n',cursor)-cursor );
 }
+
+std::string StringUtils::utf32_to_utf8(const uint32_t u32){
+	if(u32<=0x7F){
+		return {	static_cast<char>(u32)	};								// 0XXXXXXX
+	}else if(u32<=0x7FF){
+		return {	static_cast<char>(0xC0 | ( (u32>>6) & 0x1F)),			// 110XXXXX
+					static_cast<char>(0x80 | (u32&0x3F))	};				// 10XXXXXX
+	}else if(u32<=0xFFFF){
+		return {	static_cast<char>(0xE0 | ( (u32>>12) & 0x0F)),			// 1110XXXX
+					static_cast<char>(0x80 | ( (u32>>6) & 0x3F)),			// 10XXXXXX
+					static_cast<char>(0x80 | (u32&0x3F))	};				// 10XXXXXX
+	}else if(u32<=0x13FFFF){
+		return {	static_cast<char>(0xF0 | ( (u32>>18) & 0x07)),			// 11110XXX
+					static_cast<char>(0x80 | ( (u32>>12) & 0x3F)),			// 10XXXXXX
+					static_cast<char>(0x80 | ( (u32>>6) & 0x3F)),			// 10XXXXXX
+					static_cast<char>(0x80 | (u32&0x3F))	};				// 10XXXXXX
+	}else {
+		return std::string();
+	}
+}
+
 }

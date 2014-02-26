@@ -154,6 +154,8 @@ var FAILED="\t failed\n";
 		&& "fääääääääääöße".find("ß") == 12 && "fääääääääääöße".find("ü") == false
 		&& "fööööööxxöö".rFind("öö",8) == 5
 		&& "bla".fillUp(10,'ä') == "blaäääääää"
+		&& String._createFromByteArray( [ 65,0xc3,0xa4 ]) == "Aä"
+		&& "dämlich".dataSize() == 8
 
 		&& "ä".length() == 1
 		&& "dämlich".length() == 7
@@ -1218,7 +1220,7 @@ if(!benchmark)
 
 {	// StdLib (not complete!)
 	test("StdLib:", !getEnv("PATH").empty() && !getEnv("THIS_SHOULD_NOT_EXIST") &&
-		chr(65)=="A" && ord("A")==65 && ord("")==0 );
+		chr(65)=="A" && chr(0xe4)=="ä" && ord("A")==65 && !ord("") && ord("ä")==0xe4 );
 }
 
 {	// EStdLib (...)

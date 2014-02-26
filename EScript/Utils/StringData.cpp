@@ -95,6 +95,26 @@ static size_t getUTF8CodePointLength(const char* cursor){
 		return 1; // INVALID CHARACTER!!
 	}
 }
+uint32_t StringData::getCodePoint(const size_t codePointIdx)const{
+	const size_t startPos = codePointToBytePos(codePointIdx);
+	const size_t endPos = std::min(getDataSize(), codePointToBytePos(codePointIdx+1));
+	if(startPos>=getDataSize())
+		return ~0;
+	auto p = startPos;
+	const uint32_t b0 = static_cast<uint32_t>(data->s.at(p++));
+	if(p>=endPos)
+		return b0;
+	const uint32_t b1 = static_cast<uint32_t>(data->s.at(p++));
+	if(p>=endPos)
+		return ((b0&0x1F)<<6) | (b1&0x3F);
+	const uint32_t b2 = static_cast<uint32_t>(data->s.at(p++));
+	if(p>=endPos)
+		return ((b0&0x0F)<<12) | ((b1&0x3F)<<6) | (b2&0x3F);
+	const uint32_t b3 = static_cast<uint32_t>(data->s.at(p++));
+	if(p>=endPos)
+		return ((b0&0x07)<<18) | ((b1&0x3F)<<12) | ((b2&0x3F)<<6) | (b3&0x3F);
+	return ~0;
+}
 
 size_t StringData::getNumCodepoints()const{
 	if(data->dataType == Data::UNKNOWN_UNICODE){

@@ -14,6 +14,7 @@
 #include "../EScript/Compiler/Compiler.h"
 #include "../EScript/Compiler/Parser.h"
 #include "../EScript/Utils/IO/IO.h"
+#include "../EScript/Utils/StringUtils.h"
 #include "../EScript/Consts.h"
 #include "ext/JSON.h"
 
@@ -182,8 +183,8 @@ void StdLib::init(EScript::Namespace * globals) {
 		return nullptr;
 	})
 
-	//! [ESF]  string chr(number)         UNICODE_TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	ES_FUN(globals,"chr",1,1,std::string(1, static_cast<char>(parameter[0].to<int>(rt))))
+	//! [ESF]  string chr(number)
+	ES_FUN(globals,"chr",1,1, StringUtils::utf32_to_utf8(parameter[0].to<uint32_t>(rt)))
 
 	// clock
 	{
@@ -248,8 +249,14 @@ void StdLib::init(EScript::Namespace * globals) {
 	//!	[ESF] mixed loadOnce(string filename)
 	ES_FUN(globals,"loadOnce",1,1,StdLib::loadOnce(rt,parameter[0].toString()))
 
-	//! [ESF]  Number ord(String)                  UNICODE_TODO !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	ES_FUN(globals,"ord",1,1,static_cast<int>(parameter[0].toString().c_str()[0] ))
+	//! [ESF]  Number ord(String [,pos] )
+	ES_FUNCTION(globals,"ord",1,2, {
+		const uint32_t codePoint = parameter[0].to<const String*>(rt)->_getStringData().getCodePoint(parameter[0].toInt(0));
+		if(codePoint == static_cast<uint32_t>(~0))
+			return false;
+		else 
+			return codePoint;
+	})
 
 	//! [ESF] void out(...)
 	ES_FUNCTION(globals,"out",0,-1, {
