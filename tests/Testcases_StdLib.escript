@@ -86,6 +86,24 @@ Std.addModuleSearchPath(".");
 	result.clear();
 	("Foo"->p1)(result);
 	ok &= (result == ["Foo"]);
+	
+	
+	{// revocing
+		p1.clear();
+		var f = fn(result){	result+="a";	};
+		p1 += f;
+		var r = p1.addRevocably( f );
+		
+		
+		var result = [];
+		p1( result );
+		ok &= result == [ "a","a" ];
+		result.clear();
+		
+		r();
+		p1( result );
+		ok &= result == [ "a" ];
+	}
 
 	test("Std.MultiProcedure", Std.MultiProcedure == MultiProcedure  && ok);
 }

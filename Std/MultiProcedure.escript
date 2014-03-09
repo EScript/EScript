@@ -38,9 +38,24 @@ T._call ::= fn(obj,params...){
 		}
 	}
 };
-T."+=" ::= 			fn(f){	this.functions += f;	};
+T."+=" ::= 			fn(f){	this.functions += f;	return this;};
+T."-=" ::= 			fn(f){	this.functions.removeValue(f,1);	return this;};
 T.accessFunctions ::=	fn(){	return functions;	};
-T.clear ::=			fn(){	return functions.clear();	};
+T.addRevocably ::= fn(f){
+	this.functions += f;
+	var revoceFun = fn(){
+		if(thisFn.multiProcedure){
+			thisFn.multiProcedure -= thisFn.fun;
+			thisFn.fun = void;
+			thisFn.multiProcedure = void;
+		}
+		return $REMOVE;
+	}.clone();
+	revoceFun.multiProcedure := this;
+	revoceFun.fun := f;
+	return revoceFun;
+};
+T.clear ::=			fn(){	functions.clear();		return this;	};
 T.clone ::= fn(){
 	var other = new (this.getType());
 	(other->fn(f){	functions = f;	})(functions.clone());
