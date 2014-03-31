@@ -251,7 +251,7 @@ void StdLib::init(EScript::Namespace * globals) {
 
 	//! [ESF]  Number ord(String [,pos] )
 	ES_FUNCTION(globals,"ord",1,2, {
-		const uint32_t codePoint = parameter[0].to<const String*>(rt)->_getStringData().getCodePoint(parameter[0].toInt(0));
+		const uint32_t codePoint = parameter[0].to<const String*>(rt)->_getStringData().getCodePoint(parameter[1].toInt(0));
 		if(codePoint == static_cast<uint32_t>(~0))
 			return false;
 		else 

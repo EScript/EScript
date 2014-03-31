@@ -1220,7 +1220,7 @@ if(!benchmark)
 
 {	// StdLib (not complete!)
 	test("StdLib:", !getEnv("PATH").empty() && !getEnv("THIS_SHOULD_NOT_EXIST") &&
-		chr(65)=="A" && chr(0xe4)=="ä" && ord("A")==65 && !ord("") && ord("ä")==0xe4 );
+		chr(65)=="A" && chr(0xe4)=="ä" && ord("A")==65 && !ord("") && ord("ä")==0xe4 && ord("aä",1)==0xe4 );
 }
 
 {	// EStdLib (...)
