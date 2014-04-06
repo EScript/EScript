@@ -757,8 +757,14 @@ if(!benchmark)
 {
 	out("eval:\t\t");
 	var a = eval("var b = 0;while(b<10)b++; b;");
-	if( a==10 && eval("fn(a){return a*a;};")(5) == 25 )
+			
+	if( a==10 && eval("fn(a){return a*a;};")(5) == 25 
+			// static variable injection
+			&& eval("fn(a){	return a*b; };",{$b:10})( 17 ) == 170
+			&& eval("return a;",{$a:[1,2,3] }) == [1,2,3])
 		{out (OK);}else { errors+=1; out(FAILED); }
+//
+//	out(  );
 }
 //---
 {

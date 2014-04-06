@@ -49,9 +49,15 @@ static bool _handlerInitialized UNUSED_ATTRIBUTE = initHandler(handlerRegistry);
 Compiler::Compiler(Logger * _logger) : logger(_logger ? _logger : new StdLogger(std::cout)) {
 }
 
-UserFunction * Compiler::compile(const CodeFragment & code){
+std::pair<ERef<UserFunction>,_CountedRef<StaticData>>
+		Compiler::compile(const CodeFragment & code,const std::vector<StringId>& injectedStaticVarNames){
 
 	ERef<AST::Block> syntaxTreeRoot(AST::Block::createBlockStatement());
+	// define injected static variables
+	for(const auto &varName:injectedStaticVarNames){
+		syntaxTreeRoot->declareStaticVar(varName);
+	}
+
 
 	{// parse code and build syntax tree
 		Parser p(getLogger());
@@ -65,9 +71,8 @@ UserFunction * Compiler::compile(const CodeFragment & code){
 
 	ERef<UserFunction> fun = new UserFunction;
 	fun->setCode(code);
+	_CountedRef<StaticData> staticData = new StaticData;
 	{ // compile syntax tree and create instructions
-		_CountedRef<StaticData> staticData = new StaticData;
-
 		FnCompileContext ctxt(*this,*staticData.get(),fun->getInstructionBlock(),code);
 		ctxt.addExpression(syntaxTreeRoot.get());
 		Compiler::finalizeInstructions(fun->getInstructionBlock());
@@ -76,7 +81,7 @@ UserFunction * Compiler::compile(const CodeFragment & code){
 			fun->setStaticData(std::move(staticData));
 	}
 
-	return fun.detachAndDecrease();
+	return std::make_pair(std::move(fun),std::move(staticData));
 }
 
 //! (internal)

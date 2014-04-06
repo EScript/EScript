@@ -27,6 +27,7 @@ class StaticData : public EReferenceCounter<StaticData> {
 			staticVariableValues.emplace_back(nullptr);
 			return static_cast<uint32_t>(staticVariableNames.size()-1);
 		}
+		const std::vector<StringId>& getStaticVariableNames()const{	return	staticVariableNames;	}
 		const std::vector<ObjRef>& getStaticVariableValues()const{	return	staticVariableValues;	}
 		bool updateStaticVariable(uint32_t index,Object*value){
 			if(index>=staticVariableValues.size())

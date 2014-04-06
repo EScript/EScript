@@ -20,6 +20,9 @@ namespace EScript {
 
 class FnCompileContext;
 class Logger;
+class UserFunction;
+class StaticData;
+
 namespace AST{
 class ASTNode;
 }
@@ -32,7 +35,7 @@ class Compiler {
 	public:
 		Compiler(Logger * _logger = nullptr);
 
-		UserFunction * compile(const CodeFragment & code);
+		std::pair<ERef<UserFunction>,_CountedRef<StaticData>> compile(const CodeFragment & code,const std::vector<StringId>& injectedStaticVarNames);
 
 	// -------------
 

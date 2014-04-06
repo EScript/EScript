@@ -125,6 +125,7 @@ static std::string findFile(Runtime & runtime, const std::string & filename){
 	return file;
 }
 
+
 //! (static)
 ObjRef StdLib::loadOnce(Runtime & runtime,const std::string & filename){
 	static const StringId mapId("__loadOnce_loadedFiles");
@@ -140,7 +141,8 @@ ObjRef StdLib::loadOnce(Runtime & runtime,const std::string & filename){
 		return nullptr;
 	}
 	m->setValue(create(condensedFilename), create(true));
-	return _loadAndExecute(runtime,condensedFilename);
+	std::unordered_map<StringId,ObjRef> staticVars;
+	return _loadAndExecute(runtime,condensedFilename,staticVars);
 }
 
 #if defined(_WIN32)
@@ -207,9 +209,21 @@ void StdLib::init(EScript::Namespace * globals) {
 	#endif
 	}
 
-	//!	[ESF]  Object eval(string)
-	ES_FUN(globals,"eval",1,1,
-				_eval(rt,CodeFragment(Consts::FILENAME_INLINE, StringData(parameter[0].toString()))))
+	typedef std::unordered_map<StringId,ObjRef> staticVarMap_t;
+	//!	[ESF]  Object eval(string, Map _staticVariables)
+	ES_FUNCTION(globals,"eval",1,2,{
+		staticVarMap_t staticVars;
+		if(parameter.count() > 1){
+			for( auto& entry : *parameter[1].to<const Map*>(rt)){
+				if(entry.second.value){
+					staticVars[ entry.first ] = entry.second.value;
+				}
+			}
+		}
+		return _eval(rt,
+					CodeFragment(Consts::FILENAME_INLINE, StringData(parameter[0].toString())),
+					staticVars);
+	})
 
 	/*!	[ESF]  Map getDate([time])
 		like http://de3.php.net/manual/de/function.getdate.php	*/
@@ -243,8 +257,18 @@ void StdLib::init(EScript::Namespace * globals) {
 	//! [ESF] Runtime getRuntime( )
 	ES_FUN(globals,"getRuntime",0,0, &rt)
 
-	//!	[ESF] mixed load(string filename)
-	ES_FUN(globals,"load",1,1,_loadAndExecute(rt,findFile(rt,parameter[0].toString())))
+	//!	[ESF] mixed load(string filename, Map _staticVars)
+	ES_FUNCTION(globals,"load",1,2,{
+		staticVarMap_t staticVars;
+		if(parameter.count() > 1){
+			for( auto& entry : *parameter[1].to<const Map*>(rt)){
+				if(entry.second.value){
+					staticVars[ entry.first ] = entry.second.value;
+				}
+			}
+		}
+		return _loadAndExecute(rt,findFile(rt,parameter[0].toString()),staticVars);
+	})
 
 	//!	[ESF] mixed loadOnce(string filename)
 	ES_FUN(globals,"loadOnce",1,1,StdLib::loadOnce(rt,parameter[0].toString()))
@@ -254,7 +278,7 @@ void StdLib::init(EScript::Namespace * globals) {
 		const uint32_t codePoint = parameter[0].to<const String*>(rt)->_getStringData().getCodePoint(parameter[1].toInt(0));
 		if(codePoint == static_cast<uint32_t>(~0))
 			return false;
-		else 
+		else
 			return codePoint;
 	})
 
@@ -278,12 +302,11 @@ void StdLib::init(EScript::Namespace * globals) {
 
 	//!	[ESF]  BlockStatement parse(string) @deprecated
 	ES_FUNCTION(globals,"parse",1,1, {
-		ERef<UserFunction> script;
-
+		std::vector<StringId> injectedStaticVars;
 		Compiler compiler(rt.getLogger());
-		script = compiler.compile(CodeFragment(Consts::FILENAME_INLINE, StringData(parameter[0].toString())));
+		auto compileUnit = compiler.compile(CodeFragment(Consts::FILENAME_INLINE, StringData(parameter[0].toString())),injectedStaticVars);
 
-		return script.detachAndDecrease();
+		return compileUnit.first.detachAndDecrease();
 	})
 	//! [ESF]  obj parseJSON(string)
 	ES_FUN(globals,"parseJSON",1,1,JSON::parseJSON(parameter[0].toString()))

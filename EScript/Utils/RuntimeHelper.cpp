@@ -73,27 +73,47 @@ ObjRef callFunction(Runtime & runtime, Object * function, const ParameterValues 
 //	}
 //}
 
-
 //! (static)
-ObjRef _eval(Runtime & runtime, const CodeFragment & code){
+ObjRef _eval(Runtime & runtime, const CodeFragment & code,const std::unordered_map<StringId,ObjRef>& staticVars){
 	Compiler compiler(runtime.getLogger());
-	ERef<UserFunction> script = compiler.compile(code);
-	if(script.isNull())
+	std::vector<StringId> staticVarNames;
+	for(auto & entry: staticVars)
+		staticVarNames.emplace_back(entry.first);
+	auto compileUnit = compiler.compile(code,staticVarNames);
+	UserFunction * script = compileUnit.first.get();
+	if(!script)
 		return nullptr;
-	return runtime.executeFunction(script.get(),nullptr,ParameterValues());
+
+	// assign injected static variable values
+	auto * staticData = compileUnit.second.get();
+	if(staticData){
+		size_t i=0;
+		for(auto & staticVarName: staticData->getStaticVariableNames()){
+			const auto it = staticVars.find(staticVarName);
+			if(it!=staticVars.end())
+				staticData->updateStaticVariable(i,it->second.get());
+			++i;
+		}
+	}
+	return runtime.executeFunction(script,nullptr,ParameterValues());
 }
 
 
 //! (static)
-ObjRef _loadAndExecute(Runtime & runtime, const std::string & filename) {
+ObjRef _loadAndExecute(Runtime & runtime, const std::string & filename,const std::unordered_map<StringId,ObjRef>& staticVars) {
 	const StringData file = IO::loadFile(filename);
-	return _eval(runtime,CodeFragment(StringId(filename),file));
+	return _eval(runtime,CodeFragment(StringId(filename),file),staticVars);
 }
 
 //! (static)
 std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & filename) {
+	const std::unordered_map<StringId,ObjRef> staticVars;
+	return loadAndExecute(runtime,filename,staticVars);
+}
+
+std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & filename,const std::unordered_map<StringId,ObjRef>& staticVars) {
 	try {
-		ObjRef result = _loadAndExecute(runtime,filename);
+		ObjRef result = _loadAndExecute(runtime,filename,staticVars);
 		ObjRef exitResult = runtime.fetchAndClearExitResult();
 		return std::make_pair(true,exitResult ? exitResult : result);
 	} catch (Object * error) {
@@ -111,7 +131,8 @@ std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & fi
 //! (static)
 std::pair<bool, ObjRef> eval(Runtime & runtime, const StringData & code,const StringId & fileId) {
 	try {
-		ObjRef result = _eval(runtime,CodeFragment( (fileId.empty() ? Consts::FILENAME_INLINE : fileId), code));
+		std::unordered_map<StringId,ObjRef> staticVars;
+		ObjRef result = _eval(runtime,CodeFragment( (fileId.empty() ? Consts::FILENAME_INLINE : fileId), code),staticVars);
 		return std::make_pair(true,std::move(result));
 	} catch (Object * error) {
 		std::ostringstream os;
