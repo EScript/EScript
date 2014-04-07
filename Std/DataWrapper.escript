@@ -1,12 +1,10 @@
 // DataWrapper.escript
 // This file is part of the EScript programming language (http://escript.berlios.de)
 //
-// Copyright (C) 2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2013-2014 Claudius Jähn <claudius@uni-paderborn.de>
 //
 // Licensed under the MIT License. See LICENSE file for details.
 // ---------------------------------------------------------------------------------
-
-loadOnce(__DIR__+"/basics.escript");
 
 // Problem: JSONDataWrapper refresh on get
 // map getOrSet(key, default)????
@@ -17,7 +15,7 @@ var DataWrapper = new Type;
 		inside of a JSONValueStore, or which is accessible only by function calls.
 		A DataWrapper provides an unified interface, independently from the real location of the value.
 	*/
-	var T = DataWrapper;
+	static T = DataWrapper;
 	Std.DataWrapper := T;
 	T._printableName @(override) ::= $DataWrapper;
 
@@ -47,7 +45,7 @@ var DataWrapper = new Type;
 		\code
 			myDataWrapper += fn(newData){	out("The value is now:",newData); };
 	*/
-	T.onDataChanged @(init) := Std.require('Std/MultiProcedure');
+	T.onDataChanged @(init) := require('./MultiProcedure');
 
 	/*! Refresh the internal data from the dataWrapper's data source. If the data has changed,
 		onDataChanged(newData) is called. This function has only to be called  manually if the connected data may change externally.*/
@@ -81,10 +79,12 @@ var DataWrapper = new Type;
 			myDataWrapper(10);  // is the same as myDataWrapper.set(10);
 			out( myDataWrapper() ); // outputs '10'. Is the same as out( myDataWrapper.get() );
 	*/
-	Std.require('Std/Traits/basics').addTrait(T,Std.require('Std/Traits/CallableTrait'),fn(obj,params...){
+	T._call ::= fn(obj,params...){
 		return params.empty() ? this.get() : this.set(params...);
+	};
+	onModule('./Traits/CallableTrait', fn(CallableTrait){
+		require('./Traits/basics').addTrait( T, CallableTrait );
 	});
-
 }
 // ------------------------------------------
 // (internal) AttributeWrapper ---|> DataWrapper
