@@ -95,16 +95,17 @@ static loader = fn(String moduleId){
 		if(IO.isFile(filename)){
 			Runtime.log(Runtime.LOG_INFO,"[Std] Loading module '"+filename+"'.");
 	//		outln("loading...");
-			return load(filename);
+			return load(filename,{
+						$require:[moduleId] => _require,
+						$onModule:[moduleId] => _onModule,
+						$__MODULE__ : moduleId });
 		}
 	}
 	Runtime.exception("Std.require: Module not found '"+moduleId+"'");
 };
 
-/*!	If the module with the given @p moduleId has not been loaded before it is loaded and returned.
-	If the module has bee loaded, it is returned.
-	If the module can not be returned( the loading attempt failed), an exception is thrown.	*/
-Std.require := fn(String moduleId){
+static _require = fn(prefix, String moduleId){
+	moduleId = IO.condensePath( (prefix&&moduleId.beginsWith('.')) ? prefix+"/../"+moduleId : moduleId );
 	var module;
 	if(moduleRegistry.containsKey(moduleId)){
 		module = moduleRegistry[moduleId];
@@ -125,6 +126,11 @@ Std.require := fn(String moduleId){
 	return module;
 };
 
+/*!	If the module with the given @p moduleId has not been loaded before it is loaded and returned.
+	If the module has bee loaded, it is returned.
+	If the module can not be returned( the loading attempt failed), an exception is thrown.	*/
+Std.require := [false] => _require;
+
 
 //! experimental
 Std._registerModule := fn(String moduleId,module){
@@ -138,10 +144,9 @@ Std._unregisterModule := fn(String moduleId){
 	moduleRegistry.unset(moduleId);
 };
 
-/*! Execute the @p callback when the module with @p moduleId is loaded.
-	If the module is already loaded, the callback is executed immediately.
-	The callback's parameter is the module.	*/
-Std.onModule := fn(String moduleId,callback){
+static _onModule = fn(prefix, String moduleId,callback){
+	moduleId = IO.condensePath( (prefix&&moduleId.beginsWith('.')) ? prefix+"/../"+moduleId : moduleId );
+
 	var module = Std.getModule(moduleId);
 	if(void==module){
 		if(moduleListeners[moduleId])
@@ -152,5 +157,10 @@ Std.onModule := fn(String moduleId,callback){
 		callback(module);
 	}
 };
+
+/*! Execute the @p callback when the module with @p moduleId is loaded.
+	If the module is already loaded, the callback is executed immediately.
+	The callback's parameter is the module.	*/
+Std.onModule := [false] => _onModule;
 
 // ------------------------------------------
