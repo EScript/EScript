@@ -1,24 +1,23 @@
 // DataWrapperContainer.escript
 // This file is part of the EScript programming language (http://escript.berlios.de)
 //
-// Copyright (C) 2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2013-2014 Claudius Jähn <claudiusj@live.de>
 //
 // Licensed under the MIT License. See LICENSE file for details.
 // ---------------------------------------------------------------------------------
-
-loadOnce(__DIR__+"/basics.escript");
 
 // ----------------------------------------------------------------------------------------------------
 // DataWrapperContainer
 
 var T = new Type;
+static DataWrapper = require('./DataWrapper');
 
 T._printableName @(override) ::= $DataWrapperContainer;
 
 T.dataWrappers @(init,private) := Map;
 
 //! ---o
-T.onDataChanged @(init) := Std.require('Std/MultiProcedure');
+T.onDataChanged @(init) := require('./MultiProcedure');
 
 /*! (ctor) */
 T._constructor ::= fn([void,Map] source=void){
@@ -61,8 +60,8 @@ T.getValue ::= fn(key,defaultValue = void){
 	var dataWrapper = this.dataWrappers[key];
 	return dataWrapper ? dataWrapper() : defaultValue;
 };
-T.getDataWrapper ::= fn(key){	return this.dataWrappers[key];	};
-T.getDataWrappers ::= fn(){	return this.dataWrappers.clone();	};
+T.getDataWrapper ::= 	fn(key){	return this.dataWrappers[key];	};
+T.getDataWrappers ::= 	fn(){		return this.dataWrappers.clone();	};
 
 T.getValues ::= fn(){
 	var m = new Map;
@@ -81,7 +80,7 @@ T.merge ::= fn(Map _dataWrappers){
 
 /*! Add a new DataWrapper with the given key.
 	\note calls onDataChanged(key, valueOfTheDataWrapper)	*/
-T.addDataWrapper ::= fn(key, Std.DataWrapper dataWrapper){
+T.addDataWrapper ::= fn(key, DataWrapper dataWrapper){
 	if(this.dataWrappers[key])
 		this.unset(key);
 	this.dataWrappers[key] = dataWrapper;

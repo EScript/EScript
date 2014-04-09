@@ -1,12 +1,12 @@
 // PrintableNameTrait.escript
 // This file is part of the EScript programming language (http://escript.berlios.de)
 //
-// Copyright (C) 2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2013-2014 Claudius Jähn <claudiusj@live.de>
 //
 // Licensed under the MIT License. See LICENSE file for details.
 // ---------------------------------------------------------------------------------
 
-var GenericTrait = Std.require('Std/Traits/GenericTrait');
+var GenericTrait = require('Std/Traits/GenericTrait');
 
 /*! Changes a part of a the object's or type's name when converted to a string
 	\param name (String or Identifier)
@@ -25,7 +25,7 @@ t.onInit += fn(obj,[String,Identifier] typename){
 	}
 };
 
-var Traits = Std.require('Std/Traits/basics');
+var Traits = require('./basics');
 Traits.PrintableNameTrait := t;
 
 return t;

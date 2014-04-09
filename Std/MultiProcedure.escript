@@ -1,12 +1,10 @@
 // MultiProcedure.escript
 // This file is part of the EScript programming language (http://escript.berlios.de)
 //
-// Copyright (C) 2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2013-2014 Claudius Jähn <claudiusj@live.de>
 //
 // Licensed under the MIT License. See LICENSE file for details.
 // ---------------------------------------------------------------------------------
-
-loadOnce(__DIR__+"/basics.escript");
 
 /*! Expendable function without result.
 	\example
@@ -69,11 +67,11 @@ T.filter ::= fn(fun){
 };
 
 //!	\see Std.Traits.CallableTrait
-Std.onModule('Std/Traits/CallableTrait', fn(CallableTrait){
-	Std.require('Std/Traits/basics').addTrait( T, CallableTrait );
+onModule('./Traits/CallableTrait', fn(CallableTrait){
+	require('./Traits/basics').addTrait( T, CallableTrait );
 });
 
-Std.onModule('Std/ObjectSerialization', fn(ObjectSerialization){
+onModule('./ObjectSerialization', fn(ObjectSerialization){
 	ObjectSerialization.registerType(T,'Std.MultiProcedure')
 		.enableIdentityTracking()
 		.addDescriber(fn(ctxt,mFun,Map d){

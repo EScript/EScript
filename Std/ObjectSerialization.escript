@@ -1,12 +1,10 @@
 // ObjectSerialization.escript
 // This file is part of the EScript programming language (http://escript.berlios.de)
 //
-// Copyright (C) 2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2013-2014 Claudius Jähn <claudiusj@live.de>
 //
 // Licensed under the MIT License. See LICENSE file for details.
 // ---------------------------------------------------------------------------------
-
-loadOnce(__DIR__+"/basics.escript");
 
 /*! System for serializing EScript Objects into JSON-formatted strings.
 
@@ -298,8 +296,8 @@ static defaultRegistry;
 		return obj;
 	};
 
-	T.doDescribeObject @(private,init) := Std.require('Std/MultiProcedure');
-	T.doInitializeObject @(private,init) := Std.require('Std/MultiProcedure');
+	T.doDescribeObject @(private,init) := require('./MultiProcedure');
+	T.doInitializeObject @(private,init) := require('./MultiProcedure');
 
 	/*! Use IdentityTracking to identify Objects that are referenced multiple times
 		in one serialization process.	*/

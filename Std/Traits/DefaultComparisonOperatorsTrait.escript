@@ -1,7 +1,7 @@
 // DefaultComparisonOperatorsTrait.escript
 // This file is part of the EScript programming language (http://escript.berlios.de)
 //
-// Copyright (C) 2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2013-2014 Claudius Jähn <claudiusj@live.de>
 //
 // Licensed under the MIT License. See LICENSE file for details.
 // ---------------------------------------------------------------------------------
@@ -10,7 +10,7 @@
  * @param smaller the < function has to be given as parameter, all others are redirected to it.
  * @note this changes the behavior of == and != which no longer behave like === and !==
  */
-var GenericTrait = Std.require('Std/Traits/GenericTrait');
+var GenericTrait = require('./GenericTrait');
 var t = new GenericTrait("Std.Traits.DefaultComparisonOperatorsTrait");
 
 t.attributes.'<'	::= fn(b){
@@ -30,6 +30,6 @@ t.onInit += fn(Type t,smaller){
 
 
 
-var Traits = Std.require('Std/Traits/basics');
+var Traits = require('./basics');
 Traits.DefaultComparisonOperatorsTrait := t;
 return t;

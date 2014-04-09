@@ -1,12 +1,12 @@
 // GenericTrait.escript
 // This file is part of the EScript programming language (http://escript.berlios.de)
 //
-// Copyright (C) 2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2013-2014 Claudius Jähn <claudiusj@live.de>
 //
 // Licensed under the MIT License. See LICENSE file for details.
 // ---------------------------------------------------------------------------------
 
-var Traits = Std.require('Std/Traits/basics');
+var Traits = require('./basics');
 
 /*! GenericTrait ---|> Trait
 	A GenericTrait offers:
@@ -22,7 +22,7 @@ Traits.GenericTrait := new Type(Traits.Trait);
 
 	T.attributes @(init,public,const) := fn(){	return new Type;	};
 	//! ---o
-	T.onInit @(init,public,const) := Std.require('Std/MultiProcedure');
+	T.onInit @(init,public,const) := require('../MultiProcedure');
 
 	//! ---|> Trait
 	T.init @(const,override) ::= fn(obj,params...){

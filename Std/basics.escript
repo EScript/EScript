@@ -1,5 +1,5 @@
 /*
-**  Copyright (c) Claudius Jähn (claudiusj@users.berlios.de), 2007-2013
+**  Copyright (c) Claudius Jähn (claudiusj@users.berlios.de), 2007-2014
 **
 **  Permission is hereby granted, free of charge, to any person obtaining a copy of this
 **  software and associated documentation files (the "Software"), to deal in the Software

@@ -73,8 +73,8 @@ GeneratorFnWrapper.isActive ::= fn(){
 };
 
 //!	\see Std.Traits.CallableTrait
-Std.onModule('Std/Traits/CallableTrait', fn( CallableTrait){
-	Std.require('Std/Traits/basics').addTrait( GeneratorFnWrapper, CallableTrait );
+onModule('./Traits/CallableTrait', fn( CallableTrait){
+	require('./Traits/basics').addTrait( GeneratorFnWrapper, CallableTrait );
 });
 
 var generatorFn = fn(fun){	return new GeneratorFnWrapper(fun);	};
