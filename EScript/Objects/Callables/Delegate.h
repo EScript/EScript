@@ -10,6 +10,7 @@
 #define ES_DELEGATE_H
 
 #include "../Type.h"
+#include <vector>
 
 namespace EScript {
 
@@ -22,11 +23,13 @@ class Delegate : public Object {
 		// ----
 
 		static Delegate * create(ObjPtr object,ObjPtr function);
+		static Delegate * create(ObjPtr object,ObjPtr function,std::vector<ObjRef>&&params);
 		static void release(Delegate * b);
 		virtual ~Delegate()	{ }
 
 		Object * getObject()const				{	return myObjectRef.get();	}
 		Object * getFunction()const				{	return functionRef.get();	}
+		std::vector<ObjRef> getBoundParameters()const	{	return boundParameters;	}
 		void setObject(ObjPtr newObject)		{	myObjectRef = newObject;		}
 		void setFunction(ObjPtr newFunction)	{	functionRef = newFunction;	}
 
@@ -38,8 +41,8 @@ class Delegate : public Object {
 	private:
 		Delegate(ObjPtr object,ObjPtr function);
 
-		ObjRef myObjectRef;
-		ObjRef functionRef;
+		ObjRef myObjectRef, functionRef;
+		std::vector<ObjRef> boundParameters;
 };
 
 }

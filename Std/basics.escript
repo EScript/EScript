@@ -19,20 +19,26 @@
 **  OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-/*! This file includes the features needed by all other components of the Std-lib:
-	 - Parameter bindings using [params] =>
-	 - declareNamespace(...)
-*/
-Array."=>" ::= fn(callable){
-	var myWrapper = thisFn.wrapperFn.clone();
-	myWrapper.wrappedFun := callable;
-	myWrapper.boundParams := this.clone();
-	return myWrapper;
-};
+///*! This file includes the features needed by all other components of the Std-lib:
+//	 - Parameter bindings using [params] =>
+//	 - declareNamespace(...)
+//*/
+//Array."=>" ::= fn(callable){
+//	var myWrapper = thisFn.wrapperFn.clone();
+//	myWrapper.wrappedFun := callable;
+//	myWrapper.boundParams := this.clone();
+//	return myWrapper;
+//};
+//
+//// _getCurrentCaller() is used instead of "this", as "this" may not be defined if this function
+//// is called without a caller. This then results in a warning due to an undefined variable "this".
+//Array."=>".wrapperFn := fn(params...){	return (Runtime._getCurrentCaller()->thisFn.wrappedFun)(thisFn.boundParams...,params...);	};
 
-// _getCurrentCaller() is used instead of "this", as "this" may not be defined if this function
-// is called without a caller. This then results in a warning due to an undefined variable "this".
-Array."=>".wrapperFn := fn(params...){	return (Runtime._getCurrentCaller()->thisFn.wrappedFun)(thisFn.boundParams...,params...);	};
+Array."=>" ::= fn(callable){
+	return Delegate.bindParameters(callable,this...);
+};
+//([1] => fn(a,b){ outln(a,b);})(2);
+//exit;
 
  // ------------------------------------------
 

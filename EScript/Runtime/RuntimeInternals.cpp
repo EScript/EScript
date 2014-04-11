@@ -675,8 +675,22 @@ RtValue RuntimeInternals::startFunctionExecution(const ObjPtr & fun,const ObjPtr
 			return RtValue::createFunctionCallContext(fcc.detachAndDecrease());
 		}
 		case _TypeIds::TYPE_DELEGATE:{
-			Delegate * delegate = static_cast<Delegate*>(fun.get());
-			return startFunctionExecution(delegate->getFunction(),delegate->getObject(),pValues);
+			Delegate * binder = static_cast<Delegate*>(fun.get());
+			if(binder->getBoundParameters().empty()){
+				return startFunctionExecution(binder->getFunction(),
+												binder->getObject()?binder->getObject():_callingObject,
+												pValues);
+			}else{
+				ParameterValues pValues2(pValues.size()+binder->getBoundParameters().size());
+				size_t i=0;
+				for(auto& param : binder->getBoundParameters())
+					pValues2.set(i++, param);
+				for(auto& param : pValues)
+					pValues2.set(i++, param);
+				return startFunctionExecution(binder->getFunction(),
+												binder->getObject()?binder->getObject():_callingObject,
+												pValues2);
+			}
 		}
 		case _TypeIds::TYPE_FUNCTION:{ // is  C++ function ?
 			Function * libfun = static_cast<Function*>(fun.get());

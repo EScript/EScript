@@ -18,10 +18,11 @@
 namespace EScript {
 
 class Array;
+class Bool;
 class Number;
+class Object;
 class String;
 class StringData;
-class Bool;
 class Void;
 
 /*! Factories for types that are not results of unwanted implicit type conversions. */
@@ -30,6 +31,7 @@ String* create(const StringData &);
 String* create(const std::string &);
 String* create(const char*);
 Void* create(std::nullptr_t);
+Object* create(const ObjRef& obj);
 
 /*!	For primitive types that can be the result of an implicit type conversion,
 	a template function is used that requires the exact type.

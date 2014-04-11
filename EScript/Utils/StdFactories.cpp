@@ -16,6 +16,7 @@ Array* create(const std::vector<Object*>&v)	{	return Array::create(v.size(),v.da
 String* create(const StringData & v)		{	return String::create(v);	}
 String* create(const std::string & v)		{	return String::create(v);	}
 String* create(const char*v)				{	return String::create(v);	}
+Object* create(const ObjRef& obj)			{	return obj.get();	}
 Void* create(std::nullptr_t)				{	return Void::get();	}
 
 namespace _Internals{

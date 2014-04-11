@@ -9,6 +9,7 @@
 #include "Delegate.h"
 
 #include "../../Basics.h"
+#include "../Collections/Array.h"
 
 namespace EScript{
 
@@ -38,13 +39,21 @@ Delegate * Delegate::create(ObjPtr object,ObjPtr function){
 //        std::cout << ".";
 		return o;
 	}
-
 }
+Delegate * Delegate::create(ObjPtr object,ObjPtr function,std::vector<ObjRef>&&params){
+	Delegate* delegate = create(object,function);
+	delegate->boundParameters = std::move(params);
+	return delegate;
+}
+
 void Delegate::release(Delegate * o){
 	#ifdef ES_DEBUG_MEMORY
 	delete o;
 	return;
 	#endif
+	o->myObjectRef = nullptr;
+	o->functionRef = nullptr;
+	o->boundParameters.clear();
 	pool.push(o);
 }
 
@@ -55,14 +64,34 @@ void Delegate::init(EScript::Namespace & globals) {
 
 	declareConstant(&globals,getClassName(),typeObject);
 
-	//!	[ESMF] Delegate new Delegate(object,function)
-	ES_CTOR(typeObject,2,2,	new Delegate(parameter[0],parameter[1]))
+	//!	[ESF] Delegate new Delegate(object,function, _boundParams...)
+	ES_CONSTRUCTOR(typeObject,2,-1,{
+		std::vector<ObjRef> params;
+		for(size_t i=2;i<parameter.count();++i)
+			params.emplace_back(parameter[i]);
+		return Delegate::create(parameter[0],parameter[1],std::move(params));
+	})
+	//! [ESF] Delegate Delegate.bindParameters( fun, p... )
+	ES_FUNCTION(typeObject,"bindParameters",1,-1,{
+		std::vector<ObjRef> params;
+		for(size_t i=1;i<parameter.count();++i)
+			params.emplace_back(parameter[i]);
+		return Delegate::create(nullptr,parameter[0],std::move(params));
+	})
+	// bindParameters( fun, p...)
+	// bind( fun, obj, ... )
 
 	//!	[ESMF] Object Delegate.getObject()
-	ES_MFUN(typeObject,Delegate,"getObject",0,0,thisObj->getObject())
+	ES_MFUN(typeObject,const Delegate,"getObject",0,0,thisObj->getObject())
 
 	//!	[ESMF] Object Delegate.getFunction()
-	ES_MFUN(typeObject,Delegate,"getFunction",0,0,thisObj->getFunction())
+	ES_MFUN(typeObject,const Delegate,"getFunction",0,0,thisObj->getFunction())
+
+	//!	[ESMF] Array Delegate.getBoundParameters()
+	ES_MFUN(typeObject,const Delegate,"getBoundParameters",0,0,Array::create(thisObj->getBoundParameters()))
+
+	//!	[ESMF] Bool Delegate.isObjectBound()
+	ES_MFUN(typeObject,const Delegate,"isObjectBound",0,0,thisObj->getObject()!=nullptr)
 }
 
 //---
