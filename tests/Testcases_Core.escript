@@ -514,6 +514,7 @@ var FAILED="\t failed\n";
 			&& [ 'a','b','c','d' ].slice(-3) == ['b','c','d'] // starting 3 elements back from the end
 			&& [ 'a','b','c','d' ].slice(-10,1) == ['a'] // starting 10 elements back from the end (clamped to 0), with length 1
 			&& [1,2,3].resize(1,"foo") == [1] && [].resize(2) == [void,void] && [1,2].resize(4,"bar") == [1,2,"bar","bar"]
+			&& ([1,2,3] => fn(p...){ return p.implode(); })(4) ==="1234"
 			,Array);
 
 }
@@ -793,6 +794,8 @@ if(!benchmark)
 }
 //---
 {	// Delegate
+	var ok = true;
+
 	var a = new ExtObject;
 	a.m1:=1;
 	a.f:=fn(Number p1){
@@ -801,16 +804,34 @@ if(!benchmark)
 	var d = new Delegate(a,a.f);
 
 	var d2 = a -> fn(){return this.m1;};
+	ok &=	d(3)==4 && d2()==1 && d2.getObject()==a && d.getFunction()==a.f;
 
 	// WARNING! Altough this can lead to perhaps unexpected behavior, Delegates allow a access to primitive types by reference!!!!!
 	// I strongly encourage you to use this feature with care!
 	var i = 0;
 	(i -> fn(){	this++; })();
-
-	test( "Delegate:", true
-			&& d(3)==4 && d2()==1 && d2.getObject()==a && d.getFunction()==a.f
-			&& i==1
-			,Delegate);
+	ok &= i==1;
+	
+	// ParameterBinding
+	{
+		var arr = [];
+		ok &= (new Delegate( arr, fn(p...){
+				this.append(p); 
+				return this;
+			},1,2,3))(4,5,6) == [1,2,3,4,5,6];
+		var f = Delegate.bindParameters(fn(p...){
+					return ""+this+":"+p.implode("");
+		},1,2,3); 
+		ok &= (0->f)(4,5,6) == "0:123456";	
+		ok &= f.getBoundParameters() == [1,2,3];
+		
+		ok &= !f.isObjectBound();
+		ok &= (1->out).isObjectBound();
+		ok &= (void->out).isObjectBound();
+	}
+	
+	
+	test( "Delegate:", ok, Delegate);
 }
 //---
 {

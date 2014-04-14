@@ -12,6 +12,7 @@
 #include "../../StdObjects.h"
 #include "../../Utils/StdConversions.h"
 #include "../../Consts.h"
+#include "../Callables/Delegate.h"
 
 #include <iterator>
 #include <sstream>
@@ -45,7 +46,7 @@ void Array::init(EScript::Namespace & globals) {
 			(thisObj->append( parameter[0].to<Collection*>(rt) ),thisEObj))
 
 	//! [ESMF] Object Array.back();
-	ES_MFUN(typeObject,Array,"back",0,0,thisObj->back())
+	ES_MFUN(typeObject,const Array,"back",0,0,thisObj->back())
 
 	//! [ESMF] thisObj Array.filter(function)
 	ES_MFUNCTION(typeObject,Array,"filter",1,1,{
@@ -54,11 +55,11 @@ void Array::init(EScript::Namespace & globals) {
 	})
 
 	//! [ESMF] Object Array.front();
-	ES_MFUN(typeObject,Array,"front",0,0,thisObj->front())
+	ES_MFUN(typeObject,const Array,"front",0,0,thisObj->front())
 
 	/*! [ESMF] String Array.implode([delimiter])
 			\param delemiter default is ','	*/
-	ES_MFUN(typeObject,Array,"implode",0,1,thisObj->implode(parameter[0].toString()))
+	ES_MFUN(typeObject, Array,"implode",0,1,thisObj->implode(parameter[0].toString()))
 
 	//! [ESMF] int|false Array.indexOf(Object[,begin])
 	ES_MFUNCTION(typeObject, Array,"indexOf",1,2,{
@@ -131,15 +132,21 @@ void Array::init(EScript::Namespace & globals) {
 	ES_MFUN(typeObject,Array,"sort",0,1,(thisObj->rt_sort(rt,parameter[0].get(),false),thisEObj))
 
 	//! [ESMF] thisObj Array.splice( start,length [,Array replacement] );
-	ES_MFUN(typeObject,Array,"splice",2,3,(thisObj->splice(parameter[0].to<int>(rt),parameter[1].to<int>(rt),parameter.count()>2 ? assertType<Array>(rt,parameter[2]) : nullptr),thisEObj))
+	ES_MFUN(typeObject, Array,"splice",2,3,(thisObj->splice(parameter[0].to<int>(rt),parameter[1].to<int>(rt),parameter.count()>2 ? assertType<Array>(rt,parameter[2]) : nullptr),thisEObj))
 
 	//! [ESMF] Array Array.slice( start,length );
-	ES_MFUN(typeObject,Array,"slice",1,2,thisObj->slice(parameter[0].to<int>(rt),parameter[1].toInt(0)).detachAndDecrease())
+	ES_MFUN(typeObject,const Array,"slice",1,2,thisObj->slice(parameter[0].to<int>(rt),parameter[1].toInt(0)).detachAndDecrease())
 
 	//! [ESMF] thisObj Array.swap( Array other );
 	ES_MFUN(typeObject,Array,"swap",1,1,(thisObj->swap(assertType<Array>(rt,parameter[0])),thisEObj))
 
-
+	//! [ESMF] Delegate Array=>( Callable );
+	ES_MFUNCTION(typeObject,const Array,"=>",1,1,{
+		std::vector<ObjRef> values;
+		for(const auto& p:*thisObj)
+			values.emplace_back(p);
+		return Delegate::create(nullptr,parameter[0],std::move(values));
+	})
 	// todo: removeOnce removeAll -=
 }
 

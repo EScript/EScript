@@ -335,6 +335,7 @@ Std.addModuleSearchPath(".");
 		"void" : void,
 		"extObject" : extObj,
 		"boundParams" : [1,2] => fn(a,b){return a+b;},
+		"boundObject" : 42-> fn(){return this;},
 		"reservedString" : "##REF:##",
 		"multiProcedure" : mFun,
 		"set" : set
@@ -349,6 +350,7 @@ Std.addModuleSearchPath(".");
 	ok &= (void === m2["void"]);
 	ok &= (m2["reservedString"] === m["reservedString"]);
 	ok &= (m2["boundParams"]() === 3);
+	ok &= (m2["boundObject"]() === 42);
 	ok &= (m2["set"] == set);
 	var extObj2 = m2["extObject"];
 	ok &= (extObj2.m1 === 1);

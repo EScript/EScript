@@ -431,11 +431,19 @@ defaultRegistry.registerType(Identifier,"Identifier")
 // Delegate
 defaultRegistry.registerType(Delegate,"Delegate")
 	.addDescriber(fn(ctxt,Delegate obj,Map d){
-		d['obj'] = ctxt.createDescription(obj.getObject());
 		d['fun'] = ctxt.createDescription(obj.getFunction());
+		if(obj.isObjectBound())
+			d['obj'] = ctxt.createDescription(obj.getObject());
+		var bParam = obj.getBoundParameters();
+		if(!bParam.empty())
+			d['p']= ctxt.createDescription(bParam);
 	})
 	.setFactory(fn(ctxt,Type actualType,Map d){
-		return new Delegate( ctxt.createObject(d['obj']), ctxt.createObject(d['fun']) );
+		var fun = ctxt.createObject(d['fun']);
+		var params = d.containsKey('p') ? ctxt.createObject(d['p']) : [];
+		return d.containsKey('obj') ? 
+				new Delegate( ctxt.createObject(d['obj']), fun, params... ):
+				Delegate.bindParameters( fun, params...  );
 	});
 
 // UserFunction
