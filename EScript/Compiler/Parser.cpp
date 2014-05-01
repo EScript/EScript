@@ -60,6 +60,18 @@ int findCorrespondingBracket(const Parser::ParsingContext & ctxt,int from,int to
 }
 
 
+struct LValueInfo{
+	EPtr<AST::ASTNode> objExpression;
+	StringId variableName;
+	EPtr<AST::ASTNode> indexExpression;
+	std::vector<LValueInfo> lValueArray;
+	enum type_t{
+		MEMBER_OR_VARIABLE,	// a.b, a 
+		COLLECTION_SETTER, // a.b[4]
+		ARRAY_OF_LVALUES, // [a, b[1], c.d ]
+		INVALID
+	}type;
+};
 // -------------------------------------------------------------------------------------------------------------------
 
 //!	(ctor)
@@ -772,6 +784,60 @@ EPtr<AST::ASTNode> Parser::readMap(ParsingContext & ctxt,int & cursor)const  {
 
 }
 
+EPtr<AST::ASTNode> Parser::createAssignmentExpr(ParsingContext & ctxt,const LValueInfo& lValue,AST::ASTNode* rightExpression,int currentLine,int cursor)const{
+	/// a = 2 => _.[a] = 2
+	if( lValue.type == LValueInfo::MEMBER_OR_VARIABLE ) {
+		return SetAttributeExpr::createAssignment(lValue.objExpression,
+													lValue.variableName,rightExpression,
+													currentLine);
+	}
+	/// a[1]=2 =>  _.a._set(1, 2)
+	else if( lValue.type == LValueInfo::COLLECTION_SETTER) {
+		ASTNode::refArray_t paramExp;
+		paramExp.push_back(lValue.indexExpression);
+		paramExp.push_back(rightExpression);
+		return FunctionCallExpr::createFunctionCall(new GetAttributeExpr(lValue.objExpression,Consts::IDENTIFIER_fn_set),paramExp,currentLine);
+	}
+	/*! [var a, b] = [1,2];
+		//// -->
+		{
+			var TMP = [1,2];
+			var a = TMP[0]; 
+			b = TMP[1]; 
+			TMP;
+		}
+	*/
+	else if( lValue.type == LValueInfo::ARRAY_OF_LVALUES) {
+		static const StringId VAR_TMP(" tmpMultiAssign");
+		Block* block = Block::createBlockExpression(currentLine);
+		/// var TMP = #rightExpression;
+		block->declareLocalVar(VAR_TMP);
+		block->addStatement( SetAttributeExpr::createAssignment(nullptr,VAR_TMP,rightExpression,currentLine) );
+		
+		int i=0;
+		for(const auto& subLValue : lValue.lValueArray){
+			/// a = TMP._get(0)
+			ASTNode::refArray_t paramExp;
+			paramExp.push_back( new NumberValueExpr(i++, currentLine) );
+//			paramExp.push_back();
+			block->addStatement( 
+				createAssignmentExpr(
+					ctxt, subLValue, 
+					FunctionCallExpr::createFunctionCall(
+							new GetAttributeExpr(new GetAttributeExpr(nullptr,VAR_TMP),
+														Consts::IDENTIFIER_fn_get),paramExp,currentLine)  
+					,currentLine,cursor ) );
+		}
+		
+		block->addStatement( new GetAttributeExpr(nullptr,VAR_TMP) );
+		return block;
+	} else {
+//			std::cout << "\n Error = "<<cursor<<" - "<<to<<" :" << lValueType;
+		throwError(ctxt,"No valid LValue before '=' ",ctxt.tokens[cursor]);
+	}
+	return nullptr;
+}
+
 /*!	read binary expression
 	\note called by readExpression
 	\note If the syntax is correct, @p cursor equals @p to after returning.
@@ -828,29 +894,13 @@ EPtr<AST::ASTNode> Parser::readBinaryExpression(ParsingContext & ctxt,int & curs
 	/// ASSIGNMENTS ( "="  ":=" )
 	/// -----------
 	if(op->getString()=="=") {
-		StringId memberIdentifier;
-		EPtr<AST::ASTNode> obj;
-		EPtr<AST::ASTNode> indexExp;
-		int lValueType = getLValue(ctxt,leftExprFrom,leftExprTo,obj,memberIdentifier,indexExp);
+		const LValueInfo lValue = std::move(getLValue(ctxt,leftExprFrom,leftExprTo));
 
 		ERef<ASTNode> rightExpression = readExpression(ctxt,rightExprFrom,to);
 		cursor = rightExprFrom;
 
-
-		/// a = 2 => _.[a] = 2
-		if(lValueType== LVALUE_MEMBER) {
-			return SetAttributeExpr::createAssignment(obj,memberIdentifier,rightExpression.get(),currentLine);
-		}
-		/// a[1]=2 =>  _.a._set(1, 2)
-		else if(lValueType == LVALUE_INDEX) {
-			ASTNode::refArray_t paramExp;
-			paramExp.push_back(indexExp);
-			paramExp.push_back(rightExpression);
-			return FunctionCallExpr::createFunctionCall(new GetAttributeExpr(obj,Consts::IDENTIFIER_fn_set),paramExp,currentLine);
-		} else {
-//			std::cout << "\n Error = "<<cursor<<" - "<<to<<" :" << lValueType;
-			throwError(ctxt,"No valid LValue before '=' ",tokens[opPosition]);
-		}
+		return createAssignmentExpr(ctxt,lValue,rightExpression.get(),currentLine,opPosition);
+		
 	} else if(op->getString()==":=" || op->getString()=="::=") {
 		Attribute::flag_t flags = op->getString()=="::=" ? Attribute::TYPE_ATTR_BIT : 0;
 		Attribute::flag_t inverseFlags = 0;
@@ -908,25 +958,25 @@ EPtr<AST::ASTNode> Parser::readBinaryExpression(ParsingContext & ctxt,int & curs
 			}
 
 		}
-		StringId memberIdentifier;
-		EPtr<AST::ASTNode> obj;
-
-		EPtr<AST::ASTNode> indexExp;
-		const int lValueType = getLValue(ctxt,leftExprFrom,leftExprTo,obj,memberIdentifier,indexExp);
+//		StringId memberIdentifier;
+//		EPtr<AST::ASTNode> obj;
+//
+//		EPtr<AST::ASTNode> indexExp;
+		const LValueInfo lValue = std::move(getLValue(ctxt,leftExprFrom,leftExprTo));
 
 		EPtr<AST::ASTNode> rightExpression = readExpression(ctxt,rightExprFrom,to);
 		cursor = rightExprFrom;
 
 
 		/// a:=2 => _.[a] := 2
-		if(lValueType != LVALUE_MEMBER) {
+		if(lValue.type != LValueInfo::MEMBER_OR_VARIABLE) {
 			throwError(ctxt,"No valid member-LValue before '"+op->getString()+"' ",tokens[opPosition]);
 		}
-		if(obj==nullptr){
+		if( !lValue.objExpression){
 			log(ctxt,Logger::LOG_WARNING,"Use '=' for assigning to local variables instead of '"+op->getString()+"' ",tokens[opPosition]);
-			return SetAttributeExpr::createAssignment(obj,memberIdentifier,rightExpression,currentLine);
+			return SetAttributeExpr::createAssignment(lValue.objExpression,lValue.variableName,rightExpression,currentLine);
 		}
-		return new SetAttributeExpr(obj,memberIdentifier,rightExpression,flags,currentLine);
+		return new SetAttributeExpr(lValue.objExpression,lValue.variableName,rightExpression,flags,currentLine);
 	}
 
 
@@ -1665,20 +1715,16 @@ EPtr<AST::ASTNode> Parser::readControl(ParsingContext & ctxt,int & cursor)const 
 	}
 }
 
-//!	getLValue
-Parser::lValue_t Parser::getLValue(ParsingContext & ctxt,int from,int to,EPtr<AST::ASTNode> & obj,
-								StringId & identifier,EPtr<AST::ASTNode> &indexExpression)const  {
+LValueInfo Parser::getLValue(ParsingContext & ctxt,int from,int to)const  {
+	LValueInfo lValue;
+	
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	/// Single Element: "a"
 	if(to==from) {
 		if(Token::isA<TIdentifier>(tokens[from])) {
-			identifier = Token::cast<TIdentifier>(tokens.at(from))->getId();
-			obj = nullptr;
-			return LVALUE_MEMBER;
-//        }else if(Identifier * i = dynamic_cast<Identifier *>(tokens[from])) { // $a
-//            identifier = i->getId();
-//            obj = nullptr;
-//            return LVALUE_MEMBER;
+			lValue.variableName = Token::cast<TIdentifier>(tokens.at(from))->getId();
+			lValue.type = LValueInfo::MEMBER_OR_VARIABLE;
+			return lValue;
 		} else {
 			throwError(ctxt,"LValue Error 1",tokens[from]);
 		}
@@ -1687,9 +1733,10 @@ Parser::lValue_t Parser::getLValue(ParsingContext & ctxt,int from,int to,EPtr<AS
 	/// "a.b.c"
 	if(Token::isA<TIdentifier>(tokens[to]) && Token::isA<TOperator>(tokens[to-1]) ) {
 		if( Token::cast<TOperator>(tokens.at(to-1))->getOperator()->getString()==".") {
-			obj = readExpression(ctxt,from,to-2);
-			identifier = Token::cast<TIdentifier>(tokens[to])->getId();
-			return LVALUE_MEMBER;
+			lValue.objExpression = readExpression(ctxt,from,to-2);
+			lValue.variableName = Token::cast<TIdentifier>(tokens[to])->getId();
+			lValue.type = LValueInfo::MEMBER_OR_VARIABLE;
+			return lValue;
 		}
 	}
 	/// ".'a'"
@@ -1698,9 +1745,10 @@ Parser::lValue_t Parser::getLValue(ParsingContext & ctxt,int from,int to,EPtr<AS
 		TOperator * top = Token::cast<TOperator>(tokens[to-1]);
 
 		if(top && top->getOperator()->getString()==".") {
-			obj = readExpression(ctxt,from,to-2);
-			identifier = s->toString();
-			return LVALUE_MEMBER;
+			lValue.objExpression = readExpression(ctxt,from,to-2);
+			lValue.variableName = s->toString();
+			lValue.type = LValueInfo::MEMBER_OR_VARIABLE;
+			return lValue;
 		}
 	}
 	/// ".$a"
@@ -1709,25 +1757,41 @@ Parser::lValue_t Parser::getLValue(ParsingContext & ctxt,int from,int to,EPtr<AS
 		TOperator * top = Token::cast<TOperator>(tokens[to-1]);
 
 		if(top && top->getOperator()->getString()==".") {
-			obj = readExpression(ctxt,from,to-2);
-			identifier = i->getValue();
-			return LVALUE_MEMBER;
+			lValue.objExpression = readExpression(ctxt,from,to-2);
+			lValue.variableName = i->getValue();
+			lValue.type = LValueInfo::MEMBER_OR_VARIABLE;
+			return lValue;
 		}
 
 	}
-	/// Index "a[1]"
+	/// Multi values "[a,b[1]]"
+	else if(Token::isA<TStartIndex>(tokens[from]) && Token::isA<TEndIndex>(tokens[to]) ) {
+		int subValueBegin=from+1;
+		lValue.type = LValueInfo::ARRAY_OF_LVALUES; 
+		while(subValueBegin<to){
+			const int subValueEnd = findExpression(ctxt,subValueBegin);
+			lValue.lValueArray.emplace_back( std::move(getLValue(ctxt,subValueBegin,subValueEnd)) );
+			if( subValueEnd+1<to && !Token::isA<TDelimiter>(tokens[subValueEnd+1]) )
+				throwError(ctxt,"Multi-LValue expects ','",tokens[subValueEnd+1]);
+			subValueBegin = subValueEnd+2;
+
+		}
+		return lValue;
+	}/// Index "a[1]"
 	else if(Token::isA<TEndIndex>(tokens[to])) {
 
 		int indexOpenPos = findCorrespondingBracket<TEndIndex,TStartIndex>(ctxt,to,from,-1);
 		/// a[1]
 		if(indexOpenPos>from) {
-			obj = readExpression(ctxt,from,indexOpenPos-1);
+			lValue.objExpression = readExpression(ctxt,from,indexOpenPos-1);
 			++indexOpenPos;
-			indexExpression = readExpression(ctxt,indexOpenPos,to-1);
-			return LVALUE_INDEX;
+			lValue.indexExpression = readExpression(ctxt,indexOpenPos,to-1);
+			lValue.type = LValueInfo::COLLECTION_SETTER;
+			return lValue;
 		}
 	}
-	return LVALUE_NONE;
+	lValue.type = LValueInfo::INVALID;
+	return lValue;
 }
 
 
