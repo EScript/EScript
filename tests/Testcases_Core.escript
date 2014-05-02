@@ -605,6 +605,23 @@ var FAILED="\t failed\n";
 	if( i==14)
 	{out (OK);}else { errors+=1; out(FAILED); }
 }
+
+{// multi assignment
+	var ok = true;
+	var arr = [];
+	var obj = new ExtObject;
+	obj.foo:=0;
+	var a;
+	var c = [a,var b,arr[0],obj.foo] = [1,2,3,4,5];
+	ok &= a==1;
+	ok &= b==2;
+	ok &= arr[0]==3;
+	ok &= obj.foo==4;
+	ok &= c==[1,2,3,4,5];
+	
+	test("Multi assignment:",ok);
+}
+
 //
 // ---
 if(!benchmark)
