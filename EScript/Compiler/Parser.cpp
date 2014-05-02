@@ -72,6 +72,84 @@ struct LValueInfo{
 		INVALID
 	}type;
 };
+//---------------------------------------------------------------
+// logging and error handling
+
+static void throwError(Parser::ParsingContext & ctxt,const std::string & msg,Token * token=nullptr){
+	Parser::ParserException * e = new Parser::ParserException(msg,token);
+	e->setFilename(ctxt.code.getFilename());
+	throw e;
+}
+
+static void throwError(Parser::ParsingContext & ctxt,const std::string & msg,const _CountedRef<Token> & token){
+	throwError(ctxt,msg,token.get());
+}
+
+static void log(Parser::ParsingContext & ctxt,Logger::level_t messageLevel, const std::string & msg,const _CountedRef<Token> & token){
+	std::ostringstream os;
+	os << "[Parser] " << msg << " (" << ctxt.code.getFilename();
+	if(token!=nullptr)
+		os << ':' << token->getLine();
+	os << ").";
+	ctxt.logger.log(messageLevel,os.str());
+}
+
+static void assertTokenIsStatemetEnding(Parser::ParsingContext& ctxt,Token* token){
+	/// Commands have to end on ";" or "}".
+	if(!(Token::isA<TEndCommand>(token) || Token::isA<TEndBlock>(token))) {
+		log(ctxt,Logger::LOG_DEBUG, token->toString(),token);
+		throwError(ctxt,"Syntax error in Block (Missing ';' ?).",token);
+	}
+}
+
+/*! Check for shadowed local variables.
+	Used when reading blocks by readBlockExpression or when reading
+	a case block.
+	\note The issued warning has LOG_PEDANTIC_WARNING level.*/
+static void warnOnShadowedLocalVars(Parser::ParsingContext & ctxt,TStartBlock * tBlock){
+	if(ctxt.blocks.empty())
+		return;
+	auto block = tBlock->getBlock();
+	const auto & vars = block->getVars();
+	if(vars.empty())
+		return;
+	for(int i = ctxt.blocks.size()-1; i>=0 && ctxt.blocks[i]!=nullptr; --i ){
+		const declaredVariableMap_t & vars2 = ctxt.blocks[i]->getVars();
+		if(vars2.empty())
+			continue;
+		for(const auto & var : vars) {
+			if(vars2.count(var.first) > 0) {
+				log(ctxt, Logger::LOG_PEDANTIC_WARNING, "Shadowed variable  '" + var.first.toString() + "' in block.", tBlock);
+			}
+		}
+	}
+}
+
+// ----------------------------------------
+
+/*! collect the indices of expanding parameters f(0,arr...,2,3)
+	The ... operator is thereby removed. 
+*/
+static std::vector<uint32_t> extractExpandingParameters(std::vector<ERef<AST::ASTNode>> & paramExps){
+	static const StringId multiParamOp("..._post");
+
+	std::vector<uint32_t> expandingParameters;
+	int i=0;
+	for(auto & pExp : paramExps){
+		++i;
+		if(pExp.isNull() || pExp->getNodeType() != ASTNode::TYPE_FUNCTION_CALL_EXPRESSION)
+			continue;
+		ASTNode::ptr_t gfe = static_cast<FunctionCallExpr*>(pExp.get())->getGetFunctionExpression();
+		if(gfe.isNull() || gfe->getNodeType() != ASTNode::TYPE_GET_ATTRIBUTE_EXPRESSION)
+			continue;
+		GetAttributeExpr* gae = static_cast<GetAttributeExpr*>(gfe.get());
+		if( gae->getAttrId()!=multiParamOp )
+			continue;
+		pExp = gae->getObjectExpression();
+		expandingParameters.push_back(i-1);
+	}
+	return expandingParameters;
+}
 // -------------------------------------------------------------------------------------------------------------------
 
 //!	(ctor)
@@ -80,23 +158,15 @@ Parser::Parser(Logger * _logger) :
 	//ctor
 }
 
-void Parser::log(ParsingContext & ctxt,Logger::level_t messageLevel, const std::string & msg,const _CountedRef<Token> & token)const{
-	std::ostringstream os;
-	os << "[Parser] " << msg << " (" << ctxt.code.getFilename();
-	if(token!=nullptr)
-		os << ':' << token->getLine();
-	os << ").";
-	logger->log(messageLevel,os.str());
-}
-
 ERef<AST::Block> Parser::parse(const CodeFragment & code) {
 	ERef<AST::Block> rootBlock = AST::Block::createBlockExpression();
+	Tokenizer tokenizer;
 
 	tokenizer.defineToken("__FILE__",new TValueString(code.getFilename()));
 	tokenizer.defineToken("__DIR__",new TValueString(IO::dirname(code.getFilename())));
 
 	Tokenizer::tokenList_t tokens;
-	ParsingContext ctxt(tokens,code);
+	ParsingContext ctxt(tokens,code,*logger.get());
 	ctxt.rootBlock = rootBlock.get();
 
 	/// 1. Tokenize
@@ -121,23 +191,6 @@ ERef<AST::Block> Parser::parse(const CodeFragment & code) {
 	return rootBlock;
 }
 
-//! [Helper]
-struct _BracketInfo {
-	Token * token;
-	unsigned int index;
-	bool isBlockOrMap, containsColon, containsCommands,
-		nextCBlockIsSwitchCaseBlock,isSwitchCaseBlock;
-	int shortIf; // a?b:c
-
-	_BracketInfo(unsigned int _index = 0,Token * _token = nullptr):
-			token(_token),index(_index),
-			isBlockOrMap(false),
-			containsColon(false),containsCommands(false),
-			nextCBlockIsSwitchCaseBlock(false),isSwitchCaseBlock(false),
-			shortIf(0) {};
-	_BracketInfo(const _BracketInfo & b) = default;
-
-};
 /**
  * Pass 1
  * =========
@@ -148,6 +201,24 @@ struct _BracketInfo {
 void Parser::pass_1(ParsingContext & ctxt) {
 	Tokenizer::tokenList_t & tokens = ctxt.tokens;
 
+
+	//! [Helper]
+	struct _BracketInfo {
+		Token * token;
+		unsigned int index;
+		bool isBlockOrMap, containsColon, containsCommands,
+			nextCBlockIsSwitchCaseBlock,isSwitchCaseBlock;
+		int shortIf; // a?b:c
+
+		_BracketInfo(unsigned int _index = 0,Token * _token = nullptr):
+				token(_token),index(_index),
+				isBlockOrMap(false),
+				containsColon(false),containsCommands(false),
+				nextCBlockIsSwitchCaseBlock(false),isSwitchCaseBlock(false),
+				shortIf(0) {};
+		_BracketInfo(const _BracketInfo & b) = default;
+
+	};	
 	std::stack<_BracketInfo> bInfStack;
 	bInfStack.push(_BracketInfo());
 
@@ -653,37 +724,6 @@ EPtr<AST::ASTNode> Parser::readStatement(ParsingContext & ctxt,int & cursor)cons
 		return readExpression(ctxt,cursor);
 	}
 
-}
-
-void Parser::assertTokenIsStatemetEnding(ParsingContext& ctxt,Token* token)const{
-	/// Commands have to end on ";" or "}".
-	if(!(Token::isA<TEndCommand>(token) || Token::isA<TEndBlock>(token))) {
-		log(ctxt,Logger::LOG_DEBUG, token->toString(),token);
-		throwError(ctxt,"Syntax error in Block (Missing ';' ?).",token);
-	}
-}
-
-/*! Check for shadowed local variables.
-	Used when reading blocks by readBlockExpression or when reading
-	a case block.
-	\note The issued warning has LOG_PEDANTIC_WARNING level.*/
-void Parser::warnOnShadowedLocalVars(ParsingContext & ctxt,TStartBlock * tBlock)const{
-	if(ctxt.blocks.empty())
-		return;
-	auto block = tBlock->getBlock();
-	const auto & vars = block->getVars();
-	if(vars.empty())
-		return;
-	for(int i = ctxt.blocks.size()-1; i>=0 && ctxt.blocks[i]!=nullptr; --i ){
-		const declaredVariableMap_t & vars2 = ctxt.blocks[i]->getVars();
-		if(vars2.empty())
-			continue;
-		for(const auto & var : vars) {
-			if(vars2.count(var.first) > 0) {
-				log(ctxt, Logger::LOG_PEDANTIC_WARNING, "Shadowed variable  '" + var.first.toString() + "' in block.", tBlock);
-			}
-		}
-	}
 }
 
 /**
@@ -2072,29 +2112,6 @@ ASTNode::refArray_t Parser::readExpressionsInBrackets(ParsingContext & ctxt,int 
 	return expressions;
 }
 
-/*! search for expanding parameters f(0,arr...,2,3)
-	If found, the "..." is removed and its index is stored.	*/
-std::vector<uint32_t> Parser::extractExpandingParameters(std::vector<ERef<AST::ASTNode>> & paramExps)const{
-	static const StringId multiParamOp("..._post");
-
-	std::vector<uint32_t> expandingParameters;
-	int i=0;
-	for(auto & pExp : paramExps){
-		++i;
-		if(pExp.isNull() || pExp->getNodeType() != ASTNode::TYPE_FUNCTION_CALL_EXPRESSION)
-			continue;
-		ASTNode::ptr_t gfe = static_cast<FunctionCallExpr*>(pExp.get())->getGetFunctionExpression();
-		if(gfe.isNull() || gfe->getNodeType() != ASTNode::TYPE_GET_ATTRIBUTE_EXPRESSION)
-			continue;
-		GetAttributeExpr * gae = static_cast<GetAttributeExpr*>(gfe.get());
-		if( gae->getAttrId()!=multiParamOp )
-			continue;
-		pExp = gae->getObjectExpression();
-		expandingParameters.push_back(i-1);
-	}
-	return expandingParameters;
-}
-
 /**
  * A.m @(const,private,somthingWithOptions("foo")) := ...
  *       ^from                            ^p    ^to
@@ -2126,11 +2143,5 @@ Parser::annotations_t Parser::readAnnotation(ParsingContext & ctxt,int from,int 
 	return annotations;
 }
 
-
-void Parser::throwError(ParsingContext & ctxt,const std::string & msg,Token * token)const{
-	ParserException * e = new ParserException(msg,token);
-	e->setFilename(ctxt.code.getFilename());
-	throw e;
-}
 
 }

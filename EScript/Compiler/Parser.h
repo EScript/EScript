@@ -55,15 +55,15 @@ class Parser {
 			AST::Block * rootBlock;
 			std::deque<AST::Block*> blocks; // used as a stack
 			CodeFragment code;
-			ParsingContext(Tokenizer::tokenList_t & _tokens,const CodeFragment & _code ) : tokens(_tokens),rootBlock(nullptr),code(_code){}
+			Logger& logger;
+			ParsingContext(Tokenizer::tokenList_t & _tokens,const CodeFragment & _code,Logger& _logger ) : 
+				tokens(_tokens),rootBlock(nullptr),code(_code),logger(_logger){}
 		};
 
 	private:
 
 		_CountedRef<Logger> logger;
-		void log(ParsingContext & ctxt,Logger::level_t messageLevel, const std::string & msg,const _CountedRef<Token> & token = nullptr)const;
 
-		Tokenizer tokenizer;
 		void pass_1(ParsingContext & ctxt);
 		void pass_2(ParsingContext & ctxt, Tokenizer::tokenList_t  & enrichedTokens)const;
 		EPtr<AST::ASTNode> createAssignmentExpr(ParsingContext & ctxt,const LValueInfo& lValue,AST::ASTNode* rightExpression,int currentLine,int cursor)const;
@@ -77,20 +77,12 @@ class Parser {
 		EPtr<AST::ASTNode> readFunctionDeclaration(ParsingContext & ctxt,int & cursor)const;
 		AST::UserFunctionExpr::parameterList_t readFunctionParameters(ParsingContext & ctxt,int & cursor)const;
 		std::vector<ERef<AST::ASTNode>> readExpressionsInBrackets(ParsingContext & ctxt,int & cursor)const;
-		std::vector<uint32_t> extractExpandingParameters(std::vector<ERef<AST::ASTNode>> & paramExprs)const;
 
 		typedef std::vector<std::pair<StringId,int> > annotations_t; //  (property's id, position of option bracket or -1)*
 		annotations_t readAnnotation(ParsingContext & ctxt,int from,int to)const;
 
 		LValueInfo getLValue(ParsingContext & ctxt,int from,int to)const;
 		int findExpression(ParsingContext & ctxt,int cursor)const;
-
-		void throwError(ParsingContext & ctxt,const std::string & msg,Token * token = nullptr)const;
-		void throwError(ParsingContext & ctxt,const std::string & msg,const _CountedRef<Token> & token)const	{	throwError(ctxt,msg,token.get());	}
-
-		void assertTokenIsStatemetEnding(ParsingContext &,Token*)const;
-
-		void warnOnShadowedLocalVars(ParsingContext & ctxt,TStartBlock * tBlock)const;
 
 };
 }
