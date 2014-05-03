@@ -1,9 +1,34 @@
 --------------------------------------------
+EScript 0.7.1 Elfriede (Development version)
+Development: 2014-4
+
+General:
+ - Named after Elfriede, the pedantic rabbit
+ - Language feature release.
+
+Language:
+ - Binder-type introduced (replaces the old Delegate-type)
+   Example (bind three parameters): 	[1,2,3] => fn(a,b,c,d){}; 
+   Example (bind this object): 			someObj -> fn(){}; 
+   Example (bind parameters and object): [1]=>someObj -> fn(a){}; 
+ - Static variables can be injected into parsed code (load, loadOnce, and eval)
+	eval( "out(a);",{$a:"someStaticValue"} );
+ - Add multi assignments: [ #(multipleLValues) ] = #(exprssion returning an Array)
+	Example: [var a, someArray[2] ] = ["foo","bar"]
+
+Internals:
+ - Some code cleanups.
+
+Std-Lib:
+ - Allow loading modules with relative module paths, using injected "require"-functions.
+	
+ 
+--------------------------------------------
 EScript 0.7.0 Eli (Stable)
 Development: 2013-12
 
 General:
- - Named after Eli the elephantine rabbit
+ - Named after Eli, the elephantine rabbit
  
 --------------------------------------------
 EScript 0.6.7 Elise (Development version)
@@ -64,10 +89,11 @@ C++-Api:
   - ObjRef.toType<targetType> renamed to ObjRef.castTo<targetType> (toType temporarily remains for backward compatibility)
  
 Libs:
+ - Scripted, module base, Std-Library introduced.
  IOLib: 
   - IO.filePutContents -> IO.saveTextFile
   - IO.fileGetContents -> IO.loadTextFile
- 
+
 --------------------------------------------
 EScript 0.6.6 Eduard (Stable version)
 Release: 2013-02-10
