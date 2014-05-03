@@ -20,10 +20,12 @@
 #include "AST/LoopStatement.h"
 #include "AST/SwitchCaseStatement.h"
 #include "AST/TryCatchStatement.h"
+#include "AST/UserFunctionExpr.h"
 #include "AST/ValueExpr.h"
 #include "../Consts.h"
 
 #include "../Utils/IO/IO.h"
+#include "../Objects/Callables/UserFunction.h"
 
 #include <stdio.h>
 #include <stack>
@@ -35,8 +37,126 @@ using namespace AST;
 // -------------------------------------------------------------------------------------------------------------------
 // helper
 
+struct LValueInfo{
+	EPtr<AST::ASTNode> objExpression;
+	StringId variableName;
+	EPtr<AST::ASTNode> indexExpression;
+	std::vector<LValueInfo> lValueArray;
+	enum type_t{
+		MEMBER_OR_VARIABLE,	// a.b, a 
+		COLLECTION_SETTER, // a.b[4]
+		ARRAY_OF_LVALUES, // [a, b[1], c.d ]
+		INVALID
+	}type;
+};
+
+//! (internal)
+struct ParsingContext{
+	Tokenizer::tokenList_t & tokens;
+	AST::Block * rootBlock;
+	std::deque<AST::Block*> blocks; // used as a stack
+	CodeFragment code;
+	Logger& logger;
+	ParsingContext(Tokenizer::tokenList_t & _tokens,const CodeFragment & _code,Logger& _logger ) : 
+		tokens(_tokens),rootBlock(nullptr),code(_code),logger(_logger){}
+};
+
+//---------------------------------------------------------------
+// logging and error handling
+
+static void throwError(ParsingContext & ctxt,const std::string & msg,Token * token=nullptr){
+	//! [ParserException] ---|> [Exception] ---|> [Object]
+	class ParserException:public Exception {
+		ES_PROVIDES_TYPE_NAME(ParserException)
+
+		public:
+			explicit ParserException(const std::string  & _msg,Token * token = nullptr):
+				Exception(_msg,  (token==nullptr? -1 : token->getLine())) {
+			}
+			explicit ParserException(const std::string  & _msg,const _CountedRef<Token> & token):
+				Exception(_msg,  (token.isNull() ? -1 : token->getLine())) {
+			}
+	};
+
+	ParserException * e = new ParserException(msg,token);
+	e->setFilename(ctxt.code.getFilename());
+	throw e;
+}
+
+static void throwError(ParsingContext & ctxt,const std::string & msg,const _CountedRef<Token> & token){
+	throwError(ctxt,msg,token.get());
+}
+
+static void log(ParsingContext & ctxt,Logger::level_t messageLevel, const std::string & msg,const _CountedRef<Token> & token){
+	std::ostringstream os;
+	os << "[Parser] " << msg << " (" << ctxt.code.getFilename();
+	if(token!=nullptr)
+		os << ':' << token->getLine();
+	os << ").";
+	ctxt.logger.log(messageLevel,os.str());
+}
+
+static void assertTokenIsStatemetEnding(ParsingContext& ctxt,Token* token){
+	/// Commands have to end on ";" or "}".
+	if(!(Token::isA<TEndCommand>(token) || Token::isA<TEndBlock>(token))) {
+		log(ctxt,Logger::LOG_DEBUG, token->toString(),token);
+		throwError(ctxt,"Syntax error in Block (Missing ';' ?).",token);
+	}
+}
+
+/*! Check for shadowed local variables.
+	Used when reading blocks by readBlockExpression or when reading
+	a case block.
+	\note The issued warning has LOG_PEDANTIC_WARNING level.*/
+static void warnOnShadowedLocalVars(ParsingContext & ctxt,TStartBlock * tBlock){
+	if(ctxt.blocks.empty())
+		return;
+	auto block = tBlock->getBlock();
+	const auto & vars = block->getVars();
+	if(vars.empty())
+		return;
+	for(int i = ctxt.blocks.size()-1; i>=0 && ctxt.blocks[i]!=nullptr; --i ){
+		const declaredVariableMap_t & vars2 = ctxt.blocks[i]->getVars();
+		if(vars2.empty())
+			continue;
+		for(const auto & var : vars) {
+			if(vars2.count(var.first) > 0) {
+				log(ctxt, Logger::LOG_PEDANTIC_WARNING, "Shadowed variable  '" + var.first.toString() + "' in block.", tBlock);
+			}
+		}
+	}
+}
+
+// ----------------------------------------
+// search functions
+
+/*! collect the indices of expanding parameters f(0,arr...,2,3)
+	The ... operator is thereby removed.  (ugly side effect)
+*/
+static std::vector<uint32_t> extractExpandingParameters(std::vector<ERef<AST::ASTNode>> & paramExps){
+	static const StringId multiParamOp("..._post");
+
+	std::vector<uint32_t> expandingParameters;
+	int i=0;
+	for(auto & pExp : paramExps){
+		++i;
+		if(pExp.isNull() || pExp->getNodeType() != ASTNode::TYPE_FUNCTION_CALL_EXPRESSION)
+			continue;
+		ASTNode::ptr_t gfe = static_cast<FunctionCallExpr*>(pExp.get())->getGetFunctionExpression();
+		if(gfe.isNull() || gfe->getNodeType() != ASTNode::TYPE_GET_ATTRIBUTE_EXPRESSION)
+			continue;
+		GetAttributeExpr* gae = static_cast<GetAttributeExpr*>(gfe.get());
+		if( gae->getAttrId()!=multiParamOp )
+			continue;
+		pExp = gae->getObjectExpression();
+		expandingParameters.push_back(i-1);
+	}
+	return expandingParameters;
+}
+
+
 template<class BracketStart,class BracketEnd>
-int findCorrespondingBracket(const Parser::ParsingContext & ctxt,int from,int to=-1,int direction = 1){
+int findCorrespondingBracket(const ParsingContext & ctxt,int from,int to=-1,int direction = 1){
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	if(!Token::isA<BracketStart>(tokens.at(from))){
 		std::cerr << "Unkwown error in brackets (should not happen!)\n";
@@ -60,136 +180,164 @@ int findCorrespondingBracket(const Parser::ParsingContext & ctxt,int from,int to
 }
 
 
-struct LValueInfo{
-	EPtr<AST::ASTNode> objExpression;
-	StringId variableName;
-	EPtr<AST::ASTNode> indexExpression;
-	std::vector<LValueInfo> lValueArray;
-	enum type_t{
-		MEMBER_OR_VARIABLE,	// a.b, a 
-		COLLECTION_SETTER, // a.b[4]
-		ARRAY_OF_LVALUES, // [a, b[1], c.d ]
-		INVALID
-	}type;
-};
-//---------------------------------------------------------------
-// logging and error handling
+/**
+ * int findExpression(ctxt, cursor)
+ *
+ * Returns the ending Position of the next Expression, starting at cursor.
+ *
+ */
+static int findExpression(ParsingContext & ctxt,int cursor) {
+	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
+	if(Token::isA<TEndScript>(tokens.at(cursor)))
+		return 0;
 
-static void throwError(Parser::ParsingContext & ctxt,const std::string & msg,Token * token=nullptr){
-	Parser::ParserException * e = new Parser::ParserException(msg,token);
-	e->setFilename(ctxt.code.getFilename());
-	throw e;
-}
+	int level = 0;
+	int to = cursor-1;
+	int lastIdentifier=-10;
+	int cond = 0; // number of open conditionals '?'
 
-static void throwError(Parser::ParsingContext & ctxt,const std::string & msg,const _CountedRef<Token> & token){
-	throwError(ctxt,msg,token.get());
-}
+	Token * t = nullptr;
+	while(true) {
+		++to;
+		t = tokens.at(to).get();
 
-static void log(Parser::ParsingContext & ctxt,Logger::level_t messageLevel, const std::string & msg,const _CountedRef<Token> & token){
-	std::ostringstream os;
-	os << "[Parser] " << msg << " (" << ctxt.code.getFilename();
-	if(token!=nullptr)
-		os << ':' << token->getLine();
-	os << ").";
-	ctxt.logger.log(messageLevel,os.str());
-}
+		switch(t->getType()){
+			case TStartBracket::TYPE_ID:{
+				TStartBracket * sb = Token::cast<TStartBracket>(t);
+				if(sb->endBracketIndex>1){
+					to = sb->endBracketIndex;
+				}else {
+					++level;
+				}
+				continue;
+			}
+			case TStartBlock::TYPE_ID:
+			case TStartMap::TYPE_ID:
+			case TStartIndex::TYPE_ID:{
+				++level;
+				continue;
+			}
+			case TEndBlock::TYPE_ID:
+			case TEndBracket::TYPE_ID:
+			case TEndMap::TYPE_ID:
+			case TEndIndex::TYPE_ID:{
+				level--;
 
-static void assertTokenIsStatemetEnding(Parser::ParsingContext& ctxt,Token* token){
-	/// Commands have to end on ";" or "}".
-	if(!(Token::isA<TEndCommand>(token) || Token::isA<TEndBlock>(token))) {
-		log(ctxt,Logger::LOG_DEBUG, token->toString(),token);
-		throwError(ctxt,"Syntax error in Block (Missing ';' ?).",token);
-	}
-}
+				if(level<0) {
+					to--;
+					return to;
+				}
+				continue;
+			}
+			case TEndScript::TYPE_ID:{
+				if(level==1)
+					return to;
 
-/*! Check for shadowed local variables.
-	Used when reading blocks by readBlockExpression or when reading
-	a case block.
-	\note The issued warning has LOG_PEDANTIC_WARNING level.*/
-static void warnOnShadowedLocalVars(Parser::ParsingContext & ctxt,TStartBlock * tBlock){
-	if(ctxt.blocks.empty())
-		return;
-	auto block = tBlock->getBlock();
-	const auto & vars = block->getVars();
-	if(vars.empty())
-		return;
-	for(int i = ctxt.blocks.size()-1; i>=0 && ctxt.blocks[i]!=nullptr; --i ){
-		const declaredVariableMap_t & vars2 = ctxt.blocks[i]->getVars();
-		if(vars2.empty())
+				throwError(ctxt,"Unexpected Ending.",tokens.at(cursor));
+			}
+//
+			default:{
+			}
+		}
+		if(level>0)
 			continue;
-		for(const auto & var : vars) {
-			if(vars2.count(var.first) > 0) {
-				log(ctxt, Logger::LOG_PEDANTIC_WARNING, "Shadowed variable  '" + var.first.toString() + "' in block.", tBlock);
+		switch(t->getType()){
+			case TControl::TYPE_ID: {
+				if(Token::cast<TControl>(t)->getId()==Consts::IDENTIFIER_as) {
+					to--;
+					return to;
+				}
+				throwError(ctxt,"Expressions cannot contain control statements.",t);
+			}
+			case TEndCommand::TYPE_ID:{
+				return to;
+			}
+			case TDelimiter::TYPE_ID:
+			case TMapDelimiter::TYPE_ID:
+			case TColon::TYPE_ID:{
+				if(cond==0){
+					--to;
+					return to;
+				}else{
+					--cond;
+					continue;
+				}
+			}
+			case TIdentifier::TYPE_ID:{
+				if(lastIdentifier==to-1){
+					to--;
+					return to;
+				}
+				lastIdentifier = to;
+				continue;
+			}
+			case TOperator::TYPE_ID:{
+				if(Token::cast<TOperator>(t)->toString()=="?")
+					++cond;
+				continue;
+			}
+			default:{
 			}
 		}
 	}
+	return to;
 }
+// ----------------------------------------------
 
-// ----------------------------------------
+typedef std::vector<std::pair<StringId,int> > annotations_t; //  (property's id, position of option bracket or -1)*
+//annotations_t readAnnotation(ParsingContext & ctxt,int from,int to)const;
 
-/*! collect the indices of expanding parameters f(0,arr...,2,3)
-	The ... operator is thereby removed. 
-*/
-static std::vector<uint32_t> extractExpandingParameters(std::vector<ERef<AST::ASTNode>> & paramExps){
-	static const StringId multiParamOp("..._post");
+/**
+ * A.m @(const,private,somthingWithOptions("foo")) := ...
+ *       ^from                            ^p    ^to
+ * ---> [ ($const,-1),($private,-1),($somthingWithOptions,p) ]
+ */
+static annotations_t getAnnotations(ParsingContext & ctxt,int from,int to){
+	annotations_t annotations;
+	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
+	for(int cursor = from;cursor<=to;++cursor){
+		Token * t = tokens.at(cursor).get();
+		const TIdentifier * tid = Token::cast<TIdentifier>(t);
+		if( tid==nullptr )
+			throwError(ctxt,"Identifier expected in annotation",t);
 
-	std::vector<uint32_t> expandingParameters;
-	int i=0;
-	for(auto & pExp : paramExps){
-		++i;
-		if(pExp.isNull() || pExp->getNodeType() != ASTNode::TYPE_FUNCTION_CALL_EXPRESSION)
-			continue;
-		ASTNode::ptr_t gfe = static_cast<FunctionCallExpr*>(pExp.get())->getGetFunctionExpression();
-		if(gfe.isNull() || gfe->getNodeType() != ASTNode::TYPE_GET_ATTRIBUTE_EXPRESSION)
-			continue;
-		GetAttributeExpr* gae = static_cast<GetAttributeExpr*>(gfe.get());
-		if( gae->getAttrId()!=multiParamOp )
-			continue;
-		pExp = gae->getObjectExpression();
-		expandingParameters.push_back(i-1);
+		int optionPos = -1;
+		++cursor;
+		if( Token::isA<TStartBracket>(tokens.at(cursor)) && cursor < to ){ // annotation has options 'annotation(exp1,exp2)'
+			optionPos = cursor;
+			cursor = findCorrespondingBracket<TStartBracket,TEndBracket>(ctxt,cursor,to); // skip expressions in brackets
+			if(cursor<0)
+				throwError(ctxt,"Unclosed option list in annotations",tokens.at(cursor));
+			++cursor; // skip ')'
+		}
+		if(cursor<=to && !Token::isA<TDelimiter>(tokens.at(cursor))){ // expect a delimiter or the end.
+			throwError(ctxt,"Syntax error in annotation.",tokens.at(cursor));
+		}
+		annotations.emplace_back( tid->getId(),optionPos);
 	}
-	return expandingParameters;
+	return annotations;
 }
+
+
 // -------------------------------------------------------------------------------------------------------------------
+// main reading functions
+static EPtr<AST::ASTNode> createAssignmentExpr(ParsingContext & ctxt,const LValueInfo& lValue,AST::ASTNode* rightExpression,int currentLine,int cursor);
+static EPtr<AST::ASTNode> readAnnotatedStatement(ParsingContext & ctxt,int & cursor);
+static EPtr<AST::ASTNode> readControl(ParsingContext & ctxt,int & cursor);
+static EPtr<AST::ASTNode> readStatement(ParsingContext & ctxt,int & cursor);
+static EPtr<AST::ASTNode> readExpression(ParsingContext & ctxt,int & cursor,int to=-1);
+static EPtr<AST::ASTNode> readBinaryExpression(ParsingContext & ctxt,int & cursor,int to);
+static AST::Block * readBlockExpression(ParsingContext & ctxt,int & cursor);
+static EPtr<AST::ASTNode> readMap(ParsingContext & ctxt,int & cursor);
+static EPtr<AST::ASTNode> readFunctionDeclaration(ParsingContext & ctxt,int & cursor);
+static AST::UserFunctionExpr::parameterList_t readFunctionParameters(ParsingContext & ctxt,int & cursor);
+static std::vector<ERef<AST::ASTNode>> readExpressionsInBrackets(ParsingContext & ctxt,int & cursor);
 
-//!	(ctor)
-Parser::Parser(Logger * _logger) :
-		logger(_logger ? _logger : new StdLogger(std::cout)) {
-	//ctor
-}
+static LValueInfo getLValue(ParsingContext & ctxt,int from,int to);
 
-ERef<AST::Block> Parser::parse(const CodeFragment & code) {
-	ERef<AST::Block> rootBlock = AST::Block::createBlockExpression();
-	Tokenizer tokenizer;
 
-	tokenizer.defineToken("__FILE__",new TValueString(code.getFilename()));
-	tokenizer.defineToken("__DIR__",new TValueString(IO::dirname(code.getFilename())));
-
-	Tokenizer::tokenList_t tokens;
-	ParsingContext ctxt(tokens,code,*logger.get());
-	ctxt.rootBlock = rootBlock.get();
-
-	/// 1. Tokenize
-	try {
-		tokenizer.getTokens(code.getCodeString(),tokens); //! \todo Use codeFragment for Tokenizer
-		pass_1(ctxt);
-	} catch (Exception * e) {
-		//std::cerr << e->toString() << std::endl;
-		throw;
-	}
-	/// 2. Parse definitions
-	{
-		Tokenizer::tokenList_t  enrichedTokens;
-		pass_2(ctxt,enrichedTokens);
-		tokens.swap(enrichedTokens);
-	}
-
-	/// 3. Parse expressions
-	int cursor = 0;
-	readStatement(ctxt,cursor);
-
-	return rootBlock;
-}
+static void pass_1(ParsingContext & ctxt);
+static void pass_2(ParsingContext & ctxt, Tokenizer::tokenList_t  & enrichedTokens);
 
 /**
  * Pass 1
@@ -198,7 +346,7 @@ ERef<AST::Block> Parser::parse(const CodeFragment & code) {
  * - disambiguate Map/Block
  * - colon ( Mapdelimiter / shortIf ?:)
  */
-void Parser::pass_1(ParsingContext & ctxt) {
+void pass_1(ParsingContext & ctxt) {
 	Tokenizer::tokenList_t & tokens = ctxt.tokens;
 
 
@@ -340,8 +488,8 @@ void Parser::pass_1(ParsingContext & ctxt) {
  * - TODO: Class declaration
  * ?????- TODO: Undefined scope for i: "{ var i;  do{ var i; }while(var i); }"
  */
-void Parser::pass_2(ParsingContext & ctxt,
-					Tokenizer::tokenList_t & enrichedTokens)const  {
+void pass_2(ParsingContext & ctxt,
+					Tokenizer::tokenList_t & enrichedTokens)  {
 
 	std::stack<Block *> blockStack;
 	blockStack.push(ctxt.rootBlock);
@@ -560,7 +708,7 @@ void Parser::pass_2(ParsingContext & ctxt,
 /*! read an expression
  * \note @p cursor is moved to @p to, or an exception is thrown.
  */
-EPtr<AST::ASTNode> Parser::readExpression(ParsingContext & ctxt,int & cursor,int to)const  {
+EPtr<AST::ASTNode> readExpression(ParsingContext & ctxt,int & cursor,int to){
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	if(cursor>=static_cast<int>(tokens.size())){
 		return nullptr;
@@ -673,14 +821,14 @@ EPtr<AST::ASTNode> Parser::readExpression(ParsingContext & ctxt,int & cursor,int
 }
 
 //! (internal)
-EPtr<AST::ASTNode> Parser::readAnnotatedStatement(ParsingContext & ctxt,int & cursor)const{
+EPtr<AST::ASTNode> readAnnotatedStatement(ParsingContext & ctxt,int & cursor){
 	++cursor;
 	const auto annotationStartBracket = ctxt.tokens.at(cursor);
 	if(!Token::isA<TStartBracket>(annotationStartBracket)){
 		throwError(ctxt,"Annotation expects brackets.",ctxt.tokens.at(cursor));
 	}
 	const int annotationTo = findCorrespondingBracket<TStartBracket,TEndBracket>(ctxt,cursor);
-	const auto annotations = readAnnotation(ctxt,cursor+1,annotationTo-1);
+	const auto annotations = getAnnotations(ctxt,cursor+1,annotationTo-1);
 
 	cursor = annotationTo+1;
 	ERef<AST::ASTNode> statement = readStatement(ctxt,cursor);
@@ -707,7 +855,7 @@ EPtr<AST::ASTNode> Parser::readAnnotatedStatement(ParsingContext & ctxt,int & cu
 }
 
 //! (internal)
-EPtr<AST::ASTNode> Parser::readStatement(ParsingContext & ctxt,int & cursor)const{
+EPtr<AST::ASTNode> readStatement(ParsingContext & ctxt,int & cursor){
 	const auto & token = ctxt.tokens.at(cursor);
 	if(Token::isA<TControl>(token)) {
 		return readControl(ctxt,cursor);
@@ -731,7 +879,7 @@ EPtr<AST::ASTNode> Parser::readStatement(ParsingContext & ctxt,int & cursor)cons
  * {out("foo");exit;}
  * \note throws a syntax error if no Block can be read.
  */
-Block * Parser::readBlockExpression(ParsingContext & ctxt,int & cursor)const {
+Block * readBlockExpression(ParsingContext & ctxt,int & cursor){
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	TStartBlock * tsb = Token::cast<TStartBlock>(tokens.at(cursor));
 	Block * b = tsb?reinterpret_cast<Block *>(tsb->getBlock()):nullptr;
@@ -762,7 +910,7 @@ Block * Parser::readBlockExpression(ParsingContext & ctxt,int & cursor)const {
 }
 
 //!	readMap
-EPtr<AST::ASTNode> Parser::readMap(ParsingContext & ctxt,int & cursor)const  {
+EPtr<AST::ASTNode> readMap(ParsingContext & ctxt,int & cursor){
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	if(!Token::isA<TStartMap>(tokens.at(cursor)))
 		throwError(ctxt,"No Map!",tokens.at(cursor));
@@ -824,7 +972,7 @@ EPtr<AST::ASTNode> Parser::readMap(ParsingContext & ctxt,int & cursor)const  {
 
 }
 
-EPtr<AST::ASTNode> Parser::createAssignmentExpr(ParsingContext & ctxt,const LValueInfo& lValue,AST::ASTNode* rightExpression,int currentLine,int cursor)const{
+EPtr<AST::ASTNode> createAssignmentExpr(ParsingContext & ctxt,const LValueInfo& lValue,AST::ASTNode* rightExpression,int currentLine,int cursor){
 	/// a = 2 => _.[a] = 2
 	if( lValue.type == LValueInfo::MEMBER_OR_VARIABLE ) {
 		return SetAttributeExpr::createAssignment(lValue.objExpression,
@@ -883,7 +1031,7 @@ EPtr<AST::ASTNode> Parser::createAssignmentExpr(ParsingContext & ctxt,const LVal
 	\note If the syntax is correct, @p cursor equals @p to after returning.
 			readExpression issues an SyntaxError otherwise.
 */
-EPtr<AST::ASTNode> Parser::readBinaryExpression(ParsingContext & ctxt,int & cursor,int to)const  {
+EPtr<AST::ASTNode> readBinaryExpression(ParsingContext & ctxt,int & cursor,int to){
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	int currentLine = tokens.at(cursor).isNull() ? -1 : tokens.at(cursor)->getLine();
 
@@ -951,7 +1099,7 @@ EPtr<AST::ASTNode> Parser::readBinaryExpression(ParsingContext & ctxt,int & curs
 			int annotationStart = findCorrespondingBracket<TEndBracket,TStartBracket>(ctxt,leftExprTo,leftExprFrom,-1);
 			TOperator * atOp = Token::cast<TOperator>(tokens.at(annotationStart-1));
 			if(annotationStart>0 && atOp!=nullptr && atOp->toString()=="@"){
-				const auto annotations = readAnnotation(ctxt,annotationStart+1,leftExprTo-1);
+				const auto annotations = getAnnotations(ctxt,annotationStart+1,leftExprTo-1);
 				leftExprTo = annotationStart-2;
 
 				for(const auto & annotation : annotations) {
@@ -1224,7 +1372,7 @@ EPtr<AST::ASTNode> Parser::readBinaryExpression(ParsingContext & ctxt,int & curs
 			fn( (params*).(constrExpr) {...} )
 			fn( (params*)@(super()) {...} )
 	*/
-EPtr<AST::ASTNode> Parser::readFunctionDeclaration(ParsingContext & ctxt,int & cursor)const{
+EPtr<AST::ASTNode> readFunctionDeclaration(ParsingContext & ctxt,int & cursor){
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	Token * t = tokens.at(cursor).get();
 
@@ -1257,7 +1405,7 @@ EPtr<AST::ASTNode> Parser::readFunctionDeclaration(ParsingContext & ctxt,int & c
 		}
 		const int annotationTo = findCorrespondingBracket<TStartBracket,TEndBracket>(ctxt,cursor);
 
-		const auto annotations = readAnnotation(ctxt,cursor+1,annotationTo-1);
+		const auto annotations = getAnnotations(ctxt,cursor+1,annotationTo-1);
 		for(const auto & annotation : annotations) {
 			const StringId & name = annotation.first;
 			int parameterPos = annotation.second;
@@ -1307,7 +1455,7 @@ EPtr<AST::ASTNode> Parser::readFunctionDeclaration(ParsingContext & ctxt,int & c
  * @return Control-statement or an
  * \note throws an exception if no Control-Statement could be read.
  */
-EPtr<AST::ASTNode> Parser::readControl(ParsingContext & ctxt,int & cursor)const  {
+EPtr<AST::ASTNode> readControl(ParsingContext & ctxt,int & cursor){
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	TControl * tc = Token::cast<TControl>(tokens.at(cursor));
 	if(!tc)
@@ -1755,7 +1903,7 @@ EPtr<AST::ASTNode> Parser::readControl(ParsingContext & ctxt,int & cursor)const 
 	}
 }
 
-LValueInfo Parser::getLValue(ParsingContext & ctxt,int from,int to)const  {
+LValueInfo getLValue(ParsingContext & ctxt,int from,int to){
 	LValueInfo lValue;
 	
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
@@ -1836,112 +1984,10 @@ LValueInfo Parser::getLValue(ParsingContext & ctxt,int from,int to)const  {
 
 
 /**
- * int findExpression(ctxt, cursor)
- *
- * Returns the ending Position of the next Expression, starting at cursor.
- *
- */
-int Parser::findExpression(ParsingContext & ctxt,int cursor)const {
-	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
-	if(Token::isA<TEndScript>(tokens.at(cursor)))
-		return 0;
-
-	int level = 0;
-	int to = cursor-1;
-	int lastIdentifier=-10;
-	int cond = 0; // number of open conditionals '?'
-
-	Token * t = nullptr;
-	while(true) {
-		++to;
-		t = tokens.at(to).get();
-
-		switch(t->getType()){
-			case TStartBracket::TYPE_ID:{
-				TStartBracket * sb = Token::cast<TStartBracket>(t);
-				if(sb->endBracketIndex>1){
-					to = sb->endBracketIndex;
-				}else {
-					++level;
-				}
-				continue;
-			}
-			case TStartBlock::TYPE_ID:
-			case TStartMap::TYPE_ID:
-			case TStartIndex::TYPE_ID:{
-				++level;
-				continue;
-			}
-			case TEndBlock::TYPE_ID:
-			case TEndBracket::TYPE_ID:
-			case TEndMap::TYPE_ID:
-			case TEndIndex::TYPE_ID:{
-				level--;
-
-				if(level<0) {
-					to--;
-					return to;
-				}
-				continue;
-			}
-			case TEndScript::TYPE_ID:{
-				if(level==1)
-					return to;
-
-				throwError(ctxt,"Unexpected Ending.",tokens.at(cursor));
-			}
-//
-			default:{
-			}
-		}
-		if(level>0)
-			continue;
-		switch(t->getType()){
-			case TControl::TYPE_ID: {
-				if(Token::cast<TControl>(t)->getId()==Consts::IDENTIFIER_as) {
-					to--;
-					return to;
-				}
-				throwError(ctxt,"Expressions cannot contain control statements.",t);
-			}
-			case TEndCommand::TYPE_ID:{
-				return to;
-			}
-			case TDelimiter::TYPE_ID:
-			case TMapDelimiter::TYPE_ID:
-			case TColon::TYPE_ID:{
-				if(cond==0){
-					--to;
-					return to;
-				}else{
-					--cond;
-					continue;
-				}
-			}
-			case TIdentifier::TYPE_ID:{
-				if(lastIdentifier==to-1){
-					to--;
-					return to;
-				}
-				lastIdentifier = to;
-				continue;
-			}
-			case TOperator::TYPE_ID:{
-				if(Token::cast<TOperator>(t)->toString()=="?")
-					++cond;
-				continue;
-			}
-			default:{
-			}
-		}
-	}
-	return to;
-}
-/**
  * e.g. (a, Number b, c = 2+3)
  * Cursor is moved after the Parameter-List.
  */
-UserFunctionExpr::parameterList_t Parser::readFunctionParameters(ParsingContext & ctxt,int & cursor)const  {
+UserFunctionExpr::parameterList_t readFunctionParameters(ParsingContext & ctxt,int & cursor){
 	UserFunctionExpr::parameterList_t params;
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	if(!Token::isA<TStartBracket>(tokens.at(cursor))) {
@@ -2086,7 +2132,7 @@ UserFunctionExpr::parameterList_t Parser::readFunctionParameters(ParsingContext 
 /*!	1,bla+2,(3*3)
 	Cursor is moved at closing bracket ')'
 */
-ASTNode::refArray_t Parser::readExpressionsInBrackets(ParsingContext & ctxt,int & cursor)const{
+ASTNode::refArray_t readExpressionsInBrackets(ParsingContext & ctxt,int & cursor){
 	ASTNode::refArray_t expressions;
 	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
 	Token * t = tokens.at(cursor).get();
@@ -2111,37 +2157,47 @@ ASTNode::refArray_t Parser::readExpressionsInBrackets(ParsingContext & ctxt,int 
 	}
 	return expressions;
 }
+// ---------------------------------
 
-/**
- * A.m @(const,private,somthingWithOptions("foo")) := ...
- *       ^from                            ^p    ^to
- * ---> [ ($const,-1),($private,-1),($somthingWithOptions,p) ]
- */
-Parser::annotations_t Parser::readAnnotation(ParsingContext & ctxt,int from,int to)const{
-	annotations_t annotations;
-	const Tokenizer::tokenList_t & tokens = ctxt.tokens;
-	for(int cursor = from;cursor<=to;++cursor){
-		Token * t = tokens.at(cursor).get();
-		const TIdentifier * tid = Token::cast<TIdentifier>(t);
-		if( tid==nullptr )
-			throwError(ctxt,"Identifier expected in annotation",t);
-
-		int optionPos = -1;
-		++cursor;
-		if( Token::isA<TStartBracket>(tokens.at(cursor)) && cursor < to ){ // annotation has options 'annotation(exp1,exp2)'
-			optionPos = cursor;
-			cursor = findCorrespondingBracket<TStartBracket,TEndBracket>(ctxt,cursor,to); // skip expressions in brackets
-			if(cursor<0)
-				throwError(ctxt,"Unclosed option list in annotations",tokens.at(cursor));
-			++cursor; // skip ')'
-		}
-		if(cursor<=to && !Token::isA<TDelimiter>(tokens.at(cursor))){ // expect a delimiter or the end.
-			throwError(ctxt,"Syntax error in annotation.",tokens.at(cursor));
-		}
-		annotations.emplace_back( tid->getId(),optionPos);
-	}
-	return annotations;
+//!	(ctor)
+Parser::Parser(Logger * _logger) :
+		logger(_logger ? _logger : new StdLogger(std::cout)) {
+	//ctor
 }
+
+ERef<AST::Block> Parser::parse(const CodeFragment & code) {
+	ERef<AST::Block> rootBlock = AST::Block::createBlockExpression();
+	Tokenizer tokenizer;
+
+	tokenizer.defineToken("__FILE__",new TValueString(code.getFilename()));
+	tokenizer.defineToken("__DIR__",new TValueString(IO::dirname(code.getFilename())));
+
+	Tokenizer::tokenList_t tokens;
+	ParsingContext ctxt(tokens,code,*logger.get());
+	ctxt.rootBlock = rootBlock.get();
+
+	/// 1. Tokenize
+	try {
+		tokenizer.getTokens(code.getCodeString(),tokens); //! \todo Use codeFragment for Tokenizer
+		pass_1(ctxt);
+	} catch (Exception * e) {
+		//std::cerr << e->toString() << std::endl;
+		throw;
+	}
+	/// 2. Parse definitions
+	{
+		Tokenizer::tokenList_t  enrichedTokens;
+		pass_2(ctxt,enrichedTokens);
+		tokens.swap(enrichedTokens);
+	}
+
+	/// 3. Parse expressions
+	int cursor = 0;
+	readStatement(ctxt,cursor);
+
+	return rootBlock;
+}
+
 
 
 }
