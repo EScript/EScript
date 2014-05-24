@@ -19,36 +19,17 @@
 **  OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-/*! This file includes the features needed by all other components of the Std-lib:
-	 - declareNamespace(...)
+/* Allow safe multiple referencing of the bootstrap mechanism 
+	\see _module.escript for details
 */
+static FILE_ID = __DIR__+"/"+__FILE__;
+if(!GLOBALS.isSet($__stdLibCache))
+	GLOBALS.__stdLibCache := new Map;
+var module = GLOBALS.__stdLibCache[FILE_ID];
+if(!module)
+	GLOBALS.__stdLibCache[FILE_ID] = module = load(__DIR__+"/_module.escript");
+////////////////////////////	module = GLOBALS.__stdLibCache[FILE_ID] = load(__DIR__+"/_module.escript");
 
- // ------------------------------------------
-
-/*!	Declare a (possibly nested) namespace, if it is not already declared.
-	\example
-		declareNamespace( $Foo,$SomeNamespace,$SomeOtherNamespace );
-		// makes sure that Foo.SomeNamespace.SomeOtherNamespace exists.
-*/
-var declareNamespace = fn( ids... ){
-	var currentNamespace = GLOBALS;
-	foreach(ids as var id){
-		if( !currentNamespace.isSet(id) ){
-			var ns = new Namespace;
-			ns._printableName @(override) := id;
-			currentNamespace.setAttribute(id,ns,EScript.ATTR_CONST_BIT);
-		}
-		currentNamespace = currentNamespace.getAttribute(id);
-	}
-	return currentNamespace;
-};
-
-declareNamespace($Std);
-Std.declareNamespace := declareNamespace;
-// ------------------------
-
-Std.ABSTRACT_METHOD @(const) := fn(...){	Runtime.exception("This method is not implemented.");	};
-
-return Std;
+return module;
 
 // ------------------------------------------

@@ -6,8 +6,6 @@
 // Licensed under the MIT License. See LICENSE file for details.
 // ---------------------------------------------------------------------------------
 
-loadOnce(__DIR__ + "/basics.escript");
-
 /*! The Std.generatorFn( fun ) function wraps the given @p function into an helper
 	object, which simplifies the handling of a yield-iterator returned by
 	the function. If the wrapped function yields, the yield-iterator is stored inside
@@ -73,10 +71,10 @@ GeneratorFnWrapper.isActive ::= fn(){
 };
 
 //!	\see Std.Traits.CallableTrait
-onModule('./Traits/CallableTrait', fn( CallableTrait){
-	require('./Traits/basics').addTrait( GeneratorFnWrapper, CallableTrait );
+module.on('./Traits/CallableTrait', fn( CallableTrait){
+	module('./Traits/basics').addTrait( GeneratorFnWrapper, CallableTrait );
 });
 
 var generatorFn = fn(fun){	return new GeneratorFnWrapper(fun);	};
-Std.generatorFn := generatorFn;
+//Std.generatorFn := generatorFn;
 return generatorFn;

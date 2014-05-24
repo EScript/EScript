@@ -6,7 +6,7 @@
 // Licensed under the MIT License. See LICENSE file for details.
 // ---------------------------------------------------------------------------------
 
-var Traits = require('./basics');
+var Traits = module('./basics');
 
 /*! GenericTrait ---|> Trait
 	A GenericTrait offers:
@@ -22,7 +22,7 @@ Traits.GenericTrait := new Type(Traits.Trait);
 
 	T.attributes @(init,public,const) := fn(){	return new Type;	};
 	//! ---o
-	T.onInit @(init,public,const) := require('../MultiProcedure');
+	T.onInit @(init,public,const) := module('../MultiProcedure');
 
 	//! ---|> Trait
 	T.init @(const,override) ::= fn(obj,params...){

@@ -10,7 +10,7 @@
  * @param smaller the < function has to be given as parameter, all others are redirected to it.
  * @note this changes the behavior of == and != which no longer behave like === and !==
  */
-var GenericTrait = require('./GenericTrait');
+var GenericTrait = module('./GenericTrait');
 var t = new GenericTrait("Std.Traits.DefaultComparisonOperatorsTrait");
 
 t.attributes.'<'	::= fn(b){
@@ -30,6 +30,6 @@ t.onInit += fn(Type t,smaller){
 
 
 
-var Traits = require('./basics');
+var Traits = module('./basics');
 Traits.DefaultComparisonOperatorsTrait := t;
 return t;

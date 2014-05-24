@@ -6,7 +6,7 @@
 // Licensed under the MIT License. See LICENSE file for details.
 // ---------------------------------------------------------------------------------
 
-var Traits = require('./basics');
+var Traits = module('./basics');
 
 // ---------------------------
 

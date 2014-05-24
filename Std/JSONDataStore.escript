@@ -158,5 +158,4 @@ T._set ::= fn(key,value){
 	return value;
 };
 
-Std.JSONDataStore := T;
 return T;

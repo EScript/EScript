@@ -6,7 +6,7 @@
 // Licensed under the MIT License. See LICENSE file for details.
 // ---------------------------------------------------------------------------------
 
-var GenericTrait = require('Std/Traits/GenericTrait');
+var GenericTrait = module('Std/Traits/GenericTrait');
 
 /*! Changes a part of a the object's or type's name when converted to a string
 	\param name (String or Identifier)
@@ -25,7 +25,7 @@ t.onInit += fn(obj,[String,Identifier] typename){
 	}
 };
 
-var Traits = require('./basics');
+var Traits = module('./basics');
 Traits.PrintableNameTrait := t;
 
 return t;

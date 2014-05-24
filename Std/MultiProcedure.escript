@@ -67,11 +67,11 @@ T.filter ::= fn(fun){
 };
 
 //!	\see Std.Traits.CallableTrait
-onModule('./Traits/CallableTrait', fn(CallableTrait){
-	require('./Traits/basics').addTrait( T, CallableTrait );
+module.on('./Traits/CallableTrait', fn(CallableTrait){
+	module('./Traits/basics').addTrait( T, CallableTrait );
 });
 
-onModule('./ObjectSerialization', fn(ObjectSerialization){
+module.on('./ObjectSerialization', fn(ObjectSerialization){
 	ObjectSerialization.registerType(T,'Std.MultiProcedure')
 		.enableIdentityTracking()
 		.addDescriber(fn(ctxt,mFun,Map d){
@@ -86,5 +86,4 @@ onModule('./ObjectSerialization', fn(ObjectSerialization){
 		});
 });
 
-Std.MultiProcedure := T;
 return T;

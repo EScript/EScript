@@ -116,7 +116,7 @@ T."==" ::= fn(other){
 	return (other---|>(this.getType())) ? (data==other._accessData()) : false;
 };
 
-onModule('./ObjectSerialization', fn(ObjectSerialization){
+module.on('./ObjectSerialization', fn(ObjectSerialization){
 	ObjectSerialization.registerType(T,'Std.Set')
 		.addDescriber(fn(ctxt,obj,Map d){
 			d['entries'] = ctxt.createDescription( obj.toArray() );
@@ -130,5 +130,4 @@ onModule('./ObjectSerialization', fn(ObjectSerialization){
 		});
 });
 
-Std.Set := T;
 return T;

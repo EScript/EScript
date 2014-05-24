@@ -76,5 +76,4 @@ T.heapify @(private) ::= fn(i){
 	}
 };
 
-Std.PriorityQueue := T;
 return T;

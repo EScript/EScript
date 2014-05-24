@@ -7,14 +7,14 @@
 // Licensed under the MIT License. See LICENSE file for details.
 // ---------------------------------------------------------------------------------
 addSearchPath(__DIR__ + "/..");
-loadOnce("Std/basics.escript");
-Std.addModuleSearchPath(".");
+static module = load("Std/module.escript");
+module.addSearchPath(".");
 
 //Runtime.setLoggingLevel(Runtime.LOG_INFO);
 // ----------------------------------------------------------
 {
 	var ok = true;
-	var generatorFn = Std.require('Std/generatorFn');
+	var generatorFn = module('Std/generatorFn');
 	{
 		var f = generatorFn(fn( max ){
 			for(var i=0;i<max;++i){
@@ -47,7 +47,7 @@ Std.addModuleSearchPath(".");
 	test("Std.generatorFn", ok );
 }
 {
-	var MultiProcedure = Std.require('Std/MultiProcedure');
+	var MultiProcedure = module('Std/MultiProcedure');
 	var ok = true;
 
 	var p1 = new MultiProcedure;
@@ -105,11 +105,11 @@ Std.addModuleSearchPath(".");
 		ok &= result == [ "a" ];
 	}
 
-	test("Std.MultiProcedure", Std.MultiProcedure == MultiProcedure  && ok);
+	test("Std.MultiProcedure", ok);
 }
 // ----------------------------------------------------------
 {
-	var Set = Std.require('Std/Set');
+	var Set = module('Std/Set');
 
 	var ok = true;
 	var s1 = new Set([4,5,1,3,4]);
@@ -140,11 +140,11 @@ Std.addModuleSearchPath(".");
 	s7.swap(s8);
 	ok &= (s7.toArray() == ["2"] && s8.toArray() == ["1"]);
 
-	test("Std.Set",	Std.Set == Set  && ok );
+	test("Std.Set",	ok );
 }
 // ----------------------------------------------------------
 {
-	var PriorityQueue = Std.require('Std/PriorityQueue');
+	var PriorityQueue = module('Std/PriorityQueue');
 
 	var ok = true;
 	var q = new PriorityQueue;
@@ -189,14 +189,11 @@ Std.addModuleSearchPath(".");
 	q.clear();
 	ok &= q.empty();
 
-	test("Std.PriorityQueue",
-		Std.PriorityQueue == PriorityQueue  &&
-		ok &&
-		true );
+	test("Std.PriorityQueue", ok );
 }
 // ----------------------------------------------------------
 {
-	var DataWrapper = Std.require('Std/DataWrapper');
+	var DataWrapper = module('Std/DataWrapper');
 	var ok = true;
 	{
 
@@ -236,14 +233,14 @@ Std.addModuleSearchPath(".");
 		ok &= (obj["a"]=42 && a() == obj["a"]);
 	}
 
-	test("Std.DataWrapper",Std.DataWrapper == DataWrapper && ok);
+	test("Std.DataWrapper",ok);
 
 }
 // ----------------------------------------------------------
 
 {
-	var DataWrapperContainer = Std.require('Std/DataWrapperContainer');
-	var DataWrapper = Std.require('Std/DataWrapper');
+	var DataWrapperContainer = module('Std/DataWrapperContainer');
+	var DataWrapper = module('Std/DataWrapper');
 	var ok = true;
 
 	var result = [];
@@ -288,11 +285,11 @@ Std.addModuleSearchPath(".");
 	ok &= !container.containsKey("a");
 	ok &= container.count() == 0;
 
-	test("Std.DataWrapperContainer",Std.DataWrapperContainer == DataWrapperContainer && ok);
+	test("Std.DataWrapperContainer",ok);
 }
 // ----------------------------------------------------------
 {
-	var info = Std.require('Std/info');
+	var info = module('Std/info');
 	var ok = true;
 	var T = new Type;
 	T.foo := 4;
@@ -303,12 +300,12 @@ Std.addModuleSearchPath(".");
 	t.foo = 17;
 	ok &= info.get(t).contains("foo:17");
 	//info(t);
-	test("Std.info",Std.info == info && ok);
+	test("Std.info",ok);
 }
 // ----------------------------------------------------------
 
 {
-	var ObjectSerialization = Std.require('Std/ObjectSerialization');
+	var ObjectSerialization = module('Std/ObjectSerialization');
 	var ok = true;
 
 	var fun = fn(){return "foo";};
@@ -316,12 +313,12 @@ Std.addModuleSearchPath(".");
 	extObj.selfRef := extObj;
 	extObj.fun := fun;
 
-	var mFun = new (Std.require('Std/MultiProcedure'));
+	var mFun = new (module('Std/MultiProcedure'));
 	mFun += fn(arr){	arr+="foo"; };
 	mFun += fn(arr){	arr+="bar"; };
 
 
-	var set = new (Std.require('Std/Set'));
+	var set = new (module('Std/Set'));
 	set += 1;
 	set += 2;
 	set += 3;
@@ -399,15 +396,15 @@ Std.addModuleSearchPath(".");
 //		ok &=
 	}
 
-	test("Std.ObjectSerialization",Std.ObjectSerialization == ObjectSerialization && ok);
+	test("Std.ObjectSerialization",ok);
 }
 // ----------------------------------------------------------
 {
-	var JSONDataStore = Std.require('Std/JSONDataStore');
+	var JSONDataStore = module('Std/JSONDataStore');
 	var ok = true;
 	var value = [ true,1,void,"foo",[1,2], {"1":"bar"} ];
 	var filename = "./test_JSONDataStore.json";
-	var DataWrapper = Std.require('Std/DataWrapper');
+	var DataWrapper = module('Std/DataWrapper');
 	{
 		var dataStore = new JSONDataStore(true);
 
@@ -437,20 +434,20 @@ Std.addModuleSearchPath(".");
 		dataStore.clear();
 		dataStore.save();
 	}
-	test("Std.JSONDataStore",Std.JSONDataStore == JSONDataStore && ok);
+	test("Std.JSONDataStore",ok);
 }
 {	// traits
 	var ok = true;
 
-	var Traits = Std.require('Std/Traits/basics');
+	var Traits = module('Std/Traits/basics');
 	var T = new Type;
 	T.value := 0;
 	T._constructor ::= fn(v){	this.value = v; };
 
-	var PrintableNameTrait = Std.require('Std/Traits/PrintableNameTrait');
+	var PrintableNameTrait = module('Std/Traits/PrintableNameTrait');
 	Traits.addTrait( T, PrintableNameTrait, "MyType" );
 
-	var DefaultComparisonOperatorsTrait = Std.require('Std/Traits/DefaultComparisonOperatorsTrait');
+	var DefaultComparisonOperatorsTrait = module('Std/Traits/DefaultComparisonOperatorsTrait');
 	Traits.addTrait( T, DefaultComparisonOperatorsTrait, fn(other){	return this.value<other.value;	} );
 
 	var t = new T(1);
@@ -462,10 +459,10 @@ Std.addModuleSearchPath(".");
 	ok &= !Traits.queryLocalTrait( t, PrintableNameTrait );
 	ok &= Traits.queryLocalTrait( T, PrintableNameTrait );
 
-	var CallableTrait = Std.require('Std/Traits/CallableTrait');
+	var CallableTrait = module('Std/Traits/CallableTrait');
 	ok &= Traits.queryTrait(fn(){},CallableTrait);
 	ok &= Traits.queryTrait(1->fn(){},CallableTrait);
-	ok &= Traits.queryTrait(Std.require('Std/MultiProcedure'),CallableTrait);
+	ok &= Traits.queryTrait(module('Std/MultiProcedure'),CallableTrait);
 	ok &= !Traits.queryTrait(1,CallableTrait);
 
 	// DefaultComparisonOperatorsTrait
@@ -473,7 +470,7 @@ Std.addModuleSearchPath(".");
 	ok &= t2>t && t<t2 && t==t && t2>=t && t<=t2 && t<=t && t2>=t2;
 
 	{ // removable traits
-		var removableTrait = new (Std.require('Std/Traits/GenericTrait'))("Tests/RemovableTrait");
+		var removableTrait = new (module('Std/Traits/GenericTrait'))("Tests/RemovableTrait");
 		removableTrait.attributes.member1 := 42;
 		ok &= !removableTrait.getRemovalAllowed();
 		removableTrait.allowRemoval();
@@ -491,9 +488,5 @@ Std.addModuleSearchPath(".");
 		ok &= !Traits.queryTrait(object,removableTrait);
 		ok &= !object.member1;
 	}
-	test("Std.Traits", ok &&
-		Std.Traits == Traits &&
-		Std.Traits.CallableTrait == CallableTrait &&
-		Std.Traits.DefaultComparisonOperatorsTrait == DefaultComparisonOperatorsTrait &&
-		Std.Traits.PrintableNameTrait == PrintableNameTrait);
+	test("Std.Traits", ok);
 }

@@ -16,7 +16,6 @@ var DataWrapper = new Type;
 		A DataWrapper provides an unified interface, independently from the real location of the value.
 	*/
 	static T = DataWrapper;
-	Std.DataWrapper := T;
 	T._printableName @(override) ::= $DataWrapper;
 
 	T.value @(private) := void;
@@ -45,7 +44,7 @@ var DataWrapper = new Type;
 		\code
 			myDataWrapper += fn(newData){	out("The value is now:",newData); };
 	*/
-	T.onDataChanged @(init) := require('./MultiProcedure');
+	T.onDataChanged @(init) := module('./MultiProcedure');
 
 	/*! Refresh the internal data from the dataWrapper's data source. If the data has changed,
 		onDataChanged(newData) is called. This function has only to be called  manually if the connected data may change externally.*/
@@ -82,8 +81,8 @@ var DataWrapper = new Type;
 	T._call ::= fn(obj,params...){
 		return params.empty() ? this.get() : this.set(params...);
 	};
-	onModule('./Traits/CallableTrait', fn(CallableTrait){
-		require('./Traits/basics').addTrait( T, CallableTrait );
+	module.on('./Traits/CallableTrait', fn(CallableTrait){
+		module('./Traits/basics').addTrait( T, CallableTrait );
 	});
 }
 // ------------------------------------------

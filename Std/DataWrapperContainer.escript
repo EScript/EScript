@@ -10,14 +10,14 @@
 // DataWrapperContainer
 
 var T = new Type;
-static DataWrapper = require('./DataWrapper');
+static DataWrapper = module('./DataWrapper');
 
 T._printableName @(override) ::= $DataWrapperContainer;
 
 T.dataWrappers @(init,private) := Map;
 
 //! ---o
-T.onDataChanged @(init) := require('./MultiProcedure');
+T.onDataChanged @(init) := module('./MultiProcedure');
 
 /*! (ctor) */
 T._constructor ::= fn([void,Map] source=void){
@@ -136,6 +136,4 @@ T.getIterator ::= fn(){
 	return it;
 
 };
-
-Std.DataWrapperContainer := T;
 return T;

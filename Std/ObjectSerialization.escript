@@ -296,8 +296,8 @@ static defaultRegistry;
 		return obj;
 	};
 
-	T.doDescribeObject @(private,init) := require('./MultiProcedure');
-	T.doInitializeObject @(private,init) := require('./MultiProcedure');
+	T.doDescribeObject @(private,init) := module('./MultiProcedure');
+	T.doInitializeObject @(private,init) := module('./MultiProcedure');
 
 	/*! Use IdentityTracking to identify Objects that are referenced multiple times
 		in one serialization process.	*/
@@ -467,7 +467,6 @@ defaultRegistry.registerType(UserFunction,"UserFunction")
 
 // -------------------------------------------------------------------------------
 var ObjectSerialization = new Namespace;
-Std.ObjectSerialization := ObjectSerialization;
 ObjectSerialization.Context := Context;
 ObjectSerialization.TypeRegistry := TypeRegistry;
 ObjectSerialization.defaultRegistry := defaultRegistry;
