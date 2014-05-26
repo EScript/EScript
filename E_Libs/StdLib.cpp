@@ -12,7 +12,6 @@
 #include "../EScript/StdObjects.h"
 #include "../EScript/Objects/Callables/UserFunction.h"
 #include "../EScript/Compiler/Compiler.h"
-#include "../EScript/Compiler/Parser.h"
 #include "../EScript/Utils/IO/IO.h"
 #include "../EScript/Utils/StringUtils.h"
 #include "../EScript/Consts.h"
