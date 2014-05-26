@@ -25,7 +25,7 @@ class Namespace : public ExtObject {
 		virtual ~Namespace()						{	}
 
 		//! ---|> [Object]
-		virtual Namespace * clone() const;
+		Namespace * clone() const override;
 };
 
 }

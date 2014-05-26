@@ -144,11 +144,11 @@ class Array : public Collection {
 				virtual ~ArrayIterator();
 
 				//! ---|> [Object]
-				virtual Object * key();
-				virtual Object * value();
-				virtual void reset();
-				virtual void next();
-				virtual bool end();
+				Object * key() override;
+				Object * value() override;
+				void reset() override;
+				void next() override;
+				bool end() override;
 
 				//! ---|> [Object]
 			private:
@@ -156,19 +156,19 @@ class Array : public Collection {
 				size_t index;
 		};
 
-		virtual Object * getValue(ObjPtr key);
-		virtual void setValue(ObjPtr key,ObjPtr value);
-		virtual size_t count()const;
-		virtual ArrayIterator * getIterator();
-		virtual void clear();
+		Object * getValue(ObjPtr key) override;
+		void setValue(ObjPtr key,ObjPtr value) override;
+		size_t count()const override;
+		ArrayIterator * getIterator() override;
+		void clear() override;
 	//	@}
 
 	//---------------------
 
 	//! @name ---|> Object
 	// @{
-		virtual Object * clone()const;
-		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_ARRAY;	}
+		Object * clone()const override;
+		internalTypeId_t _getInternalTypeId()const override	{	return _TypeIds::TYPE_ARRAY;	}
 	//	@}
 
 	//---------------------

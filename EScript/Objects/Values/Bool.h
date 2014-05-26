@@ -35,12 +35,12 @@ class Bool : public Object {
 		bool operator*()const								{	return value;	}
 
 		//! ---|> [Object]
-		virtual Object * clone()const						{	return create(value);	}
-		virtual std::string toString()const					{	return value?"true":"false";	}
-		virtual bool toBool()const							{	return value;	}
-		virtual double toDouble()const						{	return value?1:0;	}
-		virtual bool rt_isEqual(Runtime &,const ObjPtr & o)	{	return value==o.toBool(false);	}
-		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_BOOL;	}
+		Object * clone()const override						{	return create(value);	}
+		std::string toString()const override					{	return value?"true":"false";	}
+		bool toBool()const override							{	return value;	}
+		double toDouble()const override						{	return value?1:0;	}
+		bool rt_isEqual(Runtime &,const ObjPtr & o) override	{	return value==o.toBool(false);	}
+		internalTypeId_t _getInternalTypeId()const override	{	return _TypeIds::TYPE_BOOL;	}
 
 	private:
 		bool value;

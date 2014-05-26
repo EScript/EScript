@@ -38,7 +38,7 @@ class ExtObject : public Object {
 		virtual ~ExtObject()	{ }
 
 		//! ---|> [Object]
-		virtual Object * clone() const;
+		Object * clone() const override;
 	//	@}
 
 	// -----
@@ -51,16 +51,16 @@ class ExtObject : public Object {
 		using Object::setAttribute;
 
 		//! ---|> [Object]
-		virtual Attribute * _accessAttribute(const StringId & id,bool localOnly);
+		Attribute * _accessAttribute(const StringId & id,bool localOnly) override;
 
 		//! ---|> [Object]
-		virtual void _initAttributes(Runtime & rt);
+		void _initAttributes(Runtime & rt) override;
 
 		//! ---|> [Object]
-		virtual bool setAttribute(const StringId & id,const Attribute & attr);
+		bool setAttribute(const StringId & id,const Attribute & attr) override;
 
 		//! ---|> [Object]
-		virtual void collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs);
+		void collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs) override;
 
 		void cloneAttributesFrom(const ExtObject * obj);
 	private:

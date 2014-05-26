@@ -247,7 +247,7 @@ void Runtime::setTreatWarningsAsError(bool b){
 		//! ThrowLogger ---|> Logger
 		class ThrowLogger : public Logger{
 			Runtime & rt;
-			virtual void doLog(level_t,const std::string & message){	rt.setException(message);	}
+			void doLog(level_t,const std::string & message) override{	rt.setException(message);	}
 		public:
 			ThrowLogger(Runtime & _rt) : Logger(LOG_PEDANTIC_WARNING,LOG_WARNING), rt(_rt){}
 		};
@@ -297,7 +297,7 @@ std::string Runtime::getLocalStackInfo(){
 //! CountingLogger ---|> Logger
 class CountingLogger : public Logger{
 	std::map<level_t,uint32_t> counter;
-	virtual void doLog(level_t l,const std::string & ){	++counter[l];	}
+	void doLog(level_t l,const std::string & ) override{	++counter[l];	}
 public:
 	CountingLogger() : Logger(LOG_ALL,LOG_NONE){}
 	~CountingLogger() {}

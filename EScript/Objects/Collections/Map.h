@@ -124,21 +124,21 @@ class Map : public Collection {
 				virtual ~MapIterator() { }
 
 				//! ---|> [Iterator]
-				virtual Object * key();
-				virtual Object * value();
-				virtual void reset();
-				virtual void next();
-				virtual bool end();
+				Object * key() override;
+				Object * value() override;
+				void reset() override;
+				void next() override;
+				bool end() override;
 
 			private:
 				ERef<Map> mapRef;
 				container_t::iterator it;
 		};
-		virtual void clear();
-		virtual size_t count()const;
-		virtual MapIterator * getIterator();
-		virtual Object * getValue(ObjPtr key);
-		virtual void setValue(ObjPtr key,ObjPtr value);
+		void clear() override;
+		size_t count()const override;
+		MapIterator * getIterator() override;
+		Object * getValue(ObjPtr key) override;
+		void setValue(ObjPtr key,ObjPtr value) override;
 	//	@}
 
 	//---------------------

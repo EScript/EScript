@@ -39,8 +39,8 @@ class Type : public Object {
 		virtual ~Type();
 
 		//! ---|> [Object]
-		virtual Object * clone() const;
-		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_TYPE;	}
+		Object * clone() const override;
+		internalTypeId_t _getInternalTypeId()const override	{	return _TypeIds::TYPE_TYPE;	}
 	//	@}
 
 	// -------------------------------------------------------------
@@ -66,13 +66,13 @@ class Type : public Object {
 		using Object::setAttribute;
 
 		//! ---|> [Object]
-		virtual Attribute * _accessAttribute(const StringId & id,bool localOnly);
+		Attribute * _accessAttribute(const StringId & id,bool localOnly) override;
 
 		//! ---|> [Object]
-		virtual bool setAttribute(const StringId & id,const Attribute & attr);
+		bool setAttribute(const StringId & id,const Attribute & attr) override;
 
 		//! ---|> [Object]
-		virtual void collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs);
+		void collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs) override;
 
 	private:
 		AttributeContainer attributes;

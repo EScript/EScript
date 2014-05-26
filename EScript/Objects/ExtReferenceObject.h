@@ -73,12 +73,12 @@ class ExtReferenceObject : public Object, private attributeProvider {
 
 		/*! ---|> [Object]
 			Direct cloning of a ExtReferenceObject is forbidden; but you may override the clone function in the specific implementation */
-		virtual ExtReferenceObject_t * clone()const {
+		ExtReferenceObject_t * clone()const override {
 			throwRuntimeException("Trying to clone unclonable object '"+this->toString()+"'");
 			return nullptr;
 		}
 		//! ---|> [Object]
-		virtual bool rt_isEqual(Runtime &,const ObjPtr & o)	{	return comparisonPolicy::isEqual(this,o);	}
+		bool rt_isEqual(Runtime &,const ObjPtr & o) override	{	return comparisonPolicy::isEqual(this,o);	}
 
 
 	// -----
@@ -106,14 +106,14 @@ class ExtReferenceObject : public Object, private attributeProvider {
 		using Object::setAttribute;
 
 		//! ---|> [Object]
-		virtual Attribute * _accessAttribute(const StringId & id,bool localOnly){
+		Attribute * _accessAttribute(const StringId & id,bool localOnly) override{
 			AttributeContainer * attrContainer = getAttributeContainer(this,false);
 			Attribute * attr = attrContainer!=nullptr ? attrContainer->accessAttribute(id) : nullptr;
 			return  ( attr!=nullptr || localOnly || getType()==nullptr) ? attr : getType()->findTypeAttribute(id);
 		}
 
 		//! ---|> [Object]
-		virtual void _initAttributes(Runtime & rt){
+		void _initAttributes(Runtime & rt) override{
 			// if the type contains obj attributes, this object will surely also have some, so it is safe to init the attribute container.
 			if(getType()!=nullptr && getType()->getFlag(Type::FLAG_CONTAINS_OBJ_ATTRS) ){
 				getAttributeContainer(this,true)->initAttributes(rt);
@@ -121,13 +121,13 @@ class ExtReferenceObject : public Object, private attributeProvider {
 		}
 
 		//! ---|> [Object]
-		virtual bool setAttribute(const StringId & id,const Attribute & attr){
+		bool setAttribute(const StringId & id,const Attribute & attr) override{
 			getAttributeContainer(this,true)->setAttribute(id,attr);
 			return true;
 		}
 
 		//! ---|> [Object]
-		virtual void collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs){
+		void collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs) override{
 			AttributeContainer * attrContainer = getAttributeContainer(this,false);
 			if(attrContainer!=nullptr)
 				attrContainer->collectAttributes(attrs);

@@ -34,10 +34,10 @@ class Delegate : public Object {
 		void setFunction(ObjPtr newFunction)	{	functionRef = newFunction;	}
 
 		//! ---|> [Object]
-		virtual Delegate * clone() const;
-		virtual bool rt_isEqual(Runtime &rt, const ObjPtr & o);
-		virtual std::string toDbgString()const;
-		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_DELEGATE;	}
+		Delegate * clone() const override;
+		bool rt_isEqual(Runtime &rt, const ObjPtr & o) override;
+		std::string toDbgString()const override;
+		internalTypeId_t _getInternalTypeId()const override	{	return _TypeIds::TYPE_DELEGATE;	}
 	private:
 		Delegate(ObjPtr object,ObjPtr function);
 

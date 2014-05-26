@@ -44,8 +44,8 @@ class Function : public Object {
 		void resetCallCounter()								{	callCounter = 0;	}
 
 		//! ---|> [Object]
-		virtual Object * clone()const						{	return new Function(fnptr);	}
-		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_FUNCTION;	}
+		Object * clone()const override						{	return new Function(fnptr);	}
+		internalTypeId_t _getInternalTypeId()const override	{	return _TypeIds::TYPE_FUNCTION;	}
 	private:
 		functionPtr fnptr;
 		int minParamCount,maxParamCount;

@@ -45,7 +45,7 @@ class Collection : public Object {
 
 
 		//! ---|> Object
-		virtual bool rt_isEqual(Runtime &runtime,const ObjPtr & other);
+		bool rt_isEqual(Runtime &runtime,const ObjPtr & other) override;
 };
 }
 

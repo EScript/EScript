@@ -83,9 +83,9 @@ class UserFunction : public ExtObject {
 		void setStaticData(_CountedRef<StaticData> && d)	{	staticData = d;	}
 
 		//! ---|> [Object]
-		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_USER_FUNCTION;	}
-		virtual UserFunction * clone()const					{	return new UserFunction(*this);	}
-		virtual std::string toDbgString()const;
+		internalTypeId_t _getInternalTypeId()const override	{	return _TypeIds::TYPE_USER_FUNCTION;	}
+		UserFunction * clone()const override				{	return new UserFunction(*this);	}
+		std::string toDbgString()const override;
 	private:
 		CodeFragment codeFragment;
 		int line;

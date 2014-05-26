@@ -39,8 +39,8 @@ class Exception : public ExtObject {
 		StringId getFilenameId()const					{	return filenameId;	}
 
 		//! ---|> [Object]
-		virtual Object * clone()const;
-		virtual std::string toString()const;
+		Object * clone()const override;
+		std::string toString()const override;
 
 	protected:
 		std::string msg;

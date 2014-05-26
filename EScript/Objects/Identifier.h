@@ -47,11 +47,11 @@ class Identifier:public Object{
 		StringId getId()const					{	return id;	}
 
 		//! ---|> [Object]
-		virtual Identifier * clone()const		{	return create(id);	}
-		virtual bool rt_isEqual(Runtime & rt,const ObjPtr & o);
-		virtual std::string toString()const		{	return id.toString();	}
-		virtual StringId hash()const			{	return id;	}
-		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_IDENTIFIER;	}
+		Identifier * clone()const override		{	return create(id);	}
+		bool rt_isEqual(Runtime & rt,const ObjPtr & o) override;
+		std::string toString()const override		{	return id.toString();	}
+		StringId hash()const override			{	return id;	}
+		internalTypeId_t _getInternalTypeId()const override	{	return _TypeIds::TYPE_IDENTIFIER;	}
 };
 //	@}
 

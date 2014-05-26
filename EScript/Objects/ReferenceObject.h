@@ -78,12 +78,12 @@ class ReferenceObject : public Object {
 
 		/*! ---|> [Object]
 			Direct cloning of a ReferenceObject is forbidden; but you may override the clone function in the specific implementation */
-		virtual ReferenceObject_t * clone()const {
+		ReferenceObject_t * clone()const override {
 			throwRuntimeException("Trying to clone unclonable object '"+this->toString()+"'");
 			return nullptr;
 		}
 		//! ---|> [Object]
-		virtual bool rt_isEqual(Runtime &,const ObjPtr & o)	{	return comparisonPolicy::isEqual(this,o);	}
+		bool rt_isEqual(Runtime &,const ObjPtr & o) override	{	return comparisonPolicy::isEqual(this,o);	}
 	private:
 		_T obj;
 };

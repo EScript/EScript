@@ -73,7 +73,7 @@ class LoggerGroup : public Logger {
 		Logger * getLogger(const std::string & name);
 	private:
 		//! ---|> Logger
-		virtual void doLog(level_t l,const std::string & msg);
+		void doLog(level_t l,const std::string & msg) override;
 		typedef std::map<std::string, _CountedRef<Logger> > loggerRegistry_t;
 		loggerRegistry_t loggerRegistry;
 };
@@ -89,7 +89,7 @@ class StdLogger : public Logger {
 		virtual ~StdLogger(){}
 	private:
 		//! ---|> Logger
-		virtual void doLog(level_t l,const std::string & msg);
+		void doLog(level_t l,const std::string & msg) override;
 		std::ostream & out;
 };
 

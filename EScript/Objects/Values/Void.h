@@ -20,11 +20,11 @@ class Void : public Type {
 		static Void * get();
 
 		//! ---|> [Object]
-		virtual Object * clone()const;
-		virtual bool toBool()const;
-		virtual bool rt_isEqual(Runtime & rt,const ObjPtr & o);
-		virtual std::string toString()const;
-		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_VOID;	}
+		Object * clone()const override;
+		bool toBool()const override;
+		bool rt_isEqual(Runtime & rt,const ObjPtr & o) override;
+		std::string toString()const override;
+		internalTypeId_t _getInternalTypeId()const override	{	return _TypeIds::TYPE_VOID;	}
 
 	protected:
 		virtual ~Void();

@@ -72,12 +72,12 @@ class Number : public Object {
 		void setValue(double _value)						{	value = _value;	}
 
 		//! ---|> [Object]
-		virtual Object * clone()const						{	return create(value);	}
+		Object * clone()const override						{	return create(value);	}
 
-		virtual std::string toString()const;
-		virtual double toDouble()const						{	return value;	}
-		virtual bool rt_isEqual(Runtime & rt,const ObjPtr & o);
-		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_NUMBER;	}
+		std::string toString()const override;
+		double toDouble()const override						{	return value;	}
+		bool rt_isEqual(Runtime & rt,const ObjPtr & o) override;
+		internalTypeId_t _getInternalTypeId()const override	{	return _TypeIds::TYPE_NUMBER;	}
 
 	private:
 		double value;

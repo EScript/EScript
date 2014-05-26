@@ -50,13 +50,13 @@ class String : public Object {
 		void setString(const StringData & _sData)	{	sData.set(_sData);	}
 
 		//! ---|> [Object]
-		virtual Object * clone()const				{	return create(sData);	}
-		virtual std::string toString()const			{	return getString();	}
-		virtual double toDouble()const;
-		virtual int toInt()const;
-		virtual bool rt_isEqual(Runtime &rt,const ObjPtr & o);
-		virtual std::string toDbgString()const;
-		virtual internalTypeId_t _getInternalTypeId()const	{	return _TypeIds::TYPE_STRING;	}
+		Object * clone()const override				{	return create(sData);	}
+		std::string toString()const override		{	return getString();	}
+		double toDouble()const override;
+		int toInt()const override;
+		bool rt_isEqual(Runtime &rt,const ObjPtr & o) override;
+		std::string toDbgString()const override;
+		internalTypeId_t _getInternalTypeId()const override	{	return _TypeIds::TYPE_STRING;	}
 
 	private:
 		StringData sData;

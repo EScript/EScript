@@ -53,7 +53,7 @@ class E_RandomNumberGenerator : public ReferenceObject<std::mt19937> {
 		}
 
 		//! ---|> Object
-		virtual E_RandomNumberGenerator * clone() const {
+		E_RandomNumberGenerator * clone() const override{
 			return new E_RandomNumberGenerator(ref());
 		}
 };
