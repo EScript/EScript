@@ -10,7 +10,7 @@
 #include "FunctionCallContext.h"
 #include "../EScript.h"
 #include "../Utils/StringUtils.h"
-#include "../Objects/Callables/Delegate.h"
+#include "../Objects/Callables/FnBinder.h"
 #include "../Objects/Callables/Function.h"
 #include "../Objects/Exception.h"
 #include "../Objects/YieldIterator.h"
@@ -674,8 +674,8 @@ RtValue RuntimeInternals::startFunctionExecution(const ObjPtr & fun,const ObjPtr
 			}
 			return RtValue::createFunctionCallContext(fcc.detachAndDecrease());
 		}
-		case _TypeIds::TYPE_DELEGATE:{
-			Delegate * binder = static_cast<Delegate*>(fun.get());
+		case _TypeIds::TYPE_FN_BINDER:{
+			FnBinder * binder = static_cast<FnBinder*>(fun.get());
 			if(binder->getBoundParameters().empty()){
 				return startFunctionExecution(binder->getFunction(),
 												binder->getObject()?binder->getObject():_callingObject,

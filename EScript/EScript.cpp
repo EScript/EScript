@@ -9,7 +9,7 @@
 #include "EScript.h"
 #include "Objects/Identifier.h"
 #include "Objects/YieldIterator.h"
-#include "Objects/Callables/Delegate.h"
+#include "Objects/Callables/FnBinder.h"
 #include "Objects/Callables/Function.h"
 #include "Objects/Exception.h"
 
@@ -40,7 +40,7 @@ void init() {
 	Array::init(*SGLOBALS);
 	Map::init(*SGLOBALS);
 	Exception::init(*SGLOBALS);
-	Delegate::init(*SGLOBALS);
+	FnBinder::init(*SGLOBALS);
 	Namespace::init(*SGLOBALS);
 	Function::init(*SGLOBALS);
 	UserFunction::init(*SGLOBALS);

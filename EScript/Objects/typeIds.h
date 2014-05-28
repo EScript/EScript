@@ -26,7 +26,7 @@ struct _TypeIds{
 	// 0x10 >= mixed
 	static const internalTypeId_t TYPE_FUNCTION			= 0x10;
 	static const internalTypeId_t TYPE_USER_FUNCTION	= 0x11;
-	static const internalTypeId_t TYPE_DELEGATE			= 0x12;
+	static const internalTypeId_t TYPE_FN_BINDER		= 0x12;
 	static const internalTypeId_t TYPE_ARRAY			= 0x13;
 	static const internalTypeId_t TYPE_VOID				= 0x14;
 	static const internalTypeId_t TYPE_IDENTIFIER		= 0x15;

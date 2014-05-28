@@ -428,9 +428,9 @@ defaultRegistry.registerType(Identifier,"Identifier")
 	.setFactory(fn(ctxt,Type actualType,Map d){		return new Identifier(d['name']);	});
 
 
-// Delegate
-defaultRegistry.registerType(Delegate,"Delegate")
-	.addDescriber(fn(ctxt,Delegate obj,Map d){
+// FnBinder
+defaultRegistry.registerType(FnBinder,"FnBinder")
+	.addDescriber(fn(ctxt,FnBinder obj,Map d){
 		d['fun'] = ctxt.createDescription(obj.getFunction());
 		if(obj.isObjectBound())
 			d['obj'] = ctxt.createDescription(obj.getObject());
@@ -442,8 +442,8 @@ defaultRegistry.registerType(Delegate,"Delegate")
 		var fun = ctxt.createObject(d['fun']);
 		var params = d.containsKey('p') ? ctxt.createObject(d['p']) : [];
 		return d.containsKey('obj') ? 
-				new Delegate( ctxt.createObject(d['obj']), fun, params... ):
-				Delegate.bindParameters( fun, params...  );
+				new FnBinder( ctxt.createObject(d['obj']), fun, params... ):
+				FnBinder.bindParameters( fun, params...  );
 	});
 
 // UserFunction

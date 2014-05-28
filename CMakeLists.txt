@@ -30,7 +30,7 @@ set(ESCRIPT_SOURCES
 	EScript/EScript.cpp
 	EScript/Instructions/InstructionBlock.cpp
 	EScript/Instructions/Instruction.cpp
-	EScript/Objects/Callables/Delegate.cpp
+	EScript/Objects/Callables/FnBinder.cpp
 	EScript/Objects/Callables/Function.cpp
 	EScript/Objects/Callables/UserFunction.cpp
 	EScript/Objects/Collections/Array.cpp

@@ -10,7 +10,7 @@
 #include "../Basics.h"
 #include "../StdObjects.h"
 #include "../Consts.h"
-#include "../Objects/Callables/Delegate.h"
+#include "../Objects/Callables/FnBinder.h"
 #include "../Objects/Exception.h"
 #include <sstream>
 
@@ -122,8 +122,8 @@ void Object::init(EScript::Namespace & globals) {
 		return Map::create(attrs);
 	})
 
-	//! Delegate Object -> function
-	ES_FUN(typeObject,"->",1,1,Delegate::create(thisEObj,parameter[0]))
+	//! FnBinder Object -> function
+	ES_FUN(typeObject,"->",1,1,FnBinder::create(thisEObj,parameter[0]))
 
 }
 
@@ -158,8 +158,8 @@ void ObjectReleaseHandler::release(Object * o) {
 			}
 			break;
 		}
-		case _TypeIds::TYPE_DELEGATE:{
-			Delegate::release(static_cast<Delegate*>(o));
+		case _TypeIds::TYPE_FN_BINDER:{
+			FnBinder::release(static_cast<FnBinder*>(o));
 			return;
 		}
 		case _TypeIds::TYPE_ARRAY:{

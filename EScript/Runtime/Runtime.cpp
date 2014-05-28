@@ -15,7 +15,7 @@
 #include "../Objects/Exception.h"
 #include "../Objects/Callables/Function.h"
 #include "../Objects/Callables/UserFunction.h"
-#include "../Objects/Callables/Delegate.h"
+#include "../Objects/Callables/FnBinder.h"
 #include "../Objects/YieldIterator.h"
 #include "../Utils/Logger.h"
 #include <algorithm>

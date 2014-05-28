@@ -810,7 +810,7 @@ if(!benchmark)
 		{out (OK);}else { errors+=1; out(FAILED); }
 }
 //---
-{	// Delegate
+{	// FnBinder
 	var ok = true;
 
 	var a = new ExtObject;
@@ -818,12 +818,12 @@ if(!benchmark)
 	a.f:=fn(Number p1){
 		return this.m1+p1;
 	};
-	var d = new Delegate(a,a.f);
+	var d = new FnBinder(a,a.f);
 
 	var d2 = a -> fn(){return this.m1;};
 	ok &=	d(3)==4 && d2()==1 && d2.getObject()==a && d.getFunction()==a.f;
 
-	// WARNING! Altough this can lead to perhaps unexpected behavior, Delegates allow a access to primitive types by reference!!!!!
+	// WARNING! Altough this can lead to perhaps unexpected behavior,  allow a access to primitive types by reference!!!!!
 	// I strongly encourage you to use this feature with care!
 	var i = 0;
 	(i -> fn(){	this++; })();
@@ -832,11 +832,11 @@ if(!benchmark)
 	// ParameterBinding
 	{
 		var arr = [];
-		ok &= (new Delegate( arr, fn(p...){
+		ok &= (new FnBinder( arr, fn(p...){
 				this.append(p); 
 				return this;
 			},1,2,3))(4,5,6) == [1,2,3,4,5,6];
-		var f = Delegate.bindParameters(fn(p...){
+		var f = FnBinder.bindParameters(fn(p...){
 					return ""+this+":"+p.implode("");
 		},1,2,3); 
 		ok &= (0->f)(4,5,6) == "0:123456";	
@@ -848,7 +848,7 @@ if(!benchmark)
 	}
 	
 	
-	test( "Delegate:", ok, Delegate);
+	test( "FnBinder:", ok, FnBinder);
 }
 //---
 {

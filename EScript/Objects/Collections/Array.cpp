@@ -12,7 +12,7 @@
 #include "../../StdObjects.h"
 #include "../../Utils/StdConversions.h"
 #include "../../Consts.h"
-#include "../Callables/Delegate.h"
+#include "../Callables/FnBinder.h"
 
 #include <iterator>
 #include <sstream>
@@ -140,12 +140,12 @@ void Array::init(EScript::Namespace & globals) {
 	//! [ESMF] thisObj Array.swap( Array other );
 	ES_MFUN(typeObject,Array,"swap",1,1,(thisObj->swap(assertType<Array>(rt,parameter[0])),thisEObj))
 
-	//! [ESMF] Delegate Array=>( Callable );
+	//! [ESMF] FnBinder Array=>( Callable );
 	ES_MFUNCTION(typeObject,const Array,"=>",1,1,{
 		std::vector<ObjRef> values;
 		for(const auto& p:*thisObj)
 			values.emplace_back(p);
-		return Delegate::create(nullptr,parameter[0],std::move(values));
+		return FnBinder::create(nullptr,parameter[0],std::move(values));
 	})
 	// todo: removeOnce removeAll -=
 }

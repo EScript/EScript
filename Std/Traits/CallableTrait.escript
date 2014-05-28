@@ -28,7 +28,7 @@ Traits.CallableTrait.init @(override) := fn(t,fun=void){
 
 Traits.addTrait(Function,		Traits.CallableTrait);
 Traits.addTrait(UserFunction,	Traits.CallableTrait);
-Traits.addTrait(Delegate,		Traits.CallableTrait);
+Traits.addTrait(FnBinder,		Traits.CallableTrait);
 
 
 return Traits.CallableTrait;
