@@ -10,9 +10,9 @@
 /**
  **		This file contains the EScript Trait extension.
  **/
-Std.declareNamespace($Std,$Traits);
-
-static Traits = Std.Traits;
+static Traits = new Namespace;
+Traits._printableName @(override) := $Traits;
+static Trait = module('./Trait');
 
 //! (internal)
 static _accessObjTraitRegistry = fn(obj,createIfNotExist = false){
@@ -28,7 +28,7 @@ static _accessObjTraitRegistry = fn(obj,createIfNotExist = false){
 
 /*! Add a trait to the given object.
 	The additional parameters are passed to the trait's init method. */
-Traits.addTrait := fn(obj, Traits.Trait trait,params...){
+Traits.addTrait := fn(obj, Trait trait,params...){
 	var name = trait.getName();
 
 	var registry = _accessObjTraitRegistry(obj,true);
@@ -70,13 +70,13 @@ Traits.getTraitByName := fn(String traitName){
 Traits.queryLocalTrait := fn(obj,traitOrTraitName){
 	var registry = _accessObjTraitRegistry(obj,false);
 	return registry ?
-					registry[traitOrTraitName---|>Traits.Trait ? traitOrTraitName.getName():traitOrTraitName] :
+					registry[traitOrTraitName---|>Trait ? traitOrTraitName.getName():traitOrTraitName] :
 					false;
 };
 
 /*! Checks if the given object has a trait (the trait may be inherited).*/
 Traits.queryTrait := fn(obj,traitOrTraitName){
-	var traitName = traitOrTraitName---|>Traits.Trait ? traitOrTraitName.getName():traitOrTraitName;
+	var traitName = traitOrTraitName---|>Trait ? traitOrTraitName.getName():traitOrTraitName;
 	while(obj){
 		var reg = _accessObjTraitRegistry(obj,false);
 		if(reg && reg[traitName])
@@ -99,7 +99,7 @@ Traits.queryTraits := Traits -> fn(obj){
 };
 
 /*! Remove a trait from the given object. If the trait is not designed for removal, an exception is thrown.  */
-Traits.removeTrait := fn(obj, Traits.Trait trait,params...){
+Traits.removeTrait := fn(obj, Trait trait,params...){
 	var name = trait.getName();
 	if(!trait.getRemovalAllowed()){
 		Runtime.exception("Trait '"+name+"' can not be removed from an object.");
@@ -121,52 +121,8 @@ Traits.requireTrait := fn(obj,traitOrTraitName){
 	return trait;
 };
 
-// ---------------------------
-/*! Base class for all Trait implementations.
-	\note When creating a new Trait, you should consider using
-		GenericTrait instead of this base class.	*/
-Traits.Trait := new Type;
-{
-	var T = Traits.Trait;
-	T._printableName @(override) ::= $Trait;
-	T._traitName @(private) := void;
 
-	//! If true, the Trait can be added multiple times to the same object.
-	T.multipleUsesAllowed := false;
-
-	/*! If a name is given, it is used to identify the trait.
-		Multiple traits offering the same behavior (with different implementations)
-		may provide the same name.	*/
-	T._constructor ::= fn(name = void){
-		if(name){
-			_traitName = name;
-			this._printableName @(override) := name;
-		}
-	};
-
-	//! Marks the trait as usable several times for a single object.
-	T.allowMultipleUses ::= 		fn(){	return this.setMultipleUsesAllowed(true);	};
-
-	/*! Marks the trait as removable. When calling Traits.removeTrait( obj, trait),
-		the trait's onRemove( obj ) method is called and the trait's name is removed from
-		the object's set of used traits.
-		\note Normally traits should NOT be removable. Only add this feature if explicitly
-			required.*/
-	T.allowRemoval ::= fn(){
-		this.removalAllowed := true;
-		if(!this.isSet($onRemove))
-			this.onRemove := Std.ABSTRACT_METHOD;
-		return this;
-	};
-	T.getMultipleUsesAllowed ::= 	fn(){	return multipleUsesAllowed;	};
-	T.getRemovalAllowed ::= 		fn(){	return this.isSet($removalAllowed);	};
-	T.getName ::=					fn(){	return _traitName ? _traitName : toString();	};
-	T.setMultipleUsesAllowed ::=	fn(Bool b){	multipleUsesAllowed = b; 	return this;	};
-
-	//! ---o
-	T.init ::= fn(...){	Runtime.exception("This method is not implemented. Implement in subtype, or do not call!");	};
-
-
-}
-
+module.on('../StdNamespace', fn(StdNamespace){
+	StdNamespace.Traits := Traits;
+});
 return Traits;

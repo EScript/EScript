@@ -84,6 +84,7 @@ var DataWrapper = new Type;
 	module.on('./Traits/CallableTrait', fn(CallableTrait){
 		module('./Traits/basics').addTrait( T, CallableTrait );
 	});
+	module.on('./StdNamespace', fn(StdNamespace){	StdNamespace.DataWrapper := T;	});
 }
 // ------------------------------------------
 // (internal) AttributeWrapper ---|> DataWrapper

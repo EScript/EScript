@@ -6,17 +6,14 @@
 // Licensed under the MIT License. See LICENSE file for details.
 // ---------------------------------------------------------------------------------
 
-var Traits = module('./basics');
-
-// ---------------------------
 
 /*!	Marks a Type as callable.
 	\param (optional) fun	Function called when an instance of the type is used as function.
 							The first parameter is the instance object.
 */
-Traits.CallableTrait := new Traits.Trait('Std.Traits.CallableTrait');
+var t = new (module('./Trait'));
 
-Traits.CallableTrait.init @(override) := fn(t,fun=void){
+t.init @(override) := fn(t,fun=void){
 	if(fun){
 		if(t---|>Type){
 			t._call ::= fun;
@@ -26,10 +23,15 @@ Traits.CallableTrait.init @(override) := fn(t,fun=void){
 	}
 };
 
-Traits.addTrait(Function,		Traits.CallableTrait);
-Traits.addTrait(UserFunction,	Traits.CallableTrait);
-Traits.addTrait(FnBinder,		Traits.CallableTrait);
+var Traits = module('./basics');
+Traits.addTrait(Function,		t);
+Traits.addTrait(UserFunction,	t);
+Traits.addTrait(FnBinder,		t);
 
 
-return Traits.CallableTrait;
+module.on('../StdNamespace', [t] => fn(t,StdNamespace){
+	module('./basics').CallableTrait := t;
+});
+
+return t;
 // ---------------------------------------

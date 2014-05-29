@@ -490,3 +490,26 @@ module.addSearchPath(".");
 	}
 	test("Std.Traits", ok);
 }
+
+// ----------------------------------------------------------
+{
+	var ok = true;
+	var Std = module('Std/StdNamespace');
+	ok &= Std.DataWrapper === module('Std/DataWrapper');
+	ok &= Std.DataWrapperContainer === module('Std/DataWrapperContainer');
+	ok &= Std.generatorFn === module('Std/generatorFn');
+	ok &= Std.info === module('Std/info');
+	ok &= Std.JSONDataStore === module('Std/JSONDataStore');
+	ok &= Std.MultiProcedure === module('Std/MultiProcedure');
+	ok &= Std.ObjectSerialization === module('Std/ObjectSerialization');
+	ok &= Std.PriorityQueue === module('Std/PriorityQueue');
+	ok &= Std.Set === module('Std/Set');
+	ok &= Std.Traits === module('Std/Traits/basics');
+	ok &= Std.Traits.CallableTrait === module('Std/Traits/CallableTrait');
+	ok &= Std.Traits.DefaultComparisonOperatorsTrait === module('Std/Traits/DefaultComparisonOperatorsTrait');
+	ok &= Std.Traits.GenericTrait === module('Std/Traits/GenericTrait');
+	ok &= Std.Traits.PrintableNameTrait === module('Std/Traits/PrintableNameTrait');
+	ok &= Std.Traits.Trait === module('Std/Traits/Trait');
+	
+	test("Std.StdNamespace",ok);
+}

@@ -76,5 +76,9 @@ module.on('./Traits/CallableTrait', fn( CallableTrait){
 });
 
 var generatorFn = fn(fun){	return new GeneratorFnWrapper(fun);	};
-//Std.generatorFn := generatorFn;
+
+module.on('./StdNamespace', [generatorFn] => fn(generatorFn,StdNamespace){
+	StdNamespace.generatorFn := generatorFn;
+});
+
 return generatorFn;

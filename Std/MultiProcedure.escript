@@ -86,4 +86,8 @@ module.on('./ObjectSerialization', fn(ObjectSerialization){
 		});
 });
 
+module.on('./StdNamespace', fn(StdNamespace){
+	StdNamespace.MultiProcedure := T;
+});
+
 return T;

@@ -247,10 +247,10 @@ static defaultRegistry;
 	};
 
 	//! ---o
-	T.createDescription ::= fn(Context ctxt,obj){	Std.ABSTRACT_METHOD();	};
+	T.createDescription ::= fn(Context ctxt,obj){	Runtime.exception("This method is not implemented.");	};	//Std.ABSTRACT_METHOD();
 
 	//! ---o
-	T.createObject ::= 		fn(Context ctxt,Map description){	Std.ABSTRACT_METHOD();	};
+	T.createObject ::= 		fn(Context ctxt,Map description){	Runtime.exception("This method is not implemented.");	};//Std.ABSTRACT_METHOD();
 
 	T.getHandledType ::= 			fn(){	return type;};
 	T.getHandledTypeName ::= 		fn(){	return typeName;};
@@ -466,7 +466,7 @@ defaultRegistry.registerType(UserFunction,"UserFunction")
 	});
 
 // -------------------------------------------------------------------------------
-var ObjectSerialization = new Namespace;
+static ObjectSerialization = new Namespace;
 ObjectSerialization.Context := Context;
 ObjectSerialization.TypeRegistry := TypeRegistry;
 ObjectSerialization.defaultRegistry := defaultRegistry;
@@ -481,4 +481,7 @@ ObjectSerialization.create := fn([String,Map] stringOrDescription){
 };
 ObjectSerialization.registerType := defaultRegistry->defaultRegistry.registerType;
 
+module.on('./StdNamespace', fn(StdNamespace){
+	StdNamespace.ObjectSerialization := ObjectSerialization;
+});
 return ObjectSerialization;

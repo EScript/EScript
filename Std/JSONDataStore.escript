@@ -158,4 +158,8 @@ T._set ::= fn(key,value){
 	return value;
 };
 
+module.on('./StdNamespace', [T] => fn(T,StdNamespace){
+	StdNamespace.JSONDataStore := T;
+});
+
 return T;

@@ -6,8 +6,6 @@
 // Licensed under the MIT License. See LICENSE file for details.
 // ---------------------------------------------------------------------------------
 
-loadOnce(__DIR__ + "/basics.escript");
-
 // -------------------------------------
 // info
 
@@ -24,9 +22,7 @@ loadOnce(__DIR__ + "/basics.escript");
 
 	To get the info instead of directly printing it, use info.get( obj );
 */
-Std.info := new ExtObject;
-
-var info = Std.info;
+var info = new ExtObject;
 
 info._shortInfo := "Call to print information on the given object.";
 info.registry @(private) := new Map;
@@ -68,6 +64,7 @@ info.getShortDescription := fn(obj){
 info.getShortInfo := fn(obj){
 	return obj.isSet($_shortInfo) ? obj._shortInfo : false;
 };
+module.on('./StdNamespace', [info] => fn(info,StdNamespace){	StdNamespace.info := info;	});
 
 // -----------------------------------------------------------------------
 

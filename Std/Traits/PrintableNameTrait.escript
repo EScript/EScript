@@ -6,7 +6,6 @@
 // Licensed under the MIT License. See LICENSE file for details.
 // ---------------------------------------------------------------------------------
 
-var GenericTrait = module('Std/Traits/GenericTrait');
 
 /*! Changes a part of a the object's or type's name when converted to a string
 	\param name (String or Identifier)
@@ -16,7 +15,7 @@ var GenericTrait = module('Std/Traits/GenericTrait');
 		outln( new T );
 	\endcode
 */
-var t = new GenericTrait('Std.Traits.PrintableNameTrait');
+var t = new (module('./GenericTrait'))('Std.Traits.PrintableNameTrait');
 t.onInit += fn(obj,[String,Identifier] typename){
 	if(obj---|>Type){
 		obj._printableName @(override) ::= typename;
@@ -25,7 +24,8 @@ t.onInit += fn(obj,[String,Identifier] typename){
 	}
 };
 
-var Traits = module('./basics');
-Traits.PrintableNameTrait := t;
+module.on('../StdNamespace', [t] => fn(t,StdNamespace){	
+	module('./basics').PrintableNameTrait := t;
+});
 
 return t;

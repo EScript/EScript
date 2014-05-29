@@ -75,5 +75,7 @@ T.heapify @(private) ::= fn(i){
 		}
 	}
 };
-
+module.on('./StdNamespace', [T] => fn(T,StdNamespace){
+	StdNamespace.PriorityQueue := T;
+});
 return T;

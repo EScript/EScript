@@ -136,4 +136,7 @@ T.getIterator ::= fn(){
 	return it;
 
 };
+
+module.on('./StdNamespace', [T] => fn(T,StdNamespace){	StdNamespace.DataWrapperContainer := T;	});
+
 return T;

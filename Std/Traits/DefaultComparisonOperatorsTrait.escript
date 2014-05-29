@@ -28,8 +28,8 @@ t.onInit += fn(Type t,smaller){
 	t.__compare_baseType @(private) ::= t; // store the calling Type as basetype. Objects of this type (or of a subtype) can be compared.
 };
 
+module.on('../StdNamespace', [t] => fn(t,StdNamespace){	
+	module('./basics').DefaultComparisonOperatorsTrait := t;
+});
 
-
-var Traits = module('./basics');
-Traits.DefaultComparisonOperatorsTrait := t;
 return t;
