@@ -1,7 +1,7 @@
 // AddHeader.escript
-// This file is part of the EScript programming language (http://escript.berlios.de)
+// This file is part of the EScript programming language (https://github.com/EScript)
 //
-// Copyright (C) 2011-2013 Claudius Jähn <claudius@uni-paderborn.de>
+// Copyright (C) 2011-2013 Claudius Jähn <ClaudiusJ@live.de>
 // Copyright (C) 2012 Benjamin Eikel <benjamin@eikel.org>
 //
 // Licensed under the MIT License. See LICENSE file for details.
@@ -9,10 +9,10 @@
 
 //! example:
 	// Runtime.cpp
-	// This file is part of the EScript programming language (http://escript.berlios.de)
+	// This file is part of the EScript programming language (https://github.com/EScript)
 	//
 	// Copyright (C) 2007-2012 Benjamin Eikel <benjamin@eikel.org>
-	// Copyright (C) 2007-2012 Claudius Jähn <claudius@uni-paderborn.de>
+	// Copyright (C) 2007-2012 Claudius Jähn <ClaudiusJ@live.de>
 	//
 	// Licensed under the MIT License. See LICENSE file for details.
 	// ---------------------------------------------------------------------------------
@@ -39,7 +39,7 @@ for(var i=3;i<args.count();++i){
 static lineEnding = "\n";
 static tempFileName = "log.tmp";
 static authorAliases = {
-	"claudiusj" : "Claudius Jähn <claudius@uni-paderborn.de>",
+	"claudiusj" : "Claudius Jähn <ClaudiusJ@live.de>",
 	"eikel" : "Benjamin Eikel <benjamin@eikel.org>"
 };
 
@@ -131,7 +131,7 @@ foreach(files as var nr, var file){
 		headerRead = true;
 	}else{
 		output+="// " + file.substr(file.rFind("/")+1) + lineEnding;
-		output+="// This file is part of the EScript programming language (http://escript.berlios.de)" + lineEnding;
+		output+="// This file is part of the EScript programming language (https://github.com/EScript)" + lineEnding;
 		output+="//" + lineEnding;
 		output+=copyrightInfo;
 		output+="//" + lineEnding;

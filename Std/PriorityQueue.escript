@@ -1,7 +1,7 @@
 // PriorityQueue.escript
-// This file is part of the EScript programming language (http://escript.berlios.de)
+// This file is part of the EScript programming language (https://github.com/EScript)
 //
-// Copyright (C) 2013-2014 Claudius Jähn <claudiusj@live.de>
+// Copyright (C) 2013-2014 Claudius Jähn <ClaudiusJ@live.de>
 //
 // Licensed under the MIT License. See LICENSE file for details.
 // ---------------------------------------------------------------------------------
