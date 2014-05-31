@@ -54,7 +54,6 @@ class RuntimeInternals  {
 		std::vector<_CountedRef<FunctionCallContext> > activeFCCs;
 		size_t stackSizeLimit;
 
-		static bool checkParameterConstraint(Runtime & rt,const RtValue & value,const ObjPtr & constraint);
 		_Ptr<FunctionCallContext> getActiveFCC()const			{	return activeFCCs.empty() ? nullptr : activeFCCs.back();	}
 
 		void pushActiveFCC(const _Ptr<FunctionCallContext> & fcc) {

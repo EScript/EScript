@@ -822,10 +822,14 @@ bool initHandler(handlerRegistry_t & m){
 				for(const auto & typeExpr : typeExpressions) {
 					const uint32_t constrainOkMarker = ctxt2.createMarker();
 					constrainOkMarkers.push_back(constrainOkMarker);
-
-					ctxt2.addExpression(typeExpr);
+					
+					ctxt2.addExpression(typeExpr); // caller
 					ctxt2.addInstruction(Instruction::createDup()); // store the constraint for the error message
-					ctxt2.addInstruction(Instruction::createCheckType(varIdx));
+					
+					ctxt2.addInstruction(Instruction::createDup());
+					ctxt2.addInstruction(Instruction::createGetAttribute(Consts::IDENTIFIER_fn_checkConstraint));	// fun
+									ctxt2.addInstruction(Instruction::createGetLocalVariable(varIdx)); // param
+					ctxt2.addInstruction( Instruction::createCall(1) ); // caller.fun ( param)
 					ctxt2.addInstruction(Instruction::createJmpOnTrue(constrainOkMarker));
 				}
 
@@ -833,7 +837,7 @@ bool initHandler(handlerRegistry_t & m){
 				ctxt2.addInstruction(Instruction::createGetLocalVariable(varIdx));
 				ctxt2.addInstruction(Instruction::createSysCall(Consts::SYS_CALL_THROW_TYPE_EXCEPTION,constrainOkMarkers.size()+1 ));
 				ctxt2.addInstruction(Instruction::createJmp( Instruction::INVALID_JUMP_ADDRESS ));
-
+//
 				// depending on which constraint-check succeeded, pop the constraint-values from the stack
 				for(std::vector<uint32_t>::const_reverse_iterator cIt = constrainOkMarkers.rbegin();cIt!=constrainOkMarkers.rend();++cIt){
 					ctxt2.addInstruction(Instruction::createSetMarker(*cIt));

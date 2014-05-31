@@ -101,7 +101,7 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 		inline Type * getType() const				{	return typeRef.get();	}
 
 		//! ---o
-		virtual bool isA(Type * type)const;
+		virtual bool isA(const Type * type)const;
 	//	@}
 
 	// -------------------------

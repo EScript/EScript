@@ -27,7 +27,6 @@ class Instruction {
 			I_ASSIGN_VARIABLE,				// -1
 			I_CALL,							// -2+x +1
 			I_CREATE_INSTANCE,				// -1+x +1
-			I_CHECK_TYPE,					// -1   +1
 			I_DUP,							// +1
 			I_FIND_VARIABLE,				// +2
 			I_GET_ATTRIBUTE,				// -1 +1
@@ -82,7 +81,6 @@ class Instruction {
 		static Instruction createAssignLocal(const uint32_t localVarIdx);
 		static Instruction createAssignVariable(const StringId & varName);
 		static Instruction createCall(const uint32_t numParams);
-		static Instruction createCheckType(const uint32_t localVarIdx);
 		static Instruction createCreateInstance(const uint32_t numParams);
 		static Instruction createDup()				{	return Instruction(I_DUP);	}
 		static Instruction createFindVariable(const StringId & id);

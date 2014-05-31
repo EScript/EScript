@@ -23,6 +23,7 @@ struct Consts{
 	static const StringId IDENTIFIER_thisFn;
 	static const StringId IDENTIFIER_internalResult;
 	static const StringId IDENTIFIER_fn_call;
+	static const StringId IDENTIFIER_fn_checkConstraint;
 	static const StringId IDENTIFIER_fn_constructor;
 	static const StringId IDENTIFIER_fn_greater;
 	static const StringId IDENTIFIER_fn_it_end;

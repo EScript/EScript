@@ -200,7 +200,7 @@ void Type::collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs)
 	}
 }
 
-bool Type::hasBase(Type * type) const {
+bool Type::hasBase(const Type * type) const {
 	for(const Type * t = this; t; t = t->getBaseType()){
 		if(t==type)
 			return true;
@@ -208,7 +208,7 @@ bool Type::hasBase(Type * type) const {
 	return false;
 }
 
-bool Type::isBaseOf(Type * type) const {
+bool Type::isBaseOf(const Type * type) const {
 	while(type){
 		if(type==this)
 			return true;

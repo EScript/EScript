@@ -237,21 +237,6 @@ ObjRef RuntimeInternals::executeFunctionCallContext(_Ptr<FunctionCallContext> fc
 			}
 			break;
 		}
-		case Instruction::I_CHECK_TYPE:{
-			/*	checkType localVariableIdx
-				--------------
-				pop (Object) TypeOrObj
-				if(localVar ---|> Type || localVar == Obj)
-					push true
-				else
-					push false
-			*/
-			Object * localVariable = fcc->getLocalVariable(instruction.getValue_uint32());
-			const ObjRef typeOrObj( std::move(fcc->stack_popObject()) );
-			fcc->stack_pushBool( checkParameterConstraint(runtime,localVariable,typeOrObj) );
-			fcc->increaseInstructionCursor();
-			break;
-		}
 		case Instruction::I_DUP:{
 			// duplicate topmost stack entry
 			fcc->stack_dup();
@@ -808,23 +793,6 @@ ObjPtr RuntimeInternals::getGlobalVariable(const StringId & id) {
 }
 
 
-
-// -------------------------------------------------------------
-// Helper
-
-//! (static)
-bool RuntimeInternals::checkParameterConstraint(Runtime & rt,const RtValue & value,const ObjPtr & constraint){
-
-	if(value.isObject()){
-		Object * obj = value.getObject();
-		Type * type = constraint.castTo<Type>();
-		return (type && obj->isA(type)) || obj->isIdentical(rt,constraint);
-	}else{
-		std::cout << "RuntimeInternals::checkParameterConstraint: TODO!";
-		return true;
-	}
-}
-
 // -------------------------------------------------------------
 // Information
 
@@ -954,13 +922,12 @@ void RuntimeInternals::initSystemFunctions(){
 			ES_SYS_FUNCTION( sysCall) {
 				assertParamCount(rtIt.runtime,parameter,2,-1);
 				std::ostringstream os;
-				os << "Wrong parameter type: Expected ";
+				os << "Parameter check failed! \nValue: "<<parameter[parameter.size()-1]->toDbgString()<<"\nConstraints: ";
 				for(size_t i = 0;i<parameter.size()-1;++i ){
-					if(i>0) os <<", ";
+					if(i>0) os <<" || ";
 					ObjRef obj = parameter[i];
 					os<<(obj ? obj->toDbgString() : "???");
 				}
-				os << " but got " << parameter[parameter.size()-1]->toDbgString()<<".";
 				rtIt.setException(os.str());
 				return nullptr;
 			}
@@ -1011,20 +978,20 @@ void RuntimeInternals::initSystemFunctions(){
 				for(const auto & val : *values) {
 					bool success = false;
 					for(size_t i = 0; i<constraintEnd; ++i){
-						if(RuntimeInternals::checkParameterConstraint(rtIt.runtime, RtValue(val.get()), parameter[i])) {
+						ObjRef result = std::move(callMemberFunction(rtIt.runtime,parameter[i] ,Consts::IDENTIFIER_fn_checkConstraint,ParameterValues(val.get())));
+						if(result.toBool()) {
 							success = true;
 							break;
 						}
 					}
 					if(!success){
 						std::ostringstream os;
-						os << "Wrong parameter type: Expected ";
+						os << "Parameter check failed! \nValue: "<<val->toDbgString()<<"\nConstraints: ";
 						for(size_t i = 0;i<constraintEnd;++i ){
-							if(i>0) os <<", ";
+							if(i>0) os <<" || ";
 							ObjRef obj = parameter[i];
 							os<<(obj ? obj->toDbgString() : "???");
 						}
-						os << " but got " << val->toDbgString()<<".";
 						rtIt.setException(os.str());
 						return nullptr;
 					}

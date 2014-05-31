@@ -122,6 +122,16 @@ void Object::init(EScript::Namespace & globals) {
 		return Map::create(attrs);
 	})
 
+	//! Bool Object._check( obj )
+	ES_FUNCTION(typeObject,Consts::IDENTIFIER_fn_checkConstraint,1,1,{
+		const auto* thisType = thisEObj.castTo<const Type>();
+		if( thisType ){
+			return parameter[0]->isA(thisType);
+		}else{
+			return thisEObj->rt_isEqual(rt,parameter[0]);
+		}
+	})
+
 	//! FnBinder Object -> function
 	ES_FUN(typeObject,"->",1,1,FnBinder::create(thisEObj,parameter[0]))
 
@@ -211,7 +221,7 @@ Object * Object::clone() const {
 	return new Object(getType());
 }
 
-bool Object::isA(Type * type) const {
+bool Object::isA(const Type * type) const {
 	return getType() && getType()->hasBase(type);
 }
 
