@@ -490,11 +490,52 @@ module.addSearchPath(".");
 	}
 	test("Std.Traits", ok);
 }
+// ----------------------------------------------------------
+{	// addRevocable
+	var ok = true;
+	var MultiProcedure = module('Std/MultiProcedure');
+	var Set = module('Std/Set');
+	var addRevocably = module('Std/addRevocably');
+	
+	var arr =  new Set([1,2,3]);
+	
+	var cleanup = new MultiProcedure;
+	cleanup += addRevocably( arr, 4 );
+	
+	ok &= arr==new Set([1,2,3,4]);
+	
+	arr += 5;
+	cleanup(); 
+	ok &= arr==new Set([1,2,3,5]);
+	ok &= cleanup.empty();
+	
+	test("Std.addRevocably",ok);
+}
+// ----------------------------------------------------------
+{	// declareNamespace
+	var ok = true;
+	var declareNamespace = module('Std/declareNamespace');
 
+	ok &= declareNamespace( $Foo,$A,$B ) == Foo.A.B;
+	Foo.v := 1;
+	Foo.A.v := 2;
+	Foo.A.B.v := 3;
+
+	declareNamespace( $Foo,$A,$B ); // should not overwrite anything
+	++Foo.v;
+	++Foo.A.v;
+	++Foo.A.B.v;
+
+	ok &= Foo.v == 2 && Foo.A.v == 3 && Foo.A.B.v == 4;
+	
+	test("Std.declareNamespace",ok);
+}
+	
 // ----------------------------------------------------------
 {
 	var ok = true;
 	var Std = module('Std/StdNamespace');
+	ok &= Std.addRevocably === module('Std/addRevocably');
 	ok &= Std.DataWrapper === module('Std/DataWrapper');
 	ok &= Std.DataWrapperContainer === module('Std/DataWrapperContainer');
 	ok &= Std.generatorFn === module('Std/generatorFn');
