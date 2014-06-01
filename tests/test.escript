@@ -7,6 +7,49 @@
 // Licensed under the MIT License. See LICENSE file for details.
 // ---------------------------------------------------------------------------------
 outln ("EScript Testcases\nVersion: ",EScript.VERSION_STRING,"\n","-"*79);
+
+//outln( "foo"._check("foo") );
+//outln( String._check("foo") );
+//outln( String._check(2) );
+//outln( Number._check(false) );
+//outln( Number._check(2) );
+//outln( Type._check( String ) );
+//
+//outln( Object._check );
+//outln( Type._check );
+//outln( String._check );
+//outln( "foo"._check );
+//
+//var f = fn( [String,Number,void] a){ a+1;};
+//
+//outln (Object._check);
+//outln (void._check);
+//
+//outln (void._check(void));
+//outln( f._asm() );
+////f(1);
+////f("foo");
+////f(void);
+//
+//static o = new ExtObject;
+//o._printableName @(override) := $ParamTester;
+//o._check := fn(p){
+//	outln("Checking ",p);
+//	return true;
+//};
+//
+//var f2 = fn(o p1){
+//};
+//
+//f2(1);
+//
+//
+//var f3 = fn( [Number,1,2] p1...){
+//};
+//
+//f3(1,2,3,"foo");
+//exit;
+
 //----
 // init
 GLOBALS.benchmark:=false;

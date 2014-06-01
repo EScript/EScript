@@ -459,7 +459,7 @@ module.addSearchPath(".");
 	ok &= !Traits.queryLocalTrait( t, PrintableNameTrait );
 	ok &= Traits.queryLocalTrait( T, PrintableNameTrait );
 
-	var CallableTrait = module('Std/Traits/CallableTrait');
+	static CallableTrait = module('Std/Traits/CallableTrait');
 	ok &= Traits.queryTrait(fn(){},CallableTrait);
 	ok &= Traits.queryTrait(1->fn(){},CallableTrait);
 	ok &= Traits.queryTrait(module('Std/MultiProcedure'),CallableTrait);
@@ -488,6 +488,24 @@ module.addSearchPath(".");
 		ok &= !Traits.queryTrait(object,removableTrait);
 		ok &= !object.member1;
 	}
+	{// constraints
+		var f = fn(CallableTrait callback){};
+		f( out );
+		f( new (module('Std/MultiProcedure')) );
+		var exceptionCount = 0;
+		try{ f(1); }catch(){++exceptionCount;};
+		try{ f(CallableTrait); }catch(){++exceptionCount;};
+		
+		static Trait = module('Std/Traits/Trait');
+		var f2 = fn(Trait aTrait){};
+		f2( CallableTrait );
+		try{ f2(1); }catch(){++exceptionCount;};
+		try{ f2(out); }catch(){++exceptionCount;};
+		
+		ok &= exceptionCount==4;
+	}
+	
+	
 	test("Std.Traits", ok);
 }
 // ----------------------------------------------------------
