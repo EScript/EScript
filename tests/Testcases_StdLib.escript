@@ -530,6 +530,26 @@ module.addSearchPath(".");
 	test("Std.addRevocably",ok);
 }
 // ----------------------------------------------------------
+{	// enum
+	var ok = true;
+	var enum = module('Std/enum');
+
+	static myEnum = enum($Foo,$Bar,$Blub);
+	
+	ok &= myEnum.isSet( $Foo ) && myEnum.isSet( $Bar ) && myEnum.isSet( $Blub );
+	
+	var f = fn(myEnum state){
+		return state.value;
+	};
+	ok &= 0 == f(myEnum.Foo) && 1 == f(myEnum.Bar) && 2 == f(myEnum.Blub);
+
+	var exceptionCount = 0;
+	try{ f($Foo); }catch(){++exceptionCount;};
+	ok &= 1 == exceptionCount;
+	
+	test("Std.enum",ok);
+}
+// ----------------------------------------------------------
 {	// declareNamespace
 	var ok = true;
 	var declareNamespace = module('Std/declareNamespace');
