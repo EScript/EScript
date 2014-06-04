@@ -19,8 +19,23 @@
 **  OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-/* Allow safe multiple referencing of the bootstrap mechanism 
-	\see _module.escript for details
+/*! Module loading. Required for loading any of the modules of the Std-library! 
+	\note May be safely loaded multiple times using "load(...)"
+
+	\code
+		// init module loader:
+
+		static module = load("./Std/module.escript"); // Path to EScript/Std/module.escript
+		module.addSearchPath("."); // Path EScript/Std folder.
+
+
+		module("Std/MultiProcedure");				// Load or get the given module with absolute module path
+		module("./OtherModule");					// Load or get the given module with relative module path
+		module.require("./OtherModule");			// Same as module("./OtherModule");
+		module.on("Std/MultiProcedure",callback);	// Call callback(module) if or when the given module is loaded.
+		module.get("SomeModule");					// Return the given module if loaded or return void.
+	\endcode
+
 */
 static FILE_ID = __DIR__+"/"+__FILE__;
 if(!GLOBALS.isSet($__stdLibCache))

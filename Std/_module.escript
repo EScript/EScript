@@ -19,27 +19,11 @@
 **  OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
 
-/*
-static module = load("Std/loader.escript");
-
-module("Std/MultiProcedure");
-module.on("Std/MultiProcedure");
-module.get("Module"),
-module.async("Std/MultiProcedure");
-module.addSearchPath("foo");
-module.current
-
-// moduleLoader
-static T = new Type;
-T._printableName @(override) ::= "Std/ModuleLoader";
-T.require ::= ...
-T._call ::= fn(caller,p...){ return this.module(p...); }
-T.on ::= fn(caller,p...){ return this.module(p...); }
-T.currentModulePath :=
- 
-// addRevocably
-
+/*! Module loader and manager.
+	\note do not load directly, but load module.escript instead.
 */
+
+
 
 // ------------------------------------------
 // module loading
@@ -57,6 +41,8 @@ T._printableName @(override) ::= "Std/ModuleLoader";
 T._constructor ::= fn([String,void] moduleId){
 	this.thisModuleId = moduleId;
 };
+//! Factory
+T.createLoader ::= fn(p...){	return new T(p...);	};
 
 T.relModuleIdToAbsModuleId @(private) ::= fn(String relModuleId){
 	return IO.condensePath( (this.thisModuleId&&relModuleId.beginsWith('.')) ? 
