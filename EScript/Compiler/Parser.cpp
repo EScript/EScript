@@ -505,22 +505,20 @@ void pass_2(ParsingContext & ctxt,
 
 	enrichedTokens.reserve(ctxt.tokens.size());
 
-	TStartBlock * tsb = new TStartBlock(ctxt.rootBlock);
-//	Token::addReference(tsb);
-	enrichedTokens.push_back(tsb);
+	enrichedTokens.push_back( new TStartBlock(ctxt.rootBlock) );
 
 	for(size_t cursor = 0;cursor<ctxt.tokens.size();++cursor) {
-		Token * token = ctxt.tokens.at(cursor).get();
+		_CountedRef<Token> token = ctxt.tokens.at(cursor).get();
 
+		const int line = token->getLine();
+		
 		/// for(...) ---> for{...}
 		if(!loopConditionEndingBrackets.empty() && token == loopConditionEndingBrackets.top()){
 			loopConditionEndingBrackets.pop();
-			Token * t = new TEndBlock;
-			t->setLine(token->getLine());
-//			Token::addReference(t);
-			token = t;
-		}
 
+			token = new TEndBlock;
+			token->setLine(line);
+		}
 
 		switch(token->getType()){
 			case TControl::TYPE_ID:{
@@ -531,7 +529,6 @@ void pass_2(ParsingContext & ctxt,
 						if(!blockStack.top()->declareLocalVar(ti->getId())){
 							log(ctxt,Logger::LOG_WARNING, "Duplicate local variable '"+ti->toString()+'\'',ti);
 						}
-						continue;
 					} else
 						throwError(ctxt,"var expects identifier.",tc);
 				}
@@ -541,7 +538,6 @@ void pass_2(ParsingContext & ctxt,
 						if(!blockStack.top()->declareStaticVar(ti->getId())){
 							log(ctxt,Logger::LOG_WARNING, "Duplicate static variable '"+ti->toString()+'\'',ti);
 						}
-						continue;
 					} else
 						throwError(ctxt,"static expects identifier.",tc);
 				}
@@ -554,43 +550,38 @@ void pass_2(ParsingContext & ctxt,
 						throwError(ctxt,"Error in loop condition",tc);
 					loopConditionEndingBrackets.push(ctxt.tokens.at(endPos).get());
 
-					enrichedTokens.push_back(token);
+					enrichedTokens.emplace_back(std::move(token));
 					++cursor;
 					Block * loopConditionBlock = Block::createBlockStatement(tc->getLine());
 					blockStack.push(loopConditionBlock);
 
 					TStartBlock * sb = new TStartBlock(loopConditionBlock);
-					sb->setLine(token->getLine());
-//					Token::addReference(sb);
+					sb->setLine(line);
 					enrichedTokens.push_back(sb);
 
 					// count open bracket.
 					if(!functionBracketDepth.empty())
 						++functionBracketDepth.top();
-					continue;
+				}else{
+					enrichedTokens.emplace_back(std::move(token));
 				}
-				enrichedTokens.push_back(token);
 				continue;
-				/// name='static' ??????
 			}
 			/// Open new Block
 			case TStartBlock::TYPE_ID:{
 				TStartBlock * sb = Token::cast<TStartBlock>(token);
-
 				Block * currentBlock = Block::createBlockExpression(sb->getLine());
-
 				blockStack.push(currentBlock);
 				sb->setBlock(currentBlock);
-				enrichedTokens.push_back(token);
-
 				if(!functionBracketDepth.empty())
 					++functionBracketDepth.top();
 
+				enrichedTokens.emplace_back(std::move(token));
 				continue;
 			}
 			/// Close Block
 			case TEndBlock::TYPE_ID:{
-				enrichedTokens.push_back(token);
+				enrichedTokens.emplace_back(std::move(token));
 
 				blockStack.pop();
 				if(blockStack.empty())
@@ -602,7 +593,7 @@ void pass_2(ParsingContext & ctxt,
 					if(functionBracketDepth.top()==0){
 						functionBracketDepth.pop();
 						Token * t = new TEndBracket;
-						t->setLine(token->getLine());
+						t->setLine(line);
 						enrichedTokens.push_back(t);
 
 						// add shortcut to the closing bracket
@@ -611,7 +602,7 @@ void pass_2(ParsingContext & ctxt,
 
 						// second closing bracket
 						t = new TEndBracket;
-						t->setLine(token->getLine());
+						t->setLine(line);
 						enrichedTokens.push_back(t);
 
 						// add shortcut to the closing bracket
@@ -623,43 +614,42 @@ void pass_2(ParsingContext & ctxt,
 			}
 			/// (
 			case TStartBracket::TYPE_ID:{
-				enrichedTokens.push_back(token);
 				if(!functionBracketDepth.empty())
 					++functionBracketDepth.top();
 				currentBracket.push(Token::cast<TStartBracket>(token));
+				enrichedTokens.emplace_back(std::move(token));
 				continue;
 			}
 			/// )
 			case TEndBracket::TYPE_ID:{
-				enrichedTokens.push_back(token);
 				if(!functionBracketDepth.empty())
 					--functionBracketDepth.top();
 				if(currentBracket.empty())
 					throwError(ctxt,"Missing opening bracket for ",token);
 
 				// add shortcut to the closing bracket
-				currentBracket.top()->endBracketIndex = enrichedTokens.size()-1;
+				currentBracket.top()->endBracketIndex = enrichedTokens.size();
 				currentBracket.pop();
+				
+				enrichedTokens.emplace_back(std::move(token));
 				continue;
 			}
 			// "part1" "part2"
 			case TValueString::TYPE_ID:{
-				enrichedTokens.push_back(token);
 
-				// no consecutive strings?
-				if( ctxt.tokens.at(cursor+1)->getType()!=TValueString::TYPE_ID ){
-					continue;
+				// consecutive strings?
+				if( ctxt.tokens.at(cursor+1)->getType()==TValueString::TYPE_ID ){
+					std::stringstream os;
+					TValueString * ts;
+					while( (ts = Token::cast<TValueString>(ctxt.tokens.at(cursor)))!=nullptr ){
+						os << ts->getValue();
+						++cursor;
+					}
+					--cursor;
+					Token::cast<TValueString>(token)->setString(os.str());
 				}
-				std::stringstream os;
-
-				TValueString * ts;
-				while( (ts = Token::cast<TValueString>(ctxt.tokens.at(cursor)))!=nullptr ){
-					os << ts->getValue();
-					++cursor;
-				}
-				--cursor;
-
-				Token::cast<TValueString>(token)->setString(os.str());
+				
+				enrichedTokens.emplace_back(std::move(token));
 				continue;
 			}
 			/// fn(foo,bar){...}  ---> (fn( (foo,bar){} ))
@@ -669,19 +659,19 @@ void pass_2(ParsingContext & ctxt,
 
 					// bracket before 'fn'
 					TStartBracket * t = new TStartBracket;
-					t->setLine(token->getLine());
+					t->setLine(line);
 					currentBracket.push(t);
 					enrichedTokens.push_back(t);
 
-					enrichedTokens.push_back(token);
+					enrichedTokens.emplace_back(std::move(token));
 
 					// bracket after 'fn'
 					t = new TStartBracket;
-					t->setLine(token->getLine());
+					t->setLine(line);
 					currentBracket.push(t);
 					enrichedTokens.push_back(t);
 				}else{
-					enrichedTokens.push_back(token);
+					enrichedTokens.emplace_back(std::move(token));
 				}
 				continue;
 			}
@@ -692,14 +682,14 @@ void pass_2(ParsingContext & ctxt,
 					throwError(ctxt,"Unclosed {");
 
 				Token * t = new TEndBlock;
-				t->setLine(token->getLine());
+				t->setLine(line);
 				enrichedTokens.push_back(t);
-				enrichedTokens.push_back(token);
+				enrichedTokens.emplace_back(std::move(token));
 				return;
 			}
 			/// ...
 			default:{
-				enrichedTokens.push_back(token);
+				enrichedTokens.emplace_back(std::move(token));
 			}
 		}
 	}
@@ -1333,36 +1323,35 @@ EPtr<AST::ASTNode> readBinaryExpression(ParsingContext & ctxt,int & cursor,int t
 							 std::string(op->getString())+"_pre"),ASTNode::refArray_t(),currentLine);
 		return  fc;
 
-	} else
-		/// Unary postfix expression
-		/// a++, a--, a!
-		/// Bsp: a++ => _.a.++post()
-		if(rightExpression.isNull()) {
-			//  if(GetAttributeExpr * ga = dynamic_cast<GetAttributeExpr *>(leftExpression)) {
-			FunctionCallExpr * fc = FunctionCallExpr::createFunctionCall(
-				new GetAttributeExpr(leftExpression,
-								 std::string(op->getString())+"_post"),ASTNode::refArray_t(),currentLine);
-			cursor--;
+	} 
+	/// Unary postfix expression
+	/// a++, a--, a!
+	/// Bsp: a++ => _.a.++post()
+	else if(rightExpression.isNull()) {
+		//  if(GetAttributeExpr * ga = dynamic_cast<GetAttributeExpr *>(leftExpression)) {
+		FunctionCallExpr * fc = FunctionCallExpr::createFunctionCall(
+			new GetAttributeExpr(leftExpression,
+							 std::string(op->getString())+"_post"),ASTNode::refArray_t(),currentLine);
+		cursor--;
 
-			return  fc;
-		}
+		return  fc;
+	}
 	/// ||
-		else if(op->getString()=="||") {
-			return LogicOpExpr::createOr(leftExpression,rightExpression);
-		}
+	else if(op->getString()=="||") {
+		return LogicOpExpr::createOr(leftExpression,rightExpression);
+	}
 	/// &&
-		else if(op->getString()=="&&") {
-			return LogicOpExpr::createAnd(leftExpression,rightExpression);
-		}
+	else if(op->getString()=="&&") {
+		return LogicOpExpr::createAnd(leftExpression,rightExpression);
+	}
 	/// normal binary expression
 	/// 1+2 -> 1.+(2)
-		else {
-			ASTNode::refArray_t paramExp;
-			paramExp.push_back(rightExpression);
-			return FunctionCallExpr::createFunctionCall(new GetAttributeExpr(leftExpression, op->getString()),
-													paramExp,currentLine);
-		}
-	return nullptr;
+	else {
+		ASTNode::refArray_t paramExp;
+		paramExp.push_back(rightExpression);
+		return FunctionCallExpr::createFunctionCall(new GetAttributeExpr(leftExpression, op->getString()),
+												paramExp,currentLine);
+	}
 }
 
 /*!	Read a function declaration. Must begin with "fn"

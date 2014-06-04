@@ -61,7 +61,7 @@ double StringUtils::readNumber(const char * s, std::size_t & cursor, bool checkS
 		int dot = 0;
 		char numAccum[100];
 		int i = 0;
-		while(i<99) {
+		while(i<98) {
 			numAccum[i++]=c;
 			++cursor;
 			c = s[cursor];

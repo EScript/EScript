@@ -48,7 +48,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		instructionCursor_t instructionCursor;
 		ObjRef caller;
 
-		FunctionCallContext()  {}
+		FunctionCallContext() : exceptionHandlerPos(0),constructorCall(false),providesCallerAsResult(false),stopExecutionAfterEnding(false)  {}
 		~FunctionCallContext(){}
 		void reset();
 		void init(const EPtr<UserFunction> userFunction,const ObjPtr _caller);
