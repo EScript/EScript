@@ -1,6 +1,6 @@
 --------------------------------------------
 EScript 0.7.1 Elfriede (Development version)
-Development: 2014-4
+Development: 2014-4 -- 2014-6
 
 General:
  - Named after Elfriede, the pedantic rabbit
@@ -8,21 +8,32 @@ General:
 
 Language:
  - Binder-type introduced (replaces the old Delegate-type)
-   Example (bind three parameters): 	[1,2,3] => fn(a,b,c,d){}; 
-   Example (bind this object): 			someObj -> fn(){}; 
-   Example (bind parameters and object): [1]=>someObj -> fn(a){}; 
+   Example (bind first three parameter values): 	[1,2,3] => fn(a,b,c,d){}; 
+   Example (bind this object): 						someObj -> fn(){}; 
+   Example (bind parameter and object): 			[1]=>someObj -> fn(a){}; 
  - Static variables can be injected into parsed code (load, loadOnce, and eval)
 	eval( "out(a);",{$a:"someStaticValue"} );
  - Add multi assignments: [ #(multipleLValues) ] = #(exprssion returning an Array)
 	Example: [var a, someArray[2] ] = ["foo","bar"]
+ - Parameter checks are performed using the "_check" member of the constraint.
+	This removes a special case for type checks and allows custom parameter checks (e.g. for Traits).
+	This might cause problems with old code:
+	fn( MyTrait p1 ){
+		// old:  p1 is either MyTrait, or a Trait inheriting from MyTrait.
+		// new: p1 has the trait MyTrait.
+	}
 
 Internals:
- - Some code cleanups.
+ - Some code cleanups
+ - Use c++11 override where possible.
+ - Fix some issues found by coverty scan.
 
 Std-Lib:
- - Allow loading modules with relative module paths, using injected "require"-functions.
-	
- 
+ - Allow loading modules with relative module paths, using injected "module"-functions.
+ - Split up "basics.escript" into several modules.
+ - Add "complete.escript" for loading the complete standard library.
+ - Add "addRevocably" module.
+
 --------------------------------------------
 EScript 0.7.0 Eli (Stable)
 Development: 2013-12
