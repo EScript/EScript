@@ -10,5 +10,5 @@ before_install:
  - sudo apt-get install -qq cmake g++-4.8
  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
 before_script: mkdir build && cd build
-script: cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_ESCRIPT_APPLICATION=ON -DBUILD_ESCRIPT_TEST=ON .. && make && cd .. && build/tests/escript_test
+script: cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_ESCRIPT_APPLICATION=ON -DBUILD_ESCRIPT_TEST=ON .. && make && cpack && cp libEScript.tar.gz /tmp && cd /tmp && tar xzf libEScript.tar.gz && cd libEScript/share/EScript && LD_LIBRARY_PATH=../../lib/x86_64-linux-gnu/ ../../bin/escript_test
 
