@@ -793,7 +793,12 @@ if(!benchmark)
 //    out("year-mon-mday hours:minutes.seconds".replaceAll(d));
 //    print_r(d);
 
-	if( "year-mon-mday hours:minutes.seconds".replaceAll(getDate(0x47f10600)) == "2008-3-31 17:40.48")
+//	This is only correct for certain time zones as getDate(...) refers to the systems localization settings:
+//	if( "year-mon-mday hours:minutes.seconds".replaceAll(getDate(0x47f10600)) == "2008-3-31 17:40.48")
+	if( "year-??-?? ??:minutes.seconds".replaceAll(getDate(0x47f10600)) == "2008-??-?? ??:40.48" && 
+			getDate(0x47f10600)['hours'].isA(Number) && 
+			getDate(0x47f10600)['mon'].isA(Number) && 
+			getDate(0x47f10600)['mday'].isA(Number))
 		{out (OK);}else { errors+=1; out(FAILED); outln("year-mon-mday hours:minutes.seconds".replaceAll(getDate(0x47f10600))); }
 }
 //---
