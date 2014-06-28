@@ -1,4 +1,11 @@
 --------------------------------------------
+EScript 0.7.2 Egon (Stable)
+Development: 2014-06
+
+General:
+ - Named after Egon, the nearsighted rabbit
+ 
+--------------------------------------------
 EScript 0.7.1 Elfriede (Development version)
 Development: 2014-4 -- 2014-6
 
