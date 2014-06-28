@@ -22,7 +22,7 @@ Void * Void::get() {
 Void::Void():Type() {
 	Void::addReference(this); // workaround for lost Void in test app.
 	
-	//! Bool void._check( obj )
+	//! Bool void._checkConstraint( obj )
 	ES_FUN(this,Consts::IDENTIFIER_fn_checkConstraint,1,1, parameter[0].castTo<const Void>() !=nullptr) // required for void parameter checks: fn( [Number,void] p1){ }
 	
 	//ctor

@@ -54,7 +54,7 @@ T.init ::= fn(...){	Runtime.exception("This method is not implemented. Implement
 	fn( Trait value )		... value should be a Trait
 	fn( SomeTrait value )	... value should have SomeTrait
 */
-T._check @(override) ::= fn(value){
+T._checkConstraint @(override) ::= fn(value){
 	@(once) static Traits = module('./basics');
 	return T==this ? value.isA(T) : Traits.queryTrait(value,this);
 };

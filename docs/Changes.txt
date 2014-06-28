@@ -15,7 +15,7 @@ Language:
 	eval( "out(a);",{$a:"someStaticValue"} );
  - Add multi assignments: [ #(multipleLValues) ] = #(exprssion returning an Array)
 	Example: [var a, someArray[2] ] = ["foo","bar"]
- - Parameter checks are performed using the "_check" member of the constraint.
+ - Parameter checks are performed using the "_checkConstraint" member of the constraint.
 	This removes a special case for type checks and allows custom parameter checks (e.g. for Traits).
 	This might cause problems with old code:
 	fn( MyTrait p1 ){

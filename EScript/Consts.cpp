@@ -17,7 +17,7 @@ const StringId Consts::IDENTIFIER_this("this");
 const StringId Consts::IDENTIFIER_thisFn("thisFn");
 const StringId Consts::IDENTIFIER_internalResult("___result");
 const StringId Consts::IDENTIFIER_fn_call("_call");
-const StringId Consts::IDENTIFIER_fn_checkConstraint("_check");
+const StringId Consts::IDENTIFIER_fn_checkConstraint("_checkConstraint");
 const StringId Consts::IDENTIFIER_fn_constructor("_constructor");
 const StringId Consts::IDENTIFIER_fn_less("<");
 const StringId Consts::IDENTIFIER_fn_greater(">");

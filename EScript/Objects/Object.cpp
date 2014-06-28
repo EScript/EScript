@@ -122,7 +122,7 @@ void Object::init(EScript::Namespace & globals) {
 		return Map::create(attrs);
 	})
 
-	//! Bool Object._check( obj )
+	//! Bool Object._checkConstraint( obj )
 	ES_FUNCTION(typeObject,Consts::IDENTIFIER_fn_checkConstraint,1,1,{
 		const auto* thisType = thisEObj.castTo<const Type>();
 		if( thisType ){
