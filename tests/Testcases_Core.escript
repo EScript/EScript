@@ -794,7 +794,7 @@ if(!benchmark)
 //    print_r(d);
 
 	if( "year-mon-mday hours:minutes.seconds".replaceAll(getDate(0x47f10600)) == "2008-3-31 17:40.48")
-		{out (OK);}else { errors+=1; out(FAILED); }
+		{out (OK);}else { errors+=1; out(FAILED); outln("year-mon-mday hours:minutes.seconds".replaceAll(getDate(0x47f10600))); }
 }
 //---
 {
