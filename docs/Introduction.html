@@ -20,7 +20,7 @@ h3 {  margin-top:1cm; }
 </head>
 <body>
 <!-- ______________________________________________________________________________ -->
-<h1>EScript 0.6.6 (Eduard)</h1>
+<h1>EScript 0.7.1 (Elfriede)</h1>
 <p>
 EScript ist eine interpretierte, objektorientierte, C-Syntax-ähnliche Skriptsprache, die mit dem
 Fokus entwickelt wurde C++-Programme (relativ) einfach durch Skripting steuern und erweitern zu können.
@@ -89,7 +89,7 @@ E  iiii Sc pi  r pc i  iEpt   itS  iii rEr i    irii cE
 <li><a href="#functionattributes">Funktionsattribute (Memberfunktionen)</a></li>
 <li><a href="#typesinheritance">Typen und Vererbung</a></li>
 <li><a href="#attributes">Eigenschaften von Attributen</li>
-<li><a href="#delegates">Delegates</a></li>
+<li><a href="#FnBinder">FnBinders</a></li>
 <li><a href="#globalvariables">Globale Variablen</a></li>
 <li><a href="#specialconstants">Spezielle Konstanten</a></li>
 <li><a href="#shortreference">Kurzreferenz</a> (noch nicht fertig)</li>
@@ -126,7 +126,9 @@ Claudius
 <h3>Einfache Typen (call by value)</h3>
 <ul>
 <li><b>Number</b> Entspricht intern einem  <code>double</code>. Bsp. <code>1</code>, <code>27.4</code>, <code>0x1a</code></li>
-<li><b>String</b> Bsp. <code>"s"</code>, <code>'s'</code></li>
+<li><b>String</b> Bsp. <code>"s"</code>, <code>'s'</code>. 
+Strings sind Unicode codiert. 
+Ein Zeichen ist ein Unicode-codepoint. </li>
 <li><b>Bool</b> <code>true</code> oder <code>false</code></li>
 <li><b>Void</b> Leerer Wert. <code>void</code></li>
 </ul>
@@ -150,15 +152,15 @@ Claudius
 Eigenschaften des Objects beeinflusst (dazu später mehr).</li>
 <li><b>Array (&rArr; Collection)</b> Dynamisches Array (intern ein C++ STL vector).</li>
 <li><b>Map (&rArr; Collection)</b> Dynamische Map (intern eine C++ STL map).</li>
-<li><b>Delegate</b> Kombination aus Objekt und Funktion (Pointer of Memberfunktion).</li>
+<li><b>FnBinder</b> Funktion mit gebundenen Parametern und/oder aufrufendem Objekt.</li>
 </ul>
 <h3>Einige der vielen vermutlich nur indirekt verwendeten Typen (call by reference)</h3>
 <!-- Replace by dl. -->
 <ul>
-<li><b>Function</b> Funktion (oder Memberfunktion).</li>
-<li><b>Collection</b> Sammlung von Objecten.</li>
+<li><b>Function</b> Wrapper für eine in C++ definierte Funktion.</li>
+<li><b>UserFunction</b> Eine in EScript geschriebene Funktion.</li>
+<li><b>Collection</b> Sammlung von Objekten.</li>
 <li><b>Iterator</b> Iterator für <code>Collection</code>.</li>
-<li><b>NumberRef</b> Direkte Verknüpfung zu einer Variable in C++ (<b>Sparsam verwenden!</b>)</li>
 <li><b>ReferenceObject</b> Basisklasse für die einfache Verknüpfung eigener C++-Objekte an EScript Objects.</li>
 <li><b>Exception</b> Ausnahme.</li>
 </ul>
@@ -190,13 +192,13 @@ Wie in den meisten C-Syntax-ähnlichen Sprachen. Zwischen <code>{</code> und <co
 Anweisungen stehen. Diese werden durch <code>;</code> getrennt.
 </p>
 <!-- ______________________________________________________________________________ -->
-<h3>Lokale Variablendeklaration: <code>var</code></h3>
+<h3 id="var">Lokale Variablendeklaration: <code>var</code></h3>
 <pre class="grammar">
 Grammatik:
 VarDecl ::= 'var' Identifier [...]
 </pre>
 <p>
-<code>var</code> deklariert eine lokale Variable im umschließenden Block ( <code>{...}</code> ).
+<code>var</code> deklariert eine lokale Variable innerhalb der aktuellen Funktion im umschließenden Block ( <code>{...}</code> ).
 Die Ausnahme dieser Regel ist die Deklaration von Variablen innerhalb von Schleifenbedingungen (seit Version 0.5.1).
 Dann gilt die Variable nicht im direkt umschließenden Block, sondern innerhalb der Schleife (also in etwa so wie in C).
 </p>
@@ -231,6 +233,7 @@ Einige Dinge zur Beachtung:
 <code>var</code> gilt immer nur für den <em>einen</em> Identifier, der direkt dahinter steht.
 Wenn man mehrere Variablen deklarieren möchte, braucht jede ihr eigenes <code>var</code>.
 </li>
+<li><a href="#static">Statische Variablen</a> können mit dem Schlüsselwort <code>static</code> deklariert werden.</li>
 </ul>
 
 
@@ -300,11 +303,11 @@ var time=clock();
 Sie haben von sich aus keinen Namen, sondern man muss sie Variablen zuweisen, um ihnen einen Namen zu geben.
 Daher sieht eine typische Funktionsdeklaration, die ein Funktionsobjekt an eine lokale Variable zuweist, so aus:</p>
 <pre class="code">
-var myNewFunction=fn(x){      // Funktion mit einem Parameter
+var myNewFunction = fn(x){      // Funktion mit einem Parameter
 	return x*x;
 };
-out( myNewFunction ,"\n");    // gib den Wert der Variable myNewFunction aus (und einen Zeilenumbruch).
-out( myNewFunction(7) ,"\n"); // gib den Rückgabewert des Aufrufs der Funktion myNewFunction aus.
+outln( myNewFunction );    // gib den Wert der Variable myNewFunction aus (und einen Zeilenumbruch).
+outln( myNewFunction(7) ); // gib den Rückgabewert des Aufrufs der Funktion myNewFunction aus.
 </pre>
 <pre class="output">
 #Function
@@ -370,6 +373,13 @@ Dazu wird in Arrayschreibweise eine Liste möglicher Typen und möglicher Werte 
 Beispielsweise akzeptiert die Funktion <code> fn( [String,3,void] x){} </code> für den Parameter <code>x</code> entweder einen beliebigen String, den Wert <code>3</code> oder den Wert <code>void</code>.
 </p>
 
+<p class="ext">
+  Intern wird auf jedem Bedingungsobjekt die Memberfunktion <code>_checkConstraint</code> aufgerufen.
+  Liefernt eine Bedingung <code>true</code> zurück, gilt der Parameterwert als valide.
+  Der Parametertest in der Funktion <code>fn( [Number,void] p1){}</code> entspricht also im Wesentlichen <code>if( !Number._checkConstraint(p1)&& !void._checkConstraint(p1) ) throw new Exception("...");</code>
+</p>
+
+
 <h4>Rekursive Funktionen</h4>
 <p>Um eine Funktion rekursiv auzurufen kann man innerhalb des Funktionsrumpfs über die implizit deklarierte lokale Variable <code>thisFn</code> auf das Funktionsobjekt selber zugreifen.</p>
 <pre class="code">
@@ -384,7 +394,8 @@ out( fak(4) );    // (4*(3*(2*(1))))=24
 <pre class="output">
 24
 </pre>
-<p class="ext">Um eine Memberfunktion rekursiv aufzurufen, verwendet man am besten ein entsprechendes Delegate: <code>(this->thisFn)(...)</code></p>
+<p class="ext">Um eine Memberfunktion rekursiv aufzurufen, verwendet man am besten ein entsprechendes FnBinder: <code>(this->thisFn)(...)</code></p>
+<p class="ext">Eine andere Möglichkeit für rekursive Aufrufe ist, die Funktion in einer statische Variable zu speichern, die auch in der Funktion selber zur Verfügung steht (siehe <a href="#static">statische Variablen</a>).</p>
 <!-- ______________________________________________________________________________ -->
 
 <h3>Ausnahmebehandlung <code>try{ ... }catch(e){...}</code></h3>
@@ -563,6 +574,47 @@ foreach(a as var key, var value)
 0:a 1:b 2:c
 </pre>
 
+<!-- ______________________________________________________________________________ -->
+<h2 id="static">Statische Variablen</h2>
+<pre class="grammar">
+Grammatik:
+VarDecl ::= 'static' Identifier [...]
+</pre>
+<p>
+<code>static</code> deklariert eine statische Variable im umschließenden Block ( <code>{...}</code> ), mit den gleichen Regeln wie <a href="#var">lokale Variablen</a> -- jedoch mit zwei wesentlichen Unterschieden:
+</p>
+<ul>
+<li>Der Speicherplatz einer statischen Variable wird nur einmal reserviert und nicht für jeden aktuellen Aufruf der umgebenden Funktion auf dem Stack. </li>
+<li>Statische Variablen sind auch innerhalb von Funktionen sichtbar, die in dem Block der Variable definiert werden.
+</ul>
+<pre class="code">
+// static-Beispiel
+{
+  var a;        // führt zur Deklaration von a im umschließenden Block -- ohne Funktionen
+  static b = 0; // führt zur Deklaration von b im umschließenden Block -- mit Funktionen
+
+  static f = fn(){
+	if( b<10 ){
+		++b;    // Zugriff auf b; a ist nicht sichtbar
+		f();    // Rekursiver Aufruf von f
+	}
+  };
+  f();
+  outln( f );
+}
+</pre>
+<pre class="output">
+10
+</pre>
+<p>
+Einige Dinge zur Beachtung:
+</p>
+<ul>
+<li>
+(Speicherverwaltung) Alle in einer Datei definierten Funktionen, in denen auf statische Variablen zugegriffen wird, können sich den Speicherbereich für statische Variablen teilen.
+Ist eine dieser Funktionen noch referenziert, werden also ggF. Objekte in nicht mehr direkt referenzierten, statischen Variablen nicht freigegeben.
+</li>
+</ul>
 <!-- ______________________________________________________________________________ -->
 <h3>Attribute <code>object.identifier</code></h3>
 <p>
@@ -835,7 +887,7 @@ a.v = a.v + 1; // Ausnahme wird geworfen beim Versuch der Zuweisung zu einem kon
 </pre>
 
 <h3><code>@(init)</code></h3>
-<p>Die Eigenschaft <code>@(init)</code> erlaubt die Initialisierung von Objektattributen mit Instanzen eines Typs oder dem Rückgabewert einer beliebigen Funktion (oder Delegate oder anderem ausführbaren Objekt).
+<p>Die Eigenschaft <code>@(init)</code> erlaubt die Initialisierung von Objektattributen mit Instanzen eines Typs oder dem Rückgabewert einer beliebigen Funktion (oder FnBinder oder anderem ausführbaren Objekt).
 Dazu ein Beispiel, bei dem jeder Instanz eines Objektes ein Array als Objektattribut hinzugefügt werden soll:
 </p>
 
@@ -906,7 +958,7 @@ b.m3 := fn(){	m1();  }; // aus öffentlicher Funktion, geerbte, private funktion
 out( b.v1 ); // Warnung wegen Zugriffsverletzung; Ausgabe 'void'
 b.m1(); // Warnung wegen Zugriffsverletzung. Keine Ausgabe.
 b.m3(); // Ok. Ausgabe: 'm1:1'.
-(b->fn(){m1();})(); // Ok (Da das Delegate als Memberfunktion wirkt. Siehe <a href=#delegates>Delegates</a>) Ausgabe: 'm1:1'.
+(b->fn(){m1();})(); // Ok (Da das FnBinder als Memberfunktion wirkt. Siehe <a href=#FnBinder>FnBinders</a>) Ausgabe: 'm1:1'.
 b.m2(b); // OK. Ausgabe: 'm2:1'.
 b.m2(new B()); // Warnung wegen Zugriffsverletzung. Keine Ausgabe.
 </pre>
@@ -927,41 +979,72 @@ A.t2 @(type) := "dies ist auch ein Typattribut";
 
 
 <!-- ______________________________________________________________________________ -->
-<h2 id="delegates">Delegates</h2>
-<p>Ein Delegate ist die Kombination aus einem Objekt und einer Funktion, welches so wie eine Funktion verwendet werden kann.
-Die Funktion des Delegates wird wie eine Attributsfunktion (oder auch Memberfunktion) des Objekts ausgeführt; d. h. innerhalb der Funktion kann man z. B. mit <code>this</code> auf das Objekt des Delegates zugreifen.
-Erzeugt werden Delegates durch den <code>-&gt;</code>-Operator: <code> object -&gt; function</code>.
-Einsetzen lassen sich Delegates beispielsweise bei der Implementierung von Listenern:
+<h2 id="FnBinder">FnBinder</h2>
+<p>Ein FnBinder ist die Kombination eines Funktionsobjektes und gebundener Parameterwerte und/oder gebundenem, aufrufenden Objekt.
+
+<h3>Binden des aufrufenden Objektes (Delegate)</h3>
+<p>
+Ein FnBinder, mit einem gebundenen, aufrufenden Objekt, wird  durch den <code>-&gt;</code>-Operator erzeugt: <code> object -&gt; function</code>.
+Die Funktion des FnBinders wird wie eine Attributsfunktion (oder auch Memberfunktion) des Objekts ausgeführt; d. h. innerhalb der Funktion kann man z. B. mit <code>this</code> auf das Objekt des FnBinders zugreifen.
+Einsetzen lassen sich FnBinders beispielsweise bei der Implementierung von Listenern:
 </p>
 
 <pre class="code">
-var a=new ExtObject;          // ExtObject erzeugen
-a.name:="foo";                // Objektattribut hinzufügen
-a.wakeUp:=fn(){               // Funktion hinzufügen
+var a = new ExtObject;          // ExtObject erzeugen
+a.name := "foo";                // Objektattribut hinzufügen
+a.wakeUp := fn(){               // Funktion hinzufügen
 	out(name," wakes up");
 };
 
 // Einfaches Beispiel
-var delegate= a -> fn(){      // ein Delegate erzeugen
+var delegate = a -> fn(){      // ein FnBinder erzeugen
 	out(name,"\n");
 };
-delegate();                   // Delegate ausführen
+delegate();                   // FnBinder ausführen
 
 // Listener Beispiel
-var listener=[];              // Array anlegen
-listener+= a -> a.wakeUp;     // Delegate erzeugen und zu Listener-Array hinzufügen
+var listener = [];              // Array anlegen
+listener += a -> a.wakeUp;     // FnBinder erzeugen und zu Listener-Array hinzufügen
 // ...
 
 foreach(listener as var l)    // jeden Listener ausführen
     l();                      // Hier brauchen wir den Attributnamen der aufgerufenen Funktion (wenn sie denn einen hat)
-                              // nicht zu kennen. Sowohl Objekt als auch Funktion sind ja im Delegate gespeichert.
+                              // nicht zu kennen. Sowohl Objekt als auch Funktion sind ja im FnBinder gespeichert.
 </pre>
 <pre class="output">
 foo
 foo wakes up
 </pre>
 
-<p class="att">Wenn man ein Delegate direkt ausführen möchte, sollte man den Ausdruck in Klammer schreiben. Z. B. <code>(this->fn(a){...})(123);</code>.</p>
+
+<h3>Binden von Parameterwerten</h3>
+<p>
+Ein FnBinder, mit gebundenen Parameterwerte, wird  durch den <code>=&gt;</code>-Operator erzeugt: <code> Array mit Werten =&gt; function</code>.
+Die Werte werden an die ersten Parameter gebunden; die restlichen Parameter bleiben frei.
+</p>
+
+<pre class="code">
+var f = fn( a,b,c){
+	outln( "a:", a, " b:", b, " c:", c );
+};
+var b1 = [4] => f;
+var b2 = [4,17] => f;
+var b3 = [42] => b2;
+
+f(1,2,3);
+b1(1,2);
+b2(1);
+b3();
+
+</pre>
+<pre class="output">
+a:1 b:2 c:3
+a:4 b:1 c:2
+a:4 b:17 c:1
+a:4 b:17 c:42
+</pre>
+
+<p class="att">Wenn man mit einem FnBinder sowohl ein Objekt, als auch Parameter binden möchte, sollte das Objekt innen (rechts) stehen. Z. B. <code> [1,2,3] => obj->fn(p1,p2,p3){}</code>.</p>
 
 <!-- ______________________________________________________________________________ -->
 <h2 id="globalvariables">Globale Variablen</h2>
@@ -983,6 +1066,8 @@ f();
 <pre class="output">
 Dumdidum...
 </pre>
+<p class="att">Neue globale Variablen sollten nur in Ausnahmefällen deklariert werden!
+<a href="#static">Statische Variablen</a> sind eine mögliche Alternative.</p>
 
 <!-- ______________________________________________________________________________ -->
 
@@ -1032,8 +1117,9 @@ Wird die geladene Datei mit einem <code>return</code>-Statement beendet, liefern
 Kann die Datei nicht geladen werden oder werden Fehler entdeckt, wird eine Ausnahme ausgelöst.
 </p>
 
-<h3><code>void out(...)</code> / <code>void print_r(...)</code></h3>
+<h3><code>void out(...)</code> / <code>void outln(...)</code> / <code>void print_r(...)</code></h3>
 <p><code>out</code> gibt alle übergebenen Parameter als <code>String</code> aus.
+<code>outln</code> gibt alle übergebenen Parameter als <code>String</code> und einem abschließenden Zeilenumbruch aus.
 <code>print_r</code> gibt ebenfalls alle Parameter als <code>String</code> aus, jedoch werden <code>Array</code>- und <code>Map</code>-Objekte formatiert ausgegeben.
 </p>
 
