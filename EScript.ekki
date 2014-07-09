@@ -31,6 +31,7 @@ var Node = module('EkkiEkkiKateng/Node');
 var FileUtils = module('EkkiEkkiKateng/FileUtils');
 
 var CompilerOptions = module('EkkiEkkiKateng/CompilerOptions');
+var LinkerOptions = module('EkkiEkkiKateng/LinkerOptions');
 var Projects = module('EkkiEkkiKateng/Projects');
 var Files = module('EkkiEkkiKateng/Files');
 var Targets = module('EkkiEkkiKateng/Targets');
@@ -71,19 +72,22 @@ foreach( config.get('Project.targets',{
 				'type' : 'CONSOLE_APP',
 				'output' : "EScript",
 				'objectFolder' : ".obj/app",
-				'compilerOptions' : [ "-g","-O3","-DES_BUILD_APPLICATION" ]
+				'compilerOptions' : [ "-g","-O3","-DES_BUILD_APPLICATION" ],
+				'linkerOptions' : ["-s"]
 			},
 			'Tests' : {
 				'type' : 'CONSOLE_APP',
 				'output' : "EScriptTest",
 				'objectFolder' : ".obj/test",
-				'compilerOptions' : [ "-g","-O3","-DES_BUILD_TEST_APPLICATION" ]
+				'compilerOptions' : [ "-g","-O3","-DES_BUILD_TEST_APPLICATION" ],
+				'linkerOptions' : []
 			},
 			'StaticLib' : {
 				'type' : 'STATIC_LIB',
 				'output' : "EScriptTest",
 				'objectFolder' : ".obj/test",
-				'compilerOptions' : [ "-g","-O3" ]
+				'compilerOptions' : [ "-g","-O3" ],
+				'linkerOptions' : []
 			}
 		})	as var targetName, var targetDescription){
 	var targetNode = Targets.createNode( targetName );
@@ -100,6 +104,7 @@ foreach( config.get('Project.targets',{
 	Targets.setOutput( targetNode, targetDescription['output'] );
 	Targets.setObjectFolder( targetNode, targetDescription['objectFolder']);
 	CompilerOptions.addOptions(targetNode, targetDescription['compilerOptions']);
+	LinkerOptions.addOptions(targetNode, targetDescription['linkerOptions']);
 	targetNode += allFiles;
 	project += targetNode;
 }
