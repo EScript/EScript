@@ -1,7 +1,7 @@
 // Number.cpp
 // This file is part of the EScript programming language (https://github.com/EScript)
 //
-// Copyright (C) 2011-2013 Claudius Jähn <ClaudiusJ@live.de>
+// Copyright (C) 2011-2014 Claudius Jähn <ClaudiusJ@live.de>
 // Copyright (C) 2012-2013 Benjamin Eikel <benjamin@eikel.org>
 // Copyright (C) 2012 rpetring
 //
@@ -58,7 +58,7 @@ void Number::init(EScript::Namespace & globals) {
 	//! [ESMF] Number / Number2
 	ES_FUNCTION(typeObject,"/",1,1,{
 		const double d = parameter[0].to<double>(rt);
-		if(d==0){
+		if( std::fpclassify(d)==FP_ZERO ){
 			rt.setException("Division by zero");
 			return nullptr;
 		}
@@ -77,7 +77,7 @@ void Number::init(EScript::Namespace & globals) {
 	//! [ESMF] Number % Number2
 	ES_MFUNCTION(typeObject,Number,"%",1,1,{
 		const double d = parameter[0].to<double>(rt);
-		if(d==0){
+		if( std::fpclassify(d)==FP_ZERO ){
 			rt.setException("Modulo with zero");
 			return nullptr;
 		}
@@ -118,7 +118,7 @@ void Number::init(EScript::Namespace & globals) {
 	//! [ESMF] Numbern /= Number2
 	ES_MFUNCTION(typeObject,Number,"/=",1,1,{
 		const double d = parameter[0].to<double>(rt);
-		if(d==0){
+		if( std::fpclassify(d)==FP_ZERO ){
 			rt.setException("Division by zero");
 			return nullptr;
 		}
@@ -129,7 +129,7 @@ void Number::init(EScript::Namespace & globals) {
 	//! [ESMF] Numbern %= Number2
 	ES_MFUNCTION(typeObject,Number,"%=",1,1,{
 		const double d = parameter[0].to<double>(rt);
-		if(d==0){
+		if( std::fpclassify(d)==FP_ZERO ){
 			rt.setException("Modulo with zero");
 			return nullptr;
 		}
@@ -229,16 +229,22 @@ void Number::init(EScript::Namespace & globals) {
 		@param reference Reference value to which should be rounded:  x.round(reference) ^== reference * round(x/reference)
 		@example (123.456).round(0.1) == 123.5
 				(123.456).round(5) == 125
-				(123.456).round(10) == 120 */
+				(123.456).round(10) == 120 
+				(-0.456).round() == 0
+				*/
 	ES_FUNCTION(typeObject,"round",0,1,{
-		if(parameter.count()==0)
-			return std::round( thisEObj->toDouble());
-		const double reference = parameter[0].to<double>(rt);
-		if(reference==0){
-			rt.setException("round with zero");
-			return nullptr;
+		if(parameter.count()==0){
+			const double d = std::round( thisEObj->toDouble());
+			return std::fpclassify(d)==FP_ZERO ? 0.0 : d;
+		}else{
+			const double reference = parameter[0].to<double>(rt);
+			if(std::fpclassify(reference)==FP_ZERO){
+				rt.setException("round with zero");
+				return nullptr;
+			}
+			const double d =std::round(thisEObj->toDouble()/reference);
+			return std::fpclassify(d)==FP_ZERO ? 0.0 : d * reference;
 		}
-		return std::round(thisEObj->toDouble()/reference) * reference;
 	})
 
 	//! [ESMF] +1|-1 Number.sign()

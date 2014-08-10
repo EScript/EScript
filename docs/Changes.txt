@@ -4,7 +4,11 @@ Development: 2014-06
 
 General:
  - Named after Egon, the nearsighted rabbit
- 
+
+Minor language changes:
+ - Number.round now returns 0 instead of -0 when rounding a negative number to zero
+	(unlike std::round, which returns -0).
+
 --------------------------------------------
 EScript 0.7.1 Elfriede (Development version)
 Development: 2014-4 -- 2014-6
