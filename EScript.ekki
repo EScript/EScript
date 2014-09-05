@@ -18,8 +18,7 @@ outln("Loading EScript Std library...");
 assert(EScript.VERSION >= 701, "wrong EScript version (requires >=701)");
 static module = load( IO.dirname(args[0])+ "/Std/module.escript"); // load Std lib module loader (relative to EScript executable)
 module.addSearchPath( IO.dirname(args[0]) ); // search path for Std lib
-module.addSearchPath( IO.dirname(args[0])+"/.." ); // search path for EkkiEkkiKateng
-//module.addSearchPath( IO.dirname(__DIR__)+"/.." ); // search path for EkkiEkkiKateng
+module.addSearchPath( IO.condensePath(IO.dirname(args[0])+"\\..") ); // search path for EkkiEkkiKateng
 
 // ------
 outln("Loading EkkiEkkiKateng...");
@@ -44,7 +43,7 @@ outln("Creating/loading config file '",configFileName,"'...");
 var config = new (module('Std/JSONDataStore'))(true);
 config.init( configFileName, false);
 
-static folder_base = config.get('Project.Folders.base', IO.condensePath( (__DIR__+"/../").replaceAll('\\','/') ));
+static folder_base = config.get('Project.Folders.base', IO.condensePath( (__DIR__).replaceAll('\\','/') ));
 
 
 // ------
