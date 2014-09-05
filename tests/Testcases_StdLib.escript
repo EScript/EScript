@@ -14,6 +14,30 @@ module.addSearchPath(".");
 // ----------------------------------------------------------
 {
 	var ok = true;
+	var loader = module.createLoader( 'Foo/ExampleModule' );
+	ok &= loader.getId() == 'Foo/ExampleModule';
+	ok &= loader.get('./Module2') === void;
+	loader._registerModule('Foo/Module2',42);
+	ok &= loader.get('./Module2') == 42;
+	ok &= loader.require('./Module2') == 42;
+	ok &= loader('./Module2') == 42;
+	ok &= module.get('Foo/Module2') == 42;
+	loader._setModuleAlias('Foo17/Module2','./Module2');
+	ok &= loader.get('Foo17/Module2') == 42;
+	loader._unregisterModule('Foo/Module2');
+	ok &= loader.get('Foo17/Module2') === void;
+	var exceptionIfNotFound=false;
+	try{
+		loader('Foo17/Module2');
+	}catch(e){
+		exceptionIfNotFound = true;
+	}
+	ok &= exceptionIfNotFound;
+	test("Std.module", ok );
+}
+
+{
+	var ok = true;
 	var generatorFn = module('Std/generatorFn');
 	{
 		var f = generatorFn(fn( max ){

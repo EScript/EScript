@@ -8,6 +8,7 @@ General:
 Minor language changes:
  - Number.round now returns 0 instead of -0 when rounding a negative number to zero
 	(unlike std::round, which returns -0).
+ - Add module aliases: module._setModuleAlias(alias, moduleId)
 
 --------------------------------------------
 EScript 0.7.1 Elfriede (Development version)
