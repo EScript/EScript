@@ -54,6 +54,12 @@ Traits.addTraitByName := fn(obj, String traitName, params...){
 	Traits.addTrait(obj, Traits.getTraitByName(traitName), params...);
 };
 
+//! Adds the given trait if it has not already been added.
+Traits.assureTrait := fn( object, trait ){
+	if(!Traits.queryTrait(object,trait))
+		Traits.addTrait(object,trait);
+};
+
 Traits.getTraitByName := fn(String traitName){
 	var nameParts = traitName.split('.');
 	var traitSearch = GLOBALS;

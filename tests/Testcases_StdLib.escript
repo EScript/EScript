@@ -528,6 +528,17 @@ module.addSearchPath(".");
 		
 		ok &= exceptionCount==4;
 	}
+	{	// assureTrait
+		var t = new (module('Std/Traits/GenericTrait'));
+		var initCounter = [0];
+		t.onInit += [initCounter] => fn( initCounter,obj ){ initCounter[0]++; };
+		var obj = new ExtObject;
+		ok &= !Traits.queryTrait(obj,t);
+		Traits.assureTrait(obj,t);
+		ok &= Traits.queryTrait(obj,t);
+		Traits.assureTrait(obj,t);
+		ok &= initCounter[0]==1;
+	}
 	
 	
 	test("Std.Traits", ok);
