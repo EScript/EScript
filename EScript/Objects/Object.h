@@ -15,7 +15,7 @@
 #include "../Utils/EReferenceCounter.h"
 #include "typeIds.h"
 
-#include <iostream>
+#include <ostream>
 #include <unordered_map>
 
 namespace EScript {

@@ -9,7 +9,7 @@
 #ifndef ESCRIPT_JSON_H
 #define ESCRIPT_JSON_H
 #include <string>
-#include <sstream>
+#include <iosfwd>
 
 namespace EScript {
 class Object;

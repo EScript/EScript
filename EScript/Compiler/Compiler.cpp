@@ -27,7 +27,9 @@
 #include "../Objects/Callables/UserFunction.h"
 
 #include <functional>
+#include <iostream>
 #include <map>
+#include <sstream>
 #include <stdexcept>
 
 #if !defined(_MSC_VER) and !defined(UNUSED_ATTRIBUTE)

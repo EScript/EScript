@@ -14,7 +14,7 @@
 #include "../Objects/Callables/Function.h"
 #include "../Objects/Exception.h"
 #include "../Objects/YieldIterator.h"
-
+#include <iostream>
 #include <sstream>
 
 namespace EScript{

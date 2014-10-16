@@ -27,7 +27,8 @@
 #include "../Utils/IO/IO.h"
 #include "../Objects/Callables/UserFunction.h"
 
-#include <stdio.h>
+#include <cstdio>
+#include <iostream>
 #include <stack>
 #include <sstream>
 

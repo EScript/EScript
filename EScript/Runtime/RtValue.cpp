@@ -13,6 +13,7 @@
 #include "../Objects/Values/Number.h"
 #include "../Objects/Values/String.h"
 #include "../Objects/Values/Void.h"
+#include <sstream>
 #include <stdexcept>
 
 namespace EScript{

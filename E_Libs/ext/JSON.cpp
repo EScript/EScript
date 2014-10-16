@@ -12,6 +12,8 @@
 #include "../../EScript/StdObjects.h"
 #include "../../EScript/Utils/StringUtils.h"
 #include "../../EScript/Compiler/Tokenizer.h"
+#include <iostream>
+#include <sstream>
 
 namespace EScript{
 

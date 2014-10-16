@@ -12,6 +12,7 @@
 #include "../Consts.h"
 #include "../Objects/Callables/FnBinder.h"
 #include "../Objects/Exception.h"
+#include <iostream>
 #include <sstream>
 
 #ifdef ES_DEBUG_MEMORY

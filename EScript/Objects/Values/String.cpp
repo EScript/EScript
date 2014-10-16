@@ -11,6 +11,7 @@
 #include "../../StdObjects.h"
 #include "../../Utils/StringUtils.h"
 
+#include <iostream>
 #include <sstream>
 #include <stack>
 

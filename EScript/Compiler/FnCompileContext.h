@@ -17,7 +17,6 @@
 #include <set>
 #include <string>
 #include <vector>
-#include <sstream>
 #include <stack>
 
 namespace EScript {

@@ -9,6 +9,7 @@
 #include "Void.h"
 #include "../../Basics.h"
 #include "../../Consts.h"
+#include <iostream>
 
 namespace EScript{
 
