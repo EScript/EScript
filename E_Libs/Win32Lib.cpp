@@ -12,6 +12,7 @@
 #include "Win32Lib.h"
 
 #include <windows.h>
+#include <iostream>
 
 namespace EScript{
 
