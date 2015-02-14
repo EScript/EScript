@@ -2,9 +2,6 @@ env:
   global:
    - secure: "ddLIJLh3ehLuiwkmo91RYphfEa9WlVB01na3xzWmYgS7zLoURWnl+Kit9bRVbKUCDIUJgvO0R5G5wDWqO811N+LQ2F+NxGLU7xb5Enc5GRPUeSrzMAmX27hlCl8tea22lhUxuN6SGF7Ck3PnZ8F7yZq8xc778VY+roq+oJELtJE="
 language: cpp
-compiler:
-  - gcc
-  - clang
 cache: apt
 before_install:
  - sudo add-apt-repository --yes ppa:kalakris/cmake
