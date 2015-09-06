@@ -151,7 +151,16 @@ install(FILES ${CMAKE_CURRENT_BINARY_DIR}/EScriptConfig.cmake ${CMAKE_CURRENT_BI
 		DESTINATION ${CMAKE_INSTALL_CMAKECONFIGDIR} COMPONENT developmentlibraries)
 
 add_subdirectory(EScript)
-add_subdirectory(tests)
+
+option(BUILD_ESCRIPT_TEST "Defines if the EScript test application is built.")
+if(BUILD_ESCRIPT_TEST)
+	if(UNIX AND NOT APPLE)
+		find_program(MEMORYCHECK_COMMAND NAMES valgrind)
+		set(MEMORYCHECK_COMMAND_OPTIONS "--tool=memcheck --leak-check=summary --num-callers=1 --vgdb=no")
+	endif()
+	include(CTest)
+	add_subdirectory(tests)
+endif()
 
 # Packaging
 include(InstallRequiredSystemLibraries)
