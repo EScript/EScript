@@ -3,6 +3,12 @@ compiler:
   - gcc
   - clang
 sudo: false
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - g++-5
 before_install:
  - cd /tmp
  - wget http://www.cmake.org/files/v3.3/cmake-3.3.1-Linux-x86_64.tar.gz
