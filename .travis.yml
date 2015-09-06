@@ -17,6 +17,6 @@ before_install:
  - tar xzf cmake-3.3.1-Linux-x86_64.tar.gz
  - export PATH=/tmp/cmake-3.3.1-Linux-x86_64/bin:$PATH
  - cd -
-before_script: mkdir build && cd build && if [ "${CXX}" = "clang++" ]; then export CXX=clang++-3.7; fi && if [ "${CXX}" = "g++" ]; then export CXX=g++-5; fi
+before_script: mkdir build && cd build && if [ "${CXX}" = "clang++" ]; then export CXX=/usr/bin/clang++-3.7; fi && if [ "${CXX}" = "g++" ]; then export CXX=/usr/bin/g++-5; fi
 script: cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_ESCRIPT_APPLICATION=ON -DBUILD_ESCRIPT_TEST=ON .. && make && cpack && cp libEScript.tar.gz /tmp && cd /tmp && tar xzf libEScript.tar.gz && cd libEScript/share/EScript && LD_LIBRARY_PATH=../../lib/x86_64-linux-gnu/ ../../bin/escript_test && LD_LIBRARY_PATH=../../lib/x86_64-linux-gnu/ valgrind --tool=memcheck --leak-check=no --track-origins=yes --error-exitcode=200 ../../bin/escript_test
 
