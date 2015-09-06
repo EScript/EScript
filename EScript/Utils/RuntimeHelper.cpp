@@ -107,7 +107,7 @@ ObjRef _loadAndExecute(Runtime & runtime, const std::string & filename,const std
 
 //! (static)
 std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & filename) {
-	return loadAndExecute(runtime, filename, {});
+	return loadAndExecute(runtime, filename, std::unordered_map<StringId, ObjRef>({}));
 }
 
 std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & filename,const std::unordered_map<StringId,ObjRef>& staticVars) {
