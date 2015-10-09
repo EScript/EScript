@@ -344,7 +344,7 @@ void StdLib::init(EScript::Namespace * globals) {
 		}
 		argv[argc] = nullptr;
 
-		Number * result = create(*_execv(parameter[0].toString().c_str(), argv));
+		Number * result = create(_execv(parameter[0].toString().c_str(), argv));
 
 		for(uint_fast32_t i = 0; i < argc; ++i) {
 			delete [] argv[i];
