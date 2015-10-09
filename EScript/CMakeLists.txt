@@ -1,3 +1,10 @@
+# CMakeLists.txt
+# This file is part of the EScript programming language (https://github.com/EScript)
+#
+# Copyright (C) 2012-2015 Benjamin Eikel <benjamin@eikel.org>
+#
+# Licensed under the MIT License. See LICENSE file for details.
+# ---------------------------------------------------------------------------------
 cmake_minimum_required(VERSION 3.1.0)
 
 option(BUILD_ESCRIPT_APPLICATION "Defines if the EScript application is built.")
