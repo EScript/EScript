@@ -22,7 +22,9 @@
 #include <iostream>
 #include <sstream>
 
-#if !defined(_MSC_VER)
+#if defined(_MSC_VER)
+#include <process.h>
+#else
 #include <unistd.h>
 #endif
 
@@ -327,6 +329,31 @@ void StdLib::init(EScript::Namespace * globals) {
 	//!	[ESF]  number system(command)
 	ES_FUN(globals,"system",1,1,system(parameter[0].toString().c_str()))
 
+#if defined(_MSC_VER)
+	//!	[ESF] Number exec(String path, Array argv)
+	ES_FUNCTION(globals, "exec", 2, 2, {
+		Array * array = assertType<Array>(rt, parameter[1]);
+		uint32_t argc = array->size();
+
+		char ** argv  = new char *[argc + 1];
+		for(uint_fast32_t i = 0; i < argc; ++i) {
+			 std::string arg = array->get(i)->toString();
+			 argv[i] = new char[arg.length() + 1];
+			 std::copy(arg.begin(), arg.end(), argv[i]);
+			 argv[i][arg.length()] = '\0';
+		}
+		argv[argc] = nullptr;
+
+		Number * result = create(*_execv(parameter[0].toString().c_str(), argv));
+
+		for(uint_fast32_t i = 0; i < argc; ++i) {
+			delete [] argv[i];
+		}
+		delete [] argv;
+
+		return result;
+	})
+#else
 	//!	[ESF] Number exec(String path, Array argv)
 	ES_FUNCTION(globals, "exec", 2, 2, {
 		Array * array = assertType<Array>(rt, parameter[1]);
@@ -350,6 +377,7 @@ void StdLib::init(EScript::Namespace * globals) {
 
 		return result;
 	})
+#endif
 
 	//! [ESF]  number time()
 	ES_FUN(globals,"time",0,0,static_cast<double>(time(nullptr)))
