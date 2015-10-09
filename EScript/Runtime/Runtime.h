@@ -18,6 +18,15 @@
 #include <string>
 #include <memory>
 
+#if defined(__GNUC__)
+#define DEPRECATED __attribute__((deprecated))
+#elif defined(_MSC_VER)
+#define DEPRECATED __declspec(deprecated)
+#else
+#pragma message("WARNING: DEPRECATED not set for this compiler")
+#define DEPRECATED
+#endif
+
 namespace EScript {
 
 class Exception;
@@ -80,7 +89,7 @@ class Runtime : public ExtObject {
 	//! @name Internal state / Exceptions
 	//	@{
 	public:
-		bool assertNormalState()const __attribute__((deprecated));
+		DEPRECATED bool assertNormalState()const;
 
 		void info(const std::string & s);
 		void warn(const std::string & s);
