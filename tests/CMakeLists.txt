@@ -25,11 +25,5 @@ if(BUILD_ESCRIPT_TEST)
 		FILES_MATCHING PATTERN "*.escript"
 	)
 
-	if(COMPILER_SUPPORTS_CXX11)
-		set_property(TARGET escript_test APPEND_STRING PROPERTY COMPILE_FLAGS "-std=c++11 ")
-	elseif(COMPILER_SUPPORTS_CXX0X)
-		set_property(TARGET escript_test APPEND_STRING PROPERTY COMPILE_FLAGS "-std=c++0x ")
-	endif()
-
 	add_test(NAME TestEScript COMMAND escript_test WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/..)
 endif()
