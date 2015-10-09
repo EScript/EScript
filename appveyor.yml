@@ -1,16 +1,19 @@
 version: 1.0.{build}
+environment:
+  CMAKE "cmake-3.3.2-win32-x86"
+  BUILDDIR "build"
 branches:
   only:
   - 0.7.2.Egon_VisualStudioSupport
 os: Visual Studio 2015
 install:
 - cmd: >-
-    curl https://cmake.org/files/v3.3/cmake-3.3.2-win32-x86.zip --output cmake-3.3.2-win32-x86.zip
+    curl "https://cmake.org/files/v3.3/%CMAKE%.zip" --output "%CMAKE%.zip"
 
-    7z x cmake-3.3.2-win32-x86.zip
+    7z x "%CMAKE%.zip"
 before_build:
 - cmd: >-
-    ..\cmake-3.3.2-win32-x86\bin\cmake.exe -G "Visual Studio 14 2015" -H. -Bbuild -DBUILD_ESCRIPT_APPLICATION=ON -DBUILD_ESCRIPT_TEST=ON ..
+    "%CMAKE%\bin\cmake.exe" -G "Visual Studio 14 2015" -H. -B"%BUILDDIR%" -DBUILD_ESCRIPT_APPLICATION=ON -DBUILD_ESCRIPT_TEST=ON ..
 build_script:
 - cmd: >-
-    cmake --build build --config "Release"
+    "%CMAKE%\bin\cmake.exe" --build "%BUILDDIR%" --config "Release"
