@@ -6,7 +6,7 @@
 #
 # Licensed under the MIT License. See LICENSE file for details.
 # ---------------------------------------------------------------------------------
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.1.0)
 project(EScript CXX)
 
 set(ESCRIPT_VERSION_MAJOR 0)
