@@ -21,7 +21,10 @@
 #include <ctime>
 #include <iostream>
 #include <sstream>
+
+#if !defined(_MSC_VER)
 #include <unistd.h>
+#endif
 
 #if defined(_WIN32)
 #include <windows.h>
