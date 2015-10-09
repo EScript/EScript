@@ -11,7 +11,7 @@ option(BUILD_ESCRIPT_APPLICATION "Defines if the EScript application is built.")
 if(BUILD_ESCRIPT_APPLICATION)
 	add_executable(escript main.cpp)
 	target_compile_definitions(escript PRIVATE ES_BUILD_APPLICATION)
-	target_link_libraries(escript LINK_PRIVATE EScript)
+	target_link_libraries(escript PRIVATE EScript)
 	install(TARGETS escript
 		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR} COMPONENT applications
 		LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR} COMPONENT applications
