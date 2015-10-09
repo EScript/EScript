@@ -10,9 +10,9 @@
 #define NUMBER_H
 
 #include "../Type.h"
-#include <string>
-
+#include <algorithm>
 #include <limits>
+#include <string>
 
 // assure M_PI is defined in VC (necessary for VC)
 #define _USE_MATH_DEFINES

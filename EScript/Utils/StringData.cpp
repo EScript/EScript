@@ -7,9 +7,9 @@
 // Licensed under the MIT License. See LICENSE file for details.
 // ---------------------------------------------------------------------------------
 #include "StringData.h"
-#include <iostream>
+#include <algorithm>
 #include <cassert>
-
+#include <iostream>
 
 namespace EScript{
 
