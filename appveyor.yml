@@ -18,5 +18,5 @@ before_build:
 
     cd ..
 build:
-  project: ALL_BUILD.vcxproj
+  project: build\ALL_BUILD.vcxproj
   verbosity: normal
