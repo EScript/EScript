@@ -9,6 +9,7 @@ os: Visual Studio 2015
 install:
 - cmd: >-
     curl "https://cmake.org/files/v3.3/%CMAKE%.zip" --output "%CMAKE%.zip"
+
     7z x "%CMAKE%.zip"
 before_build:
 - cmd: >-
