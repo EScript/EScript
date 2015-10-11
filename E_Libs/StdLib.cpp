@@ -21,7 +21,14 @@
 #include <ctime>
 #include <iostream>
 #include <sstream>
+
+#if defined(_MSC_VER)
+#include <process.h>
+#define EXECV _execv
+#else
 #include <unistd.h>
+#define EXECV execv
+#endif
 
 #if defined(_WIN32)
 #include <windows.h>
@@ -338,7 +345,7 @@ void StdLib::init(EScript::Namespace * globals) {
 		}
 		argv[argc] = nullptr;
 
-		Number * result = create(execv(parameter[0].toString().c_str(), argv));
+		Number * result = create(EXECV(parameter[0].toString().c_str(), argv));
 
 		for(uint_fast32_t i = 0; i < argc; ++i) {
 			delete [] argv[i];

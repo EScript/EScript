@@ -1,0 +1,16 @@
+version: 1.0.{build}
+environment:
+  CMAKE: "cmake-3.3.2-win32-x86"
+  BUILDDIR: "%APPVEYOR_BUILD_FOLDER%/build"
+os: Visual Studio 2015
+install:
+- cmd: >-
+    curl "https://cmake.org/files/v3.3/%CMAKE%.zip" --output "%CMAKE%.zip"
+
+    7z x "%CMAKE%.zip"
+before_build:
+- cmd: >-
+    "%CMAKE%\bin\cmake.exe" -G "Visual Studio 14 2015" -H. -B"%BUILDDIR%" -DBUILD_ESCRIPT_APPLICATION=ON -DBUILD_ESCRIPT_TEST=ON
+build_script:
+- cmd: >-
+    "%CMAKE%\bin\cmake.exe" --build "%BUILDDIR%" --config "%CONFIGURATION%"
