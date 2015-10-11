@@ -6,13 +6,17 @@
 #
 # Licensed under the MIT License. See LICENSE file for details.
 # ---------------------------------------------------------------------------------
-cmake_minimum_required(VERSION 2.8.11)
+cmake_minimum_required(VERSION 3.1.0)
 project(EScript CXX)
 
 set(ESCRIPT_VERSION_MAJOR 0)
 set(ESCRIPT_VERSION_MINOR 7)
 set(ESCRIPT_VERSION_PATCH 2)
 set(ESCRIPT_VERSION_STRING ${ESCRIPT_VERSION_MAJOR}.${ESCRIPT_VERSION_MINOR}.${ESCRIPT_VERSION_PATCH})
+
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Set up install directories
 include(GNUInstallDirs)
@@ -72,18 +76,7 @@ set(ESCRIPT_SOURCES
 if(WIN32)
 	list(APPEND ESCRIPT_SOURCES E_Libs/Win32Lib.cpp)
 endif()
-add_library(EScript SHARED ${ESCRIPT_SOURCES})
-
-include(CheckCXXCompilerFlag)
-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
-CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
-if(COMPILER_SUPPORTS_CXX11)
-	set_property(TARGET EScript APPEND_STRING PROPERTY COMPILE_FLAGS "-std=c++11 ")
-elseif(COMPILER_SUPPORTS_CXX0X)
-	set_property(TARGET EScript APPEND_STRING PROPERTY COMPILE_FLAGS "-std=c++0x ")
-else()
-	message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
-endif()
+add_library(EScript ${ESCRIPT_SOURCES})
 
 # Set version of library
 set_target_properties(EScript PROPERTIES VERSION ${ESCRIPT_VERSION_STRING}
