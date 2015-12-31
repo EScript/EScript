@@ -14,19 +14,56 @@
 namespace EScript {
 
 // bool
-template<>inline bool convertTo<bool>(Runtime &,ObjPtr eObj)		{	return eObj.toBool();	}
+template<>
+inline bool convertTo<bool>(Runtime &, ObjPtr src) {
+	return src.toBool();
+}
 
 // number
-template<> double convertTo<double>(Runtime& rt,ObjPtr src);
-template<> inline float convertTo<float>(Runtime& rt,ObjPtr src)		{	return static_cast<float>(convertTo<double>(rt,src));	}
-template<> inline int64_t convertTo<int64_t>(Runtime& rt,ObjPtr src)	{	return static_cast<int64_t>(convertTo<double>(rt,src));	}
-template<> inline uint64_t convertTo<uint64_t>(Runtime& rt,ObjPtr src)	{	return static_cast<uint64_t>(convertTo<double>(rt,src));	}
-template<> inline int32_t convertTo<int32_t>(Runtime& rt,ObjPtr src)	{	return static_cast<int32_t>(convertTo<double>(rt,src));	}
-template<> inline uint32_t convertTo<uint32_t>(Runtime& rt,ObjPtr src)	{	return static_cast<uint32_t>(convertTo<double>(rt,src));	}
-template<> inline int16_t convertTo<int16_t>(Runtime& rt,ObjPtr src)	{	return static_cast<int16_t>(convertTo<double>(rt,src));	}
-template<> inline uint16_t convertTo<uint16_t>(Runtime& rt,ObjPtr src)	{	return static_cast<uint16_t>(convertTo<double>(rt,src));	}
+template<>
+double convertTo<double>(Runtime & rt, ObjPtr src);
+template<> 
+inline float convertTo<float>(Runtime & rt, ObjPtr src) {
+	return static_cast<float>(convertTo<double>(rt, src));
+}
+template<>
+inline long long convertTo<long long>(Runtime & rt, ObjPtr src) {
+	return static_cast<long long>(convertTo<double>(rt, src));
+}
+template<>
+inline unsigned long long convertTo<unsigned long long>(Runtime & rt, ObjPtr src) {
+	return static_cast<unsigned long long>(convertTo<double>(rt, src));
+}
+template<>
+inline long convertTo<long>(Runtime & rt, ObjPtr src) {
+	return static_cast<long>(convertTo<double>(rt, src));
+}
+template<>
+inline unsigned long convertTo<unsigned long>(Runtime & rt, ObjPtr src) {
+	return static_cast<unsigned long>(convertTo<double>(rt, src));
+}
+template<>
+inline int convertTo<int>(Runtime & rt, ObjPtr src) {
+	return static_cast<int>(convertTo<double>(rt, src));
+}
+template<>
+inline unsigned int convertTo<unsigned int>(Runtime & rt, ObjPtr src) {
+	return static_cast<unsigned int>(convertTo<double>(rt, src));
+}
+template<>
+inline short convertTo<short>(Runtime & rt, ObjPtr src) {
+	return static_cast<short>(convertTo<double>(rt, src));
+}
+template<>
+inline unsigned short convertTo<unsigned short>(Runtime & rt, ObjPtr src) {
+	return static_cast<unsigned short>(convertTo<double>(rt, src));
+}
 
 // string
-template<> inline std::string convertTo<std::string>(Runtime &,ObjPtr src){	return src.toString();	}
+template<>
+inline std::string convertTo<std::string>(Runtime &,ObjPtr src) {
+	return src.toString();
+}
+
 }
 #endif // ES_STD_CONVERSIONS_H
