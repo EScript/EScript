@@ -13,10 +13,13 @@ addons:
     - clang-3.6
     - valgrind
 before_install:
+ - export CMAKE_URL="https://cmake.org/files/v3.4/cmake-3.4.1-Linux-x86_64.tar.gz"
+ - export CMAKE_STRIP_COMPONENTS=1
  - cd /tmp
- - wget http://www.cmake.org/files/v3.3/cmake-3.3.1-Linux-x86_64.tar.gz
- - tar xzf cmake-3.3.1-Linux-x86_64.tar.gz
- - export PATH=/tmp/cmake-3.3.1-Linux-x86_64/bin:$PATH
+ - wget --no-check-certificate "${CMAKE_URL}" --output-document=cmake.tar.gz
+ - mkdir cmake
+ - tar xzf cmake.tar.gz --strip-components="${CMAKE_STRIP_COMPONENTS}" --directory cmake
+ - export PATH=/tmp/cmake/bin:$PATH
  - cd -
 before_script: mkdir build && cd build && if [ "${CXX}" = "clang++" ]; then export CXX=/usr/bin/clang++-3.6; fi && if [ "${CXX}" = "g++" ]; then export CXX=/usr/bin/g++-5; fi
 script: cmake -DCMAKE_BUILD_TYPE=RelWithDebInfo -DBUILD_ESCRIPT_APPLICATION=ON -DBUILD_ESCRIPT_TEST=ON .. && make && ctest --verbose -D ExperimentalMemCheck
