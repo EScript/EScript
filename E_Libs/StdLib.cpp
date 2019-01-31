@@ -21,6 +21,7 @@
 #include <ctime>
 #include <iostream>
 #include <sstream>
+#include <sys/time.h>
 
 #if defined(_MSC_VER)
 #include <process.h>
@@ -211,7 +212,11 @@ void StdLib::init(EScript::Namespace * globals) {
 
 	#else
 	//! [ESF]  number clock()
-	ES_FUN(globals,"clock",0,0,static_cast<double>(clock())/CLOCKS_PER_SEC)
+	ES_FUNCTION(globals,"clock",0,0,{
+		struct timeval tv;
+		gettimeofday(&tv, NULL);
+		return tv.tv_sec + 1e-6 * tv.tv_usec;
+	})
 	#endif
 	}
 
