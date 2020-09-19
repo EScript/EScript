@@ -59,8 +59,8 @@ class Map : public Collection {
 	//! @name Creation
 	// @{
 	public:
-		static Map * create();
-		static Map * create(const std::unordered_map<StringId,Object *> &);
+		ESCRIPTAPI static Map * create();
+		ESCRIPTAPI static Map * create(const std::unordered_map<StringId,Object *> &);
 
 		template<class Map_T>
 		static Map * create(const Map_T & m){
@@ -79,8 +79,8 @@ class Map : public Collection {
 	//! @name TypeObject
 	// @{
 	public:
-		static Type* getTypeObject();
-		static void init(EScript::Namespace & globals);
+		ESCRIPTAPI static Type* getTypeObject();
+		ESCRIPTAPI static void init(EScript::Namespace & globals);
 	//	@}
 
 	//---------------------
@@ -104,12 +104,12 @@ class Map : public Collection {
 
 		bool empty()const						{	return data.empty();	}
 		size_type erase(const std::string & key){	return data.erase(key);	}
-		Object * getValue(const std::string & key);
-		Object * getKeyObject(const std::string & key);
-		void merge(Collection * c,bool overwrite = true);
-		void rt_filter(Runtime & runtime,ObjPtr function, const ParameterValues & additionalValues);
-		void unset(ObjPtr key);
-		void swap(Map * other);
+		ESCRIPTAPI Object * getValue(const std::string & key);
+		ESCRIPTAPI Object * getKeyObject(const std::string & key);
+		ESCRIPTAPI void merge(Collection * c,bool overwrite = true);
+		ESCRIPTAPI void rt_filter(Runtime & runtime,ObjPtr function, const ParameterValues & additionalValues);
+		ESCRIPTAPI void unset(ObjPtr key);
+		ESCRIPTAPI void swap(Map * other);
 	//	@}
 
 	//---------------------
@@ -120,32 +120,32 @@ class Map : public Collection {
 		class MapIterator : public Iterator {
 				ES_PROVIDES_TYPE_NAME(MapIterator)
 			public:
-				MapIterator(Map * ar);
+				ESCRIPTAPI MapIterator(Map * ar);
 				virtual ~MapIterator() { }
 
 				//! ---|> [Iterator]
-				Object * key() override;
-				Object * value() override;
-				void reset() override;
-				void next() override;
-				bool end() override;
+				ESCRIPTAPI Object * key() override;
+				ESCRIPTAPI Object * value() override;
+				ESCRIPTAPI void reset() override;
+				ESCRIPTAPI void next() override;
+				ESCRIPTAPI bool end() override;
 
 			private:
 				ERef<Map> mapRef;
 				container_t::iterator it;
 		};
-		void clear() override;
-		size_t count()const override;
-		MapIterator * getIterator() override;
-		Object * getValue(ObjPtr key) override;
-		void setValue(ObjPtr key,ObjPtr value) override;
+		ESCRIPTAPI void clear() override;
+		ESCRIPTAPI size_t count()const override;
+		ESCRIPTAPI MapIterator * getIterator() override;
+		ESCRIPTAPI Object * getValue(ObjPtr key) override;
+		ESCRIPTAPI void setValue(ObjPtr key,ObjPtr value) override;
 	//	@}
 
 	//---------------------
 
 	//! @name ---|> [Object]
 	// @{
-		Object * clone()const;
+		ESCRIPTAPI Object * clone()const;
 	//	@}
 
 	//---------------------

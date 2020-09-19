@@ -17,15 +17,15 @@ namespace EScript {
 class Namespace : public ExtObject {
 		ES_PROVIDES_TYPE_NAME(Namespace)
 	public:
-		static Type* getTypeObject();
-		static void init(EScript::Namespace & globals);
+		ESCRIPTAPI static Type* getTypeObject();
+		ESCRIPTAPI static void init(EScript::Namespace & globals);
 
 		Namespace() : ExtObject()					{	}
 		Namespace(Type * type) : ExtObject(type)	{	}
 		virtual ~Namespace()						{	}
 
 		//! ---|> [Object]
-		Namespace * clone() const override;
+		ESCRIPTAPI Namespace * clone() const override;
 };
 
 }

@@ -39,8 +39,8 @@ class RuntimeInternals;
 class Runtime : public ExtObject {
 		ES_PROVIDES_TYPE_NAME(Runtime)
 	public:
-		static Type* getTypeObject();
-		static void init(EScript::Namespace & globals);
+		ESCRIPTAPI static Type* getTypeObject();
+		ESCRIPTAPI static void init(EScript::Namespace & globals);
 
 	// ------------------------------------------------
 
@@ -49,8 +49,8 @@ class Runtime : public ExtObject {
 	private:
 		std::unique_ptr<RuntimeInternals> internals;
 	public:
-		Runtime();
-		virtual ~Runtime();
+		ESCRIPTAPI Runtime();
+		ESCRIPTAPI virtual ~Runtime();
 	// @}
 
 	// ------------------------------------------------
@@ -58,9 +58,9 @@ class Runtime : public ExtObject {
 	//! @name Variables
 	//	@{
 	public:
-		Namespace * getGlobals()const;
+		ESCRIPTAPI Namespace * getGlobals()const;
 
-		bool assignToAttribute(ObjPtr obj,StringId attrId,ObjPtr value);
+		ESCRIPTAPI bool assignToAttribute(ObjPtr obj,StringId attrId,ObjPtr value);
 	//	@}
 
 	// ------------------------------------------------
@@ -68,20 +68,20 @@ class Runtime : public ExtObject {
 	//! @name Execution
 	//	@{
 	public:
-		ObjPtr getCallingObject()const;
+		ESCRIPTAPI ObjPtr getCallingObject()const;
 
 		//! \note throws an exception (Object *) on failure
-		ObjRef executeFunction(const ObjPtr & fun,const ObjPtr & callingObject,const ParameterValues & params);
+		ESCRIPTAPI ObjRef executeFunction(const ObjPtr & fun,const ObjPtr & callingObject,const ParameterValues & params);
 
 		//! \note throws an exception (Object *) on failure
-		ObjRef createInstance(const EPtr<Type> & type,const ParameterValues & params);
+		ESCRIPTAPI ObjRef createInstance(const EPtr<Type> & type,const ParameterValues & params);
 
 		//! \note throws an exception (Object *) on failure
-		void yieldNext(YieldIterator & yIt);
+		ESCRIPTAPI void yieldNext(YieldIterator & yIt);
 
-		size_t getStackSize()const;
-		size_t _getStackSizeLimit()const;
-		void _setStackSizeLimit(const size_t limit);
+		ESCRIPTAPI size_t getStackSize()const;
+		ESCRIPTAPI size_t _getStackSizeLimit()const;
+		ESCRIPTAPI void _setStackSizeLimit(const size_t limit);
 	//	@}
 
 	// ------------------------------------------------
@@ -89,28 +89,28 @@ class Runtime : public ExtObject {
 	//! @name Internal state / Exceptions
 	//	@{
 	public:
-		DEPRECATED bool assertNormalState()const;
+		ESCRIPTAPI DEPRECATED bool assertNormalState()const;
 
-		void info(const std::string & s);
-		void warn(const std::string & s);
+		ESCRIPTAPI void info(const std::string & s);
+		ESCRIPTAPI void warn(const std::string & s);
 
-		ObjRef fetchAndClearExitResult();
+		ESCRIPTAPI ObjRef fetchAndClearExitResult();
 
-		bool checkNormalState()const;
+		ESCRIPTAPI bool checkNormalState()const;
 
 		/*! Creates an exception object including current stack info and
 			sets the internal state to STATE_EXCEPTION. Does NOT throw a C++ exception. */
-		void setException(const std::string & s);
+		ESCRIPTAPI void setException(const std::string & s);
 
 		/*! Annotates the given Exception with the current stack info and set the internal state
 			to STATE_EXCEPTION. Does NOT throw a C++ exception. */
-		void setException(Exception * e);
+		ESCRIPTAPI void setException(Exception * e);
 
 		//! (internal) Like 'setException' but does NOT annotate the given exception but just uses it.
-		void _setExceptionState(ObjRef e);
+		ESCRIPTAPI void _setExceptionState(ObjRef e);
 
 		//! (internal)
-		void _setExitState(ObjRef e);
+		ESCRIPTAPI void _setExitState(ObjRef e);
 
 		/**
 		 * Throws a runtime exception (a C++ Exception, not an internal one!).
@@ -118,7 +118,7 @@ class Runtime : public ExtObject {
 		 * (otherwise, they are not handled and the program is likely to crash).
 		 * In all other situations try to use setException(...)
 		 */
-		void throwException(const std::string & s,Object * obj = nullptr);
+		ESCRIPTAPI void throwException(const std::string & s,Object * obj = nullptr);
 	//	@}
 
 	// ------------------------------------------------
@@ -126,23 +126,23 @@ class Runtime : public ExtObject {
 	//! @name Debugging
 	//	@{
 	public:
-		void enableLogCounting();
-		void disableLogCounting();
+		ESCRIPTAPI void enableLogCounting();
+		ESCRIPTAPI void disableLogCounting();
 
-		std::string getCurrentFile()const;
-		int getCurrentLine()const;
-		uint32_t getLogCounter(Logger::level_t level)const;
+		ESCRIPTAPI std::string getCurrentFile()const;
+		ESCRIPTAPI int getCurrentLine()const;
+		ESCRIPTAPI uint32_t getLogCounter(Logger::level_t level)const;
 		LoggerGroup * getLogger()const					{	return logger.get();	}
 		Logger::level_t getLoggingLevel()				{	return logger->getMinLevel();	}
-		std::string getStackInfo();
-		std::string getLocalStackInfo();
+		ESCRIPTAPI std::string getStackInfo();
+		ESCRIPTAPI std::string getLocalStackInfo();
 
 		void log(Logger::level_t l,const std::string & s)	{	logger->log(l,s);	}
-		void resetLogCounter(Logger::level_t level);
+		ESCRIPTAPI void resetLogCounter(Logger::level_t level);
 
-		void setAddStackInfoToExceptions(bool b);
+		ESCRIPTAPI void setAddStackInfoToExceptions(bool b);
 		void setLoggingLevel(Logger::level_t level)		{	logger->setMinLevel(level);	}
-		void setTreatWarningsAsError(bool b);
+		ESCRIPTAPI void setTreatWarningsAsError(bool b);
 
 	private:
 		_CountedRef<LoggerGroup> logger;

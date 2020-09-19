@@ -1298,9 +1298,11 @@ if(!benchmark)
 
 {	// raw strings & string concatenation
 	test("String literals", "foo" "" "bar" == "foobar" && "0" /*dumdidu*/ '1' "2" +"3" == "0123" &&
-R"(a\
+(R"(a\
 b
-c\n)" == "a\\\nb\nc\\n"	&& R"#(foo)#" == "foo" && R"Delimiter()Delimiter".empty());
+c\n)" == "a\\\nb\nc\\n" || R"(a\
+b
+c\n)" == "a\\\r\nb\r\nc\\n")	&& R"#(foo)#" == "foo" && R"Delimiter()Delimiter".empty());
 }
 //out(Runtime.getLocalStackInfo());
 {	//static variables

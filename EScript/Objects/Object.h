@@ -34,8 +34,8 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 	//! @name Initialization
 	//	@{
 	public:
-		static Type * getTypeObject();
-		static void init(EScript::Namespace & globals);
+		ESCRIPTAPI static Type * getTypeObject();
+		ESCRIPTAPI static void init(EScript::Namespace & globals);
 	//	@}
 
 	// -------------------------
@@ -46,35 +46,35 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 		//--
 
 		//! Default constructor; Sets the type to Object::getTypeObject()
-		Object();
-		Object(Type * type);
-		virtual ~Object();
+		ESCRIPTAPI Object();
+		ESCRIPTAPI Object(Type * type);
+		ESCRIPTAPI virtual ~Object();
 
 		friend std::ostream & operator<<(std::ostream & s, EScript::Object * o) {
 			return o==nullptr ? s<<"nullptr" :
 					s<< "[" << o->getTypeName() << ":" <<static_cast<void*>(o)<< ":"<<o->countReferences()<< "]";
 		}
 		//! Return a clone of the object if the type is call-by-value and the object itthisObj otherwise.
-		Object * getRefOrCopy();
+		ESCRIPTAPI Object * getRefOrCopy();
 
 		//! ---o
-		virtual Object * clone()const;
+		ESCRIPTAPI virtual Object * clone()const;
 		//! ---o
-		virtual StringId hash()const;
+		ESCRIPTAPI virtual StringId hash()const;
 
 		/*! ---o
 			\note For camparing objects, never use this function directly but use isEqual(...) instead.
 				  Otherwise scripted '=='-member functions are not supported. */
-		virtual bool rt_isEqual(Runtime & rt,const ObjPtr & other);
+		ESCRIPTAPI virtual bool rt_isEqual(Runtime & rt,const ObjPtr & other);
 
 		//! Compare two Objects using the '=='-member function
-		bool isEqual(Runtime & rt,const ObjPtr & o);
+		ESCRIPTAPI bool isEqual(Runtime & rt,const ObjPtr & o);
 
 		/*! If this is an Object which is passed ...
 			 -  call-by-value, this functions returns true if the given object's Type is the same as this' type
 				and isEqual returns true.
 			 - 	call-by-reference, this function returns true if the given object and this are the same Object. */
-		bool isIdentical(Runtime & rt,const ObjPtr & other);
+		ESCRIPTAPI bool isIdentical(Runtime & rt,const ObjPtr & other);
 
 
 		//! ---o
@@ -87,7 +87,7 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 			This makes only sense for reference objects like NumberRef.
 			\todo Unused! Check if still useful.
 			---o	*/
-		virtual void _assignValue(ObjPtr value);
+		ESCRIPTAPI virtual void _assignValue(ObjPtr value);
 
 	//	@}
 
@@ -101,7 +101,7 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 		inline Type * getType() const				{	return typeRef.get();	}
 
 		//! ---o
-		virtual bool isA(const Type * type)const;
+		ESCRIPTAPI virtual bool isA(const Type * type)const;
 	//	@}
 
 	// -------------------------
@@ -113,14 +113,14 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 			\note Should not be called directly. Use get(Local)Attribute(...) instead.
 			\note Has to be overridden if an Object type should support user defined attributes.
 		*/
-		virtual Attribute * _accessAttribute(const StringId & id,bool localOnly);
+		ESCRIPTAPI virtual Attribute * _accessAttribute(const StringId & id,bool localOnly);
 
 		/*! ---o (internal)
 		This function is called by the runtime after a new Object has been created in the script using "new". The
 			execution takes place after the Object itthisObj has been created, but before the first scripted constructor is executed.
 			Extended attribute initializations can be performed here.
 			\note Has to be overridden if an Object type should support user defined attributes. */
-		virtual void _initAttributes(Runtime & rt);
+		ESCRIPTAPI virtual void _initAttributes(Runtime & rt);
 
 		/*! Get the locally stored attribute with the given id.
 			If the attribute is not found, the resulting attribute references nullptr.
@@ -128,7 +128,7 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 				const Attribute & attr = obj->getLocalAttribute("attrName");
 				if(attr.isNull()) ...
 		*/
-		const Attribute & getLocalAttribute(const StringId & id)const;
+		ESCRIPTAPI const Attribute & getLocalAttribute(const StringId & id)const;
 
 		/*! Get the attribute with the given id. The attribute can be stored locally or be accessible by the object's type.
 			If the attribute is not found, the resulting attribute references nullptr.
@@ -136,14 +136,14 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 				const Attribute & attr = obj->getAttribute("doesNotExist");
 				if(attr.isNull()) ...
 		*/
-		const Attribute & getAttribute(const StringId & id)const;
+		ESCRIPTAPI const Attribute & getAttribute(const StringId & id)const;
 		const Attribute & getAttribute(const char * c_str)const					{	return getAttribute(StringId(c_str));	}
 
 		/*!	---o
 			Try to set the value of an object attribute.
 			Returns false if the attribute can not be set.
 			\note Has to be overridden if an Object type should support user defined attributes. */
-		virtual bool setAttribute(const StringId & id,const Attribute & attr);
+		ESCRIPTAPI virtual bool setAttribute(const StringId & id,const Attribute & attr);
 		bool setAttribute(const char * c_str,const Attribute & attr)			{	return setAttribute(StringId(c_str),attr);	}
 
 		/*! ---o
@@ -157,19 +157,19 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 	//	@{
 	public:
 		//! ---o
-		virtual std::string toString()const;
+		ESCRIPTAPI virtual std::string toString()const;
 		//! ---o
-		virtual int toInt()const;
+		ESCRIPTAPI virtual int toInt()const;
 		//! ---o
-		virtual unsigned int toUInt()const;
+		ESCRIPTAPI virtual unsigned int toUInt()const;
 		//! ---o
-		virtual double toDouble()const;
+		ESCRIPTAPI virtual double toDouble()const;
 		//! ---o
-		virtual float toFloat()const;
+		ESCRIPTAPI virtual float toFloat()const;
 		//! ---o
-		virtual bool toBool()const;
+		ESCRIPTAPI virtual bool toBool()const;
 		//! ---o
-		virtual std::string toDbgString()const;
+		ESCRIPTAPI virtual std::string toDbgString()const;
 	//	@}
 
 	// -------------------------
@@ -178,7 +178,7 @@ class Object:public EReferenceCounter<Object,ObjectReleaseHandler>  {
 // ----------------------------------------------------------
 class ObjectReleaseHandler{
 	public:
-		static void release(Object * obj);
+		ESCRIPTAPI static void release(Object * obj);
 };
 
 }

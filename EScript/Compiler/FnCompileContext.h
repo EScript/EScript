@@ -80,13 +80,13 @@ class FnCompileContext {
 
 
 		//! Collect all variable indices on the settings stack until an entry with the given type is found.
-		std::vector<size_t> collectLocalVariables(setting_t entryType);
+		ESCRIPTAPI std::vector<size_t> collectLocalVariables(setting_t entryType);
 
-		void addExpression(EPtr<AST::ASTNode> expression);
-		void addStatement(EPtr<AST::ASTNode> stmt);
+		ESCRIPTAPI void addExpression(EPtr<AST::ASTNode> expression);
+		ESCRIPTAPI void addStatement(EPtr<AST::ASTNode> stmt);
 
 		uint32_t createMarker()											{	return currentMarkerId++;	}
-		StringId createOnceStatementMarker(); // used for @(once) [statement]
+		ESCRIPTAPI StringId createOnceStatementMarker(); // used for @(once) [statement]
 		uint32_t declareString(const std::string & str)					{	return instructions.declareString(str);	}
 
 		const CodeFragment & getCode()const								{	return code;	}
@@ -94,9 +94,9 @@ class FnCompileContext {
 		StaticData & getStaticData()const								{	return staticData;	}
 		int getCurrentLine()const										{	return currentLine;	}
 		//! if the setting is not defined, Instruction::INVALID_JUMP_ADDRESS is returned.
-		uint32_t getCurrentMarker(setting_t markerType)const;
+		ESCRIPTAPI uint32_t getCurrentMarker(setting_t markerType)const;
 
-		varLocation_t getCurrentVarLocation(const StringId & name)const;
+		ESCRIPTAPI varLocation_t getCurrentVarLocation(const StringId & name)const;
 
 		std::string getInstructionsAsString()const						{	return instructions.toString();	}
 		StringId getLocalVarName(const size_t index)const				{	return instructions.getLocalVarName(index);	}
@@ -108,11 +108,11 @@ class FnCompileContext {
 		void markAsUsingStaticVars()									{	usesStaticVars = true;	}
 
 		//! Add the local variables which are already defined in the instructionBlock (e.g. 'this' or the parameters), to the set of visible variables.
-		void pushSetting_basicLocalVars();
+		ESCRIPTAPI void pushSetting_basicLocalVars();
 
 		void pushSetting_marker(setting_t type, const uint32_t marker)	{	settingsStack.push_back(SettingsStackEntry(type,marker));	}
 
-		void pushSetting_declaredVars(const declaredVariableMap_t & variables);
+		ESCRIPTAPI void pushSetting_declaredVars(const declaredVariableMap_t & variables);
 		void popSetting()												{	settingsStack.pop_back();	}
 
 		uint32_t registerInternalFunction(const ObjPtr & userFunction)	{	return instructions.registerInternalFunction(userFunction);	}

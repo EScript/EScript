@@ -24,12 +24,12 @@ namespace EScript {
 class Number : public Object {
 		ES_PROVIDES_TYPE_NAME(Number)
 	public:
-		static Type* getTypeObject();
-		static void init(EScript::Namespace & globals);
+		ESCRIPTAPI static Type* getTypeObject();
+		ESCRIPTAPI static void init(EScript::Namespace & globals);
 
 		// ---
-		static Number * create(double value);
-		static void release(Number * n);
+		ESCRIPTAPI static Number * create(double value);
+		ESCRIPTAPI static void release(Number * n);
 
 		// ---
 		/**
@@ -48,7 +48,7 @@ class Number : public Object {
 			return std::abs(v - u) <= std::numeric_limits<float>::epsilon() * std::min(std::abs(u), std::abs(v));
 		}
 
-		explicit Number(double value);
+		ESCRIPTAPI explicit Number(double value);
 		virtual ~Number()									{}
 
 		double & operator*()								{	return value;	}
@@ -63,10 +63,10 @@ class Number : public Object {
 		 * @param fill Character to use for padding.
 		 * @return Formatted string representation of the number.
 		 */
-		std::string format(std::streamsize precision = 3, bool scientific = true, std::streamsize width = 0, char fill = '0') const;
+		ESCRIPTAPI std::string format(std::streamsize precision = 3, bool scientific = true, std::streamsize width = 0, char fill = '0') const;
 
 		//! Floating point symmetric modulo operation
-		double modulo(const double m)const;
+		ESCRIPTAPI double modulo(const double m)const;
 
 		double getValue()const								{	return value;	}
 		void setValue(double _value)						{	value = _value;	}
@@ -74,9 +74,9 @@ class Number : public Object {
 		//! ---|> [Object]
 		Object * clone()const override						{	return create(value);	}
 
-		std::string toString()const override;
+		ESCRIPTAPI std::string toString()const override;
 		double toDouble()const override						{	return value;	}
-		bool rt_isEqual(Runtime & rt,const ObjPtr & o) override;
+		ESCRIPTAPI bool rt_isEqual(Runtime & rt,const ObjPtr & o) override;
 		internalTypeId_t _getInternalTypeId()const override	{	return _TypeIds::TYPE_NUMBER;	}
 
 	private:

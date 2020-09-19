@@ -19,7 +19,7 @@ class Runtime;
 
 //! [AttributeContainer]
 class AttributeContainer {
-	void operator=(const AttributeContainer & other);
+	ESCRIPTAPI void operator=(const AttributeContainer & other);
 
 	public:
 		typedef std::unordered_map<StringId,Attribute> attributeMap_t;
@@ -28,7 +28,7 @@ class AttributeContainer {
 		typedef attributeMap_t::size_type size_type;
 		typedef attributeMap_t::value_type value_type;
 
-		explicit AttributeContainer(const AttributeContainer & other);
+		ESCRIPTAPI explicit AttributeContainer(const AttributeContainer & other);
 		explicit AttributeContainer(){}
 		~AttributeContainer(){}
 
@@ -41,10 +41,10 @@ class AttributeContainer {
 		iterator begin()												{	return attributes.begin();	}
 		iterator end()													{	return attributes.end();	}
 		void clear()													{	attributes.clear();	}
-		void cloneAttributesFrom(const AttributeContainer & other);
+		ESCRIPTAPI void cloneAttributesFrom(const AttributeContainer & other);
 		const attributeMap_t & getAttributes()const						{	return attributes;	}
-		void collectAttributes(std::unordered_map<StringId,Object *> & attrs);
-		void initAttributes(Runtime & rt);
+		ESCRIPTAPI void collectAttributes(std::unordered_map<StringId,Object *> & attrs);
+		ESCRIPTAPI void initAttributes(Runtime & rt);
 		void setAttribute(const StringId & id,const Attribute & attr)	{	attributes[id] = attr;	}
 		size_t size()const												{	return attributes.size();	}
 

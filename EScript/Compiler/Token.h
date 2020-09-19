@@ -46,7 +46,7 @@ class Token:public EReferenceCounter<Token> {
 		}
 // --------------
 
-		static int tokenCount;
+		ESCRIPTAPI static int tokenCount;
 
 		Token(const uint32_t _type = getTypeId()) :
 				typeId(_type),line(0),startingPos(std::string::npos)		{	++tokenCount;	}

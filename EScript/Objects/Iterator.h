@@ -16,8 +16,8 @@ namespace EScript {
 class Iterator : public Object {
 		ES_PROVIDES_TYPE_NAME(Iterator)
 	public:
-		static Type* getTypeObject();
-		static void init(EScript::Namespace & globals);
+		ESCRIPTAPI static Type* getTypeObject();
+		ESCRIPTAPI static void init(EScript::Namespace & globals);
 
 		// ---
 		Iterator(Type * type=nullptr) : Object(type?type:getTypeObject()) {}

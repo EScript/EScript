@@ -17,18 +17,18 @@ namespace EScript {
 class Void : public Type {
 		ES_PROVIDES_TYPE_NAME(Void)
 	public:
-		static Void * get();
+		ESCRIPTAPI static Void * get();
 
 		//! ---|> [Object]
-		Object * clone()const override;
-		bool toBool()const override;
-		bool rt_isEqual(Runtime & rt,const ObjPtr & o) override;
-		std::string toString()const override;
+		ESCRIPTAPI Object * clone()const override;
+		ESCRIPTAPI bool toBool()const override;
+		ESCRIPTAPI bool rt_isEqual(Runtime & rt,const ObjPtr & o) override;
+		ESCRIPTAPI std::string toString()const override;
 		internalTypeId_t _getInternalTypeId()const override	{	return _TypeIds::TYPE_VOID;	}
 
 	protected:
-		virtual ~Void();
-		Void();
+		ESCRIPTAPI virtual ~Void();
+		ESCRIPTAPI Void();
 };
 }
 

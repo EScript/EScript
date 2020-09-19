@@ -46,8 +46,8 @@ class UserFunction : public ExtObject {
 	//! @name Initialization
 	//	@{
 	public:
-		static Type* getTypeObject();
-		static void init(Namespace & globals);
+		ESCRIPTAPI static Type* getTypeObject();
+		ESCRIPTAPI static void init(Namespace & globals);
 	//	@}
 
 	// -------------------------------------------------------------
@@ -55,9 +55,9 @@ class UserFunction : public ExtObject {
 	//! @name Main
 	//	@{
 	protected:
-		UserFunction(const UserFunction & other);
+		ESCRIPTAPI UserFunction(const UserFunction & other);
 	public:
-		UserFunction();
+		ESCRIPTAPI UserFunction();
 		virtual ~UserFunction()	{ }
 
 		const CodeFragment & getCode()const					{	return codeFragment;	}
@@ -85,7 +85,7 @@ class UserFunction : public ExtObject {
 		//! ---|> [Object]
 		internalTypeId_t _getInternalTypeId()const override	{	return _TypeIds::TYPE_USER_FUNCTION;	}
 		UserFunction * clone()const override				{	return new UserFunction(*this);	}
-		std::string toDbgString()const override;
+		ESCRIPTAPI std::string toDbgString()const override;
 	private:
 		CodeFragment codeFragment;
 		int line;

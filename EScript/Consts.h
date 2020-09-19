@@ -16,67 +16,67 @@ namespace EScript{
 //! Common identifiers and other numerical constants
 //	@{
 struct Consts{
-	static const StringId FILENAME_INLINE;
+	ESCRIPTAPI static const StringId FILENAME_INLINE;
 
-	static const StringId IDENTIFIER_attr_printableName;
-	static const StringId IDENTIFIER_this;
-	static const StringId IDENTIFIER_thisFn;
-	static const StringId IDENTIFIER_internalResult;
-	static const StringId IDENTIFIER_fn_call;
-	static const StringId IDENTIFIER_fn_checkConstraint;
-	static const StringId IDENTIFIER_fn_constructor;
-	static const StringId IDENTIFIER_fn_greater;
-	static const StringId IDENTIFIER_fn_it_end;
-	static const StringId IDENTIFIER_fn_it_next;
-	static const StringId IDENTIFIER_fn_it_key;
-	static const StringId IDENTIFIER_fn_it_value;
-	static const StringId IDENTIFIER_fn_less;
-	static const StringId IDENTIFIER_fn_equal;
-	static const StringId IDENTIFIER_fn_identical;
-	static const StringId IDENTIFIER_fn_getIterator;
-	static const StringId IDENTIFIER_fn_get;
-	static const StringId IDENTIFIER_fn_set;
+	ESCRIPTAPI static const StringId IDENTIFIER_attr_printableName;
+	ESCRIPTAPI static const StringId IDENTIFIER_this;
+	ESCRIPTAPI static const StringId IDENTIFIER_thisFn;
+	ESCRIPTAPI static const StringId IDENTIFIER_internalResult;
+	ESCRIPTAPI static const StringId IDENTIFIER_fn_call;
+	ESCRIPTAPI static const StringId IDENTIFIER_fn_checkConstraint;
+	ESCRIPTAPI static const StringId IDENTIFIER_fn_constructor;
+	ESCRIPTAPI static const StringId IDENTIFIER_fn_greater;
+	ESCRIPTAPI static const StringId IDENTIFIER_fn_it_end;
+	ESCRIPTAPI static const StringId IDENTIFIER_fn_it_next;
+	ESCRIPTAPI static const StringId IDENTIFIER_fn_it_key;
+	ESCRIPTAPI static const StringId IDENTIFIER_fn_it_value;
+	ESCRIPTAPI static const StringId IDENTIFIER_fn_less;
+	ESCRIPTAPI static const StringId IDENTIFIER_fn_equal;
+	ESCRIPTAPI static const StringId IDENTIFIER_fn_identical;
+	ESCRIPTAPI static const StringId IDENTIFIER_fn_getIterator;
+	ESCRIPTAPI static const StringId IDENTIFIER_fn_get;
+	ESCRIPTAPI static const StringId IDENTIFIER_fn_set;
 
-	static const StringId IDENTIFIER_true;
-	static const StringId IDENTIFIER_false;
-	static const StringId IDENTIFIER_void;
-	static const StringId IDENTIFIER_null;
+	ESCRIPTAPI static const StringId IDENTIFIER_true;
+	ESCRIPTAPI static const StringId IDENTIFIER_false;
+	ESCRIPTAPI static const StringId IDENTIFIER_void;
+	ESCRIPTAPI static const StringId IDENTIFIER_null;
 
-	static const StringId IDENTIFIER_as;
-	static const StringId IDENTIFIER_break;
-	static const StringId IDENTIFIER_catch;
-	static const StringId IDENTIFIER_case;
-	static const StringId IDENTIFIER_continue;
-	static const StringId IDENTIFIER_default;
-	static const StringId IDENTIFIER_do;
-	static const StringId IDENTIFIER_else;
-	static const StringId IDENTIFIER_exit;
-	static const StringId IDENTIFIER_for;
-	static const StringId IDENTIFIER_foreach;
-	static const StringId IDENTIFIER_if;
-	static const StringId IDENTIFIER_namespace;
-	static const StringId IDENTIFIER_return;
-	static const StringId IDENTIFIER_static;
-	static const StringId IDENTIFIER_switch;
-	static const StringId IDENTIFIER_throw;
-	static const StringId IDENTIFIER_try;
-	static const StringId IDENTIFIER_var;
-	static const StringId IDENTIFIER_while;
-	static const StringId IDENTIFIER_yield;
+	ESCRIPTAPI static const StringId IDENTIFIER_as;
+	ESCRIPTAPI static const StringId IDENTIFIER_break;
+	ESCRIPTAPI static const StringId IDENTIFIER_catch;
+	ESCRIPTAPI static const StringId IDENTIFIER_case;
+	ESCRIPTAPI static const StringId IDENTIFIER_continue;
+	ESCRIPTAPI static const StringId IDENTIFIER_default;
+	ESCRIPTAPI static const StringId IDENTIFIER_do;
+	ESCRIPTAPI static const StringId IDENTIFIER_else;
+	ESCRIPTAPI static const StringId IDENTIFIER_exit;
+	ESCRIPTAPI static const StringId IDENTIFIER_for;
+	ESCRIPTAPI static const StringId IDENTIFIER_foreach;
+	ESCRIPTAPI static const StringId IDENTIFIER_if;
+	ESCRIPTAPI static const StringId IDENTIFIER_namespace;
+	ESCRIPTAPI static const StringId IDENTIFIER_return;
+	ESCRIPTAPI static const StringId IDENTIFIER_static;
+	ESCRIPTAPI static const StringId IDENTIFIER_switch;
+	ESCRIPTAPI static const StringId IDENTIFIER_throw;
+	ESCRIPTAPI static const StringId IDENTIFIER_try;
+	ESCRIPTAPI static const StringId IDENTIFIER_var;
+	ESCRIPTAPI static const StringId IDENTIFIER_while;
+	ESCRIPTAPI static const StringId IDENTIFIER_yield;
 
-	static const StringId IDENTIFIER_LINE;
+	ESCRIPTAPI static const StringId IDENTIFIER_LINE;
 
-	static const StringId ANNOTATION_ATTR_const;
-	static const StringId ANNOTATION_ATTR_init;
-	static const StringId ANNOTATION_ATTR_member;
-	static const StringId ANNOTATION_ATTR_override;
-	static const StringId ANNOTATION_ATTR_private;
-	static const StringId ANNOTATION_ATTR_public;
-	static const StringId ANNOTATION_ATTR_type;
+	ESCRIPTAPI static const StringId ANNOTATION_ATTR_const;
+	ESCRIPTAPI static const StringId ANNOTATION_ATTR_init;
+	ESCRIPTAPI static const StringId ANNOTATION_ATTR_member;
+	ESCRIPTAPI static const StringId ANNOTATION_ATTR_override;
+	ESCRIPTAPI static const StringId ANNOTATION_ATTR_private;
+	ESCRIPTAPI static const StringId ANNOTATION_ATTR_public;
+	ESCRIPTAPI static const StringId ANNOTATION_ATTR_type;
 
-	static const StringId ANNOTATION_FN_super;
+	ESCRIPTAPI static const StringId ANNOTATION_FN_super;
 
-	static const StringId ANNOTATION_STMT_once;
+	ESCRIPTAPI static const StringId ANNOTATION_STMT_once;
 
 	static const size_t LOCAL_VAR_INDEX_this = 0; // $0
 	static const size_t LOCAL_VAR_INDEX_thisFn = 1;// $1

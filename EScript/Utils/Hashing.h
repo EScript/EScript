@@ -15,10 +15,10 @@ namespace EScript {
 typedef unsigned int hashvalue;
 typedef hashvalue identifierId;
 
-extern const std::string ES_UNKNOWN_IDENTIFIER;
+ESCRIPTAPI extern const std::string ES_UNKNOWN_IDENTIFIER;
 
-identifierId stringToIdentifierId(const std::string & s);
-const std::string & identifierIdToString(identifierId id);
+ESCRIPTAPI identifierId stringToIdentifierId(const std::string & s);
+ESCRIPTAPI const std::string & identifierIdToString(identifierId id);
 
 //! (internal)
 hashvalue _hash(const std::string & s);

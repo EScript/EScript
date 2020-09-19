@@ -18,7 +18,7 @@ class Runtime;
 
 namespace StdLib {
 
-void init(EScript::Namespace * o);
+ESCRIPTAPI void init(EScript::Namespace * o);
 
 
 
@@ -26,13 +26,13 @@ void init(EScript::Namespace * o);
 	Returns the return value;
 	\note May throw 'Object *' on error!
  */
-ObjRef loadOnce(Runtime & runtime,const std::string & filename);
+ESCRIPTAPI ObjRef loadOnce(Runtime & runtime,const std::string & filename);
 
 //! formatted output
-void print_r(Object * o,int maxLevel = 7,int level = 1);
+ESCRIPTAPI void print_r(Object * o,int maxLevel = 7,int level = 1);
 
 // returns "WINDOWS" | "MAX OS" | "LINUX" | "UNIX" | "UNKNOWN"
-std::string getOS();
+ESCRIPTAPI std::string getOS();
 
 }
 }
