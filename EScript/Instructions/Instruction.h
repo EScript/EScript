@@ -58,7 +58,7 @@ class Instruction {
 		static const uint32_t JMP_TO_MARKER_OFFSET = 0x100000; //! if a jump target is >= JMP_TO_MARKER_OFFSET, the target is a marker and not an address.
 		static const uint32_t INVALID_JUMP_ADDRESS = 0x0FFFFF; //! A jump to this address always ends the current function. \todo assure that no IntructionBlock can have so many Instructions
 
-		std::string toString(const InstructionBlock & ctxt)const;
+		ESCRIPTAPI std::string toString(const InstructionBlock & ctxt)const;
 
 		type_t getType()const						{	return type;	}
 
@@ -77,36 +77,36 @@ class Instruction {
 		std::pair<uint32_t,uint32_t> getValue_uint32Pair()const	{	return data.value_uint32Pair;	}
 		void setValue_uint32Pair(uint32_t v1,uint32_t v2)	{	data.value_uint32Pair = std::make_pair(v1,v2);	}
 
-		static Instruction createAssignAttribute(const StringId & varName);
-		static Instruction createAssignLocal(const uint32_t localVarIdx);
-		static Instruction createAssignVariable(const StringId & varName);
-		static Instruction createCall(const uint32_t numParams);
-		static Instruction createCreateInstance(const uint32_t numParams);
+		ESCRIPTAPI static Instruction createAssignAttribute(const StringId & varName);
+		ESCRIPTAPI static Instruction createAssignLocal(const uint32_t localVarIdx);
+		ESCRIPTAPI static Instruction createAssignVariable(const StringId & varName);
+		ESCRIPTAPI static Instruction createCall(const uint32_t numParams);
+		ESCRIPTAPI static Instruction createCreateInstance(const uint32_t numParams);
 		static Instruction createDup()				{	return Instruction(I_DUP);	}
-		static Instruction createFindVariable(const StringId & id);
-		static Instruction createGetAttribute(const StringId & id);
-		static Instruction createGetLocalVariable(const uint32_t localVarIdx);
-		static Instruction createGetVariable(const StringId & id);
-		static Instruction createInitCaller(const uint32_t numSuperParams);
-		static Instruction createJmp(const uint32_t markerId);
-		static Instruction createJmpIfSet(const uint32_t markerId);
-		static Instruction createJmpOnTrue(const uint32_t markerId);
-		static Instruction createJmpOnFalse(const uint32_t markerId);
+		ESCRIPTAPI static Instruction createFindVariable(const StringId & id);
+		ESCRIPTAPI static Instruction createGetAttribute(const StringId & id);
+		ESCRIPTAPI static Instruction createGetLocalVariable(const uint32_t localVarIdx);
+		ESCRIPTAPI static Instruction createGetVariable(const StringId & id);
+		ESCRIPTAPI static Instruction createInitCaller(const uint32_t numSuperParams);
+		ESCRIPTAPI static Instruction createJmp(const uint32_t markerId);
+		ESCRIPTAPI static Instruction createJmpIfSet(const uint32_t markerId);
+		ESCRIPTAPI static Instruction createJmpOnTrue(const uint32_t markerId);
+		ESCRIPTAPI static Instruction createJmpOnFalse(const uint32_t markerId);
 		static Instruction createNot()				{	return Instruction(I_NOT);	}
 		static Instruction createPop()				{	return Instruction(I_POP);	}
-		static Instruction createPushBool(const bool value);
-		static Instruction createPushId(const StringId & id);
-		static Instruction createPushFunction(const uint32_t functionIdx);
-		static Instruction createPushNumber(const double value);
-		static Instruction createPushString(const uint32_t stringIndex);
-		static Instruction createPushUInt(const uint32_t value);
+		ESCRIPTAPI static Instruction createPushBool(const bool value);
+		ESCRIPTAPI static Instruction createPushId(const StringId & id);
+		ESCRIPTAPI static Instruction createPushFunction(const uint32_t functionIdx);
+		ESCRIPTAPI static Instruction createPushNumber(const double value);
+		ESCRIPTAPI static Instruction createPushString(const uint32_t stringIndex);
+		ESCRIPTAPI static Instruction createPushUInt(const uint32_t value);
 		static Instruction createPushUndefined()	{	return Instruction(I_PUSH_UNDEFINED);	}
 		static Instruction createPushVoid()			{	return Instruction(I_PUSH_VOID);	}
-		static Instruction createResetLocalVariable(const uint32_t localVarIdx);
-		static Instruction createSetAttribute(const StringId & id);
-		static Instruction createSetExceptionHandler(const uint32_t markerId);
-		static Instruction createSetMarker(const uint32_t markerId);
-		static Instruction createSysCall(const uint32_t fnIdx, const uint32_t numParams);
+		ESCRIPTAPI static Instruction createResetLocalVariable(const uint32_t localVarIdx);
+		ESCRIPTAPI static Instruction createSetAttribute(const StringId & id);
+		ESCRIPTAPI static Instruction createSetExceptionHandler(const uint32_t markerId);
+		ESCRIPTAPI static Instruction createSetMarker(const uint32_t markerId);
+		ESCRIPTAPI static Instruction createSysCall(const uint32_t fnIdx, const uint32_t numParams);
 		static Instruction createYield()			{	return Instruction(I_YIELD);	}
 
 		int getLine()const			{	return line;	}

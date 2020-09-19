@@ -18,21 +18,21 @@ namespace EScript {
 class YieldIterator : public Object {
 		ES_PROVIDES_TYPE_NAME(YieldIterator)
 	public:
-		static Type* getTypeObject();
-		static void init(EScript::Namespace & globals);
+		ESCRIPTAPI static Type* getTypeObject();
+		ESCRIPTAPI static void init(EScript::Namespace & globals);
 		// ----
 
 		YieldIterator()	: Object(getTypeObject()),counter(0) {}
 		virtual ~YieldIterator()					{	}
 
 		Object * value()const					{	return currentValue.get();	}
-		Object * key()const;
+		ESCRIPTAPI Object * key()const;
 		void setValue(Object* newResult)		{	currentValue = newResult;	}
 
 		_Ptr<FunctionCallContext> getFCC()const		{	return fcc;	}
 		void setFCC(_Ptr<FunctionCallContext> _fcc)	{	fcc = _fcc;	}
 
-		void next(Runtime & rt);
+		ESCRIPTAPI void next(Runtime & rt);
 		bool end()const								{	return fcc.isNull();	}
 
 		int getCounter()const						{	return counter;	}

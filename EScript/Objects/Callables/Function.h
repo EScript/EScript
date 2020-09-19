@@ -24,15 +24,15 @@ class Function : public Object {
 	//! @name Initialization
 	//	@{
 	public:
-		static Type* getTypeObject();
-		static void init(EScript::Namespace & globals);
+		ESCRIPTAPI static Type* getTypeObject();
+		ESCRIPTAPI static void init(EScript::Namespace & globals);
 	//	@}
 
 	// -----
 		typedef RtValue ( * functionPtr)(Runtime & runtime,ObjPtr thisEObj, const ParameterValues & parameter);
 		// ---
-		Function(functionPtr fnptr);
-		Function(StringId originalName, int minParamCount, int maxParamCount, functionPtr fnptr);
+		ESCRIPTAPI Function(functionPtr fnptr);
+		ESCRIPTAPI Function(StringId originalName, int minParamCount, int maxParamCount, functionPtr fnptr);
 		virtual ~Function()	{}
 
 		int getCallCounter()const							{	return callCounter;	}

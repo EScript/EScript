@@ -22,15 +22,15 @@ class String : public Object {
 		explicit String(const StringData & _sData) : Object(getTypeObject()),sData(_sData) {}
 
 		//! internal helper
-		static StringData objToStringData(Object * obj);
+		ESCRIPTAPI static StringData objToStringData(Object * obj);
 
 	public:
-		static Type* getTypeObject();
-		static void init(EScript::Namespace & globals);
+		ESCRIPTAPI static Type* getTypeObject();
+		ESCRIPTAPI static void init(EScript::Namespace & globals);
 
 		static String * create(const std::string & s)		{	return create(StringData(s));	}
-		static String * create(const StringData & sData);
-		static void release(String * b);
+		ESCRIPTAPI static String * create(const StringData & sData);
+		ESCRIPTAPI static void release(String * b);
 
 		// ---
 		virtual ~String()							{}
@@ -52,10 +52,10 @@ class String : public Object {
 		//! ---|> [Object]
 		Object * clone()const override				{	return create(sData);	}
 		std::string toString()const override		{	return getString();	}
-		double toDouble()const override;
-		int toInt()const override;
-		bool rt_isEqual(Runtime &rt,const ObjPtr & o) override;
-		std::string toDbgString()const override;
+		ESCRIPTAPI double toDouble()const override;
+		ESCRIPTAPI int toInt()const override;
+		ESCRIPTAPI bool rt_isEqual(Runtime &rt,const ObjPtr & o) override;
+		ESCRIPTAPI std::string toDbgString()const override;
 		internalTypeId_t _getInternalTypeId()const override	{	return _TypeIds::TYPE_STRING;	}
 
 	private:

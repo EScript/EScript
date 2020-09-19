@@ -26,12 +26,12 @@ class StringData;
 class Void;
 
 /*! Factories for types that are not results of unwanted implicit type conversions. */
-Array* create(const std::vector<Object*>&);
-String* create(const StringData &);
-String* create(const std::string &);
-String* create(const char*);
-Void* create(std::nullptr_t);
-Object* create(const ObjRef& obj);
+ESCRIPTAPI Array* create(const std::vector<Object*>&);
+ESCRIPTAPI String* create(const StringData &);
+ESCRIPTAPI String* create(const std::string &);
+ESCRIPTAPI String* create(const char*);
+ESCRIPTAPI Void* create(std::nullptr_t);
+ESCRIPTAPI Object* create(const ObjRef& obj);
 
 /*!	For primitive types that can be the result of an implicit type conversion,
 	a template function is used that requires the exact type.
@@ -39,11 +39,11 @@ Object* create(const ObjRef& obj);
 	not specified for "SomeType*" (or the corresponding include is missing) and
 	the implicit cast would then result in creating an object of type Bool.	*/
 namespace _Internals{
-Number * createNumber(double v);
-Number * createNumber(float v);
-Number * createNumber(int v);
-Number * createNumber(uint32_t v);
-Bool * createBool(bool v);
+ESCRIPTAPI Number * createNumber(double v);
+ESCRIPTAPI Number * createNumber(float v);
+ESCRIPTAPI Number * createNumber(int v);
+ESCRIPTAPI Number * createNumber(uint32_t v);
+ESCRIPTAPI Bool * createBool(bool v);
 }
 
 template<class T ,class = typename std::enable_if<std::is_same<T,bool>::value>::type>

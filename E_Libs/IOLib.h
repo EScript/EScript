@@ -15,7 +15,7 @@ class Namespace;
 namespace IOLib {
 
 //LIB_EXPORT
-void init(EScript::Namespace * o);
+ESCRIPTAPI void init(EScript::Namespace * o);
 
 }
 }

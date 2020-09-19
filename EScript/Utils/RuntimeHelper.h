@@ -35,9 +35,9 @@ typedef _ObjArray<ObjRef> ParameterValues;
 // Internals
 namespace _Internals{
 //! (internal) Non-inline part of @a assertParamCount
-void assertParamCount_2(Runtime & runtime, int paramCount, int min, int max);
+ESCRIPTAPI void assertParamCount_2(Runtime & runtime, int paramCount, int min, int max);
 //! (internal) Non-inline part of @a assertType.
-void assertType_throwError(Runtime & runtime, const ObjPtr & obj,const char * className);
+ESCRIPTAPI void assertType_throwError(Runtime & runtime, const ObjPtr & obj,const char * className);
 }
 
 // ------------------------------------------
@@ -70,33 +70,33 @@ template<class T> static T * assertType(Runtime & runtime, const ObjPtr & obj) {
 	return t;
 }
 
-ObjRef callMemberFunction(Runtime & rt, ObjPtr obj, StringId fnNameId, const ParameterValues & params);
-ObjRef callFunction(Runtime & rt, Object * function, const ParameterValues & params);
+ESCRIPTAPI ObjRef callMemberFunction(Runtime & rt, ObjPtr obj, StringId fnNameId, const ParameterValues & params);
+ESCRIPTAPI ObjRef callFunction(Runtime & rt, Object * function, const ParameterValues & params);
 
 /*! Compile and execute the given code and return the result.
 	\note may throw 'std::exception' or 'Object *' on failure. */
-ObjRef _eval(Runtime & runtime, const CodeFragment & code,const std::unordered_map<StringId,ObjRef>& staticVars);
+ESCRIPTAPI ObjRef _eval(Runtime & runtime, const CodeFragment & code,const std::unordered_map<StringId,ObjRef>& staticVars);
 
 /*! Compile and execute the given code. If the code could be executed without an exception, (true,result) is returned;
 	if an exception (of type Object*) occured (false,exception) is returned and the error message is sent to the runtime's logger.
 	@param fileId Name used to identify the executed code in exception messages and stack traces; the default is '[inline]'
 	@return (success, result)
 */
-std::pair<bool, ObjRef> eval(Runtime & runtime, const StringData & code,const StringId & fileId,const std::unordered_map<StringId,ObjRef>& staticVars);
-std::pair<bool, ObjRef> eval(Runtime & runtime, const StringData & code,const StringId & fileId = StringId());
+ESCRIPTAPI std::pair<bool, ObjRef> eval(Runtime & runtime, const StringData & code,const StringId & fileId,const std::unordered_map<StringId,ObjRef>& staticVars);
+ESCRIPTAPI std::pair<bool, ObjRef> eval(Runtime & runtime, const StringData & code,const StringId & fileId = StringId());
 
 //! @return (success, result)
-std::pair<bool, ObjRef> executeStream(Runtime & runtime, std::istream & stream);
+ESCRIPTAPI std::pair<bool, ObjRef> executeStream(Runtime & runtime, std::istream & stream);
 
 //! @return result (mmay throw an exception)
-ObjRef _loadAndExecute(Runtime & runtime, const std::string & filename,const std::unordered_map<StringId,ObjRef>& staticVars);
+ESCRIPTAPI ObjRef _loadAndExecute(Runtime & runtime, const std::string & filename,const std::unordered_map<StringId,ObjRef>& staticVars);
 
 //! @return (success, result)
-std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & filename);
-std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & filename,const std::unordered_map<StringId,ObjRef>& staticVars);
+ESCRIPTAPI std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & filename);
+ESCRIPTAPI std::pair<bool, ObjRef> loadAndExecute(Runtime & runtime, const std::string & filename,const std::unordered_map<StringId,ObjRef>& staticVars);
 
 //! creates and throws an Exception objects.
-void throwRuntimeException(const std::string & what);
+ESCRIPTAPI void throwRuntimeException(const std::string & what);
 
 }
 

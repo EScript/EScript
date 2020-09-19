@@ -78,6 +78,14 @@ if(WIN32)
 endif()
 add_library(EScript ${ESCRIPT_SOURCES})
 
+if(MSVC)
+	target_compile_definitions(EScript PRIVATE "ESCRIPTAPI=__declspec(dllexport)")
+	target_compile_definitions(EScript INTERFACE "ESCRIPTAPI=__declspec(dllimport)")
+else()
+	target_compile_definitions(EScript PRIVATE "ESCRIPTAPI=")
+	target_compile_definitions(EScript INTERFACE "ESCRIPTAPI=")
+endif()
+
 # Set version of library
 set_target_properties(EScript PROPERTIES VERSION ${ESCRIPT_VERSION_STRING}
 										 SOVERSION ${ESCRIPT_VERSION_MAJOR})

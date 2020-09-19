@@ -17,10 +17,10 @@ class Namespace;
 namespace Win32Lib {
 
 //LIB_EXPORT
-void init(EScript::Namespace * o);
+ESCRIPTAPI void init(EScript::Namespace * o);
 
-void setClipboard(const std::string & s);
-std::string getClipboard();
+ESCRIPTAPI void setClipboard(const std::string & s);
+ESCRIPTAPI std::string getClipboard();
 }
 }
 #endif // _WIN32

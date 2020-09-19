@@ -48,14 +48,14 @@ typedef void ( libInitFunction)(Namespace *);
 
 /*! Init the EScript system and all registered libraries.
 	Has to be called once before any script can be executed */
-void init();
+ESCRIPTAPI void init();
 
 /*! Calls the the given init(...) function with the SGLOBALS-Object (static global namespace).
 	\note Can be used manually as an alternative to the automatic registerLibraryForInitialization-way. */
-void initLibrary(libInitFunction * initFunction);
+ESCRIPTAPI void initLibrary(libInitFunction * initFunction);
 
 //! (internal) Get the static super global namespace.
-Namespace * getSGlobals();
+ESCRIPTAPI Namespace * getSGlobals();
 //@}
 
 }

@@ -51,18 +51,18 @@ class InstructionBlock {
 		int getLine(const size_t index)const						{	return index<instructions.size() ? instructions[index].getLine() : -1;	}
 
 
-		StringId getLocalVarName(const size_t index)const;
+		ESCRIPTAPI StringId getLocalVarName(const size_t index)const;
 		const std::vector<StringId> & getLocalVariables()const		{	return localVariables;	}
 
 		size_t getNumLocalVars()const								{	return localVariables.size();	}
 		size_t getNumInstructions()const							{	return instructions.size();	}
 		std::string getStringConstant(const uint32_t index)const	{	return index<=stringConstants.size() ? stringConstants[index] : "";	}
-		UserFunction * getUserFunction(const uint32_t index)const;
+		ESCRIPTAPI UserFunction * getUserFunction(const uint32_t index)const;
 
 		std::vector<Instruction> & _accessInstructions()			{	return instructions;	}
 		const std::vector<Instruction> & getInstructions()const		{	return instructions;	}
 
-		std::string toString()const;
+		ESCRIPTAPI std::string toString()const;
 };
 }
 

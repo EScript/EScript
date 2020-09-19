@@ -77,8 +77,8 @@ class RtValue{
 		RtValue(const float & v)		: valueType(NUMBER) { value.value_number = v;	}
 		RtValue(const int & v)			: valueType(NUMBER) { value.value_number = v;	}
 		RtValue(const uint32_t & v)		: valueType(UINT32) { value.value_uint32 = v;	}
-		RtValue(const std::string & s);
-		RtValue(const char * s);
+		ESCRIPTAPI RtValue(const std::string & s);
+		ESCRIPTAPI RtValue(const char * s);
 		RtValue(std::nullptr_t)			: valueType(VOID_VALUE) {}
 
 		RtValue(Object * obj) {
@@ -177,13 +177,13 @@ class RtValue{
 		bool toBool()const						{	return valueType == BOOL ? value.value_bool : toBool2();	}
 
 	private:
-		bool toBool2()const; // expensive part of toBool()
+		ESCRIPTAPI bool toBool2()const; // expensive part of toBool()
 	public:
-		std::string toDbgString()const;
+		ESCRIPTAPI std::string toDbgString()const;
 
 		/*! Convert the value to an object;
 			\note Do not use if the type can be LOCAL_STRING_IDX or FUNCTION_CALL_CONTEXT as this can't be properly converted!*/
-		Object * _toObject()const;
+		ESCRIPTAPI Object * _toObject()const;
 };
 
 }

@@ -16,10 +16,10 @@ class Object;
  */
 class Debug {
 	public:
-		static void registerObj(Object * v);
-		static void unRegisterObj(Object * v);
-		static void showObjects();
-		static void clearObjects();
+		ESCRIPTAPI static void registerObj(Object * v);
+		ESCRIPTAPI static void unRegisterObj(Object * v);
+		ESCRIPTAPI static void showObjects();
+		ESCRIPTAPI static void clearObjects();
 };
 }
 

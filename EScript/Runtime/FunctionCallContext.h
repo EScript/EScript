@@ -24,8 +24,8 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 	private:
 		static std::stack<FunctionCallContext *> pool;
 	public:
-		static FunctionCallContext * create(const EPtr<UserFunction> userFunction,const ObjPtr _caller);
-		static void release(FunctionCallContext *rts);
+		ESCRIPTAPI static FunctionCallContext * create(const EPtr<UserFunction> userFunction,const ObjPtr _caller);
+		ESCRIPTAPI static void release(FunctionCallContext *rts);
 
 		// ----
 
@@ -41,7 +41,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 			UNKNOWN_LOCAL_VARIABLE,
 			UNKNOWN_STATIC_VARIABLE,
 		};
-		void throwError(error_t error)const;
+		ESCRIPTAPI void throwError(error_t error)const;
 
 		ERef<UserFunction> userFunction;
 		size_t exceptionHandlerPos;
@@ -50,8 +50,8 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 
 		FunctionCallContext() : exceptionHandlerPos(0),constructorCall(false),providesCallerAsResult(false),stopExecutionAfterEnding(false)  {}
 		~FunctionCallContext(){}
-		void reset();
-		void init(const EPtr<UserFunction> userFunction,const ObjPtr _caller);
+		ESCRIPTAPI void reset();
+		ESCRIPTAPI void init(const EPtr<UserFunction> userFunction,const ObjPtr _caller);
 
 		bool constructorCall;
 		bool providesCallerAsResult;
@@ -75,7 +75,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		void increaseInstructionCursor()				{	++instructionCursor;	}
 
 		//! Set the caller-object; the caller-member as well as the local-'this'-variable
-		void initCaller(const ObjPtr _caller);
+		ESCRIPTAPI void initCaller(const ObjPtr _caller);
 		bool isConstructorCall()const					{	return constructorCall;	}
 		bool isExecutionStoppedAfterEnding()const		{	return stopExecutionAfterEnding;	}
 		bool isProvidingCallerAsResult()const			{	return providesCallerAsResult;	}
@@ -115,7 +115,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 				throwError(UNKNOWN_STATIC_VARIABLE);
 			return data->getStaticVariableValues()[index].get();
 		}
-		std::string getLocalVariablesAsString(const bool includeUndefined)const;
+		ESCRIPTAPI std::string getLocalVariablesAsString(const bool includeUndefined)const;
 		void resetLocalVariable(const uint32_t index){
 			if(index>=localVariables.size())
 				throwError(UNKNOWN_LOCAL_VARIABLE);
@@ -139,7 +139,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 		std::vector<RtValue> valueStack;
 
 	public:
-		void stack_clear();
+		ESCRIPTAPI void stack_clear();
 		void stack_dup()								{		valueStack.emplace_back(stack_top());	}
 		bool stack_empty()const							{	return valueStack.empty();	}
 		void stack_pushBool(const bool value)			{	valueStack.emplace_back(value); }
@@ -205,12 +205,12 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 			valueStack.pop_back();
 			return obj;
 		}
-		ObjRef rtValueToObject(RtValue & value);
+		ESCRIPTAPI ObjRef rtValueToObject(RtValue & value);
 
 		/*! Works almost like stack_popObject(), but:
 			- returns an obj->cloneOrReference() if the contained value is already an Object.
 			- returns nullptr (and not Void) iff the value is undefined.	This is necessary to detect undefined parameters. */
-		ObjRef stack_popObjectValue();
+		ESCRIPTAPI ObjRef stack_popObjectValue();
 
 		RtValue stack_popValue(){
 			const RtValue v = stack_top();
@@ -218,7 +218,7 @@ class FunctionCallContext:public EReferenceCounter<FunctionCallContext,FunctionC
 			return v;
 		}
 
-		std::string stack_toDbgString()const;
+		ESCRIPTAPI std::string stack_toDbgString()const;
 	private:
 
 		RtValue & stack_top(){

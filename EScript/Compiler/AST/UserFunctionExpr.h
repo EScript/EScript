@@ -35,7 +35,7 @@ class UserFunctionExpr : public ASTNode {
 				refArray_t typeExpressions;
 				bool multiParam;
 			public:
-				Parameter(const StringId & name,ptr_t defaultValueExpression,refArray_t && _typeExpressions);
+				ESCRIPTAPI Parameter(const StringId & name,ptr_t defaultValueExpression,refArray_t && _typeExpressions);
 				StringId getName()const							{	return name;	}
 				const refArray_t  & getTypeExpressions()const	{	return typeExpressions;	}
 
@@ -56,7 +56,7 @@ class UserFunctionExpr : public ASTNode {
 
 	//! @name Main
 	//	@{
-		UserFunctionExpr(Block * block,const refArray_t & _sConstrExpressions,int line);
+		ESCRIPTAPI UserFunctionExpr(Block * block,const refArray_t & _sConstrExpressions,int line);
 		virtual ~UserFunctionExpr() {}
 
 		Block * getBlock()const									{	return blockRef.get();	}

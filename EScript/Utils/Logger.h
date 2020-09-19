@@ -67,13 +67,13 @@ class LoggerGroup : public Logger {
 		LoggerGroup(level_t _minLevel = LOG_ALL,level_t _maxLevel = LOG_NONE) : Logger(_minLevel,_maxLevel){}
 		virtual ~LoggerGroup(){}
 
-		void addLogger(const std::string & name,Logger * logger);
-		bool removeLogger(const std::string & name);
-		void clearLoggers();
-		Logger * getLogger(const std::string & name);
+		ESCRIPTAPI void addLogger(const std::string & name,Logger * logger);
+		ESCRIPTAPI bool removeLogger(const std::string & name);
+		ESCRIPTAPI void clearLoggers();
+		ESCRIPTAPI Logger * getLogger(const std::string & name);
 	private:
 		//! ---|> Logger
-		void doLog(level_t l,const std::string & msg) override;
+		ESCRIPTAPI void doLog(level_t l,const std::string & msg) override;
 		typedef std::map<std::string, _CountedRef<Logger> > loggerRegistry_t;
 		loggerRegistry_t loggerRegistry;
 };
@@ -89,7 +89,7 @@ class StdLogger : public Logger {
 		virtual ~StdLogger(){}
 	private:
 		//! ---|> Logger
-		void doLog(level_t l,const std::string & msg) override;
+		ESCRIPTAPI void doLog(level_t l,const std::string & msg) override;
 		std::ostream & out;
 };
 

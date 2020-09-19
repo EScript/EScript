@@ -21,8 +21,8 @@ class ExtObject : public Object {
 	//! @name Initialization
 	//	@{
 	public:
-		static Type* getTypeObject();
-		static void init(EScript::Namespace & globals);
+		ESCRIPTAPI static Type* getTypeObject();
+		ESCRIPTAPI static void init(EScript::Namespace & globals);
 	//	@}
 
 	// -----
@@ -30,15 +30,15 @@ class ExtObject : public Object {
 	//! @name Main
 	//	@{
 	protected:
-		ExtObject(const ExtObject & other);
+		ESCRIPTAPI ExtObject(const ExtObject & other);
 	public:
-		static ExtObject * create();
-		ExtObject();
-		ExtObject(Type * type);
+		ESCRIPTAPI static ExtObject * create();
+		ESCRIPTAPI ExtObject();
+		ESCRIPTAPI ExtObject(Type * type);
 		virtual ~ExtObject()	{ }
 
 		//! ---|> [Object]
-		Object * clone() const override;
+		ESCRIPTAPI Object * clone() const override;
 	//	@}
 
 	// -----
@@ -51,18 +51,18 @@ class ExtObject : public Object {
 		using Object::setAttribute;
 
 		//! ---|> [Object]
-		Attribute * _accessAttribute(const StringId & id,bool localOnly) override;
+		ESCRIPTAPI Attribute * _accessAttribute(const StringId & id,bool localOnly) override;
 
 		//! ---|> [Object]
-		void _initAttributes(Runtime & rt) override;
+		ESCRIPTAPI void _initAttributes(Runtime & rt) override;
 
 		//! ---|> [Object]
-		bool setAttribute(const StringId & id,const Attribute & attr) override;
+		ESCRIPTAPI bool setAttribute(const StringId & id,const Attribute & attr) override;
 
 		//! ---|> [Object]
-		void collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs) override;
+		ESCRIPTAPI void collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs) override;
 
-		void cloneAttributesFrom(const ExtObject * obj);
+		ESCRIPTAPI void cloneAttributesFrom(const ExtObject * obj);
 	private:
 		AttributeContainer objAttributes;
 	// @}

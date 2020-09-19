@@ -27,7 +27,7 @@ class Tokenizer {
 	public:
 		typedef std::unordered_map<StringId, _CountedRef<Token> > tokenMap_t;
 		typedef std::vector<_CountedRef<Token> > tokenList_t;
-		static Token * identifyStaticToken(StringId id);
+		ESCRIPTAPI static Token * identifyStaticToken(StringId id);
 
 		//!	[Tokenizer::Error] ---|> [Exception] ---|> [Object]
 		class Error : public Exception {
@@ -38,13 +38,13 @@ class Tokenizer {
 		};
 		// ---
 
-		void getTokens( const std::string & codeU8,tokenList_t & tokens);
-		void defineToken(const std::string & name,Token * value);
+		ESCRIPTAPI void getTokens( const std::string & codeU8,tokenList_t & tokens);
+		ESCRIPTAPI void defineToken(const std::string & name,Token * value);
 
 	private:
 
-		Token * readNextToken(const std::string & codeU8, std::size_t & cursor,int &line,size_t & startPos,tokenList_t & tokens);
-		Token * identifyToken(StringId id)const;
+		ESCRIPTAPI Token * readNextToken(const std::string & codeU8, std::size_t & cursor,int &line,size_t & startPos,tokenList_t & tokens);
+		ESCRIPTAPI Token * identifyToken(StringId id)const;
 
 		static bool isNumber(const char c)	{	return c>='0' && c<='9';	}
 		static bool isChar(char c)			{	return (c>='a' && c<='z') || (c>='A' && c<='Z') || c=='_' || c<0; }

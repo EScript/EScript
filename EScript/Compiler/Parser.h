@@ -29,8 +29,8 @@ class Block;
 //! [Parser]
 class Parser {
 	public:
-		Parser(Logger * logger = nullptr);
-		ERef<AST::Block> parse(const CodeFragment & code);
+		ESCRIPTAPI Parser(Logger * logger = nullptr);
+		ESCRIPTAPI ERef<AST::Block> parse(const CodeFragment & code);
 	private:
 		_CountedRef<Logger> logger;
 

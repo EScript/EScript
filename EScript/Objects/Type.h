@@ -24,8 +24,8 @@ class Type : public Object {
 	//! @name Initialization
 	//	@{
 	public:
-		static Type * getTypeObject();
-		static void init(EScript::Namespace & globals);
+		ESCRIPTAPI static Type * getTypeObject();
+		ESCRIPTAPI static void init(EScript::Namespace & globals);
 	//	@}
 
 	// -------------------------------------------------------------
@@ -33,13 +33,13 @@ class Type : public Object {
 	//! @name Main
 	//	@{
 	public:
-		Type();
-		Type(Type * baseType);
-		Type(Type * baseType,Type * typeOfType);
-		virtual ~Type();
+		ESCRIPTAPI Type();
+		ESCRIPTAPI Type(Type * baseType);
+		ESCRIPTAPI Type(Type * baseType,Type * typeOfType);
+		ESCRIPTAPI virtual ~Type();
 
 		//! ---|> [Object]
-		Object * clone() const override;
+		ESCRIPTAPI Object * clone() const override;
 		internalTypeId_t _getInternalTypeId()const override	{	return _TypeIds::TYPE_TYPE;	}
 	//	@}
 
@@ -53,26 +53,26 @@ class Type : public Object {
 	public:
 
 		//! Get only the typeAttributes.
-		void collectTypeAttributes(std::unordered_map<StringId,Object *> & attrs)const;
+		ESCRIPTAPI void collectTypeAttributes(std::unordered_map<StringId,Object *> & attrs)const;
 		//! Get only the objectAttributes.
-		void collectObjAttributes(std::unordered_map<StringId,Object *> & attrs)const;
+		ESCRIPTAPI void collectObjAttributes(std::unordered_map<StringId,Object *> & attrs)const;
 
-		void copyObjAttributesTo(Object * instance);
+		ESCRIPTAPI void copyObjAttributesTo(Object * instance);
 
 		//! Used by instances of this type get the value of an inherited typeAttribute.
-		Attribute * findTypeAttribute(const StringId & id);
+		ESCRIPTAPI Attribute * findTypeAttribute(const StringId & id);
 
 		using Object::_accessAttribute;
 		using Object::setAttribute;
 
 		//! ---|> [Object]
-		Attribute * _accessAttribute(const StringId & id,bool localOnly) override;
+		ESCRIPTAPI Attribute * _accessAttribute(const StringId & id,bool localOnly) override;
 
 		//! ---|> [Object]
-		bool setAttribute(const StringId & id,const Attribute & attr) override;
+		ESCRIPTAPI bool setAttribute(const StringId & id,const Attribute & attr) override;
 
 		//! ---|> [Object]
-		void collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs) override;
+		ESCRIPTAPI void collectLocalAttributes(std::unordered_map<StringId,Object *> & attrs) override;
 
 	private:
 		AttributeContainer attributes;
@@ -106,8 +106,8 @@ class Type : public Object {
 
 		Type * getBaseType()const					{	return baseType.get();	}
 
-		bool hasBase(const Type * type)const;
-		bool isBaseOf(const Type * type)const;
+		ESCRIPTAPI bool hasBase(const Type * type)const;
+		ESCRIPTAPI bool isBaseOf(const Type * type)const;
 
 	private:
 		ERef<Type> baseType;

@@ -36,30 +36,30 @@ typedef RtValue ( * _functionPtr)(Runtime & runtime,ObjPtr caller, const Paramet
 
 
 //! Add a type Function attribute to @p type with given name.
-void declareFunction(Type * type, StringId nameId, _functionPtr fn);
-void declareFunction(Type * type, const char * name, _functionPtr fn);
-void declareFunction(Type * type, StringId nameId, int minParamCount, int maxParamCount, _functionPtr fn);
-void declareFunction(Type * type, const char * name, int minParamCount, int maxParamCount, _functionPtr fn);
-void declareConstant(Type * type, StringId nameId, const RtValue& value);
-void declareConstant(Type * type, const char * name, const RtValue& value);
+ESCRIPTAPI void declareFunction(Type * type, StringId nameId, _functionPtr fn);
+ESCRIPTAPI void declareFunction(Type * type, const char * name, _functionPtr fn);
+ESCRIPTAPI void declareFunction(Type * type, StringId nameId, int minParamCount, int maxParamCount, _functionPtr fn);
+ESCRIPTAPI void declareFunction(Type * type, const char * name, int minParamCount, int maxParamCount, _functionPtr fn);
+ESCRIPTAPI void declareConstant(Type * type, StringId nameId, const RtValue& value);
+ESCRIPTAPI void declareConstant(Type * type, const char * name, const RtValue& value);
 
-void declareFunction(Namespace * nameSpace, StringId nameId, _functionPtr fn);
-void declareFunction(Namespace * nameSpace, const char * name, _functionPtr fn);
-void declareFunction(Namespace * nameSpace, StringId nameId, int minParamCount, int maxParamCount, _functionPtr fn);
-void declareFunction(Namespace * nameSpace, const char * name, int minParamCount, int maxParamCount, _functionPtr fn);
-void declareConstant(Namespace * nameSpace, StringId nameId, const RtValue& value);
-void declareConstant(Namespace * nameSpace, const char * name, const RtValue& value);
+ESCRIPTAPI void declareFunction(Namespace * nameSpace, StringId nameId, _functionPtr fn);
+ESCRIPTAPI void declareFunction(Namespace * nameSpace, const char * name, _functionPtr fn);
+ESCRIPTAPI void declareFunction(Namespace * nameSpace, StringId nameId, int minParamCount, int maxParamCount, _functionPtr fn);
+ESCRIPTAPI void declareFunction(Namespace * nameSpace, const char * name, int minParamCount, int maxParamCount, _functionPtr fn);
+ESCRIPTAPI void declareConstant(Namespace * nameSpace, StringId nameId, const RtValue& value);
+ESCRIPTAPI void declareConstant(Namespace * nameSpace, const char * name, const RtValue& value);
 
 //! Adds a function as object attribute (it is copied to each instance)
-void declareObjectFunction(Type * type, const char * name, _functionPtr fn);
+ESCRIPTAPI void declareObjectFunction(Type * type, const char * name, _functionPtr fn);
 
-void initPrintableName(Type * type, const std::string & printableName);
-void initPrintableName(ExtObject * type, const std::string & printableName);
+ESCRIPTAPI void initPrintableName(Type * type, const std::string & printableName);
+ESCRIPTAPI void initPrintableName(ExtObject * type, const std::string & printableName);
 
-void markAttributeAsObjectAttribute(Type * type, StringId nameId);
-void markAttributeAsObjectAttribute(Type * type, const char * name);
+ESCRIPTAPI void markAttributeAsObjectAttribute(Type * type, StringId nameId);
+ESCRIPTAPI void markAttributeAsObjectAttribute(Type * type, const char * name);
 
-void copyAttributeAsAlias(Type * type, const char * originalName, const char * aliasName);
+ESCRIPTAPI void copyAttributeAsAlias(Type * type, const char * originalName, const char * aliasName);
 
 }
 

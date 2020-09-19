@@ -22,16 +22,16 @@ public:
 	virtual ~DefaultFileSystemHandler(){}
 
 	//! ---|> AbstractFileSystemHandler
-	std::vector<std::string> dir(const std::string &, uint8_t) override;
+	ESCRIPTAPI std::vector<std::string> dir(const std::string &, uint8_t) override;
 
 	//! ---|> AbstractFileSystemHandler
-	EntryInfo getEntryInfo(const std::string &) override;
+	ESCRIPTAPI EntryInfo getEntryInfo(const std::string &) override;
 
 	//! ---|> AbstractFileSystemHandler
-	StringData loadFile(const std::string &) override;
+	ESCRIPTAPI StringData loadFile(const std::string &) override;
 
 	//! ---|> AbstractFileSystemHandler
-	void saveFile(const std::string &, const std::string & /*data*/, bool /*overwrite*/) override;
+	ESCRIPTAPI void saveFile(const std::string &, const std::string & /*data*/, bool /*overwrite*/) override;
 };
 }
 }

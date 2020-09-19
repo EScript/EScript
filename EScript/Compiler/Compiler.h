@@ -33,9 +33,9 @@ class ASTNode;
 
 class Compiler {
 	public:
-		Compiler(Logger * _logger = nullptr);
+		ESCRIPTAPI Compiler(Logger * _logger = nullptr);
 
-		std::pair<ERef<UserFunction>,_CountedRef<StaticData>> compile(const CodeFragment & code,const std::vector<StringId>& injectedStaticVarNames);
+		ESCRIPTAPI std::pair<ERef<UserFunction>,_CountedRef<StaticData>> compile(const CodeFragment & code,const std::vector<StringId>& injectedStaticVarNames);
 
 	// -------------
 
@@ -53,13 +53,13 @@ class Compiler {
 	public:
 		/*! (static,internal)
 			- Replaces the markers inside the assembly by jump addresses.	*/
-		static void finalizeInstructions( InstructionBlock & instructions );
-		void addExpression(FnCompileContext & ctxt,EPtr<AST::ASTNode> expression)const;
-		void addStatement(FnCompileContext & ctxt,EPtr<AST::ASTNode> statement)const;
+		ESCRIPTAPI static void finalizeInstructions( InstructionBlock & instructions );
+		ESCRIPTAPI void addExpression(FnCompileContext & ctxt,EPtr<AST::ASTNode> expression)const;
+		ESCRIPTAPI void addStatement(FnCompileContext & ctxt,EPtr<AST::ASTNode> statement)const;
 
-		void throwError(FnCompileContext & ctxt,const std::string & message)const;
+		ESCRIPTAPI void throwError(FnCompileContext & ctxt,const std::string & message)const;
 	private:
-		void compileASTNode(FnCompileContext & ctxt,EPtr<AST::ASTNode> node)const;
+		ESCRIPTAPI void compileASTNode(FnCompileContext & ctxt,EPtr<AST::ASTNode> node)const;
 	//	@}
 
 };

@@ -19,9 +19,9 @@ class Object;
  *	[static-helper]
  */
 struct JSON	{
-	static void toJSON(std::ostringstream & out,Object * obj,bool formatted = true,int level = 0);
-	static std::string toJSON(Object * obj,bool formatted = true);
-	static Object* parseJSON(const std::string &s);
+	ESCRIPTAPI static void toJSON(std::ostringstream & out,Object * obj,bool formatted = true,int level = 0);
+	ESCRIPTAPI static std::string toJSON(Object * obj,bool formatted = true);
+	ESCRIPTAPI static Object* parseJSON(const std::string &s);
 };
 
 }

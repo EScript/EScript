@@ -21,7 +21,7 @@ inline bool convertTo<bool>(Runtime &, ObjPtr src) {
 
 // number
 template<>
-double convertTo<double>(Runtime & rt, ObjPtr src);
+ESCRIPTAPI double convertTo<double>(Runtime & rt, ObjPtr src);
 template<> 
 inline float convertTo<float>(Runtime & rt, ObjPtr src) {
 	return static_cast<float>(convertTo<double>(rt, src));

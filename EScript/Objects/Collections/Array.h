@@ -52,14 +52,14 @@ class Array : public Collection {
 
 		Array(Type * type = nullptr) : Collection(type?type:getTypeObject()){}
 
-		void init(const ParameterValues & p);
-		void init(size_t num,Object* const* objs);
-		void init(size_t num,char ** strings);
+		ESCRIPTAPI void init(const ParameterValues & p);
+		ESCRIPTAPI void init(size_t num,Object* const* objs);
+		ESCRIPTAPI void init(size_t num,char ** strings);
 	public:
-		static Array * create(Type * type = nullptr);
-		static Array * create(const ParameterValues & p,Type * type = nullptr);
-		static Array * create(size_t num,Object* const* objs,Type * type = nullptr);
-		static Array * create(size_t num,char ** strings,Type * type = nullptr);
+		ESCRIPTAPI static Array * create(Type * type = nullptr);
+		ESCRIPTAPI static Array * create(const ParameterValues & p,Type * type = nullptr);
+		ESCRIPTAPI static Array * create(size_t num,Object* const* objs,Type * type = nullptr);
+		ESCRIPTAPI static Array * create(size_t num,char ** strings,Type * type = nullptr);
 
 		template<class Collection_T>
 		static Array * create(const Collection_T & collection){
@@ -70,7 +70,7 @@ class Array : public Collection {
 			return a.detachAndDecrease();
 		}
 
-		static void release(Array * b);
+		ESCRIPTAPI static void release(Array * b);
 		virtual ~Array()	{ }
 	//	@}
 
@@ -79,8 +79,8 @@ class Array : public Collection {
 	//! @name TypeObject
 	// @{
 	public:
-		static Type* getTypeObject();
-		static void init(EScript::Namespace & globals);
+		ESCRIPTAPI static Type* getTypeObject();
+		ESCRIPTAPI static void init(EScript::Namespace & globals);
 	//	@}
 
 	//---------------------
@@ -104,31 +104,31 @@ class Array : public Collection {
 
 		ObjRef & at(size_t idx)					{	return data.at(idx);	}
 		const ObjRef & at(size_t idx)const		{	return data.at(idx);	}
-		void append(Collection * c);
+		ESCRIPTAPI void append(Collection * c);
 		Object * back()const					{	return empty() ? nullptr : (*(end()-1)).get();	}
 		bool empty() const						{	return data.empty();	}
 		iterator erase(iterator i)				{	return data.erase(i);	}
 		iterator erase(iterator i,iterator j)	{	return data.erase(i,j);	}
 		Object * front()const					{	return empty() ? nullptr : (*(begin())).get();	}
 		Object * get(size_t index) const		{	return index<data.size() ?  data.at(index).get():nullptr;	}
-		std::string implode(const std::string & delimiter=";");
+		ESCRIPTAPI std::string implode(const std::string & delimiter=";");
 		void popBack()							{	data.pop_back();	}
 		void popFront()							{	data.erase(begin());	}
 		void pushBack(const ObjPtr & obj)		{	if(!obj.isNull()) data.push_back(obj);	}
 		void pushFront(const ObjPtr & obj)		{	if(!obj.isNull())	data.insert(begin(),obj.get());	}
-		void removeIndex(size_t index);
-		void reserve(size_t capacity);
-		void resize(size_t newSize);
-		void reverse();
-		void rt_filter(Runtime & runtime,ObjPtr function);
+		ESCRIPTAPI void removeIndex(size_t index);
+		ESCRIPTAPI void reserve(size_t capacity);
+		ESCRIPTAPI void resize(size_t newSize);
+		ESCRIPTAPI void reverse();
+		ESCRIPTAPI void rt_filter(Runtime & runtime,ObjPtr function);
 		//! returns -1 if not found
-		int rt_indexOf(Runtime & runtime,ObjPtr search,size_t begin = 0);
-		size_t rt_removeValue(Runtime & runtime,const ObjPtr value,const int limit=-1,const size_t begin = 0);
-		void rt_sort(Runtime & runtime,Object * function = nullptr,bool reverseOrder = false);
+		ESCRIPTAPI int rt_indexOf(Runtime & runtime,ObjPtr search,size_t begin = 0);
+		ESCRIPTAPI size_t rt_removeValue(Runtime & runtime,const ObjPtr value,const int limit=-1,const size_t begin = 0);
+		ESCRIPTAPI void rt_sort(Runtime & runtime,Object * function = nullptr,bool reverseOrder = false);
 		size_t size() const						{	return data.size();		}
-		ERef<Array> slice(int startIndex,int length)const;
-		void splice(int startIndex,int length,Array * replacement);
-		void swap(Array * other);
+		ESCRIPTAPI ERef<Array> slice(int startIndex,int length)const;
+		ESCRIPTAPI void splice(int startIndex,int length,Array * replacement);
+		ESCRIPTAPI void swap(Array * other);
 	//	@}
 
 	//---------------------
@@ -140,15 +140,15 @@ class Array : public Collection {
 		class ArrayIterator : public Iterator {
 				ES_PROVIDES_TYPE_NAME(ArrayIterator)
 			public:
-				ArrayIterator(Array * ar);
-				virtual ~ArrayIterator();
+				ESCRIPTAPI ArrayIterator(Array * ar);
+				ESCRIPTAPI virtual ~ArrayIterator();
 
 				//! ---|> [Object]
-				Object * key() override;
-				Object * value() override;
-				void reset() override;
-				void next() override;
-				bool end() override;
+				ESCRIPTAPI Object * key() override;
+				ESCRIPTAPI Object * value() override;
+				ESCRIPTAPI void reset() override;
+				ESCRIPTAPI void next() override;
+				ESCRIPTAPI bool end() override;
 
 				//! ---|> [Object]
 			private:
@@ -156,18 +156,18 @@ class Array : public Collection {
 				size_t index;
 		};
 
-		Object * getValue(ObjPtr key) override;
-		void setValue(ObjPtr key,ObjPtr value) override;
-		size_t count()const override;
-		ArrayIterator * getIterator() override;
-		void clear() override;
+		ESCRIPTAPI Object * getValue(ObjPtr key) override;
+		ESCRIPTAPI void setValue(ObjPtr key,ObjPtr value) override;
+		ESCRIPTAPI size_t count()const override;
+		ESCRIPTAPI ArrayIterator * getIterator() override;
+		ESCRIPTAPI void clear() override;
 	//	@}
 
 	//---------------------
 
 	//! @name ---|> Object
 	// @{
-		Object * clone()const override;
+		ESCRIPTAPI Object * clone()const override;
 		internalTypeId_t _getInternalTypeId()const override	{	return _TypeIds::TYPE_ARRAY;	}
 	//	@}
 

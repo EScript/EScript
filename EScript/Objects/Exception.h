@@ -17,11 +17,11 @@ namespace EScript {
 class Exception : public ExtObject {
 		ES_PROVIDES_TYPE_NAME(Exception)
 	public:
-		static Type* getTypeObject();
-		static void init(EScript::Namespace & globals);
+		ESCRIPTAPI static Type* getTypeObject();
+		ESCRIPTAPI static void init(EScript::Namespace & globals);
 		// ----
 
-		explicit Exception(const std::string & msg,int line = 0,Type * type = nullptr);
+		ESCRIPTAPI explicit Exception(const std::string & msg,int line = 0,Type * type = nullptr);
 		virtual ~Exception()							{	}
 
 		void setMessage(const std::string & newMessage)	{	msg = newMessage;	}
@@ -39,8 +39,8 @@ class Exception : public ExtObject {
 		StringId getFilenameId()const					{	return filenameId;	}
 
 		//! ---|> [Object]
-		Object * clone()const override;
-		std::string toString()const override;
+		ESCRIPTAPI Object * clone()const override;
+		ESCRIPTAPI std::string toString()const override;
 
 	protected:
 		std::string msg;

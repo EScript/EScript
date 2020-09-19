@@ -21,20 +21,20 @@ class Identifier:public Object{
 	//! @name Initialization
 	//	@{
 	public:
-		static Type* getTypeObject();
-		static void init(EScript::Namespace & globals);
+		ESCRIPTAPI static Type* getTypeObject();
+		ESCRIPTAPI static void init(EScript::Namespace & globals);
 	//	@}
 
 	// -----
 
 		//! (static) Factory
-		static Identifier * create( StringId id);
+		ESCRIPTAPI static Identifier * create( StringId id);
 
 		//! (static) Factory
-		static Identifier * create( const std::string & s);
+		ESCRIPTAPI static Identifier * create( const std::string & s);
 
 	private:
-		Identifier(const StringId &_id);
+		ESCRIPTAPI Identifier(const StringId &_id);
 	public:
 		virtual ~Identifier()					{ }
 
@@ -48,7 +48,7 @@ class Identifier:public Object{
 
 		//! ---|> [Object]
 		Identifier * clone()const override		{	return create(id);	}
-		bool rt_isEqual(Runtime & rt,const ObjPtr & o) override;
+		ESCRIPTAPI bool rt_isEqual(Runtime & rt,const ObjPtr & o) override;
 		std::string toString()const override		{	return id.toString();	}
 		StringId hash()const override			{	return id;	}
 		internalTypeId_t _getInternalTypeId()const override	{	return _TypeIds::TYPE_IDENTIFIER;	}

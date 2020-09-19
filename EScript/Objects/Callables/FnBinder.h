@@ -18,13 +18,13 @@ namespace EScript {
 class FnBinder : public Object {
 		ES_PROVIDES_TYPE_NAME(FnBinder)
 	public:
-		static Type* getTypeObject();
-		static void init(EScript::Namespace & globals);
+		ESCRIPTAPI static Type* getTypeObject();
+		ESCRIPTAPI static void init(EScript::Namespace & globals);
 		// ----
 
-		static FnBinder * create(ObjPtr object,ObjPtr function);
-		static FnBinder * create(ObjPtr object,ObjPtr function,std::vector<ObjRef>&&params);
-		static void release(FnBinder * b);
+		ESCRIPTAPI static FnBinder * create(ObjPtr object,ObjPtr function);
+		ESCRIPTAPI static FnBinder * create(ObjPtr object,ObjPtr function,std::vector<ObjRef>&&params);
+		ESCRIPTAPI static void release(FnBinder * b);
 		virtual ~FnBinder()	{ }
 
 		Object * getObject()const				{	return myObjectRef.get();	}
@@ -34,12 +34,12 @@ class FnBinder : public Object {
 		void setFunction(ObjPtr newFunction)	{	functionRef = newFunction;	}
 
 		//! ---|> [Object]
-		FnBinder * clone() const override;
-		bool rt_isEqual(Runtime &rt, const ObjPtr & o) override;
-		std::string toDbgString()const override;
+		ESCRIPTAPI FnBinder * clone() const override;
+		ESCRIPTAPI bool rt_isEqual(Runtime &rt, const ObjPtr & o) override;
+		ESCRIPTAPI std::string toDbgString()const override;
 		internalTypeId_t _getInternalTypeId()const override	{	return _TypeIds::TYPE_FN_BINDER;	}
 	private:
-		FnBinder(ObjPtr object,ObjPtr function);
+		ESCRIPTAPI FnBinder(ObjPtr object,ObjPtr function);
 
 		ObjRef myObjectRef, functionRef;
 		std::vector<ObjRef> boundParameters;
